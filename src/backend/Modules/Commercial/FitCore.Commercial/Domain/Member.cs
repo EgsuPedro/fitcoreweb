@@ -53,6 +53,10 @@ public sealed class Member : Entity<Guid>, ITenantOwned, IAuditable
     public DateOnly EnrolledOn { get; private set; }
     public MemberStatus Status { get; private set; } = MemberStatus.Active;
     public string? Notes { get; private set; }
+
+    /// <summary>Huella (SHA-256) del token del código QR vigente. El token nunca se guarda.</summary>
+    public string? QrTokenHash { get; private set; }
+    public DateTimeOffset? QrTokenIssuedAt { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? CreatedBy { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
@@ -87,6 +91,15 @@ public sealed class Member : Entity<Guid>, ITenantOwned, IAuditable
     public void Update(MemberProfile profile, Guid? updatedBy, DateTimeOffset now)
     {
         Apply(profile);
+        UpdatedAt = now;
+        UpdatedBy = updatedBy;
+    }
+
+    /// <summary>Emite un código QR nuevo: el anterior deja de servir.</summary>
+    public void IssueQrToken(string tokenHash, Guid? updatedBy, DateTimeOffset now)
+    {
+        QrTokenHash = tokenHash;
+        QrTokenIssuedAt = now;
         UpdatedAt = now;
         UpdatedBy = updatedBy;
     }

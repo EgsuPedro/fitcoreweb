@@ -46,6 +46,22 @@ if (-not $existing) {
 
 $owner = Get-Token $Slug $ownerEmail $DemoPassword
 
+# Los roles de plantilla de un gimnasio existente no reciben solos los permisos que se agregan después: se sincronizan aquí.
+$basic = @('organization.read', 'branches.read')
+$template = @{
+    'Recepcion'     = $basic + @('members.read', 'members.create', 'members.update', 'plans.read', 'promotions.read', 'memberships.read', 'memberships.create', 'memberships.renew', 'obligations.read', 'payments.read', 'payments.create', 'attendance.read', 'attendance.register')
+    'Cajero'        = $basic + @('members.read', 'memberships.read', 'obligations.read', 'payments.read', 'payments.create', 'payments.confirm', 'cash.read', 'cash.operate')
+    'Entrenador'    = $basic + @('members.read', 'attendance.read')
+    'Nutricionista' = $basic + @('members.read')
+    'Contador'      = $basic + @('audit.read', 'members.read', 'memberships.read', 'obligations.read', 'payments.read', 'cash.read')
+}
+$currentRoles = Invoke-Api GET '/roles' -Token $owner
+foreach ($name in $template.Keys) {
+    $role = $currentRoles | Where-Object name -eq $name
+    if ($role) {
+        Invoke-Api PUT "/roles/$($role.id)" @{ name = $role.name; description = $role.description; grantsAllBranches = $role.grantsAllBranches; permissions = $template[$name] } -Token $owner | Out-Null
+    }
+}
 # Sucursales
 $branches = (Invoke-Api GET '/branches?pageSize=100' -Token $owner).items
 foreach ($b in @(

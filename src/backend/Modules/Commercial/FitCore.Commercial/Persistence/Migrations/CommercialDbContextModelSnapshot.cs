@@ -22,6 +22,80 @@ namespace FitCore.Commercial.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FitCore.Commercial.Domain.AttendanceEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset>("CheckInAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("check_in_at");
+
+                    b.Property<DateTimeOffset?>("CheckOutAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("check_out_at");
+
+                    b.Property<Guid?>("CheckOutBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("check_out_by");
+
+                    b.Property<string>("CheckOutMethod")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("check_out_method");
+
+                    b.Property<string>("ExceptionReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("exception_reason");
+
+                    b.Property<bool>("IsException")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_exception");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<Guid?>("MembershipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("membership_id");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("method");
+
+                    b.Property<Guid>("RegisteredBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("registered_by");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_attendance");
+
+                    b.HasIndex("TenantId", "MembershipId")
+                        .HasDatabaseName("ix_attendance_tenant_id_membership_id");
+
+                    b.HasIndex("TenantId", "BranchId", "CheckInAt")
+                        .HasDatabaseName("ix_attendance_tenant_id_branch_id_check_in_at");
+
+                    b.HasIndex("TenantId", "MemberId", "CheckInAt")
+                        .HasDatabaseName("ix_attendance_tenant_id_member_id_check_in_at");
+
+                    b.ToTable("attendance", "access");
+                });
+
             modelBuilder.Entity("FitCore.Commercial.Domain.CashMovement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -424,6 +498,16 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("photo_url");
 
+                    b.Property<string>("QrTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("qr_token_hash")
+                        .IsFixedLength();
+
+                    b.Property<DateTimeOffset?>("QrTokenIssuedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("qr_token_issued_at");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -457,6 +541,11 @@ namespace FitCore.Commercial.Persistence.Migrations
                     b.HasIndex("TenantId", "Code")
                         .IsUnique()
                         .HasDatabaseName("ix_members_tenant_id_code");
+
+                    b.HasIndex("TenantId", "QrTokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_members_tenant_id_qr_token_hash")
+                        .HasFilter("qr_token_hash IS NOT NULL");
 
                     b.HasIndex("TenantId", "BranchId", "Status")
                         .HasDatabaseName("ix_members_tenant_id_branch_id_status");
@@ -1473,6 +1562,24 @@ namespace FitCore.Commercial.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.AttendanceEntry", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.Member", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MemberId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_attendance_members_tenant_id_member_id");
+
+                    b.HasOne("FitCore.Commercial.Domain.Membership", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MembershipId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_attendance_memberships_tenant_id_membership_id");
                 });
 
             modelBuilder.Entity("FitCore.Commercial.Domain.CashMovement", b =>

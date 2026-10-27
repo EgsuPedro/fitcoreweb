@@ -1,5 +1,6 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
+using FitCore.Commercial.Application.Attendance;
 using FitCore.Commercial.Application.Billing;
 using FitCore.Commercial.Application.Cash;
 using FitCore.Commercial.Application.Members;
@@ -24,6 +25,7 @@ internal static class CommercialEndpoints
         MapObligations(routes.MapGroup("/payment-obligations").WithTags("Payment obligations"));
         MapPayments(routes.MapGroup("/payments").WithTags("Payments"));
         MapCash(routes.MapGroup("/cash-registers").WithTags("Cash"));
+        MapAttendance(routes.MapGroup("/attendance").WithTags("Attendance"));
         routes.MapGet("/receivables/summary", async (IDispatcher dispatcher, CancellationToken ct, Guid? branchId = null, int top = 20) =>
                 (await dispatcher.QueryAsync(new GetReceivablesSummaryQuery(branchId, top), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.ObligationsRead)
@@ -67,6 +69,12 @@ internal static class CommercialEndpoints
             .RequirePermission(Permissions.MembersStatus)
             .Produces<MemberDto>()
             .WithName("SetMemberStatus");
+        // Emite (o reemplaza) el código QR del alumno. El token se devuelve una sola vez; en la base solo queda su huella.
+        group.MapPost("/{id:guid}/qr-token", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new IssueMemberQrCommand(id), ct)).ToHttp(t => Results.Ok(t)))
+            .RequirePermission(Permissions.MembersUpdate)
+            .Produces<QrTokenDto>()
+            .WithName("IssueMemberQrToken");
     }
 
     private static void MapPlans(RouteGroupBuilder group)
@@ -318,6 +326,42 @@ internal static class CommercialEndpoints
             .RequirePermission(Permissions.CashRead)
             .Produces<CashSessionDto>()
             .WithName("GetCashSession");
+    }
+    private static void MapAttendance(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, Guid? memberId = null, Guid? branchId = null, AttendanceMethod? method = null, bool? open = null, bool? exception = null, DateOnly? from = null, DateOnly? to = null, string? search = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListAttendanceQuery(new PageRequest(page, pageSize), memberId, branchId, method, open, exception, from, to, search), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.AttendanceRead)
+            .Produces<PagedResult<AttendanceDto>>()
+            .WithName("ListAttendance");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetAttendanceQuery(id), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.AttendanceRead)
+            .Produces<AttendanceDto>()
+            .WithName("GetAttendance");
+
+        // Dice si el alumno puede entrar hoy y por qué, sin registrar nada.
+        group.MapPost("/validate-access", async (ValidateAccessRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ValidateAccessQuery(request), ct)).ToHttp(d => Results.Ok(d)))
+            .RequirePermission(Permissions.AttendanceRegister)
+            .WithValidation<ValidateAccessRequest>()
+            .Produces<AccessDecisionDto>()
+            .WithName("ValidateAccess");
+
+        group.MapPost("/check-in", async (CheckInRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CheckInCommand(request), ct)).ToHttp(a => Results.Created($"/api/v1/attendance/{a.Id}", a)))
+            .RequirePermission(Permissions.AttendanceRegister)
+            .WithValidation<CheckInRequest>()
+            .Produces<AttendanceDto>(StatusCodes.Status201Created)
+            .WithName("CheckIn");
+
+        group.MapPost("/check-out", async (CheckOutRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CheckOutCommand(request), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.AttendanceRegister)
+            .WithValidation<CheckOutRequest>()
+            .Produces<AttendanceDto>()
+            .WithName("CheckOut");
     }
     private static void MapSettingsAndTaxes(IEndpointRouteBuilder routes)
     {

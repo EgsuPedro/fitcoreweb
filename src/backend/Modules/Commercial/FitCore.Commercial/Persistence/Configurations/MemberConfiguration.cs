@@ -26,12 +26,14 @@ internal sealed class MemberConfiguration : IEntityTypeConfiguration<Member>
         b.Property(x => x.EmergencyContactPhone).HasMaxLength(30);
         b.Property(x => x.EmergencyContactRelationship).HasMaxLength(50);
         b.Property(x => x.Notes).HasMaxLength(1000);
+        b.Property(x => x.QrTokenHash).HasMaxLength(64).IsFixedLength();
         b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
         b.Property<uint>("Version").IsRowVersion();
 
         // Detección de duplicados dentro del gimnasio: el mismo documento no puede registrarse dos veces.
         b.HasIndex(x => new { x.TenantId, x.IdType, x.IdNumber }).IsUnique();
         b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+        b.HasIndex(x => new { x.TenantId, x.QrTokenHash }).IsUnique().HasFilter("qr_token_hash IS NOT NULL");
         b.HasIndex(x => new { x.TenantId, x.BranchId, x.Status });
         b.HasIndex(x => new { x.TenantId, x.LastName, x.FirstName });
     }

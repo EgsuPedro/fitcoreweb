@@ -81,6 +81,17 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 - **Quién cierra:** quien la abrió o un supervisor con `cash.manage` (indicando la sesión).
 - **Solo-anexado:** los movimientos no se modifican ni se borran (trigger y permisos); una sesión cerrada es definitiva; las sesiones y cajas no se borran. Las migraciones reaplican siempre estas restricciones para que una migración futura no las deshaga.
 - **Cartera** (`GET /receivables/summary`): lo que se debe hoy (exigible − cobrado), por antigüedad de vencimiento (al día, 1-30, 31-60, 61-90, más de 90), por sucursal y los principales deudores con su teléfono. Excluye obligaciones saldadas o anuladas; una transferencia pendiente de verificar sigue contando como deuda.
+## Reglas de asistencia (bloque 7, implementadas)
+- **Hora del servidor:** la entrada y la salida siempre llevan la hora del servidor; cualquier hora que envíe el cliente se ignora.
+- **Evaluación de acceso** (en cada entrada, con los datos de hoy en la zona horaria de la sucursal): alumno activo → membresía `Active` cuyas fechas cubren hoy (el último día todavía entra) → el plan permite esa sucursal → política de acceso con deuda según los saldos vigentes. Motivos de rechazo con código estable: `member_inactive`, `no_active_membership`, `membership_pending_payment`, `membership_expired`, `membership_not_started`, `membership_frozen`, `plan_branch_restricted`, `debt_pending`, `debt_overdue`, `minimum_payment_not_met`.
+- **Deuda en cada entrada:** `RequireFullPayment` exige saldo cero; `AllowUntilOverdue` rechaza si una obligación de la membresía venció con saldo; `AllowWithMinimumPayment` exige el % mínimo del total. Como se evalúa con los saldos vigentes, un reverso de pago corta el acceso aunque la membresía siga activa.
+- **Entradas duplicadas:** una entrada abierta impide otra del mismo alumno, en esa u otra sucursal (`already_checked_in`, `open_entry_elsewhere`); un índice único parcial lo garantiza ante solicitudes simultáneas. Una entrada olvidada se cierra con una salida registrada por el personal.
+- **Excepciones:** si la regla rechaza y el motivo es "excepcionable", quien tiene `attendance.override` puede autorizar el acceso indicando un motivo (mínimo 5 caracteres). Queda marcada como excepción, con motivo y responsable, y auditada. No aplica a alumnos inactivos ni a una entrada ya abierta; quien no tiene el permiso recibe `override_not_allowed`.
+- **Alumnos de otra sucursal:** el alumno se busca en todo el gimnasio, porque puede entrenar en otra sucursal si su plan lo permite (plan sin sucursales = todas). La visita se registra en la sucursal donde ocurre y el usuario solo puede registrar en las suyas.
+- **QR:** `POST /members/{id}/qr-token` emite un token aleatorio y opaco (`fc1_` + 43 caracteres) que se muestra una sola vez; en la base solo se guarda su SHA-256 (y la auditoría lo redacta). No contiene datos del alumno ni del gimnasio; emitir otro invalida el anterior. La validación es siempre en el backend y exige a un usuario del personal con `attendance.register`: ningún cliente móvil decide el resultado.
+- **Dispositivos físicos:** el método `Device` queda reservado en el modelo; todavía no hay integración.
+- **Visitas solo-anexado:** una visita solo cambia al registrar su salida; después es definitiva, y nunca se borran (trigger y permisos de la base).
+- **Pendiente (no incluido):** cierre automático de entradas abiertas olvidadas y registro de los intentos rechazados.
 ## Bloques
 | # | Bloque | Estado |
 |---|---|---|
@@ -91,6 +102,6 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 | 4b | Notificaciones de WhatsApp (vencimientos) | Pendiente, después de las membresías |
 | 5 | Obligaciones, pagos y abonos (efectivo se habilita con la caja) | Hecho |
 | 6 | Caja y cartera (incluye el efectivo) | Hecho |
-| 7 | Asistencia | Pendiente |
+| 7 | Asistencia (entrada/salida, QR, excepciones) | Hecho |
 | 8 | Angular | Pendiente |
 | 9 | Pruebas de regresión y documentación | Pendiente |

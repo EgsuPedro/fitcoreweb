@@ -183,6 +183,44 @@ public sealed record ReceivablesSummaryDto(
     AgingBucketDto[] Aging,
     ReceivablesBranchDto[] ByBranch,
     DebtorDto[] TopDebtors);
+public sealed record AttendanceDto(
+    Guid Id,
+    Guid BranchId,
+    string BranchName,
+    Guid MemberId,
+    string MemberCode,
+    string MemberName,
+    Guid? MembershipId,
+    string? PlanName,
+    DateTimeOffset CheckInAt,
+    DateTimeOffset? CheckOutAt,
+    int? DurationMinutes,
+    string Method,
+    string? CheckOutMethod,
+    bool IsException,
+    string? ExceptionReason,
+    Guid RegisteredBy,
+    string? RegisteredByName,
+    Guid? CheckOutBy,
+    bool IsOpen);
+
+public sealed record AccessDecisionDto(
+    bool Allowed,
+    string? Code,
+    string? Message,
+    bool Overridable,
+    bool AlreadyInside,
+    Guid MemberId,
+    string MemberCode,
+    string MemberName,
+    string MemberStatus,
+    Guid? MembershipId,
+    string? PlanName,
+    DateOnly? MembershipEnd,
+    decimal OwedAmount,
+    string Policy);
+
+public sealed record QrTokenDto(string Token, DateTimeOffset IssuedAt);
 public sealed record MembershipEventDto(Guid Id, string Type, DateTimeOffset OccurredAt, Guid? ActorId, string? Details);
 
 /// <summary>Utilidades para pruebas del módulo comercial.</summary>
@@ -256,6 +294,15 @@ public static class CommercialTestApi
 
     public static Task<HttpResponseMessage> CashMovementAsync(HttpClient client, Guid registerId, string type, decimal amount, string reason = "Motivo de prueba", string? key = null) =>
         PostWithKeyAsync(client, $"/api/v1/cash-registers/{registerId}/movements", new { type, amount, reason }, key);
+
+    public static Task<HttpResponseMessage> CheckInAsync(HttpClient client, Guid branchId, Guid? memberId = null, string? memberCode = null, string? qrToken = null, string? overrideReason = null) =>
+        client.PostAsJsonAsync("/api/v1/attendance/check-in", new { branchId, memberId, memberCode, qrToken, overrideReason });
+
+    public static Task<HttpResponseMessage> CheckOutAsync(HttpClient client, Guid? memberId = null, string? memberCode = null, string? qrToken = null) =>
+        client.PostAsJsonAsync("/api/v1/attendance/check-out", new { memberId, memberCode, qrToken });
+
+    public static Task<HttpResponseMessage> ValidateAccessAsync(HttpClient client, Guid branchId, Guid? memberId = null, string? memberCode = null, string? qrToken = null) =>
+        client.PostAsJsonAsync("/api/v1/attendance/validate-access", new { branchId, memberId, memberCode, qrToken });
 
     public static async Task<Guid> CreateRoleAsync(HttpClient owner, string name, bool allBranches, params string[] permissions)
     {

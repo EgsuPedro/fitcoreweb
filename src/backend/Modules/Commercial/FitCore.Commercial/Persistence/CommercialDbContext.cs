@@ -31,6 +31,7 @@ public sealed class CommercialDbContext(DbContextOptions<CommercialDbContext> op
     public DbSet<CashRegister> CashRegisters => Set<CashRegister>();
     public DbSet<CashSession> CashSessions => Set<CashSession>();
     public DbSet<CashMovement> CashMovements => Set<CashMovement>();
+    public DbSet<AttendanceEntry> Attendance => Set<AttendanceEntry>();
 
     /// <summary>Tarifas de impuesto globales (sin tenant): las administra el equipo de plataforma.</summary>
     public DbSet<TaxRate> TaxRates => Set<TaxRate>();

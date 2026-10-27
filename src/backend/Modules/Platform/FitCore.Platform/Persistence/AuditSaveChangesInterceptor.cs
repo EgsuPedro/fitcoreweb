@@ -20,7 +20,7 @@ public sealed class AuditSaveChangesInterceptor(IServiceProvider services, ITena
     private static readonly HashSet<string> NoisyProperties =
         ["ConcurrencyStamp", "AccessFailedCount", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "NormalizedName", "Version"];
 
-    private static readonly HashSet<string> SecretProperties = ["PasswordHash", "SecurityStamp"];
+    private static readonly HashSet<string> SecretProperties = ["PasswordHash", "SecurityStamp", "QrTokenHash"];
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {

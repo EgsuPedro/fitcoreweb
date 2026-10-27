@@ -72,6 +72,16 @@ Se inicia sesión con **gimnasio + correo + clave**.
 | contador | todas | no | sí | no |
 | alumno.uio | no (403) | no | no | no |
 
+**Fase 3 (pantallas comerciales)**, con el propietario `demo`:
+1. *Alumnos → Nuevo alumno*: una cédula inválida se rechaza en el formulario; una válida guarda y aparece en la lista. En la ficha: editar, desactivar y *Generar código QR* (el código se muestra una sola vez).
+2. *Caja → Ver caja → Abrir caja* con un saldo inicial. Sin caja abierta, el efectivo se rechaza.
+3. En la ficha del alumno, *Inscribir alumno* con un plan: nace *Pendiente de pago* con su obligación (precio con IVA incluido, 15 %).
+4. *Registrar pago* en efectivo: se emite el recibo (*Ver recibo* → Imprimir) y la membresía pasa a *Activa* con el primer pago. Una transferencia queda *Por verificar* hasta que alguien con permiso la confirme en *Cobros*.
+5. *Asistencia*: escribir el código del alumno (o escanear su QR), *Validar acceso*, *Registrar entrada*; aparece en *Dentro ahora*. *Registrar salida* lo retira.
+6. *Caja → Cerrar caja*: contar el efectivo, *Revisar y confirmar* (modal de la aplicación) y cerrar; queda en *Cierres anteriores*.
+7. *Cartera*: deuda por antigüedad, por sucursal y principales deudores. *Membresías → Por vencer*: las que terminan en 3, 7, 15 o 30 días.
+8. Con `recepcion.uio` o `cajero.gye` solo se ven las pantallas que su rol permite; las rutas restringidas llevan a *Acceso denegado*.
+
 **Seguridad rápida:**
 - 5 contraseñas erróneas seguidas bloquean la cuenta 15 minutos (aunque luego se escriba la correcta).
 - Desactivar un usuario desde "Usuarios" cierra su sesión en la siguiente solicitud.
@@ -79,8 +89,8 @@ Se inicia sesión con **gimnasio + correo + clave**.
 
 ## 7. Pruebas automáticas
 ```powershell
-dotnet test FitCore.sln                           # ~1,5 min: unitarias, arquitectura e integración (PostgreSQL real con Testcontainers)
-cd src/web; npm ci; npm test                      # unitarias de Angular
+dotnet test FitCore.sln                           # unitarias, arquitectura e integración (PostgreSQL real con Testcontainers; 4 colecciones en paralelo)
+cd src/web; npm ci; npm run check:i18n; npm test   # claves de traducción es/en y unitarias de Angular
 cd ../../tests/e2e; npm ci; npx playwright install chromium
 $env:E2E_BASE_URL = 'http://localhost:8081'       # usa el entorno ya levantado; las claves del administrador vienen de .env
 npx playwright test

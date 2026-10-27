@@ -66,8 +66,28 @@ public sealed class ApiFixture : IAsyncLifetime
     }
 }
 
+// Cada colección levanta su propio PostgreSQL + API y las colecciones corren en paralelo (xUnit): la suite pasa de ~10 min a
+// una fracción. Las pruebas crean sus propios gimnasios (slugs únicos), así que no comparten estado; los grupos reparten la carga.
 [CollectionDefinition(Name)]
-public sealed class ApiCollection : ICollectionFixture<ApiFixture>
+public sealed class ApiCollection1 : ICollectionFixture<ApiFixture>
 {
-    public const string Name = "api";
+    public const string Name = "api-1";
+}
+
+[CollectionDefinition(Name)]
+public sealed class ApiCollection2 : ICollectionFixture<ApiFixture>
+{
+    public const string Name = "api-2";
+}
+
+[CollectionDefinition(Name)]
+public sealed class ApiCollection3 : ICollectionFixture<ApiFixture>
+{
+    public const string Name = "api-3";
+}
+
+[CollectionDefinition(Name)]
+public sealed class ApiCollection4 : ICollectionFixture<ApiFixture>
+{
+    public const string Name = "api-4";
 }

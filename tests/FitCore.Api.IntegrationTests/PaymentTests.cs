@@ -7,7 +7,7 @@ using static FitCore.Api.IntegrationTests.Infrastructure.CommercialTestApi;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection3.Name)]
 public class PaymentTests(ApiFixture api)
 {
     private sealed record Setup(TestTenant Tenant, Guid Branch, MemberDto Member, PlanDto Plan, MembershipDto Membership);

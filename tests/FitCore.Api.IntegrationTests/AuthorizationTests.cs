@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection4.Name)]
 public class AuthorizationTests(ApiFixture api)
 {
     [Fact]

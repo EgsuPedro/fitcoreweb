@@ -10,7 +10,7 @@ using Npgsql;
 namespace FitCore.Api.IntegrationTests;
 
 /// <summary>Validación de tokens, migraciones y salud del servicio.</summary>
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection4.Name)]
 public class PlatformInfrastructureTests(ApiFixture api)
 {
     [Fact]

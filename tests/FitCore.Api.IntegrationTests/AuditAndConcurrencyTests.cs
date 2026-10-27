@@ -7,7 +7,7 @@ using Npgsql;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection2.Name)]
 public class AuditAndConcurrencyTests(ApiFixture api)
 {
     [Fact]

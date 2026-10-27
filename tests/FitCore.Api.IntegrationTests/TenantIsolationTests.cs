@@ -10,7 +10,7 @@ using Npgsql;
 namespace FitCore.Api.IntegrationTests;
 
 /// <summary>Un usuario nunca debe ver ni tocar datos de otro gimnasio, aunque cambie los identificadores.</summary>
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection1.Name)]
 public class TenantIsolationTests(ApiFixture api)
 {
     [Fact]

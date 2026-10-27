@@ -4,7 +4,7 @@ using FitCore.Api.IntegrationTests.Infrastructure;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection1.Name)]
 public class AuthTests(ApiFixture api)
 {
     private static object Login(TestTenant tenant, string? password = null) =>

@@ -103,5 +103,5 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 | 5 | Obligaciones, pagos y abonos (efectivo se habilita con la caja) | Hecho |
 | 6 | Caja y cartera (incluye el efectivo) | Hecho |
 | 7 | Asistencia (entrada/salida, QR, excepciones) | Hecho |
-| 8 | Angular | Pendiente |
-| 9 | Pruebas de regresión y documentación | Pendiente |
+| 8 | Angular (todas las pantallas comerciales) | Hecho |
+| 9 | Pruebas de regresión, e2e, CI más rápido y documentación | Hecho (informe en `docs/informe-fase-3.md`) |

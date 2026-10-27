@@ -5,7 +5,7 @@ using static FitCore.Api.IntegrationTests.Infrastructure.CommercialTestApi;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection4.Name)]
 public class PromotionTests(ApiFixture api)
 {
     private static DateOnly Today => DateOnly.FromDateTime(DateTime.UtcNow);

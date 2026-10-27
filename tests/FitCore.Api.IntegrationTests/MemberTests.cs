@@ -20,7 +20,7 @@ public sealed record MemberDto(
     Guid? CreatedBy,
     Guid? UpdatedBy);
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection1.Name)]
 public class MemberTests(ApiFixture api)
 {
     private static int _sequence = 100000;

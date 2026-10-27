@@ -9,7 +9,7 @@ using static FitCore.Api.IntegrationTests.Infrastructure.CommercialTestApi;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection1.Name)]
 public class AttendanceTests(ApiFixture api)
 {
     private sealed record Setup(

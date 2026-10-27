@@ -80,13 +80,14 @@ Con el entorno levantado:
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
 
-**Fase 3 en curso** (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base, los alumnos, los planes y promociones (con tope de descuento), las políticas del gimnasio y las tarifas de IVA editables por decreto (15 % por defecto). Hechas también las membresías (inscribir, renovar, congelar, cancelar) con su obligación de pago. Hechos también los cobros (pagos completos y abonos, transferencias con verificación, reversos, idempotencia, recibo interno). Hecha también la caja (apertura, movimientos, cierre con arqueo, efectivo) y la cartera. Hecha también la asistencia (entrada/salida manual o por QR, política de acceso con deuda, excepciones autorizadas). Faltan las notificaciones de WhatsApp y las pantallas de Angular.
+**Fase 3** (casi cerrada) (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base, los alumnos, los planes y promociones (con tope de descuento), las políticas del gimnasio y las tarifas de IVA editables por decreto (15 % por defecto). Hechas también las membresías (inscribir, renovar, congelar, cancelar) con su obligación de pago. Hechos también los cobros (pagos completos y abonos, transferencias con verificación, reversos, idempotencia, recibo interno). Hecha también la caja (apertura, movimientos, cierre con arqueo, efectivo) y la cartera. Hecha también la asistencia (entrada/salida manual o por QR, política de acceso con deuda, excepciones autorizadas). Hechas las pantallas de Angular de todo lo anterior y sus pruebas end-to-end. Solo falta el bloque 4b (notificaciones de WhatsApp), en espera de credenciales de Meta. Resumen completo en [docs/informe-fase-3.md](docs/informe-fase-3.md).
 
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
 - [Arquitectura](docs/architecture.md): estructura, auditoría, primer administrador, configuración y ambientes
 - [Modelo de datos](docs/database-model.md): esquemas, aislamiento, migraciones (aplicar y comprobar)
 - [Matriz de permisos](docs/permissions-matrix.md): catálogo, roles y permiso de cada endpoint
+- [Informe de la Fase 3](docs/informe-fase-3.md): archivos, migraciones, endpoints, pantallas, pruebas y pendientes
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación
 

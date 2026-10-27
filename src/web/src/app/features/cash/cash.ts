@@ -190,10 +190,13 @@ type Dialog = 'open' | 'close' | 'movement' | 'register' | null;
       }
       @case ('close') {
         <fc-modal [title]="'cash.close' | transloco" (closed)="closeDialog()">
-          <form id="cash-form" [formGroup]="closeForm" (ngSubmit)="submitClose()" novalidate>
-            @if (dialogError()) {
-              <p class="alert alert-danger" role="alert">{{ dialogError() }}</p>
-            }
+          @if (dialogError()) {
+            <p class="alert alert-danger" role="alert">{{ dialogError() }}</p>
+          }
+          @if (confirmingClose()) {
+            <p class="alert alert-warning" role="alert">{{ closeMessage() }}</p>
+          }
+          <form id="cash-form" [formGroup]="closeForm" (ngSubmit)="submitClose()" novalidate [hidden]="confirmingClose()">
             @if (closing(); as s) {
               <dl class="kv">
                 <dt>{{ 'cash.expected' | transloco }}</dt>
@@ -221,8 +224,13 @@ type Dialog = 'open' | 'close' | 'movement' | 'register' | null;
             </label>
           </form>
           <ng-container footer>
-            <button type="button" class="btn" (click)="closeDialog()">{{ 'common.cancel' | transloco }}</button>
-            <button type="submit" form="cash-form" class="btn btn-primary" [disabled]="busy()">{{ 'cash.close' | transloco }}</button>
+            @if (confirmingClose()) {
+              <button type="button" class="btn" [disabled]="busy()" (click)="confirmingClose.set(false)">{{ 'common.back' | transloco }}</button>
+              <button type="button" class="btn btn-primary" [disabled]="busy()" (click)="submitClose()">{{ 'cash.close' | transloco }}</button>
+            } @else {
+              <button type="button" class="btn" (click)="closeDialog()">{{ 'common.cancel' | transloco }}</button>
+              <button type="submit" form="cash-form" class="btn btn-primary" [disabled]="busy()">{{ 'common.review' | transloco }}</button>
+            }
           </ng-container>
         </fc-modal>
       }
@@ -311,6 +319,7 @@ export class Cash implements OnInit {
   protected readonly dialogError = signal<string | null>(null);
   protected readonly busy = signal(false);
   protected readonly closing = signal<CashSession | null>(null);
+  protected readonly confirmingClose = signal(false);
   protected readonly editingRegister = signal<CashRegister | 'new'>('new');
 
   protected readonly canManage = computed(() => this.session.has(Perm.CashManage));
@@ -394,6 +403,7 @@ export class Cash implements OnInit {
     this.attempt.renew();
     this.dialogError.set(null);
     this.closing.set(session);
+    this.confirmingClose.set(false);
     this.counted.set(0);
     this.closeForm.reset({ counted: 0, notes: '' });
     this.dialog.set('close');
@@ -406,7 +416,12 @@ export class Cash implements OnInit {
     this.dialog.set('movement');
   }
 
+  protected closeMessage(): string {
+    return this.errors.text('cash.closeConfirm', { counted: this.format.money(Number(this.closeForm.controls.counted.value) || 0) });
+  }
+
   protected closeDialog(): void {
+    this.confirmingClose.set(false);
     this.dialog.set(null);
     this.closing.set(null);
   }
@@ -433,7 +448,10 @@ export class Cash implements OnInit {
       this.dialogError.set(this.errors.text('cash.closeNotesRequired'));
       return;
     }
-    if (!window.confirm(this.errors.text('cash.closeConfirm', { counted: this.format.money(Number(v.counted)) }))) {
+    // Cierre definitivo: primero se muestra el resumen y solo la segunda pulsación lo envía.
+    if (!this.confirmingClose()) {
+      this.dialogError.set(null);
+      this.confirmingClose.set(true);
       return;
     }
     this.perform(

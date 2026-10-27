@@ -7,7 +7,7 @@ using static FitCore.Api.IntegrationTests.Infrastructure.CommercialTestApi;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection2.Name)]
 public class MembershipTests(ApiFixture api)
 {
     /// <summary>Fecha local de Ecuador continental: la de las sucursales de prueba (America/Guayaquil).</summary>

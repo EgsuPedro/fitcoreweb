@@ -5,7 +5,7 @@ using static FitCore.Api.IntegrationTests.Infrastructure.CommercialTestApi;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection2.Name)]
 public class SettingsAndTaxTests(ApiFixture api)
 {
     [Fact]

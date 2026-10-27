@@ -8,7 +8,7 @@ using Npgsql;
 
 namespace FitCore.Api.IntegrationTests;
 
-[Collection(ApiCollection.Name)]
+[Collection(ApiCollection3.Name)]
 public class RoleManagementTests(ApiFixture api)
 {
     private static Task<HttpResponseMessage> CreateRole(HttpClient client, string name, bool allBranches = false, params string[] permissions) =>

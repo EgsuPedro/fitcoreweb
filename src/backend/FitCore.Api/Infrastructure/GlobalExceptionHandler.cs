@@ -1,5 +1,8 @@
+using FitCore.Platform.Persistence;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace FitCore.Api.Infrastructure;
 
@@ -9,9 +12,18 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
 {
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
-        logger.LogError(exception, "Excepción no controlada en {Method} {Path}", httpContext.Request.Method, httpContext.Request.Path);
+        var (status, title, code) = Classify(exception);
 
-        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        if (status >= StatusCodes.Status500InternalServerError)
+        {
+            logger.LogError(exception, "Excepción no controlada en {Method} {Path}", httpContext.Request.Method, httpContext.Request.Path);
+        }
+        else
+        {
+            logger.LogWarning(exception, "Conflicto en {Method} {Path}: {Code}", httpContext.Request.Method, httpContext.Request.Path, code);
+        }
+
+        httpContext.Response.StatusCode = status;
 
         return await problemDetails.TryWriteAsync(new ProblemDetailsContext
         {
@@ -19,11 +31,23 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
             Exception = exception,
             ProblemDetails = new ProblemDetails
             {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "Error interno del servidor",
-                Type = "https://fitcore360.dev/errors/internal",
-                Extensions = { ["code"] = "server.internal_error" }
+                Status = status,
+                Title = title,
+                Type = $"https://fitcore360.dev/errors/{code}",
+                Extensions = { ["code"] = code }
             }
         });
     }
+
+    private static (int Status, string Title, string Code) Classify(Exception exception) => exception switch
+    {
+        // Dos solicitudes simultáneas crearon el mismo registro único (correo, código de sucursal, etc.).
+        DbUpdateException { InnerException: PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } } =>
+            (StatusCodes.Status409Conflict, "Ya existe un registro con esos datos.", "conflict.duplicate"),
+        DbUpdateConcurrencyException =>
+            (StatusCodes.Status409Conflict, "El registro fue modificado por otra persona. Recárguelo e intente de nuevo.", "conflict.concurrency"),
+        TenantViolationException =>
+            (StatusCodes.Status500InternalServerError, "Error interno del servidor", "server.tenant_violation"),
+        _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor", "server.internal_error")
+    };
 }

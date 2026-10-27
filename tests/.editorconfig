@@ -1,0 +1,13 @@
+[*.cs]
+# En pruebas los analizadores de estilo/diseño son orientativos; el compilador sigue tratando las advertencias como errores.
+dotnet_analyzer_diagnostic.severity = suggestion
+dotnet_diagnostic.CA1822.severity = none
+dotnet_diagnostic.CA2234.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA1307.severity = none
+dotnet_diagnostic.CA1310.severity = none
+dotnet_diagnostic.CA1305.severity = none
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CA1861.severity = none
+dotnet_diagnostic.CA2100.severity = none
+dotnet_diagnostic.CA1869.severity = none

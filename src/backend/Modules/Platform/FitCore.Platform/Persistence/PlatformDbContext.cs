@@ -1,0 +1,246 @@
+using System.Data;
+using FitCore.Application.Core;
+using FitCore.Platform.Domain;
+using FitCore.Platform.Identity;
+using FitCore.SharedKernel;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+
+namespace FitCore.Platform.Persistence;
+
+/// <summary>
+/// Contexto del núcleo de la plataforma: organizaciones, identidad, auditoría y outbox.
+/// Aislamiento por tenant: filtro global de EF + Row-Level Security en PostgreSQL.
+/// </summary>
+public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> options, ITenantContext tenantContext)
+    : IdentityDbContext<AppUser, AppRole, Guid, IdentityUserClaim<Guid>, AppUserRole, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>(options)
+{
+    public const string OrganizationsSchema = "organizations";
+    public const string IdentitySchema = "identity";
+    public const string AuditSchema = "audit";
+    public const string MessagingSchema = "messaging";
+
+    public DbSet<Tenant> Tenants => Set<Tenant>();
+    public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<PermissionEntity> PermissionCatalog => Set<PermissionEntity>();
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+    public DbSet<UserBranch> UserBranches => Set<UserBranch>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+
+    // Guid.Empty nunca coincide con un tenant real: sin tenant activo no se ve ninguna fila.
+    private Guid CurrentTenantId => tenantContext.TenantId ?? Guid.Empty;
+
+    /// <summary>Activa el tenant y lo propaga a PostgreSQL aunque la conexión ya esté abierta.</summary>
+    public async Task UseTenantAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        tenantContext.Set(tenantId);
+
+        var connection = Database.GetDbConnection();
+        if (connection.State == ConnectionState.Open)
+        {
+            await TenantConnectionInterceptor.ApplyTenantAsync(connection, tenantId, cancellationToken);
+        }
+    }
+
+    /// <summary>Quita el tenant activo: sin tenant, RLS no devuelve ninguna fila.</summary>
+    public async Task ClearTenantAsync(CancellationToken cancellationToken = default)
+    {
+        tenantContext.Clear();
+
+        var connection = Database.GetDbConnection();
+        if (connection.State == ConnectionState.Open)
+        {
+            await TenantConnectionInterceptor.ApplyTenantAsync(connection, null, cancellationToken);
+        }
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        // Tablas de Identity que no usamos (no tienen tenant_id y no pueden protegerse con RLS).
+        builder.Ignore<IdentityUserClaim<Guid>>();
+        builder.Ignore<IdentityUserLogin<Guid>>();
+        builder.Ignore<IdentityRoleClaim<Guid>>();
+        builder.Ignore<IdentityUserToken<Guid>>();
+
+        ConfigureOrganizations(builder);
+        ConfigureIdentity(builder);
+        ConfigurePersistence(builder);
+
+        foreach (var entityType in builder.Model.GetEntityTypes().ToList())
+        {
+            if (typeof(IHasDomainEvents).IsAssignableFrom(entityType.ClrType))
+            {
+                builder.Entity(entityType.ClrType).Ignore(nameof(IHasDomainEvents.DomainEvents));
+            }
+
+            if (typeof(ITenantOwned).IsAssignableFrom(entityType.ClrType))
+            {
+                typeof(PlatformDbContext)
+                    .GetMethod(nameof(ApplyTenantFilter), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+                    .MakeGenericMethod(entityType.ClrType)
+                    .Invoke(this, [builder]);
+            }
+        }
+    }
+
+    private void ApplyTenantFilter<T>(ModelBuilder builder)
+        where T : class, ITenantOwned =>
+        builder.Entity<T>().HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+    private static void ConfigureOrganizations(ModelBuilder builder)
+    {
+        builder.Entity<Tenant>(b =>
+        {
+            b.ToTable("tenants", OrganizationsSchema);
+            b.HasKey(t => t.Id);
+            b.Property(t => t.Slug).HasMaxLength(40).IsRequired();
+            b.Property(t => t.Name).HasMaxLength(200).IsRequired();
+            b.Property(t => t.TimeZone).HasMaxLength(64).IsRequired();
+            b.Property(t => t.DefaultCurrency).HasMaxLength(3).IsRequired();
+            b.Property(t => t.Locale).HasMaxLength(10).IsRequired();
+            b.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
+            b.HasIndex(t => t.Slug).IsUnique();
+            AddXminConcurrency(b);
+        });
+
+        builder.Entity<Branch>(b =>
+        {
+            b.ToTable("branches", OrganizationsSchema);
+            b.HasKey(x => x.Id);
+            b.HasAlternateKey(x => new { x.TenantId, x.Id });
+            b.Property(x => x.Code).HasMaxLength(20).IsRequired();
+            b.Property(x => x.Name).HasMaxLength(200).IsRequired();
+            b.Property(x => x.TimeZone).HasMaxLength(64).IsRequired();
+            b.Property(x => x.SriEstablishmentCode).HasMaxLength(3).IsFixedLength();
+            b.Property(x => x.Address).HasMaxLength(300);
+            b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
+            b.HasOne<Tenant>().WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Restrict);
+            AddXminConcurrency(b);
+        });
+    }
+
+    private static void ConfigureIdentity(ModelBuilder builder)
+    {
+        builder.Entity<AppUser>(b =>
+        {
+            b.ToTable("app_users", IdentitySchema);
+            RemoveGlobalUniqueIndex(b.Metadata, nameof(AppUser.NormalizedUserName));
+            b.HasAlternateKey(u => new { u.TenantId, u.Id });
+            b.Property(u => u.FullName).HasMaxLength(200).IsRequired();
+            b.HasIndex(u => new { u.TenantId, u.NormalizedEmail }).IsUnique();
+            b.HasIndex(u => new { u.TenantId, u.NormalizedUserName }).IsUnique();
+            b.HasOne<Tenant>().WithMany().HasForeignKey(u => u.TenantId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<AppRole>(b =>
+        {
+            b.ToTable("app_roles", IdentitySchema);
+            RemoveGlobalUniqueIndex(b.Metadata, nameof(AppRole.NormalizedName));
+            b.HasAlternateKey(r => new { r.TenantId, r.Id });
+            b.Property(r => r.Description).HasMaxLength(300);
+            b.HasIndex(r => new { r.TenantId, r.NormalizedName }).IsUnique();
+            b.HasOne<Tenant>().WithMany().HasForeignKey(r => r.TenantId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Las FK compuestas (tenant_id, user_id) y (tenant_id, role_id) de user_roles se crean por SQL en la migración de RLS.
+        builder.Entity<AppUserRole>(b =>
+        {
+            b.ToTable("user_roles", IdentitySchema);
+            b.HasIndex(x => x.TenantId);
+        });
+
+        builder.Entity<PermissionEntity>(b =>
+        {
+            b.ToTable("permissions", IdentitySchema);
+            b.HasKey(p => p.Code);
+            b.Property(p => p.Code).HasMaxLength(100);
+            b.Property(p => p.Module).HasMaxLength(50).IsRequired();
+            b.Property(p => p.Description).HasMaxLength(300).IsRequired();
+        });
+
+        builder.Entity<RolePermission>(b =>
+        {
+            b.ToTable("role_permissions", IdentitySchema);
+            b.HasKey(x => new { x.RoleId, x.PermissionCode });
+            b.Property(x => x.PermissionCode).HasMaxLength(100);
+            b.HasOne<AppRole>().WithMany().HasForeignKey(x => new { x.TenantId, x.RoleId })
+                .HasPrincipalKey(r => new { r.TenantId, r.Id }).OnDelete(DeleteBehavior.Cascade);
+            b.HasOne<PermissionEntity>().WithMany().HasForeignKey(x => x.PermissionCode).OnDelete(DeleteBehavior.Restrict);
+            b.HasIndex(x => x.TenantId);
+        });
+
+        builder.Entity<UserBranch>(b =>
+        {
+            b.ToTable("user_branches", IdentitySchema);
+            b.HasKey(x => new { x.UserId, x.BranchId });
+            b.HasOne<AppUser>().WithMany().HasForeignKey(x => new { x.TenantId, x.UserId })
+                .HasPrincipalKey(u => new { u.TenantId, u.Id }).OnDelete(DeleteBehavior.Cascade);
+            b.HasOne<Branch>().WithMany().HasForeignKey(x => new { x.TenantId, x.BranchId })
+                .HasPrincipalKey(x => new { x.TenantId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+            b.HasIndex(x => x.TenantId);
+        });
+
+        builder.Entity<RefreshToken>(b =>
+        {
+            b.ToTable("refresh_tokens", IdentitySchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.TokenHash).HasMaxLength(64).IsRequired();
+            b.Property(x => x.CreatedByIp).HasMaxLength(64);
+            b.Property(x => x.UserAgent).HasMaxLength(300);
+            b.HasIndex(x => x.TokenHash).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.FamilyId });
+            b.HasOne<AppUser>().WithMany().HasForeignKey(x => new { x.TenantId, x.UserId })
+                .HasPrincipalKey(u => new { u.TenantId, u.Id }).OnDelete(DeleteBehavior.Cascade);
+            AddXminConcurrency(b);
+        });
+    }
+
+    private void ConfigurePersistence(ModelBuilder builder)
+    {
+        builder.Entity<AuditLog>(b =>
+        {
+            b.ToTable("audit_logs", AuditSchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Action).HasMaxLength(100).IsRequired();
+            b.Property(x => x.Entity).HasMaxLength(100).IsRequired();
+            b.Property(x => x.EntityId).HasMaxLength(100);
+            b.Property(x => x.Before).HasColumnType("jsonb");
+            b.Property(x => x.After).HasColumnType("jsonb");
+            b.Property(x => x.IpAddress).HasMaxLength(64);
+            b.Property(x => x.CorrelationId).HasMaxLength(100);
+            b.HasIndex(x => new { x.TenantId, x.OccurredAt });
+            b.HasIndex(x => new { x.TenantId, x.Entity, x.EntityId });
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
+
+        // Sin RLS: es una tabla interna que la API nunca expone; el Worker la procesa entre tenants.
+        builder.Entity<OutboxMessage>(b =>
+        {
+            b.ToTable("outbox_messages", MessagingSchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Type).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Payload).HasColumnType("jsonb").IsRequired();
+            b.Property(x => x.Error).HasMaxLength(2000);
+            b.HasIndex(x => x.OccurredAt).HasFilter("processed_at IS NULL");
+        });
+    }
+
+    private static void AddXminConcurrency<T>(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T> b)
+        where T : class =>
+        b.Property<uint>("Version").IsRowVersion();
+
+    private static void RemoveGlobalUniqueIndex(IMutableEntityType entityType, string propertyName)
+    {
+        var index = entityType.GetIndexes().FirstOrDefault(i => i.Properties.Count == 1 && i.Properties[0].Name == propertyName);
+        if (index is not null)
+        {
+            entityType.RemoveIndex(index);
+        }
+    }
+}

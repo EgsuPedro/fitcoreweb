@@ -1,12 +1,19 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace FitCore.Api.IntegrationTests;
 
-public class SystemEndpointsTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+/// <summary>Pruebas sin base de datos: solo el arranque de la API y sus endpoints públicos.</summary>
+public class SystemEndpointsTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client;
+
+    public SystemEndpointsTests(WebApplicationFactory<Program> factory) =>
+        _client = factory
+            .WithWebHostBuilder(builder => builder.UseSetting("Jwt:SigningKey", "test-signing-key-test-signing-key-0123456789"))
+            .CreateClient();
 
     [Fact]
     public async Task Health_live_responde_200()
@@ -29,12 +36,30 @@ public class SystemEndpointsTests(WebApplicationFactory<Program> factory) : ICla
     }
 
     [Fact]
-    public async Task Ruta_inexistente_devuelve_problem_details()
+    public async Task Ruta_inexistente_sin_sesion_responde_401_y_no_revela_que_rutas_existen()
     {
+        // La política global exige sesión incluso para rutas que no existen: no se puede enumerar la API sin autenticarse.
         var response = await _client.GetAsync("/api/v1/no-existe");
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
     }
-}
 
+    [Fact]
+    public async Task Endpoint_protegido_sin_token_devuelve_401_problem_details()
+    {
+        var response = await _client.GetAsync("/api/v1/branches");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Fact]
+    public void Arranque_falla_si_la_clave_jwt_es_corta()
+    {
+        using var factory = new WebApplicationFactory<Program>()
+            .WithWebHostBuilder(builder => builder.UseSetting("Jwt:SigningKey", "corta"));
+
+        Assert.ThrowsAny<Exception>(() => factory.CreateClient());
+    }
+}

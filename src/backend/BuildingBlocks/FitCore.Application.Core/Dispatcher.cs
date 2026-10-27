@@ -1,3 +1,4 @@
+using System.Reflection;
 using FitCore.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,7 +23,6 @@ internal sealed class Dispatcher(IServiceProvider services) : IDispatcher
         var handlerType = handlerDefinition.MakeGenericType(message.GetType(), typeof(TResponse));
         var handler = services.GetRequiredService(handlerType);
 
-        // Un solo punto de reflexión; los handlers se registran explícitamente en cada módulo.
         var method = handlerType.GetMethod("HandleAsync")!;
         return (Task<Result<TResponse>>)method.Invoke(handler, [message, cancellationToken])!;
     }
@@ -35,4 +35,23 @@ public static class ApplicationCoreExtensions
         services.AddScoped<IDispatcher, Dispatcher>();
         return services;
     }
+
+    /// <summary>Registra todos los handlers de un ensamblado (una sola vez, al arrancar).</summary>
+    public static IServiceCollection AddHandlersFromAssembly(this IServiceCollection services, Assembly assembly)
+    {
+        foreach (var type in assembly.GetTypes().Where(t => t is { IsClass: true, IsAbstract: false }))
+        {
+            foreach (var contract in type.GetInterfaces().Where(IsHandlerContract))
+            {
+                services.AddScoped(contract, type);
+            }
+        }
+
+        return services;
+    }
+
+    private static bool IsHandlerContract(Type type) =>
+        type.IsGenericType &&
+        (type.GetGenericTypeDefinition() == typeof(ICommandHandler<,>) ||
+         type.GetGenericTypeDefinition() == typeof(IQueryHandler<,>));
 }

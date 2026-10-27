@@ -1,6 +1,8 @@
 using System.Globalization;
 using FitCore.Application.Core;
 using FitCore.Infrastructure.Core;
+using FitCore.Platform;
+using FitCore.Platform.Persistence;
 using FitCore.SharedKernel;
 using FitCore.Worker;
 using Serilog;
@@ -27,8 +29,11 @@ builder.Services.AddSerilog((services, configuration) =>
 
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddDispatcher();
+builder.Services.AddPlatformPersistence(builder.Configuration);
 
-// Los jobs reales (outbox, cuotas recurrentes, vencimientos, recordatorios) se registran aquí por módulo.
+// Jobs: la outbox publica los eventos de dominio. Los siguientes (cuotas recurrentes, vencimientos,
+// recordatorios) se registran aquí por módulo cuando existan.
+builder.Services.AddHostedService<OutboxProcessor>();
 builder.Services.AddHostedService<HeartbeatService>();
 
 await builder.Build().RunAsync();

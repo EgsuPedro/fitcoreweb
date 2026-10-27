@@ -19,7 +19,17 @@ public interface ITenantOwned
     Guid TenantId { get; }
 }
 
-public abstract class Entity<TId>
+/// <summary>Entidad cuyos cambios se registran en la auditoría.</summary>
+public interface IAuditable;
+
+public interface IHasDomainEvents
+{
+    IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+
+    void ClearDomainEvents();
+}
+
+public abstract class Entity<TId> : IHasDomainEvents
     where TId : notnull
 {
     private readonly List<IDomainEvent> _domainEvents = [];

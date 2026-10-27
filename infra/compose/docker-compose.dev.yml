@@ -1,7 +1,15 @@
 # Entorno de desarrollo local. Uso (desde la raíz del repo):
-#   cp infra/compose/.env.example infra/compose/.env
+#   cp infra/compose/.env.example infra/compose/.env   # y cambie TODOS los valores
 #   docker compose -f infra/compose/docker-compose.dev.yml --env-file infra/compose/.env up --build
+#
+# Dos usuarios de PostgreSQL:
+#   - POSTGRES_USER (propietario): solo lo usa la API para aplicar migraciones al arrancar (solo desarrollo).
+#   - fitcore_app (sin privilegios de superusuario): el que usan la API y el Worker en ejecución. Está sujeto a
+#     Row-Level Security, por eso el aislamiento entre gimnasios también se cumple en la base de datos.
 name: fitcore360
+
+x-db-app: &db-app
+  Host=postgres;Port=5432;Database=${POSTGRES_DB:-fitcore};Username=fitcore_app;Password=${APP_DB_PASSWORD:?Defina APP_DB_PASSWORD en infra/compose/.env}
 
 services:
   postgres:
@@ -26,7 +34,13 @@ services:
       dockerfile: infra/docker/Api.Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Default: Host=postgres;Port=5432;Database=${POSTGRES_DB:-fitcore};Username=${POSTGRES_USER:-fitcore};Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__Default: *db-app
+      ConnectionStrings__Migrations: Host=postgres;Port=5432;Database=${POSTGRES_DB:-fitcore};Username=${POSTGRES_USER:-fitcore};Password=${POSTGRES_PASSWORD}
+      Database__AutoMigrate: "true"
+      Database__AppRolePassword: ${APP_DB_PASSWORD}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Defina JWT_SIGNING_KEY (mínimo 32 caracteres) en infra/compose/.env}
+      Platform__AdminEmail: ${PLATFORM_ADMIN_EMAIL:-}
+      Platform__AdminPassword: ${PLATFORM_ADMIN_PASSWORD:-}
     ports:
       - "8080:8080"
     depends_on:
@@ -39,10 +53,13 @@ services:
       dockerfile: infra/docker/Worker.Dockerfile
     environment:
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__Default: Host=postgres;Port=5432;Database=${POSTGRES_DB:-fitcore};Username=${POSTGRES_USER:-fitcore};Password=${POSTGRES_PASSWORD}
+      ConnectionStrings__Default: *db-app
     depends_on:
       postgres:
         condition: service_healthy
+      # La API crea el rol y aplica las migraciones al arrancar; hasta entonces el Worker reintenta cada 5 s.
+      api:
+        condition: service_started
 
 volumes:
   pgdata:

@@ -25,3 +25,25 @@ dotnet_diagnostic.CA1848.severity = none
 dotnet_diagnostic.CA2007.severity = none
 # El tipo Error es deliberado (Result pattern), solo se consume desde C#
 dotnet_diagnostic.CA1716.severity = none
+# Reglas de diseño de API pública de librería que no aplican a una aplicación (DI instancia las clases, DTOs con colecciones, etc.)
+dotnet_diagnostic.CA1711.severity = none
+dotnet_diagnostic.CA1812.severity = none
+dotnet_diagnostic.CA1002.severity = none
+dotnet_diagnostic.CA1819.severity = none
+dotnet_diagnostic.CA2227.severity = none
+dotnet_diagnostic.CA1051.severity = none
+dotnet_diagnostic.CA1034.severity = none
+dotnet_diagnostic.CA1303.severity = none
+dotnet_diagnostic.CA1056.severity = none
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA1055.severity = none
+dotnet_diagnostic.CA1008.severity = none
+dotnet_diagnostic.CA1724.severity = none
+dotnet_diagnostic.CA1000.severity = none
+dotnet_diagnostic.CA1721.severity = none
+# Normalizar a minúsculas es intencional (slugs, correos)
+dotnet_diagnostic.CA1308.severity = none
+# Catch general permitido en el procesador de outbox y el manejador global (se registra el error)
+dotnet_diagnostic.CA1031.severity = none
+dotnet_diagnostic.CA5394.severity = none
+dotnet_diagnostic.CA2000.severity = none

@@ -63,6 +63,11 @@ public static class Permissions
 
     public const string NotificationsRead = "notifications.read";
 
+    public const string TrainersRead = "trainers.read";
+    public const string TrainersManage = "trainers.manage";
+    public const string TrainersNotes = "trainers.notes";
+    public const string WellnessMembersAll = "wellness.members.all";
+
     public const string MembersAccess = "members.access";
     public const string MeRead = "me.read";
 
@@ -110,6 +115,10 @@ public static class Permissions
         new(AttendanceOverride, "attendance", "Autorizar accesos excepcionales"),
         new(CommercialSettingsManage, "commercial", "Configurar políticas comerciales del gimnasio"),
         new(NotificationsRead, "notifications", "Consultar los avisos de WhatsApp enviados"),
+        new(TrainersRead, "trainers", "Ver los perfiles de los entrenadores"),
+        new(TrainersManage, "trainers", "Habilitar entrenadores, editar sus perfiles y asignarles alumnos"),
+        new(TrainersNotes, "trainers", "Escribir y leer observaciones profesionales de los alumnos asignados", Sensitive: true),
+        new(WellnessMembersAll, "trainers", "Ver el seguimiento de todos los alumnos de sus sucursales, no solo de los asignados"),
         new(MembersAccess, "members", "Dar, restablecer y quitar el acceso de un alumno a su portal"),
         new(MeRead, "me", "Consultar los propios datos de alumno (portal del alumno)")
     ];

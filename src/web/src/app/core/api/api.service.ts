@@ -4,6 +4,7 @@ import type { Observable } from 'rxjs';
 import type {
   AccessDecision,
   Attendance,
+  AvailabilitySlotRequest,
   AuditLog,
   Branch,
   CashMovement,
@@ -17,6 +18,7 @@ import type {
   CreateRoleRequest,
   CreateTaxRateRequest,
   CreateTenantRequest,
+  CreateTrainerRequest,
   CreateUserRequest,
   EnrollRequest,
   Member,
@@ -45,11 +47,16 @@ import type {
   SetUserAccessRequest,
   TaxRate,
   Tenant,
+  Trainer,
+  TrainerAssignment,
+  TrainerAvailability,
+  TrainerNote,
   UpdateBranchRequest,
   UpdateCommercialSettingsRequest,
   UpdateMemberRequest,
   UpdateNotificationSettingsRequest,
   UpdateRoleRequest,
+  UpdateTrainerRequest,
   User,
 } from './models';
 
@@ -176,6 +183,50 @@ export class ApiService {
   }
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
     return this.http.post<void>(`${API_BASE}/auth/change-password`, { currentPassword, newPassword });
+  }
+
+  // ---- Entrenadores (módulo de bienestar) ----
+  trainers(query: Query = {}): Observable<Paged<Trainer>> {
+    return this.get('/trainers', query);
+  }
+  trainer(id: string): Observable<Trainer> {
+    return this.get(`/trainers/${id}`);
+  }
+  myTrainer(): Observable<Trainer> {
+    return this.get('/trainers/me');
+  }
+  createTrainer(body: CreateTrainerRequest): Observable<Trainer> {
+    return this.http.post<Trainer>(`${API_BASE}/trainers`, body);
+  }
+  updateTrainer(id: string, body: UpdateTrainerRequest): Observable<Trainer> {
+    return this.http.put<Trainer>(`${API_BASE}/trainers/${id}`, body);
+  }
+  setTrainerStatus(id: string, isActive: boolean): Observable<Trainer> {
+    return this.http.patch<Trainer>(`${API_BASE}/trainers/${id}/status`, { isActive });
+  }
+  trainerAvailability(id: string): Observable<TrainerAvailability[]> {
+    return this.get(`/trainers/${id}/availability`);
+  }
+  setTrainerAvailability(id: string, slots: AvailabilitySlotRequest[]): Observable<TrainerAvailability[]> {
+    return this.http.put<TrainerAvailability[]>(`${API_BASE}/trainers/${id}/availability`, { slots });
+  }
+  trainerMembers(id: string, query: Query = {}): Observable<Paged<TrainerAssignment>> {
+    return this.get(`/trainers/${id}/members`, query);
+  }
+  assignMember(trainerId: string, memberId: string, reason: string | null): Observable<TrainerAssignment> {
+    return this.http.post<TrainerAssignment>(`${API_BASE}/trainers/${trainerId}/members`, { memberId, reason });
+  }
+  unassignMember(trainerId: string, memberId: string, reason: string): Observable<TrainerAssignment> {
+    return this.http.post<TrainerAssignment>(`${API_BASE}/trainers/${trainerId}/members/${memberId}/unassign`, { reason });
+  }
+  memberTrainerAssignments(memberId: string): Observable<TrainerAssignment[]> {
+    return this.get(`/members/${memberId}/trainer-assignments`);
+  }
+  trainerNotes(memberId: string, query: Query = {}): Observable<Paged<TrainerNote>> {
+    return this.get(`/members/${memberId}/trainer-notes`, query);
+  }
+  createTrainerNote(memberId: string, text: string): Observable<TrainerNote> {
+    return this.http.post<TrainerNote>(`${API_BASE}/members/${memberId}/trainer-notes`, { text });
   }
 
   // ---- Portal del alumno (todo sale de la sesión; no se envía ningún identificador) ----

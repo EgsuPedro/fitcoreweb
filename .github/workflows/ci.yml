@@ -66,6 +66,7 @@ jobs:
           JWT_SIGNING_KEY=$(openssl rand -hex 32)
           PLATFORM_ADMIN_EMAIL=admin@fitcore.ci
           PLATFORM_ADMIN_PASSWORD=Ci-$(openssl rand -hex 8)-Aa1
+          LOGIN_RATE_LIMIT=500
           EOF
       - name: API + PostgreSQL
         run: |

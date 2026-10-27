@@ -99,7 +99,7 @@ public static class TestApi
             roleIds = new[] { roleId },
             branchIds
         });
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.True(response.StatusCode == HttpStatusCode.Created, $"Crear {email} ({roleName}) respondió {(int)response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
         return (await response.Content.ReadFromJsonAsync<UserDto>())!;
     }
 

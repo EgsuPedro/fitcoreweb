@@ -11,13 +11,19 @@ public static class RoleTemplates
 
     private static readonly string[] BasicRead = [Permissions.OrganizationRead, Permissions.BranchesRead];
 
+    /// <summary>
+    /// Permisos que el rol Propietario nunca recibe por defecto: los sensibles (nutrición, evaluaciones, fotos, observaciones…).
+    /// El propietario puede conceder los sensibles a un rol propio; esa decisión queda auditada.
+    /// </summary>
+    public static IReadOnlyList<string> OwnerExcluded { get; } = [.. Permissions.All.Where(p => p.Sensitive).Select(p => p.Code)];
+
     public static readonly IReadOnlyList<RoleTemplate> ForTenant =
     [
         new(
             Owner,
             "Control total del gimnasio y de todas sus sucursales",
             true,
-            [.. Permissions.All.Where(p => !Permissions.IsPlatform(p.Code) && !p.Sensitive).Select(p => p.Code)]),
+            [.. Permissions.All.Where(p => !Permissions.IsPlatform(p.Code) && !OwnerExcluded.Contains(p.Code)).Select(p => p.Code)]),
         new(
             BranchAdmin,
             "Administra una o más sucursales asignadas",
@@ -54,7 +60,10 @@ public static class RoleTemplates
                 Permissions.AttendanceRegister,
                 Permissions.AttendanceOverride,
                 Permissions.NotificationsRead,
-                Permissions.MembersAccess
+                Permissions.MembersAccess,
+                Permissions.TrainersRead,
+                Permissions.TrainersManage,
+                Permissions.WellnessMembersAll
             ]),
         new(
             "Recepcion",
@@ -91,7 +100,9 @@ public static class RoleTemplates
                 Permissions.CashRead,
                 Permissions.CashOperate
             ]),
-        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.MembersRead, Permissions.AttendanceRead]),
+        // Mínimo privilegio: el entrenador trabaja solo con sus alumnos asignados (lo resuelve el módulo de bienestar), no con todo el listado
+        // de alumnos ni la asistencia del gimnasio.
+        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes]),
         new("Nutricionista", "Planes nutricionales de alumnos asignados", false, [.. BasicRead, Permissions.MembersRead]),
         new(
             "Contador",

@@ -80,6 +80,10 @@ Migraciones propias, con su historial en `members.__ef_migrations_history`. Mism
 | billing | `payments`, `payment_allocations` | Pagos inmutables y sus asignaciones a obligaciones. Triggers: asignaciones ≤ exigible, pago inmutable, un reverso no se reactiva. Sin borrado para el rol de la aplicación |
 | billing | `idempotency_keys` | Clave + huella de la solicitud + respuesta guardada, por gimnasio |
 | cash | `cash_registers`, `cash_sessions`, `cash_movements` | Cajas por sucursal, turnos con apertura y arqueo, y movimientos solo-anexado. Índices únicos parciales: una sesión abierta por caja exclusiva y por usuario. Triggers: movimientos solo en sesión abierta e inmutables, sesión cerrada definitiva |
+| training | `trainer_profiles` | Perfil de entrenador por usuario (único por gimnasio): especialidades `text[]`, certificaciones, biografía, estado. FK al usuario |
+| training | `trainer_availability` | Franjas semanales del entrenador (`day` 0–6, `end_time > start_time`), sucursal opcional |
+| training | `trainer_assignments` | Alumno–entrenador con historial. Índice único parcial: un solo activo por alumno. Trigger: solo cambia al cerrarse; cerrada es inmutable. Sin borrado |
+| training | `trainer_notes` | Observaciones profesionales. Solo se agregan (triggers y permisos impiden editar o borrar) |
 | access | `attendance` | Visitas: entrada, salida, método, excepción con motivo. Índice único parcial: una entrada abierta por alumno. Trigger: solo cambia al registrar la salida. Sin borrado |
 | members | `notifications` | Avisos de WhatsApp por vencimiento: tipo, destinatario (+593…, formato validado), texto, estado (Pendiente/Enviando/Enviado/Con error), intentos, proveedor. Único por (membresía, tipo, destinatario) |
 | members | `members` (WhatsApp) | `whatsapp_consent`, `whatsapp_consent_at`, `whatsapp_consent_by`. `commercial_settings`: `notifications_enabled`, `staff_alert_phones` |

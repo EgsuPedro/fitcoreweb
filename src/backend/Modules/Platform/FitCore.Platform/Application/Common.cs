@@ -41,6 +41,13 @@ public sealed class SecurityAudit(PlatformDbContext db, ITenantContext tenantCon
             OccurredAt = clock.UtcNow
         });
     }
+
+    /// <summary>Registra un acceso a datos sensibles (solo el hecho, nunca el contenido) y lo guarda de inmediato.</summary>
+    public async Task RecordAccessAsync(string action, string entity, string? entityId, CancellationToken cancellationToken)
+    {
+        Record(action, entity, entityId);
+        await db.SaveChangesAsync(cancellationToken);
+    }
 }
 
 internal static class IdentityResultExtensions

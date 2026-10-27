@@ -76,7 +76,8 @@
     "promotions": "Promociones",
     "settings": "Políticas",
     "taxRates": "Tarifas de IVA",
-    "notifications": "Notificaciones"
+    "notifications": "Notificaciones",
+    "trainers": "Entrenadores"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -363,6 +364,27 @@
     },
     "portal": {
       "no_member_linked": "Su usuario no está vinculado a ninguna ficha de alumno. Pida ayuda en recepción."
+    },
+    "trainers": {
+      "not_found": "Entrenador no encontrado.",
+      "no_profile": "Su usuario no tiene perfil de entrenador.",
+      "already_exists": "Ese usuario ya es entrenador.",
+      "user_not_found": "El usuario no existe o no está a su alcance.",
+      "user_inactive": "El usuario está inactivo.",
+      "inactive": "El entrenador está inactivo.",
+      "has_active_members": "El entrenador tiene alumnos asignados: reasígnelos antes de desactivarlo.",
+      "member_not_found": "Alumno no encontrado.",
+      "member_inactive": "El alumno está inactivo.",
+      "already_assigned": "El alumno ya está asignado a este entrenador.",
+      "no_active_assignment": "El alumno no está asignado a este entrenador.",
+      "branch_mismatch": "El entrenador no trabaja en la sucursal del alumno.",
+      "assignment_conflict": "El alumno cambió de entrenador al mismo tiempo; intente de nuevo.",
+      "not_yours": "Solo puede consultar o modificar sus propios datos de entrenador.",
+      "not_assigned": "Solo el entrenador asignado al alumno puede ver o escribir sus observaciones.",
+      "availability_branch_invalid": "Alguna sucursal de las franjas no existe, está inactiva o no está a su alcance.",
+      "availability_too_many": "Máximo 28 franjas de disponibilidad.",
+      "availability_invalid_range": "La hora de fin debe ser posterior a la de inicio.",
+      "availability_overlap": "Las franjas de un mismo día no pueden solaparse."
     }
   },
   "enums": {
@@ -466,6 +488,19 @@
     "notificationRecipientKind": {
       "Staff": "Personal",
       "Member": "Alumno"
+    },
+    "trainerStatus": {
+      "Active": "Activo",
+      "Inactive": "Inactivo"
+    },
+    "dayOfWeek": {
+      "Monday": "Lunes",
+      "Tuesday": "Martes",
+      "Wednesday": "Miércoles",
+      "Thursday": "Jueves",
+      "Friday": "Viernes",
+      "Saturday": "Sábado",
+      "Sunday": "Domingo"
     }
   },
   "members": {
@@ -911,5 +946,58 @@
     "noMemberships": "Todavía no tiene membresías.",
     "noPayments": "Todavía no tiene pagos.",
     "noAttendance": "Todavía no tiene visitas."
+  },
+  "trainers": {
+    "title": "Entrenadores",
+    "new": "Habilitar entrenador",
+    "empty": "No hay entrenadores para mostrar.",
+    "name": "Entrenador",
+    "user": "Usuario",
+    "userHint": "Elija un usuario activo del gimnasio. Sus sucursales son las del usuario.",
+    "specialties": "Especialidades",
+    "specialtiesHint": "Separadas por coma (máximo 10), por ejemplo: Fuerza, Movilidad.",
+    "certifications": "Certificaciones",
+    "bio": "Biografía profesional",
+    "joinedOn": "Fecha de incorporación",
+    "activeMembers": "Alumnos",
+    "profile": "Perfil profesional",
+    "availability": "Disponibilidad semanal",
+    "noAvailability": "Sin franjas de disponibilidad.",
+    "anyBranch": "Cualquier sucursal",
+    "day": "Día",
+    "from": "Desde",
+    "to": "Hasta",
+    "addSlot": "Agregar franja",
+    "saveAvailability": "Guardar disponibilidad",
+    "members": "Alumnos asignados",
+    "showHistory": "Incluir asignaciones anteriores",
+    "assign": "Asignar alumno",
+    "assignHint": "Si el alumno ya tiene otro entrenador, se cierra esa asignación y queda en su historial.",
+    "assignReason": "Motivo (opcional)",
+    "unassign": "Quitar",
+    "assignedOn": "Desde",
+    "endedOn": "Hasta",
+    "active": "Activa",
+    "noMembers": "No hay alumnos asignados.",
+    "deactivate": "Desactivar",
+    "activate": "Activar",
+    "deactivateConfirm": "El entrenador dejará de poder recibir alumnos. Solo se puede desactivar si no tiene alumnos asignados. ¿Continuar?",
+    "activateConfirm": "¿Activar al entrenador?",
+    "invalidForm": "Elija el usuario que será entrenador.",
+    "createdToast": "Entrenador habilitado.",
+    "savedToast": "Entrenador actualizado.",
+    "assignedToast": "Alumno asignado.",
+    "unassignedToast": "Asignación cerrada.",
+    "availabilitySavedToast": "Disponibilidad guardada.",
+    "memberSection": "Entrenador del alumno",
+    "present": "hoy",
+    "noTrainer": "El alumno no ha tenido entrenador asignado.",
+    "notes": "Observaciones del entrenador",
+    "newNote": "Nueva observación",
+    "noteHint": "Solo la ve el entrenador asignado al alumno. No se puede editar ni borrar.",
+    "addNote": "Guardar observación",
+    "noNotes": "Todavía no hay observaciones.",
+    "notesDenied": "Las observaciones son confidenciales y solo las ve el entrenador asignado al alumno.",
+    "noteSavedToast": "Observación guardada."
   }
 }

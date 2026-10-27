@@ -103,10 +103,14 @@ public static class DatabaseInitializer
     }
 
     /// <summary>
-    /// El rol Propietario (inmutable) siempre tiene todos los permisos de gimnasio: cuando se agrega un permiso al catálogo,
-    /// los gimnasios existentes lo reciben aquí. Se fija el tenant por gimnasio para respetar RLS.
+    /// El rol Propietario (inmutable) tiene todos los permisos de gimnasio salvo los sensibles
+    /// (<see cref="RoleTemplates.OwnerExcluded"/>): cuando se agrega un permiso al catálogo, los gimnasios existentes lo reciben aquí,
+    /// y si el propietario tenía alguno de los excluidos se le retira. Se fija el tenant por gimnasio para respetar RLS.
     /// </summary>
-    private static async Task SyncOwnerRolesAsync(PlatformDbContext db, CancellationToken cancellationToken) =>
+    private static async Task SyncOwnerRolesAsync(PlatformDbContext db, CancellationToken cancellationToken)
+    {
+        // Constantes del catálogo (nunca datos del usuario): dentro de un bloque DO no se admiten parámetros de consulta.
+        var excluded = "ARRAY[" + string.Join(", ", RoleTemplates.OwnerExcluded.Select(code => $"'{code}'")) + "]::text[]";
         await db.Database.ExecuteSqlRawAsync(
             """
             DO $do$
@@ -118,7 +122,13 @@ public static class DatabaseInitializer
                 SELECT r.tenant_id, r.id, p.code
                 FROM identity.app_roles r CROSS JOIN identity.permissions p
                 WHERE r.tenant_id = t.id AND r.is_system AND r.name = 'Propietario' AND p.code NOT LIKE 'platform.%'
+                  AND p.code <> ALL(@excluded)
                 ON CONFLICT DO NOTHING;
+
+                DELETE FROM identity.role_permissions rp
+                USING identity.app_roles r
+                WHERE rp.role_id = r.id AND rp.tenant_id = t.id AND r.tenant_id = t.id AND r.is_system AND r.name = 'Propietario'
+                  AND rp.permission_code = ANY(@excluded);
 
                 -- El administrador de plataforma recibe los permisos globales nuevos, y solo en el gimnasio "platform":
                 -- ningún otro gimnasio puede obtener permisos platform.* aunque cree un rol con ese nombre.
@@ -131,8 +141,9 @@ public static class DatabaseInitializer
               END LOOP;
             END
             $do$;
-            """,
+            """.Replace("@excluded", excluded, StringComparison.Ordinal),
             cancellationToken);
+    }
 
     private static async Task BootstrapPlatformAdminAsync(IServiceProvider services, ILogger logger, CancellationToken cancellationToken)
     {

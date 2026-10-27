@@ -51,7 +51,9 @@ $basic = @('organization.read', 'branches.read')
 $template = @{
     'Recepcion'     = $basic + @('members.read', 'members.create', 'members.update', 'plans.read', 'promotions.read', 'memberships.read', 'memberships.create', 'memberships.renew', 'obligations.read', 'payments.read', 'payments.create', 'attendance.read', 'attendance.register')
     'Cajero'        = $basic + @('members.read', 'memberships.read', 'obligations.read', 'payments.read', 'payments.create', 'payments.confirm', 'cash.read', 'cash.operate')
-    'Entrenador'    = $basic + @('members.read', 'attendance.read')
+    'AdministradorSucursal' = $basic + @('users.read', 'users.create', 'users.update', 'roles.read', 'members.read', 'members.create', 'members.update', 'members.status', 'plans.read', 'promotions.read', 'promotions.apply', 'memberships.read', 'memberships.create', 'memberships.renew', 'memberships.freeze', 'memberships.cancel', 'obligations.read', 'obligations.create', 'obligations.void', 'payments.read', 'payments.create', 'payments.confirm', 'payments.reverse', 'cash.read', 'cash.operate', 'attendance.read', 'attendance.register', 'attendance.override', 'notifications.read', 'members.access', 'trainers.read', 'trainers.manage', 'wellness.members.all')
+    'Alumno'        = @('me.read')
+    'Entrenador'    = $basic + @('trainers.read', 'trainers.notes')
     'Nutricionista' = $basic + @('members.read')
     'Contador'      = $basic + @('audit.read', 'members.read', 'memberships.read', 'obligations.read', 'payments.read', 'cash.read')
 }
@@ -98,6 +100,19 @@ foreach ($p in $plan) {
         email = $email; fullName = "$($p.role) Demo"; password = $DemoPassword
         roleIds = @($roleId); branchIds = @($p.branches)
     } -Token $owner | Out-Null
+}
+
+# Perfil de entrenador de demostración (el usuario entrenador.uio) y un alumno asignado, para ver el flujo de entrenadores.
+$trainerUser = ((Invoke-Api GET '/users?pageSize=100' -Token $owner).items | Where-Object { $_.email -eq "entrenador.uio@$Domain" })
+if ($trainerUser) {
+    $existing = (Invoke-Api GET '/trainers?pageSize=100' -Token $owner).items | Where-Object { $_.userId -eq $trainerUser.id }
+    if (-not $existing) {
+        $existing = Invoke-Api POST '/trainers' @{ userId = $trainerUser.id; specialties = @('Fuerza', 'Funcional'); bio = 'Entrenador de demostración' } -Token $owner
+    }
+    $member = (Invoke-Api GET "/members?pageSize=1&branchId=$uio" -Token $owner).items | Select-Object -First 1
+    if ($member -and $existing.activeMembers -eq 0) {
+        try { Invoke-Api POST "/trainers/$($existing.id)/members" @{ memberId = $member.id; reason = $null } -Token $owner | Out-Null } catch { }
+    }
 }
 
 Write-Host ''

@@ -43,5 +43,9 @@ export const Perm = {
   CommercialSettingsManage: 'commercial.settings.manage',
   NotificationsRead: 'notifications.read',
   MembersAccess: 'members.access',
+  TrainersRead: 'trainers.read',
+  TrainersManage: 'trainers.manage',
+  TrainersNotes: 'trainers.notes',
+  WellnessMembersAll: 'wellness.members.all',
   MeRead: 'me.read',
 } as const;

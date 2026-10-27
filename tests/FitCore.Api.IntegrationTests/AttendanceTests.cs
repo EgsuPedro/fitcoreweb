@@ -533,9 +533,14 @@ public class AttendanceTests(ApiFixture api)
         using var student = TestApi.Authenticated(api, await TestApi.LoginAsync(api, s.Tenant.Slug, "alumno@gym.test", TestApi.UserPassword));
         var entry = await CheckInOkAsync(s.Reception, s.Branch, s.Member.Id);
 
-        // El entrenador consulta pero no registra ni valida (el registro manual está protegido por permiso).
-        Assert.Equal(HttpStatusCode.OK, (await trainer.GetAsync("/api/v1/attendance")).StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await trainer.GetAsync($"/api/v1/attendance/{entry.Id}")).StatusCode);
+        // Un lector (rol propio con solo attendance.read) consulta pero no registra ni valida (el registro manual está protegido por permiso).
+        using var reader = await CommercialTestApi.ClientWithRoleAsync(api, s.Tenant, "lector@gym.test", false, ["attendance.read"], s.Branch);
+        Assert.Equal(HttpStatusCode.OK, (await reader.GetAsync("/api/v1/attendance")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await reader.GetAsync($"/api/v1/attendance/{entry.Id}")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await CheckInAsync(reader, s.Branch, s.Member.Id)).StatusCode);
+        // El entrenador ya no ve la asistencia general del gimnasio (solo trabaja con sus alumnos asignados).
+        Assert.Equal(HttpStatusCode.Forbidden, (await trainer.GetAsync("/api/v1/attendance")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await trainer.GetAsync($"/api/v1/attendance/{entry.Id}")).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await CheckInAsync(trainer, s.Branch, s.Member.Id)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await CheckOutAsync(trainer, s.Member.Id)).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await ValidateAccessAsync(trainer, s.Branch, s.Member.Id)).StatusCode);

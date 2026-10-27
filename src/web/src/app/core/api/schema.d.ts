@@ -1108,6 +1108,150 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/trainers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListTrainers"];
+        put?: never;
+        post: operations["CreateTrainer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trainers/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMyTrainer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trainers/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTrainer"];
+        put: operations["UpdateTrainer"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trainers/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetTrainerStatus"];
+        trace?: never;
+    };
+    "/api/v1/trainers/{id}/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTrainerAvailability"];
+        put: operations["SetTrainerAvailability"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trainers/{id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListTrainerMembers"];
+        put?: never;
+        post: operations["AssignMemberToTrainer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trainers/{id}/members/{memberId}/unassign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["UnassignMemberFromTrainer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/trainer-assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMemberTrainerAssignments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/trainer-notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListTrainerNotes"];
+        put?: never;
+        post: operations["CreateTrainerNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1146,6 +1290,30 @@ export interface components {
             obligationId: string;
             /** Format: double */
             amount: number;
+        };
+        AssignMemberRequest: {
+            /** Format: uuid */
+            memberId: string;
+            reason: string | null;
+        };
+        AssignmentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            trainerId: string;
+            trainerName: string;
+            /** Format: uuid */
+            memberId: string;
+            memberCode: string;
+            memberName: string;
+            /** Format: uuid */
+            branchId: string;
+            /** Format: date */
+            assignedOn: string;
+            /** Format: date */
+            endedOn: string | null;
+            endReason: string | null;
+            isActive: boolean;
         };
         AttendanceDto: {
             /** Format: uuid */
@@ -1190,6 +1358,22 @@ export interface components {
             ipAddress: string | null;
             /** Format: date-time */
             occurredAt: string;
+        };
+        AvailabilityDto: {
+            /** Format: uuid */
+            id: string;
+            day: string;
+            start: string;
+            end: string;
+            /** Format: uuid */
+            branchId: string | null;
+        };
+        AvailabilitySlotRequest: {
+            day: components["schemas"]["DayOfWeek"];
+            start: string;
+            end: string;
+            /** Format: uuid */
+            branchId: string | null;
         };
         BranchDto: {
             /** Format: uuid */
@@ -1400,6 +1584,18 @@ export interface components {
             ownerFullName: string;
             ownerPassword: string;
         };
+        CreateTrainerNoteRequest: {
+            text: string;
+        };
+        CreateTrainerRequest: {
+            /** Format: uuid */
+            userId: string;
+            specialties: string[] | null;
+            certifications: string | null;
+            bio: string | null;
+            /** Format: date */
+            joinedOn: string | null;
+        };
         CreateUserRequest: {
             email: string;
             fullName: string;
@@ -1407,6 +1603,8 @@ export interface components {
             roleIds: string[] | null;
             branchIds: string[] | null;
         };
+        /** @enum {unknown} */
+        DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
         DebtorDto: {
             /** Format: uuid */
             memberId: string;
@@ -1768,6 +1966,15 @@ export interface components {
             openingAmount: number;
             notes: string | null;
         };
+        PagedResultOfAssignmentDto: {
+            items: components["schemas"]["AssignmentDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfAttendanceDto: {
             items: components["schemas"]["AttendanceDto"][];
             /** Format: int32 */
@@ -1914,6 +2121,24 @@ export interface components {
         };
         PagedResultOfTenantDto: {
             items: components["schemas"]["TenantDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfTrainerDto: {
+            items: components["schemas"]["TrainerDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfTrainerNoteDto: {
+            items: components["schemas"]["TrainerNoteDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -2178,10 +2403,16 @@ export interface components {
             grantsAllBranches: boolean;
             permissions: string[];
         };
+        SetAvailabilityRequest: {
+            slots: components["schemas"]["AvailabilitySlotRequest"][] | null;
+        };
         SetMemberAccessActiveRequest: {
             active: boolean;
         };
         SetMemberStatusRequest: {
+            isActive: boolean;
+        };
+        SetTrainerStatusRequest: {
             isActive: boolean;
         };
         SetUserAccessRequest: {
@@ -2236,6 +2467,42 @@ export interface components {
             /** Format: date-time */
             refreshTokenExpiresAt: string;
         };
+        TrainerDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            userId: string;
+            fullName: string;
+            email: string | null;
+            specialties: string[];
+            certifications: string | null;
+            bio: string | null;
+            status: string;
+            /** Format: date */
+            joinedOn: string;
+            branchIds: string[];
+            /** Format: int32 */
+            activeMembers: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        TrainerNoteDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            /** Format: uuid */
+            trainerId: string;
+            trainerName: string;
+            text: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        UnassignMemberRequest: {
+            reason: string;
+        };
         UpdateBranchRequest: {
             name: string;
             timeZone: string;
@@ -2287,6 +2554,13 @@ export interface components {
             description: string | null;
             grantsAllBranches: boolean;
             permissions: string[] | null;
+        };
+        UpdateTrainerRequest: {
+            specialties: string[] | null;
+            certifications: string | null;
+            bio: string | null;
+            /** Format: date */
+            joinedOn: string;
         };
         UserDto: {
             /** Format: uuid */
@@ -4510,6 +4784,350 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PagedResultOfMyAttendanceDto"];
+                };
+            };
+        };
+    };
+    ListTrainers: {
+        parameters: {
+            query?: {
+                search?: string;
+                status?: "Active" | "Inactive" | null;
+                branchId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfTrainerDto"];
+                };
+            };
+        };
+    };
+    CreateTrainer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTrainerRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerDto"];
+                };
+            };
+        };
+    };
+    GetMyTrainer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerDto"];
+                };
+            };
+        };
+    };
+    GetTrainer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerDto"];
+                };
+            };
+        };
+    };
+    UpdateTrainer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTrainerRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerDto"];
+                };
+            };
+        };
+    };
+    SetTrainerStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetTrainerStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerDto"];
+                };
+            };
+        };
+    };
+    GetTrainerAvailability: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityDto"][];
+                };
+            };
+        };
+    };
+    SetTrainerAvailability: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetAvailabilityRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityDto"][];
+                };
+            };
+        };
+    };
+    ListTrainerMembers: {
+        parameters: {
+            query?: {
+                activeOnly?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfAssignmentDto"];
+                };
+            };
+        };
+    };
+    AssignMemberToTrainer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignMemberRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDto"];
+                };
+            };
+        };
+    };
+    UnassignMemberFromTrainer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UnassignMemberRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDto"];
+                };
+            };
+        };
+    };
+    ListMemberTrainerAssignments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDto"][];
+                };
+            };
+        };
+    };
+    ListTrainerNotes: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfTrainerNoteDto"];
+                };
+            };
+        };
+    };
+    CreateTrainerNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTrainerNoteRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainerNoteDto"];
                 };
             };
         };

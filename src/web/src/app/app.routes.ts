@@ -100,6 +100,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/notifications/notifications').then((m) => m.NotificationsPage),
       },
       {
+        path: 'trainers',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.TrainersRead },
+        loadComponent: () => import('./features/trainers/trainers').then((m) => m.Trainers),
+      },
+      {
+        path: 'trainers/:id',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.TrainersRead },
+        loadComponent: () => import('./features/trainers/trainer-detail').then((m) => m.TrainerDetail),
+      },
+      {
         path: 'branches',
         canActivate: [permissionGuard],
         data: { permission: Perm.BranchesRead },

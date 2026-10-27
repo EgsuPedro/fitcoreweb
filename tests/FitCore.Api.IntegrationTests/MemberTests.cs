@@ -249,8 +249,15 @@ public class MemberTests(ApiFixture api)
         using var student = await ClientAsync("alumno@gym.test", "Alumno");
         var update = new { firstName = "Ana", lastName = "Editada", idType = "Cedula", idNumber = member.IdNumber };
 
-        // Entrenador: solo consulta.
-        Assert.Equal(HttpStatusCode.OK, (await trainer.GetAsync($"/api/v1/members/{member.Id}")).StatusCode);
+        // Lector (rol propio con solo members.read): consulta, no crea ni edita.
+        using var reader = await CommercialTestApi.ClientWithRoleAsync(api, tenant, "lector@gym.test", false, ["members.read"], branch);
+        Assert.Equal(HttpStatusCode.OK, (await reader.GetAsync($"/api/v1/members/{member.Id}")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await reader.PostAsJsonAsync("/api/v1/members", NewMember(branch))).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await reader.PutAsJsonAsync($"/api/v1/members/{member.Id}", update)).StatusCode);
+
+        // Entrenador: trabaja solo con sus alumnos asignados (módulo de entrenadores), no con el listado general de alumnos.
+        Assert.Equal(HttpStatusCode.Forbidden, (await trainer.GetAsync($"/api/v1/members/{member.Id}")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await trainer.GetAsync("/api/v1/members")).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await trainer.PostAsJsonAsync("/api/v1/members", NewMember(branch))).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await trainer.PutAsJsonAsync($"/api/v1/members/{member.Id}", update)).StatusCode);
 

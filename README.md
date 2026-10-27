@@ -76,6 +76,8 @@ Con el entorno levantado:
 | Caja y cartera | `GET/POST /cash-registers`, `PUT /cash-registers/{id}`, `POST /cash-registers/{id}/open\|close\|movements` (exigen `Idempotency-Key`), `GET /cash-registers/{id}/movements\|sessions[/{id}]`, `GET /receivables/summary` |
 | Asistencia | `GET /attendance[/{id}]`, `POST /attendance/validate-access\|check-in\|check-out`, `POST /members/{id}/qr-token` |
 | Pagos | `GET/POST /payments` (exige `Idempotency-Key`), `GET /payments/{id}[/receipt]`, `POST /payments/{id}/confirm\|reverse` |
+| Entrenadores (Fase 4) | `GET/POST /trainers`, `GET /trainers/me`, `GET/PUT /trainers/{id}`, `PATCH /trainers/{id}/status`, `GET/PUT /trainers/{id}/availability`, `GET/POST /trainers/{id}/members`, `POST /trainers/{id}/members/{memberId}/unassign`, `GET /members/{id}/trainer-assignments`, `GET/POST /members/{id}/trainer-notes` |
+| Portal del alumno | `POST /members/{id}/access`, `POST /members/{id}/access/reset`, `PATCH /members/{id}/access`, `GET /me/member|memberships|payments|attendance` |
 | Avisos de WhatsApp | `GET /notifications`, `GET/PUT /notification-settings`, `PUT /members/{id}/whatsapp-consent` |
 | Políticas e IVA | `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates` (solo plataforma) |
 

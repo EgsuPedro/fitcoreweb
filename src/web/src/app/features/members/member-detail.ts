@@ -17,12 +17,13 @@ import { ToastService } from '../../shared/toast';
 import { PaymentDialog } from '../billing/payment-dialog';
 import { ReceiptView } from '../billing/receipt-view';
 import { EnrollDialog } from '../memberships/enroll-dialog';
+import { MemberTrainerPanel } from '../trainers/member-trainer-panel';
 import { MemberForm } from './member-form';
 
 /** Ficha del alumno: datos, membresías, obligaciones, pagos, visitas y código QR. */
 @Component({
   selector: 'fc-member-detail',
-  imports: [RouterLink, TranslocoPipe, Badge, Modal, Confirm, FcDate, FcDateTime, FcMoney, MemberForm, EnrollDialog, PaymentDialog, ReceiptView],
+  imports: [RouterLink, TranslocoPipe, Badge, Modal, Confirm, FcDate, FcDateTime, FcMoney, MemberForm, EnrollDialog, PaymentDialog, ReceiptView, MemberTrainerPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (error()) {
@@ -141,6 +142,8 @@ import { MemberForm } from './member-form';
           }
         </section>
       }
+
+      <fc-member-trainer-panel [memberId]="m.id" />
 
       <section class="section">
         <h2>{{ 'members.memberships' | transloco }}</h2>

@@ -28,6 +28,14 @@
 - **Permisos sensibles (infraestructura):** `PermissionDefinition.Sensitive`. `Propietario` y los administradores no los reciben por defecto, y quien administra roles (`roles.manage`) puede concederlos a un rol sin poseerlos (`UserAccess.CanGrant`). Los permisos sensibles concretos llegan con cada módulo.
 - **Límite conocido:** el correo del usuario es único en toda la plataforma (ASP.NET Identity): una persona no puede tener cuentas con el mismo correo en dos gimnasios.
 
+## Implementación del bloque 2b (entrenadores)
+- **Módulo `FitCore.Wellness`** (esquema `training`, `WellnessDbContext`, migraciones `InitialWellness` y `AddTrainersSecurity`): RLS forzado, claves compuestas con `tenant_id`, y los datos de otros módulos (alumnos, usuarios, sucursales, roles) se leen con vistas de solo lectura propias: **los módulos de negocio no se referencian entre sí** (lo vigila una prueba de arquitectura).
+- **Perfil (`TrainerProfile`):** un usuario es entrenador una sola vez por gimnasio; especialidades (máx. 10, sin repetidos), certificaciones, biografía, fecha de incorporación y estado. Las sucursales del entrenador **son las de su usuario** (no se duplican). No se puede desactivar con alumnos asignados.
+- **Disponibilidad:** franjas semanales (día, hora de inicio y fin, sucursal opcional); se reemplazan completas, sin solapes ni fin anterior al inicio (máx. 28). Cada entrenador gestiona la suya; la de otro exige `trainers.manage`.
+- **Asignaciones con historial:** un alumno tiene **un solo entrenador activo** (índice único parcial en la base). Asignarlo a otro cierra la asignación anterior con su motivo y abre la nueva en una transacción; nada se borra y una asignación cerrada es inmutable (trigger). El entrenador debe trabajar en la sucursal del alumno y ambos deben estar activos. Un entrenador solo lista **sus** alumnos; los de otro exigen `trainers.manage`.
+- **Observaciones profesionales (`trainers.notes`, sensible):** solo se agregan (trigger: ni se editan ni se borran) y **solo las lee y escribe el entrenador que tiene hoy asignado al alumno**; ni el propietario ni el administrador, aunque administren entrenadores. Al cambiar de entrenador, el anterior pierde el acceso y el nuevo ve el historial. Se audita el hecho (creación y lectura), nunca el texto.
+- **Mínimo privilegio en el rol `Entrenador`:** deja de tener `members.read` y `attendance.read` (veían todo el gimnasio); trabaja con sus alumnos asignados mediante el módulo de entrenadores. El propietario también deja de recibir los permisos sensibles: la sincronización de arranque se los **retira** si los tenía (se corrigió un defecto por el que se los volvía a conceder en cada reinicio).
+
 ## Principios del dominio (de las reglas del prompt)
 - **Versiones inmutables:** una rutina o un plan nutricional se versiona; modificarlo crea una versión nueva y las sesiones y registros ya hechos conservan la versión con la que se hicieron.
 - **Mediciones, no diagnósticos:** cada medición guarda unidad, fecha, fuente y método; lo estimado se marca como derivado. El IMC se muestra como indicador general (peso / estatura²) solo con estatura > 0; no se calcula grasa corporal sin método y datos válidos. El sistema no diagnostica ni sustituye una valoración clínica, y las estimaciones calóricas no se presentan como exactas.
@@ -44,7 +52,7 @@ App móvil Flutter, facturación electrónica, nómina y contabilidad.
 |---|---|---|
 | 1 | Diagnóstico y dependencias (este documento) | Hecho |
 | 2a | Acceso del alumno: vínculo alumno–usuario, clave temporal con cambio obligatorio, endpoints «de mí», permisos sensibles | Hecho |
-| 2b | Módulo `Wellness`: entrenadores, disponibilidad, asignaciones con historial y observaciones | Pendiente |
+| 2b | Módulo `Wellness`: entrenadores, disponibilidad, asignaciones con historial y observaciones | Hecho |
 | 3 | Biblioteca de ejercicios (globales y del gimnasio, catálogo base) | Pendiente |
 | 4 | Rutinas, asignaciones y sesiones (versionado) | Pendiente |
 | 5 | Nutrición (planes versionados, asignaciones, registro de cumplimiento) | Pendiente |

@@ -76,7 +76,8 @@
     "promotions": "Promotions",
     "settings": "Policies",
     "taxRates": "VAT rates",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "trainers": "Trainers"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -363,6 +364,27 @@
     },
     "portal": {
       "no_member_linked": "Your user is not linked to any member record. Ask the front desk for help."
+    },
+    "trainers": {
+      "not_found": "Trainer not found.",
+      "no_profile": "Your user has no trainer profile.",
+      "already_exists": "That user is already a trainer.",
+      "user_not_found": "The user does not exist or is out of your scope.",
+      "user_inactive": "The user is inactive.",
+      "inactive": "The trainer is inactive.",
+      "has_active_members": "The trainer has assigned members: reassign them before deactivating.",
+      "member_not_found": "Member not found.",
+      "member_inactive": "The member is inactive.",
+      "already_assigned": "The member is already assigned to this trainer.",
+      "no_active_assignment": "The member is not assigned to this trainer.",
+      "branch_mismatch": "The trainer does not work at the member’s branch.",
+      "assignment_conflict": "The member changed trainer at the same time; try again.",
+      "not_yours": "You can only view or change your own trainer data.",
+      "not_assigned": "Only the trainer assigned to the member can see or write their notes.",
+      "availability_branch_invalid": "A branch in the slots does not exist, is inactive or is out of your scope.",
+      "availability_too_many": "At most 28 availability slots.",
+      "availability_invalid_range": "The end time must be after the start time.",
+      "availability_overlap": "Slots on the same day cannot overlap."
     }
   },
   "enums": {
@@ -466,6 +488,19 @@
     "notificationRecipientKind": {
       "Staff": "Staff",
       "Member": "Member"
+    },
+    "trainerStatus": {
+      "Active": "Active",
+      "Inactive": "Inactive"
+    },
+    "dayOfWeek": {
+      "Monday": "Monday",
+      "Tuesday": "Tuesday",
+      "Wednesday": "Wednesday",
+      "Thursday": "Thursday",
+      "Friday": "Friday",
+      "Saturday": "Saturday",
+      "Sunday": "Sunday"
     }
   },
   "members": {
@@ -911,5 +946,58 @@
     "noMemberships": "You have no memberships yet.",
     "noPayments": "You have no payments yet.",
     "noAttendance": "You have no visits yet."
+  },
+  "trainers": {
+    "title": "Trainers",
+    "new": "Enable trainer",
+    "empty": "No trainers to show.",
+    "name": "Trainer",
+    "user": "User",
+    "userHint": "Choose an active user of the gym. Their branches are the user’s branches.",
+    "specialties": "Specialties",
+    "specialtiesHint": "Comma separated (max 10), for example: Strength, Mobility.",
+    "certifications": "Certifications",
+    "bio": "Professional bio",
+    "joinedOn": "Joined on",
+    "activeMembers": "Members",
+    "profile": "Professional profile",
+    "availability": "Weekly availability",
+    "noAvailability": "No availability slots.",
+    "anyBranch": "Any branch",
+    "day": "Day",
+    "from": "From",
+    "to": "To",
+    "addSlot": "Add slot",
+    "saveAvailability": "Save availability",
+    "members": "Assigned members",
+    "showHistory": "Include previous assignments",
+    "assign": "Assign member",
+    "assignHint": "If the member already has another trainer, that assignment is closed and kept in their history.",
+    "assignReason": "Reason (optional)",
+    "unassign": "Remove",
+    "assignedOn": "From",
+    "endedOn": "Until",
+    "active": "Active",
+    "noMembers": "No members assigned.",
+    "deactivate": "Deactivate",
+    "activate": "Activate",
+    "deactivateConfirm": "The trainer will no longer be able to receive members. They can only be deactivated with no assigned members. Continue?",
+    "activateConfirm": "Activate the trainer?",
+    "invalidForm": "Choose the user who will be a trainer.",
+    "createdToast": "Trainer enabled.",
+    "savedToast": "Trainer updated.",
+    "assignedToast": "Member assigned.",
+    "unassignedToast": "Assignment closed.",
+    "availabilitySavedToast": "Availability saved.",
+    "memberSection": "Member’s trainer",
+    "present": "today",
+    "noTrainer": "The member has not had an assigned trainer.",
+    "notes": "Trainer notes",
+    "newNote": "New note",
+    "noteHint": "Only the trainer assigned to the member can see it. It cannot be edited or deleted.",
+    "addNote": "Save note",
+    "noNotes": "No notes yet.",
+    "notesDenied": "Notes are confidential and only the trainer assigned to the member can see them.",
+    "noteSavedToast": "Note saved."
   }
 }

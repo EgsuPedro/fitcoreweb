@@ -92,6 +92,12 @@ Se inicia sesión con **gimnasio + correo + clave**.
 2. Cierre sesión e inicie como ese alumno (gimnasio `demo`, su correo y la clave temporal): lo lleva a *Cambiar contraseña* y no puede ir a ninguna otra pantalla hasta cambiarla.
 3. Tras cambiarla vuelve a iniciar sesión: ve *Hola, <nombre>* con su membresía, pagos y visitas, sin menú de administración. *Restablecer clave* y *Suspender acceso* están en la misma ficha.
 
+**Entrenadores** (Fase 4, bloque 2b), con el propietario `demo`:
+1. *Entrenadores*: ya existe *Entrenador Demo* (usuario `entrenador.uio@`) con un alumno asignado. *Habilitar entrenador* convierte a otro usuario en entrenador.
+2. Abra su perfil: agregue franjas de disponibilidad (*Guardar disponibilidad*), asigne otro alumno (si ya tenía entrenador, el anterior queda en el historial: marque *Incluir asignaciones anteriores*) o quite uno con motivo.
+3. Cierre sesión y entre como `entrenador.uio@demo.fitcore.test`: el menú es mínimo (sin *Alumnos* ni *Asistencia*), solo ve sus alumnos y, con *Observaciones*, escribe notas profesionales.
+4. Vuelva como propietario y abra la ficha de ese alumno: ve *Entrenador del alumno* (historial) pero **no** las observaciones: solo las ve el entrenador asignado.
+
 **Seguridad rápida:**
 - 5 contraseñas erróneas seguidas bloquean la cuenta 15 minutos (aunque luego se escriba la correcta).
 - Desactivar un usuario desde "Usuarios" cierra su sesión en la siguiente solicitud.

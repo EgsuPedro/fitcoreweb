@@ -16,6 +16,78 @@ export const routes: Routes = [
     children: [
       { path: '', pathMatch: 'full', loadComponent: () => import('./features/home/home').then((m) => m.Home) },
       {
+        path: 'members',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.MembersRead },
+        loadComponent: () => import('./features/members/members').then((m) => m.Members),
+      },
+      {
+        path: 'members/:id',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.MembersRead },
+        loadComponent: () => import('./features/members/member-detail').then((m) => m.MemberDetail),
+      },
+      {
+        path: 'plans',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlansRead },
+        loadComponent: () => import('./features/plans/plans').then((m) => m.Plans),
+      },
+      {
+        path: 'promotions',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PromotionsRead },
+        loadComponent: () => import('./features/plans/promotions').then((m) => m.Promotions),
+      },
+      {
+        path: 'memberships',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.MembershipsRead },
+        loadComponent: () => import('./features/memberships/memberships').then((m) => m.Memberships),
+      },
+      {
+        path: 'memberships/:id',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.MembershipsRead },
+        loadComponent: () => import('./features/memberships/membership-detail').then((m) => m.MembershipDetail),
+      },
+      {
+        path: 'payments',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PaymentsRead },
+        loadComponent: () => import('./features/billing/payments').then((m) => m.Payments),
+      },
+      {
+        path: 'receivables',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ObligationsRead },
+        loadComponent: () => import('./features/billing/receivables').then((m) => m.Receivables),
+      },
+      {
+        path: 'cash',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.CashRead },
+        loadComponent: () => import('./features/cash/cash').then((m) => m.Cash),
+      },
+      {
+        path: 'attendance',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.AttendanceRead },
+        loadComponent: () => import('./features/attendance/attendance').then((m) => m.AttendancePage),
+      },
+      {
+        path: 'settings',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlansRead },
+        loadComponent: () => import('./features/settings/commercial-settings').then((m) => m.CommercialSettingsPage),
+      },
+      {
+        path: 'platform/tax-rates',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformTaxesManage },
+        loadComponent: () => import('./features/settings/tax-rates').then((m) => m.TaxRates),
+      },
+      {
         path: 'branches',
         canActivate: [permissionGuard],
         data: { permission: Perm.BranchesRead },

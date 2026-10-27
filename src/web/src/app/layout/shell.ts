@@ -3,11 +3,12 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SessionService } from '../core/auth/session.service';
 import { Lang, SUPPORTED_LANGS, setLang } from '../core/i18n/transloco';
+import { Toasts } from '../shared/toast';
 import { NAV_ITEMS, visibleNavItems } from './nav';
 
 @Component({
   selector: 'fc-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, Toasts],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="shell" [class.nav-open]="navOpen()">
@@ -67,6 +68,7 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
         <main class="content" id="content">
           <router-outlet />
         </main>
+        <fc-toasts />
       </div>
     </div>
   `,

@@ -20,6 +20,35 @@ export type SetUserAccessRequest = Schemas['SetUserAccessRequest'];
 export type CreateRoleRequest = Schemas['CreateRoleRequest'];
 export type UpdateRoleRequest = Schemas['UpdateRoleRequest'];
 
+// Módulo comercial (Fase 3)
+export type Member = Schemas['MemberDto'];
+export type CreateMemberRequest = Schemas['CreateMemberRequest'];
+export type UpdateMemberRequest = Schemas['UpdateMemberRequest'];
+export type Plan = Schemas['PlanDto'];
+export type PlanRequest = Schemas['PlanRequest'];
+export type Promotion = Schemas['PromotionDto'];
+export type PromotionRequest = Schemas['PromotionRequest'];
+export type CommercialSettings = Schemas['CommercialSettingsDto'];
+export type UpdateCommercialSettingsRequest = Schemas['UpdateCommercialSettingsRequest'];
+export type TaxRate = Schemas['TaxRateDto'];
+export type CreateTaxRateRequest = Schemas['CreateTaxRateRequest'];
+export type Membership = Schemas['MembershipDto'];
+export type MembershipEvent = Schemas['MembershipEventDto'];
+export type EnrollRequest = Schemas['EnrollRequest'];
+export type RenewRequest = Schemas['RenewRequest'];
+export type Obligation = Schemas['ObligationDto2'];
+export type CreateObligationRequest = Schemas['CreateObligationRequest'];
+export type Payment = Schemas['PaymentDto'];
+export type PaymentLine = Schemas['PaymentLineDto'];
+export type CreatePaymentRequest = Schemas['CreatePaymentRequest'];
+export type Receipt = Schemas['ReceiptDto'];
+export type ReceivablesSummary = Schemas['ReceivablesSummaryDto'];
+export type CashRegister = Schemas['CashRegisterDto'];
+export type CashSession = Schemas['CashSessionDto'];
+export type CashMovement = Schemas['CashMovementDto'];
+export type Attendance = Schemas['AttendanceDto'];
+export type AccessDecision = Schemas['AccessDecisionDto'];
+export type QrToken = Schemas['QrTokenDto'];
 export interface Paged<T> {
   items: T[];
   page: number;

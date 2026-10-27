@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "generate:api": "npx --yes openapi-typescript@7.13.0 http://localhost:8080/openapi/v1.json -o src/app/core/api/schema.d.ts"
+    "generate:api": "npx --yes openapi-typescript@7.13.0 http://localhost:8080/openapi/v1.json -o src/app/core/api/schema.d.ts",
+    "check:i18n": "node scripts/check-i18n-keys.mjs"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
@@ -19,6 +20,7 @@
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
     "@jsverse/transloco": "^8.4.0",
+    "qrcode": "1.5.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -26,6 +28,7 @@
     "@angular/build": "^22.2.4",
     "@angular/cli": "^22.2.4",
     "@angular/compiler-cli": "^22.2.0",
+    "@types/qrcode": "^1.5.6",
     "jsdom": "^30.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",

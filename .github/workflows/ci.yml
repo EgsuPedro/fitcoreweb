@@ -37,6 +37,8 @@ jobs:
           cache: npm
           cache-dependency-path: src/web/package-lock.json
       - run: npm ci
+      - name: Translation keys (es/en)
+        run: npm run check:i18n
       - name: Unit tests
         run: npx ng test --watch=false
       - name: Production build

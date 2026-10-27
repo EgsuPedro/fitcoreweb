@@ -36,6 +36,11 @@ export class ErrorMessages {
     return statusText !== statusKey ? statusText : this.transloco.translate('errors.generic');
   }
 
+  /** Texto de interfaz en el idioma activo, para mensajes de validación propios de una pantalla. */
+  text(key: string, params?: Record<string, unknown>): string {
+    return this.transloco.translate(key, params);
+  }
+
   problemOf(error: unknown): ProblemDetails | null {
     if (error instanceof HttpErrorResponse && error.error && typeof error.error === 'object') {
       return error.error as ProblemDetails;
@@ -49,6 +54,27 @@ export class ErrorMessages {
 export class Formatter {
   private readonly transloco = inject(TranslocoService);
 
+  private get locale(): string {
+    return this.transloco.getActiveLang() === 'en' ? 'en-US' : 'es-EC';
+  }
+
+  /** Dólares con el formato del idioma activo. Solo formatea: los cálculos monetarios los hace siempre el backend. */
+  money(amount: number): string {
+    return new Intl.NumberFormat(this.locale, { style: 'currency', currency: 'USD' }).format(amount);
+  }
+
+  /** Fecha sin hora (`2026-11-26`) tal cual, sin el corrimiento de zona horaria que sufre `new Date('2026-11-26')`. */
+  dateOnly(value: string): string {
+    const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+    if (!year || !month || !day) {
+      return value;
+    }
+    return new Intl.DateTimeFormat(this.locale, { dateStyle: 'medium' }).format(new Date(year, month - 1, day));
+  }
+
+  time(iso: string): string {
+    return new Intl.DateTimeFormat(this.locale, { timeStyle: 'short' }).format(new Date(iso));
+  }
   dateTime(iso: string): string {
     const locale = this.transloco.getActiveLang() === 'en' ? 'en-US' : 'es-EC';
     return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));

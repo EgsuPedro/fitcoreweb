@@ -20,7 +20,7 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         }
         else
         {
-            logger.LogWarning(exception, "Conflicto en {Method} {Path}: {Code}", httpContext.Request.Method, httpContext.Request.Path, code);
+            logger.LogWarning(exception, "Solicitud rechazada en {Method} {Path}: {Code}", httpContext.Request.Method, httpContext.Request.Path, code);
         }
 
         httpContext.Response.StatusCode = status;
@@ -46,6 +46,9 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
             (StatusCodes.Status409Conflict, "Ya existe un registro con esos datos.", "conflict.duplicate"),
         DbUpdateConcurrencyException =>
             (StatusCodes.Status409Conflict, "El registro fue modificado por otra persona. Recárguelo e intente de nuevo.", "conflict.concurrency"),
+        // Cuerpo ilegible (JSON mal formado, UTF-8 inválido): error del cliente, no del servidor.
+        BadHttpRequestException =>
+            (StatusCodes.Status400BadRequest, "Los datos de la solicitud no son válidos.", "request.invalid_body"),
         TenantViolationException =>
             (StatusCodes.Status500InternalServerError, "Error interno del servidor", "server.tenant_violation"),
         _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor", "server.internal_error")

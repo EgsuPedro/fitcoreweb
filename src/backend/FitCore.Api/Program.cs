@@ -155,6 +155,18 @@ app.UseStatusCodePages();
 app.UseSerilogRequestLogging();
 app.UseRequestLocalization();
 
+if (app.Environment.IsDevelopment())
+{
+    // Interfaz Swagger solo en Development. Va antes de la autorización porque sirve archivos estáticos sin endpoint
+    // (la política global exigiría sesión); el documento OpenAPI que consume se mapea más abajo. Autorizar con "Bearer <token>".
+    app.UseSwaggerUI(options =>
+    {
+        options.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("/openapi/v1.json", "FitCore 360 v1");
+        options.DocumentTitle = "FitCore 360 - API";
+    });
+}
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseMiddleware<TenantContextMiddleware>();

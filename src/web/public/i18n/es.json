@@ -160,7 +160,7 @@
     "http_429": "Demasiados intentos. Espere un minuto e intente de nuevo.",
     "http_500": "Error del servidor. Intente más tarde.",
     "validation": { "failed": "Revise los datos ingresados." },
-    "request": { "body_required": "Faltan datos en la solicitud." },
+    "request": { "body_required": "Faltan datos en la solicitud.", "invalid_body": "Los datos de la solicitud no son válidos." },
     "server": { "internal_error": "Error del servidor. Intente más tarde.", "tenant_violation": "Error del servidor. Intente más tarde." },
     "conflict": {
       "duplicate": "Ya existe un registro con esos datos.",

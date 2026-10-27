@@ -160,7 +160,7 @@
     "http_429": "Too many attempts. Wait a minute and try again.",
     "http_500": "Server error. Please try again later.",
     "validation": { "failed": "Check the data you entered." },
-    "request": { "body_required": "The request is missing data." },
+    "request": { "body_required": "The request is missing data.", "invalid_body": "The request data is malformed." },
     "server": { "internal_error": "Server error. Please try again later.", "tenant_violation": "Server error. Please try again later." },
     "conflict": {
       "duplicate": "A record with that data already exists.",

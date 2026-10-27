@@ -24,7 +24,7 @@ const API_ERROR_CODES = [
   'roles.not_found', 'roles.name_taken', 'roles.in_use', 'roles.system_protected', 'roles.owner_protected',
   'roles.permission_not_found', 'roles.permission_not_grantable', 'roles.not_manageable', 'roles.all_branches_not_grantable',
   'tenants.slug_taken', 'tenants.not_found', 'tenants.platform_protected',
-  'validation.failed', 'request.body_required', 'conflict.duplicate', 'conflict.concurrency', 'server.internal_error',
+  'validation.failed', 'request.body_required', 'request.invalid_body','conflict.duplicate', 'conflict.concurrency', 'server.internal_error',
 ];
 
 describe('traducciones', () => {

@@ -24,6 +24,17 @@ public class SystemEndpointsTests : IClassFixture<WebApplicationFactory<Program>
     }
 
     [Fact]
+    public async Task Swagger_UI_y_documento_OpenAPI_estan_disponibles_en_Development()
+    {
+        var ui = await _client.GetAsync("/swagger/index.html");
+        var document = await _client.GetAsync("/openapi/v1.json");
+
+        Assert.Equal(HttpStatusCode.OK, ui.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, document.StatusCode);
+        Assert.Contains("/api/v1/auth/login", await document.Content.ReadAsStringAsync(), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task System_info_devuelve_nombre_y_fecha_utc()
     {
         var response = await _client.GetAsync("/api/v1/system/info");
@@ -43,6 +54,29 @@ public class SystemEndpointsTests : IClassFixture<WebApplicationFactory<Program>
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Theory]
+    [InlineData("{\"tenantSlug\": ")]
+    [InlineData("no es json")]
+    public async Task Un_cuerpo_ilegible_responde_400_y_no_500(string body)
+    {
+        using var content = new StringContent(body, System.Text.Encoding.UTF8, "application/json");
+
+        var response = await _client.PostAsync("/api/v1/auth/login", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Un_cuerpo_con_bytes_UTF8_invalidos_responde_400_y_no_500()
+    {
+        using var content = new ByteArrayContent([0x7B, 0x22, 0x74, 0x65, 0x6E, 0x61, 0x6E, 0x74, 0x53, 0x6C, 0x75, 0x67, 0x22, 0x3A, 0x22, 0xE1, 0x22, 0x7D]);
+        content.Headers.ContentType = new("application/json");
+
+        var response = await _client.PostAsync("/api/v1/auth/login", content);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]

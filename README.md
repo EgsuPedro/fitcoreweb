@@ -56,7 +56,8 @@ npx playwright test                           # levanta ng serve; con E2E_BASE_U
 
 Con el entorno levantado:
 - Web: `http://localhost:8081` (nginx; reenvía `/api` a la API, mismo origen)
-- API: `http://localhost:8080` — `/health/live`, `/health/ready`, `/openapi/v1.json` (solo Development)
+- API: `http://localhost:8080` — `/health/live`, `/health/ready`
+- Solo en Development: Swagger UI en `http://localhost:8080/swagger` (botón *Authorize* con el access token) y OpenAPI en `/openapi/v1.json`
 - Administrador de plataforma: el correo y la clave de `PLATFORM_ADMIN_*` en `infra/compose/.env`, con el gimnasio `platform`. Desde ahí se crean los gimnasios.
 
 ## Endpoints (v1)
@@ -71,6 +72,14 @@ Con el entorno levantado:
 | Roles y auditoría | `GET/POST /roles`, `PUT/DELETE /roles/{id}`, `GET /permissions`, `GET /audit-logs` |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
+
+## Documentación
+- [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
+- [Arquitectura](docs/architecture.md): estructura, auditoría, primer administrador, configuración y ambientes
+- [Modelo de datos](docs/database-model.md): esquemas, aislamiento, migraciones (aplicar y comprobar)
+- [Matriz de permisos](docs/permissions-matrix.md): catálogo, roles y permiso de cada endpoint
+- [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
+- [ADR](docs/adr/): decisiones y su justificación
 
 ## Reglas
 - El build trata las advertencias como errores.

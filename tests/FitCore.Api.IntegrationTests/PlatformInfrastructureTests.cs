@@ -56,7 +56,7 @@ public class PlatformInfrastructureTests(ApiFixture api)
         await connection.OpenAsync();
 
         var applied = await ScalarAsync<long>(connection, "SELECT count(*) FROM \"__EFMigrationsHistory\"");
-        Assert.Equal(2, applied);
+        Assert.Equal(3, applied);
 
         string[] tables =
         [

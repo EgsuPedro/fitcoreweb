@@ -3,10 +3,11 @@ import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@a
 import { authGuard, guestGuard, permissionGuard } from './guards';
 import { SessionService } from './session.service';
 
-function fakeSession(authenticated: boolean, permissions: string[] = []) {
+function fakeSession(authenticated: boolean, permissions: string[] = [], mustChangePassword = false) {
   return {
     restore: vi.fn().mockResolvedValue(undefined),
     isAuthenticated: () => authenticated,
+    user: () => (authenticated ? { mustChangePassword } : null),
     has: (permission: string) => permissions.includes(permission),
   };
 }
@@ -42,6 +43,20 @@ describe('guards', () => {
     await TestBed.runInInjectionContext(() => authGuard(route(), state('/users?page=2')));
 
     expect(createUrlTree).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/users?page=2' } });
+  });
+
+  it('authGuard lleva a cambiar la clave a quien tiene una clave temporal, sea cual sea la ruta pedida', async () => {
+    const { createUrlTree } = setup(fakeSession(true, [], true));
+
+    await TestBed.runInInjectionContext(() => authGuard(route(), state('/members')));
+
+    expect(createUrlTree).toHaveBeenCalledWith(['/change-password']);
+  });
+
+  it('authGuard deja ver la pantalla de cambio de clave a quien la tiene pendiente', async () => {
+    setup(fakeSession(true, [], true));
+
+    expect(await TestBed.runInInjectionContext(() => authGuard(route(), state('/change-password')))).toBe(true);
   });
 
   it('guestGuard manda al inicio a quien ya inició sesión', async () => {

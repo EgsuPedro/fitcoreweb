@@ -468,6 +468,38 @@ export interface paths {
         patch: operations["SetMemberStatus"];
         trace?: never;
     };
+    "/api/v1/members/{id}/access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["GrantMemberAccess"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetMemberAccessActive"];
+        trace?: never;
+    };
+    "/api/v1/members/{id}/access/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ResetMemberAccess"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/members/{id}/qr-token": {
         parameters: {
             query?: never;
@@ -1012,6 +1044,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/member": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMyMember"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/memberships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMyMemberships"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMyPayments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMyAttendance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1355,6 +1451,12 @@ export interface components {
             /** @default false */
             useCookie: boolean;
         };
+        MemberAccessDto: {
+            /** Format: uuid */
+            memberId: string;
+            email: string;
+            temporaryPassword: string;
+        };
         MemberDto: {
             /** Format: uuid */
             id: string;
@@ -1392,6 +1494,7 @@ export interface components {
             whatsAppConsent: boolean;
             /** Format: date-time */
             whatsAppConsentAt: string | null;
+            hasAccount: boolean;
         };
         MembershipDto: {
             /** Format: uuid */
@@ -1474,6 +1577,65 @@ export interface components {
             permissions: string[];
             branchIds: string[];
             allBranches: boolean;
+            /** @default false */
+            mustChangePassword: boolean;
+        };
+        MyAttendanceDto: {
+            /** Format: uuid */
+            id: string;
+            branchName: string;
+            /** Format: date-time */
+            checkInAt: string;
+            /** Format: date-time */
+            checkOutAt: string | null;
+            /** Format: int32 */
+            durationMinutes: number | null;
+        };
+        MyMemberDto: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            firstName: string;
+            lastName: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            email: string | null;
+            phone: string | null;
+            status: string;
+            whatsAppConsent: boolean;
+            hasQrToken: boolean;
+        };
+        MyMembershipDto: {
+            /** Format: uuid */
+            id: string;
+            planName: string;
+            allowedAccess: string | null;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
+            status: string;
+            /** Format: double */
+            agreedPrice: number;
+            /** Format: double */
+            balance: number | null;
+            /** Format: date */
+            dueDate: string | null;
+            obligationStatus: string | null;
+            /** Format: int32 */
+            remainingFreezeDays: number;
+        };
+        MyPaymentDto: {
+            /** Format: uuid */
+            id: string;
+            receiptNumber: string;
+            /** Format: date-time */
+            paidAt: string;
+            method: string;
+            /** Format: double */
+            amount: number;
+            status: string;
         };
         NotificationDto: {
             /** Format: uuid */
@@ -1671,6 +1833,33 @@ export interface components {
         };
         PagedResultOfMembershipDto: {
             items: components["schemas"]["MembershipDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfMyAttendanceDto: {
+            items: components["schemas"]["MyAttendanceDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfMyMembershipDto: {
+            items: components["schemas"]["MyMembershipDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfMyPaymentDto: {
+            items: components["schemas"]["MyPaymentDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -1988,6 +2177,9 @@ export interface components {
             isSystem: boolean;
             grantsAllBranches: boolean;
             permissions: string[];
+        };
+        SetMemberAccessActiveRequest: {
+            active: boolean;
         };
         SetMemberStatusRequest: {
             isActive: boolean;
@@ -3061,6 +3253,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberDto"];
+                };
+            };
+        };
+    };
+    GrantMemberAccess: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberAccessDto"];
+                };
+            };
+        };
+    };
+    SetMemberAccessActive: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetMemberAccessActiveRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"];
+                };
+            };
+        };
+    };
+    ResetMemberAccess: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberAccessDto"];
                 };
             };
         };
@@ -4159,6 +4421,95 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaxRateDto"];
+                };
+            };
+        };
+    };
+    GetMyMember: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyMemberDto"];
+                };
+            };
+        };
+    };
+    ListMyMemberships: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfMyMembershipDto"];
+                };
+            };
+        };
+    };
+    ListMyPayments: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfMyPaymentDto"];
+                };
+            };
+        };
+    };
+    ListMyAttendance: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfMyAttendanceDto"];
                 };
             };
         };

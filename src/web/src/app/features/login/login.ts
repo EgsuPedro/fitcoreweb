@@ -37,6 +37,9 @@ function rememberTenant(slug: string): void {
           <p class="muted">{{ 'login.subtitle' | transloco }}</p>
         </div>
 
+        @if (reason() === 'passwordChanged') {
+          <p class="alert alert-info" role="status">{{ 'login.passwordChanged' | transloco }}</p>
+        }
         @if (reason() === 'expired') {
           <p class="alert alert-warning" role="status">{{ 'login.expired' | transloco }}</p>
         }

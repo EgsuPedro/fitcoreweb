@@ -23,6 +23,7 @@ const me: Me = {
   permissions: ['branches.read', 'users.read'],
   branchIds: [],
   allBranches: true,
+  mustChangePassword: false,
 };
 
 describe('SessionService', () => {

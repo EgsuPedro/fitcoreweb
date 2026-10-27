@@ -68,7 +68,7 @@ internal sealed class RoleAdministration(PlatformDbContext db)
             return RoleErrors.PermissionNotFound;
         }
 
-        if (!permissions.All(actor.Has))
+        if (!permissions.All(actor.CanGrant))
         {
             return RoleErrors.PermissionNotGrantable;
         }
@@ -163,7 +163,7 @@ internal sealed class UpdateRoleHandler(PlatformDbContext db, IAccessContext acc
         var current = await db.RolePermissions.Where(rp => rp.RoleId == role.Id).ToListAsync(cancellationToken);
 
         // No se puede modificar un rol que tenga más alcance que uno mismo (evita rebajar o reutilizar roles ajenos).
-        if (!current.All(rp => actor.Value.Has(rp.PermissionCode)) || (role.GrantsAllBranches && !actor.Value.AllBranches))
+        if (!current.All(rp => actor.Value.CanGrant(rp.PermissionCode)) || (role.GrantsAllBranches && !actor.Value.AllBranches))
         {
             return RoleErrors.NotManageable;
         }
@@ -229,7 +229,7 @@ internal sealed class DeleteRoleHandler(PlatformDbContext db, IAccessContext acc
         }
 
         var permissions = await db.RolePermissions.Where(rp => rp.RoleId == role.Id).ToListAsync(cancellationToken);
-        if (!permissions.All(rp => actor.Value.Has(rp.PermissionCode)) || (role.GrantsAllBranches && !actor.Value.AllBranches))
+        if (!permissions.All(rp => actor.Value.CanGrant(rp.PermissionCode)) || (role.GrantsAllBranches && !actor.Value.AllBranches))
         {
             return RoleErrors.NotManageable;
         }

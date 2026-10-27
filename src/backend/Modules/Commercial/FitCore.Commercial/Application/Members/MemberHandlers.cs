@@ -3,6 +3,7 @@ using FitCore.Application.Core;
 using FitCore.Commercial.Domain;
 using FitCore.Commercial.Persistence;
 using FitCore.Platform.Application;
+using FitCore.Platform.Application.Users;
 using FitCore.Platform.Security;
 using FitCore.SharedKernel;
 using FluentValidation;
@@ -36,7 +37,8 @@ public sealed record MemberDto(
     DateTimeOffset? UpdatedAt,
     Guid? UpdatedBy,
     bool WhatsAppConsent,
-    DateTimeOffset? WhatsAppConsentAt)
+    DateTimeOffset? WhatsAppConsentAt,
+    bool HasAccount)
 {
     public static MemberDto From(Member m) =>
         new(
@@ -65,7 +67,8 @@ public sealed record MemberDto(
             m.UpdatedAt,
             m.UpdatedBy,
             m.WhatsAppConsent,
-            m.WhatsAppConsentAt);
+            m.WhatsAppConsentAt,
+            m.UserId != null);
 }
 
 /// <summary>Campos de perfil comunes a crear y editar un alumno.</summary>
@@ -357,7 +360,7 @@ internal sealed class UpdateMemberHandler(CommercialDbContext db, IAccessContext
     }
 }
 
-internal sealed class SetMemberStatusHandler(CommercialDbContext db, IAccessContext access, IClock clock, ICurrentUser currentUser)
+internal sealed class SetMemberStatusHandler(CommercialDbContext db, IAccessContext access, IClock clock, ICurrentUser currentUser, IMemberAccountService accounts)
     : ICommandHandler<SetMemberStatusCommand, MemberDto>
 {
     public async Task<Result<MemberDto>> HandleAsync(SetMemberStatusCommand command, CancellationToken cancellationToken)
@@ -376,6 +379,13 @@ internal sealed class SetMemberStatusHandler(CommercialDbContext db, IAccessCont
 
         member.SetStatus(command.Request.IsActive ? MemberStatus.Active : MemberStatus.Inactive, currentUser.UserId, clock.UtcNow);
         await db.SaveChangesAsync(cancellationToken);
+
+        // Un alumno inactivo no entra a su portal. Al reactivarlo el acceso no se restablece solo: se decide de forma explícita.
+        if (!command.Request.IsActive && member.UserId is { } userId)
+        {
+            await accounts.SetActiveAsync(userId, false, cancellationToken);
+        }
+
         return MemberDto.From(member);
     }
 }

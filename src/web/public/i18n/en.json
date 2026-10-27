@@ -53,7 +53,8 @@
     "password": "Password",
     "submit": "Sign in",
     "submitting": "Signing in…",
-    "required": "Enter the gym, email and password."
+    "required": "Enter the gym, email and password.",
+    "passwordChanged": "Password changed. Sign in with the new one."
   },
   "nav": {
     "label": "Main menu",
@@ -295,7 +296,13 @@
       "duplicate_identification": "A member with that ID document already exists.",
       "inactive": "The member is inactive.",
       "not_found": "Member not found.",
-      "whatsapp_phone_required": "To turn on WhatsApp the member needs a valid phone number (for example 0991234567)."
+      "whatsapp_phone_required": "To turn on WhatsApp the member needs a valid phone number (for example 0991234567).",
+      "access_exists": "The member already has portal access.",
+      "access_missing": "The member does not have portal access yet.",
+      "access_email_required": "Enter the member email to give them access.",
+      "access_member_inactive": "An inactive member cannot have portal access.",
+      "access_conflict": "The account could not be linked; try again.",
+      "access_role_missing": "The gym does not have the Member role. Reset the template roles."
     },
     "memberships": {
       "already_cancelled": "The membership is already cancelled.",
@@ -353,6 +360,9 @@
     "taxes": {
       "rate_in_past": "The new rate cannot start on a past date.",
       "rate_overlap": "A rate already exists that starts on or after that date. The new one must start later."
+    },
+    "portal": {
+      "no_member_linked": "Your user is not linked to any member record. Ask the front desk for help."
     }
   },
   "enums": {
@@ -518,6 +528,25 @@
       "revokeConfirm": "Revoke consent? {{ name }} will stop receiving WhatsApp messages.",
       "grantedToast": "Consent recorded.",
       "revokedToast": "Consent revoked."
+    },
+    "portal": {
+      "title": "Member portal access",
+      "has": "The member has access to their portal with their email.",
+      "none": "The member does not have portal access yet (routine, payments and attendance).",
+      "needEmail": "Enter the member email to give them access.",
+      "grant": "Give access",
+      "grantConfirm": "Their account will be created with the email {{ email }} and a temporary password shown only once. Continue?",
+      "reset": "Reset password",
+      "resetConfirm": "A new temporary password will be generated, their sessions will be closed and they must change it on sign-in. Continue?",
+      "suspend": "Suspend access",
+      "suspendConfirm": "The member will not be able to sign in to their portal until access is restored. Continue?",
+      "restore": "Restore access",
+      "credentials": "Sign-in credentials",
+      "credentialsWarning": "Give this to the member. The temporary password is shown only once and must be changed on sign-in.",
+      "copy": "Copy password",
+      "copied": "Copied",
+      "suspendedToast": "Access suspended.",
+      "restoredToast": "Access restored."
     }
   },
   "plans": {
@@ -859,5 +888,28 @@
     "endsOn": "Ends",
     "empty": "No notices have been generated yet.",
     "simulatedTag": "Simulated"
+  },
+  "account": {
+    "changePassword": "Change password",
+    "changePasswordShort": "My password",
+    "forcedHint": "Your account has a temporary password. Set a new one to continue.",
+    "changeHint": "Changing it signs you out everywhere and you will need to sign in again.",
+    "temporaryPassword": "Temporary password",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "confirmPassword": "Repeat the new password",
+    "passwordRules": "At least 10 characters, with an uppercase letter, a lowercase letter and a number.",
+    "mismatch": "The passwords do not match.",
+    "change": "Change password",
+    "invalidForm": "Check the data: the new password needs at least 10 characters and must be repeated exactly."
+  },
+  "portal": {
+    "hello": "Hello, {{ name }}",
+    "memberships": "My membership",
+    "payments": "My payments",
+    "attendance": "My visits",
+    "noMemberships": "You have no memberships yet.",
+    "noPayments": "You have no payments yet.",
+    "noAttendance": "You have no visits yet."
   }
 }

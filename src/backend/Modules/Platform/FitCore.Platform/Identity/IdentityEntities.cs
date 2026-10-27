@@ -9,6 +9,9 @@ public sealed class AppUser : IdentityUser<Guid>, ITenantOwned, IAuditable
     public string FullName { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
     public DateTimeOffset CreatedAt { get; set; }
+
+    /// <summary>Clave temporal entregada por el personal: hasta cambiarla, la cuenta no tiene permisos.</summary>
+    public bool MustChangePassword { get; set; }
 }
 
 public sealed class AppRole : IdentityRole<Guid>, ITenantOwned, IAuditable

@@ -20,10 +20,15 @@ import type {
   CreateUserRequest,
   EnrollRequest,
   Member,
+  MemberAccess,
   Membership,
   Notification,
   NotificationSettings,
   MembershipEvent,
+  MyAttendance,
+  MyMember,
+  MyMembership,
+  MyPayment,
   Obligation,
   Paged,
   Payment,
@@ -159,6 +164,34 @@ export class ApiService {
   setMemberStatus(id: string, isActive: boolean): Observable<Member> {
     return this.http.patch<Member>(`${API_BASE}/members/${id}/status`, { isActive });
   }
+  /** Acceso del alumno a su portal. La clave temporal que devuelven se muestra una sola vez. */
+  grantMemberAccess(id: string): Observable<MemberAccess> {
+    return this.http.post<MemberAccess>(`${API_BASE}/members/${id}/access`, {});
+  }
+  resetMemberAccess(id: string): Observable<MemberAccess> {
+    return this.http.post<MemberAccess>(`${API_BASE}/members/${id}/access/reset`, {});
+  }
+  setMemberAccessActive(id: string, active: boolean): Observable<Member> {
+    return this.http.patch<Member>(`${API_BASE}/members/${id}/access`, { active });
+  }
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${API_BASE}/auth/change-password`, { currentPassword, newPassword });
+  }
+
+  // ---- Portal del alumno (todo sale de la sesión; no se envía ningún identificador) ----
+  myMember(): Observable<MyMember> {
+    return this.get('/me/member');
+  }
+  myMemberships(query: Query = {}): Observable<Paged<MyMembership>> {
+    return this.get('/me/memberships', query);
+  }
+  myPayments(query: Query = {}): Observable<Paged<MyPayment>> {
+    return this.get('/me/payments', query);
+  }
+  myAttendance(query: Query = {}): Observable<Paged<MyAttendance>> {
+    return this.get('/me/attendance', query);
+  }
+
   /** Registra o revoca el consentimiento del alumno para recibir WhatsApp (LOPDP). */
   setWhatsAppConsent(id: string, granted: boolean): Observable<Member> {
     return this.http.put<Member>(`${API_BASE}/members/${id}/whatsapp-consent`, { granted });

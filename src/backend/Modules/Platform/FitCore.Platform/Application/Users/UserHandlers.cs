@@ -97,7 +97,7 @@ internal sealed class UserAdministration(PlatformDbContext db)
             .Distinct()
             .ToListAsync(cancellationToken);
 
-        return permissions.All(actor.Has);
+        return permissions.All(actor.CanGrant);
     }
 
     public async Task<UserDto> ToDtoAsync(AppUser user, CancellationToken cancellationToken)

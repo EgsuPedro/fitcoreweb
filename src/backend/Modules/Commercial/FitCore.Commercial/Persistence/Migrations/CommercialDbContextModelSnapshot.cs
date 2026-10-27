@@ -540,6 +540,10 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updated_by");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
                     b.Property<uint>("Version")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
@@ -574,6 +578,11 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_members_tenant_id_qr_token_hash")
                         .HasFilter("qr_token_hash IS NOT NULL");
+
+                    b.HasIndex("TenantId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_members_tenant_id_user_id")
+                        .HasFilter("user_id IS NOT NULL");
 
                     b.HasIndex("TenantId", "BranchId", "Status")
                         .HasDatabaseName("ix_members_tenant_id_branch_id_status");

@@ -69,6 +69,7 @@ public static class PlatformModule
         services.AddScoped<SessionService>();
         services.AddScoped<SecurityAudit>();
         services.AddScoped<UserAdministration>();
+        services.AddScoped<IMemberAccountService, MemberAccountService>();
         services.AddScoped<RoleAdministration>();
         services.AddScoped<TenantProvisioningService>();
 

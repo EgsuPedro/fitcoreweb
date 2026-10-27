@@ -28,6 +28,7 @@ internal sealed class MemberConfiguration : IEntityTypeConfiguration<Member>
         b.Property(x => x.Notes).HasMaxLength(1000);
         b.Property(x => x.QrTokenHash).HasMaxLength(64).IsFixedLength();
         b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.HasIndex(x => new { x.TenantId, x.UserId }).IsUnique().HasFilter("user_id IS NOT NULL");
         b.Property(x => x.WhatsAppConsent).HasColumnName("whatsapp_consent").HasDefaultValue(false);
         b.Property(x => x.WhatsAppConsentAt).HasColumnName("whatsapp_consent_at");
         b.Property(x => x.WhatsAppConsentBy).HasColumnName("whatsapp_consent_by");

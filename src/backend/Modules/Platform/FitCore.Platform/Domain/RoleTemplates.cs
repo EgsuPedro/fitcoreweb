@@ -17,7 +17,7 @@ public static class RoleTemplates
             Owner,
             "Control total del gimnasio y de todas sus sucursales",
             true,
-            [.. Permissions.All.Where(p => !Permissions.IsPlatform(p.Code)).Select(p => p.Code)]),
+            [.. Permissions.All.Where(p => !Permissions.IsPlatform(p.Code) && !p.Sensitive).Select(p => p.Code)]),
         new(
             BranchAdmin,
             "Administra una o más sucursales asignadas",
@@ -53,7 +53,8 @@ public static class RoleTemplates
                 Permissions.AttendanceRead,
                 Permissions.AttendanceRegister,
                 Permissions.AttendanceOverride,
-                Permissions.NotificationsRead
+                Permissions.NotificationsRead,
+                Permissions.MembersAccess
             ]),
         new(
             "Recepcion",
@@ -105,7 +106,7 @@ public static class RoleTemplates
                 Permissions.PaymentsRead,
                 Permissions.CashRead
             ]),
-        new("Alumno", "Acceso del alumno a su propia información", false, [])
+        new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead])
     ];
 
     public static readonly RoleTemplate ForPlatform = new(

@@ -87,6 +87,11 @@ Se inicia sesión con **gimnasio + correo + clave**.
 2. En la ficha de un alumno con teléfono: *Registrar autorización* (consentimiento). Sin ella nunca se le escribe.
 3. El Worker revisa cada 30 minutos (`Notifications:IntervalMinutes`) y también al arrancar: `docker compose … restart worker`. En el log aparece `[WhatsApp simulado]` (con el teléfono enmascarado) y en *Notificaciones* el historial con el texto exacto y su estado. **No sale ningún mensaje real.**
 
+**Acceso del alumno al portal**, con el propietario `demo` (o `admin.uio@`):
+1. Abra la ficha de un alumno **con correo** → *Acceso al portal del alumno* → *Dar acceso*. Se muestra su correo y una **clave temporal que aparece una sola vez**: cópiela y entréguesela.
+2. Cierre sesión e inicie como ese alumno (gimnasio `demo`, su correo y la clave temporal): lo lleva a *Cambiar contraseña* y no puede ir a ninguna otra pantalla hasta cambiarla.
+3. Tras cambiarla vuelve a iniciar sesión: ve *Hola, <nombre>* con su membresía, pagos y visitas, sin menú de administración. *Restablecer clave* y *Suspender acceso* están en la misma ficha.
+
 **Seguridad rápida:**
 - 5 contraseñas erróneas seguidas bloquean la cuenta 15 minutos (aunque luego se escriba la correcta).
 - Desactivar un usuario desde "Usuarios" cierra su sesión en la siguiente solicitud.

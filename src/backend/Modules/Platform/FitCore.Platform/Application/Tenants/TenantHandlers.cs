@@ -165,7 +165,7 @@ internal sealed class ListTenantsHandler(PlatformDbContext db) : IQueryHandler<L
 {
     public async Task<Result<PagedResult<TenantDto>>> HandleAsync(ListTenantsQuery query, CancellationToken cancellationToken)
     {
-        var paged = await db.Tenants.AsNoTracking().OrderBy(t => t.CreatedAt).ToPagedAsync(query.Page, cancellationToken);
+        var paged = await db.Tenants.AsNoTracking().OrderByDescending(t => t.CreatedAt).ToPagedAsync(query.Page, cancellationToken);
         return new PagedResult<TenantDto>([.. paged.Items.Select(TenantDto.From)], paged.Page, paged.PageSize, paged.TotalCount);
     }
 }

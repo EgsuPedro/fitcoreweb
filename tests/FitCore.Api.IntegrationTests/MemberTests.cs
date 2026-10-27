@@ -18,7 +18,8 @@ public sealed record MemberDto(
     string Status,
     DateOnly EnrolledOn,
     Guid? CreatedBy,
-    Guid? UpdatedBy);
+    Guid? UpdatedBy,
+    bool HasAccount = false);
 
 [Collection(ApiCollection1.Name)]
 public class MemberTests(ApiFixture api)

@@ -53,7 +53,8 @@
     "password": "Contraseña",
     "submit": "Iniciar sesión",
     "submitting": "Ingresando…",
-    "required": "Complete el gimnasio, el correo y la contraseña."
+    "required": "Complete el gimnasio, el correo y la contraseña.",
+    "passwordChanged": "Contraseña cambiada. Inicie sesión con la nueva."
   },
   "nav": {
     "label": "Menú principal",
@@ -295,7 +296,13 @@
       "duplicate_identification": "Ya existe un alumno con ese documento de identidad.",
       "inactive": "El alumno está inactivo.",
       "not_found": "Alumno no encontrado.",
-      "whatsapp_phone_required": "Para activar WhatsApp el alumno necesita un teléfono válido (por ejemplo 0991234567)."
+      "whatsapp_phone_required": "Para activar WhatsApp el alumno necesita un teléfono válido (por ejemplo 0991234567).",
+      "access_exists": "El alumno ya tiene acceso al portal.",
+      "access_missing": "El alumno todavía no tiene acceso al portal.",
+      "access_email_required": "Registre el correo del alumno para darle acceso.",
+      "access_member_inactive": "Un alumno inactivo no puede tener acceso al portal.",
+      "access_conflict": "No se pudo vincular la cuenta; intente de nuevo.",
+      "access_role_missing": "El gimnasio no tiene el rol Alumno. Restablezca los roles de plantilla."
     },
     "memberships": {
       "already_cancelled": "La membresía ya está cancelada.",
@@ -353,6 +360,9 @@
     "taxes": {
       "rate_in_past": "La nueva tarifa no puede empezar en una fecha pasada.",
       "rate_overlap": "Ya existe una tarifa que empieza en esa fecha o después. La nueva debe empezar más tarde."
+    },
+    "portal": {
+      "no_member_linked": "Su usuario no está vinculado a ninguna ficha de alumno. Pida ayuda en recepción."
     }
   },
   "enums": {
@@ -518,6 +528,25 @@
       "revokeConfirm": "¿Revocar la autorización? Dejará de recibir mensajes de WhatsApp de {{ name }}.",
       "grantedToast": "Autorización registrada.",
       "revokedToast": "Autorización revocada."
+    },
+    "portal": {
+      "title": "Acceso al portal del alumno",
+      "has": "El alumno tiene acceso a su portal con su correo.",
+      "none": "El alumno todavía no tiene acceso al portal (rutina, pagos y asistencia).",
+      "needEmail": "Registre el correo del alumno para poder darle acceso.",
+      "grant": "Dar acceso",
+      "grantConfirm": "Se creará su cuenta con el correo {{ email }} y una clave temporal que verá una sola vez. ¿Continuar?",
+      "reset": "Restablecer clave",
+      "resetConfirm": "Se generará una clave temporal nueva, se cerrarán sus sesiones y deberá cambiarla al entrar. ¿Continuar?",
+      "suspend": "Suspender acceso",
+      "suspendConfirm": "El alumno no podrá entrar a su portal hasta que se reactive el acceso. ¿Continuar?",
+      "restore": "Reactivar acceso",
+      "credentials": "Credenciales de acceso",
+      "credentialsWarning": "Entregue estos datos al alumno. La clave temporal se muestra una sola vez y deberá cambiarla al entrar.",
+      "copy": "Copiar clave",
+      "copied": "Copiada",
+      "suspendedToast": "Acceso suspendido.",
+      "restoredToast": "Acceso reactivado."
     }
   },
   "plans": {
@@ -859,5 +888,28 @@
     "endsOn": "Vence",
     "empty": "Todavía no se ha generado ningún aviso.",
     "simulatedTag": "Simulado"
+  },
+  "account": {
+    "changePassword": "Cambiar contraseña",
+    "changePasswordShort": "Mi contraseña",
+    "forcedHint": "Su cuenta tiene una clave temporal. Defina una nueva para continuar.",
+    "changeHint": "Al cambiarla se cerrarán todas sus sesiones y deberá iniciar sesión de nuevo.",
+    "temporaryPassword": "Clave temporal",
+    "currentPassword": "Contraseña actual",
+    "newPassword": "Contraseña nueva",
+    "confirmPassword": "Repita la contraseña nueva",
+    "passwordRules": "Mínimo 10 caracteres, con mayúscula, minúscula y número.",
+    "mismatch": "Las contraseñas no coinciden.",
+    "change": "Cambiar contraseña",
+    "invalidForm": "Revise los datos: la contraseña nueva necesita al menos 10 caracteres y debe repetirse igual."
+  },
+  "portal": {
+    "hello": "Hola, {{ name }}",
+    "memberships": "Mi membresía",
+    "payments": "Mis pagos",
+    "attendance": "Mis visitas",
+    "noMemberships": "Todavía no tiene membresías.",
+    "noPayments": "Todavía no tiene pagos.",
+    "noAttendance": "Todavía no tiene visitas."
   }
 }

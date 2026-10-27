@@ -10,6 +10,12 @@ export const routes: Routes = [
     title: 'FitCore 360',
   },
   {
+    path: 'change-password',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/account/change-password').then((m) => m.ChangePassword),
+    title: 'FitCore 360',
+  },
+  {
     path: '',
     canActivate: [authGuard],
     loadComponent: () => import('./layout/shell').then((m) => m.Shell),

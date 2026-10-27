@@ -62,6 +62,7 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
             <span class="user-name">{{ session.user()?.fullName }}</span>
             <span class="muted user-tenant">{{ session.user()?.tenantSlug }}</span>
           </span>
+          <a class="btn btn-ghost" routerLink="/change-password">{{ 'account.changePasswordShort' | transloco }}</a>
           <button type="button" class="btn" (click)="logout()">{{ 'nav.logout' | transloco }}</button>
         </header>
 

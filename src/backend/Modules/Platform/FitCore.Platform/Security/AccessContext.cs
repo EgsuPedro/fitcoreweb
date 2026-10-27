@@ -12,9 +12,17 @@ public sealed record UserAccess(
     bool IsActive,
     IReadOnlySet<string> Permissions,
     IReadOnlySet<Guid> BranchIds,
-    bool AllBranches)
+    bool AllBranches,
+    bool MustChangePassword = false)
 {
     public bool Has(string permission) => Permissions.Contains(permission);
+
+    /// <summary>
+    /// Puede conceder el permiso a un rol o a un usuario: debe tenerlo, salvo los sensibles (nutrición, evaluaciones, fotos…), que quien
+    /// administra roles puede conceder sin poseerlos él mismo. Así el propietario no recibe esos datos por defecto pero sí decide quién los ve.
+    /// </summary>
+    public bool CanGrant(string permission) =>
+        Has(permission) || (Domain.Permissions.IsSensitive(permission) && Has(Domain.Permissions.RolesManage));
 
     public bool CanAccessBranch(Guid branchId) => AllBranches || BranchIds.Contains(branchId);
 }
@@ -42,10 +50,17 @@ internal sealed class AccessContext(PlatformDbContext db, ICurrentUser currentUs
         await db.UseTenantAsync(tenantId, cancellationToken);
 
         var tenantActive = await db.Tenants.AnyAsync(t => t.Id == tenantId && t.Status == TenantStatus.Active, cancellationToken);
-        var userActive = await db.Users.AnyAsync(u => u.Id == userId && u.IsActive, cancellationToken);
-        if (!tenantActive || !userActive)
+        var account = await db.Users.AsNoTracking().Where(u => u.Id == userId && u.IsActive)
+            .Select(u => new { u.MustChangePassword }).FirstOrDefaultAsync(cancellationToken);
+        if (!tenantActive || account is null)
         {
             return null;
+        }
+
+        // Con una clave temporal pendiente de cambio solo se puede ver la propia sesión y cambiar la clave: sin permisos ni sucursales.
+        if (account.MustChangePassword)
+        {
+            return new UserAccess(userId, tenantId, IsActive: true, new HashSet<string>(), new HashSet<Guid>(), AllBranches: false, MustChangePassword: true);
         }
 
         var roles = await db.UserRoles

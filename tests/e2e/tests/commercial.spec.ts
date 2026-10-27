@@ -9,6 +9,8 @@ const run = Date.now().toString(36);
 const slug = `com-${run}`;
 const ownerEmail = `dueno@${slug}.test`;
 const ownerPassword = 'Dueno-Clave-12345';
+const studentEmail = `lucia@${slug}.test`;
+const STUDENT_NEW_PASSWORD = 'Nueva-Clave-2026x';
 const STAFF = { email: `recep@${slug}.test`, password: 'Recep-Clave-12345' };
 
 async function login(api: APIRequestContext, tenantSlug: string, email: string, password: string): Promise<string> {
@@ -68,6 +70,7 @@ test.describe.serial('flujo comercial', () => {
     await dialog.locator('[formControlName="firstName"]').fill('Lucía');
     await dialog.locator('[formControlName="lastName"]').fill('Paredes');
     await dialog.locator('[formControlName="phone"]').fill('0991234567');
+    await dialog.locator('[formControlName="email"]').fill(studentEmail);
     await dialog.locator('[formControlName="idNumber"]').fill('1712345670');
     await dialog.getByRole('button', { name: 'Guardar' }).click();
     // Cédula con dígito verificador inválido: no llega a la API y el diálogo sigue abierto.
@@ -198,6 +201,48 @@ test.describe.serial('flujo comercial', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'Revocar autorización' }).click();
     await expect(page.getByText('Autorización revocada.')).toBeVisible();
     await expect(page.getByText(/no ha autorizado recibir mensajes/)).toBeVisible();
+  });
+
+  test('acceso del alumno: clave temporal, cambio obligatorio y portal con solo sus datos', async ({ browser, baseURL }) => {
+    const page = ownerPage;
+    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await page.getByRole('link', { name: 'Lucía Paredes' }).first().click();
+    await page.getByRole('button', { name: 'Dar acceso' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Dar acceso' }).click();
+
+    const credentials = page.getByRole('dialog');
+    await expect(credentials.getByText(studentEmail)).toBeVisible();
+    const temporary = (await credentials.locator('.temp-password').innerText()).trim();
+    expect(temporary).toHaveLength(14);
+    await credentials.getByRole('button', { name: 'Cerrar' }).last().click();
+    await expect(page.getByText('El alumno tiene acceso a su portal con su correo.')).toBeVisible();
+
+    // El alumno entra con la clave temporal y solo puede cambiarla.
+    const studentPage = await (await browser.newContext({ baseURL, locale: 'es-EC' })).newPage();
+    await signIn(studentPage, slug, studentEmail, temporary);
+    await expect(studentPage).toHaveURL(/change-password/);
+    await studentPage.goto('/members');
+    await expect(studentPage).toHaveURL(/change-password/);
+
+    await studentPage.getByLabel('Clave temporal').fill(temporary);
+    await studentPage.locator('[formControlName="newPassword"]').fill(STUDENT_NEW_PASSWORD);
+    await studentPage.getByLabel('Repita la contraseña nueva').fill('otra-distinta-123');
+    await studentPage.getByRole('button', { name: 'Cambiar contraseña' }).click();
+    await expect(studentPage.getByText('Las contraseñas no coinciden.')).toBeVisible();
+    await studentPage.getByLabel('Repita la contraseña nueva').fill(STUDENT_NEW_PASSWORD);
+    await studentPage.getByRole('button', { name: 'Cambiar contraseña' }).click();
+    await expect(studentPage.getByText('Contraseña cambiada. Inicie sesión con la nueva.')).toBeVisible();
+
+    // Con la clave nueva ve su portal, sin ningún elemento de administración, y las rutas del personal lo bloquean.
+    await signIn(studentPage, slug, studentEmail, STUDENT_NEW_PASSWORD);
+    await expect(studentPage.getByRole('heading', { name: 'Hola, Lucía' })).toBeVisible();
+    await expect(studentPage.getByText('Mensual E2E')).toBeVisible();
+    for (const hidden of ['Alumnos', 'Caja', 'Cobros', 'Usuarios', 'Auditoría']) {
+      await expect(nav(studentPage).getByRole('link', { name: hidden })).toHaveCount(0);
+    }
+    await studentPage.goto('/members');
+    await expect(studentPage).toHaveURL(/forbidden/);
+    await studentPage.context().close();
   });
 
   test('un usuario sin permisos comerciales no ve las pantallas ni puede abrir sus rutas', async ({ page, playwright, baseURL }) => {

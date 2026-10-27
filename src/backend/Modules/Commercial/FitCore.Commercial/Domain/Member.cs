@@ -63,6 +63,9 @@ public sealed class Member : Entity<Guid>, ITenantOwned, IAuditable
 
     public DateTimeOffset? WhatsAppConsentAt { get; private set; }
     public Guid? WhatsAppConsentBy { get; private set; }
+
+    /// <summary>Usuario con el que el alumno entra a su portal (rol Alumno), si el gimnasio le dio acceso.</summary>
+    public Guid? UserId { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? CreatedBy { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
@@ -108,6 +111,13 @@ public sealed class Member : Entity<Guid>, ITenantOwned, IAuditable
         QrTokenIssuedAt = now;
         UpdatedAt = now;
         UpdatedBy = updatedBy;
+    }
+
+    public void LinkUser(Guid userId, Guid? by, DateTimeOffset now)
+    {
+        UserId = userId;
+        UpdatedAt = now;
+        UpdatedBy = by;
     }
 
     public void SetWhatsAppConsent(bool granted, Guid? by, DateTimeOffset now)

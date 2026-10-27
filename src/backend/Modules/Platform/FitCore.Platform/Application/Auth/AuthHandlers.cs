@@ -38,7 +38,8 @@ public sealed record MeResponse(
     IReadOnlyList<string> Roles,
     IReadOnlyList<string> Permissions,
     IReadOnlyList<Guid> BranchIds,
-    bool AllBranches);
+    bool AllBranches,
+    bool MustChangePassword = false);
 
 public sealed class LoginRequestValidator : AbstractValidator<LoginRequest>
 {
@@ -272,6 +273,8 @@ internal sealed class ChangePasswordHandler(
             return Error.Validation("auth.password_change_failed", string.Join(" ", result.Errors.Select(e => e.Description)));
         }
 
+        user.MustChangePassword = false;
+        await users.UpdateAsync(user);
         await sessions.RevokeAllForUserAsync(user.Id, cancellationToken);
         audit.Record("Auth.PasswordChanged", nameof(AppUser), user.Id.ToString(), user.Id);
         await db.SaveChangesAsync(cancellationToken);
@@ -307,6 +310,7 @@ internal sealed class MeHandler(PlatformDbContext db, IAccessContext access) : I
             roles,
             [.. current.Permissions.Order()],
             [.. current.BranchIds],
-            current.AllBranches);
+            current.AllBranches,
+            current.MustChangePassword);
     }
 }

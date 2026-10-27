@@ -1,6 +1,7 @@
 namespace FitCore.Platform.Domain;
 
-public sealed record PermissionDefinition(string Code, string Module, string Description);
+/// <param name="Sensitive">Datos de salud o personales delicados (nutrición, evaluaciones, fotos…): no se conceden por defecto a propietario ni administradores.</param>
+public sealed record PermissionDefinition(string Code, string Module, string Description, bool Sensitive = false);
 
 /// <summary>Catálogo fijo de permisos. Cada módulo agrega los suyos al implementarse.</summary>
 public static class Permissions
@@ -62,6 +63,9 @@ public static class Permissions
 
     public const string NotificationsRead = "notifications.read";
 
+    public const string MembersAccess = "members.access";
+    public const string MeRead = "me.read";
+
     public static readonly IReadOnlyList<PermissionDefinition> All =
     [
         new(PlatformTenantsManage, "platform", "Administrar gimnasios (solo equipo de plataforma)"),
@@ -105,8 +109,12 @@ public static class Permissions
         new(AttendanceRegister, "attendance", "Registrar entradas y salidas"),
         new(AttendanceOverride, "attendance", "Autorizar accesos excepcionales"),
         new(CommercialSettingsManage, "commercial", "Configurar políticas comerciales del gimnasio"),
-        new(NotificationsRead, "notifications", "Consultar los avisos de WhatsApp enviados")
+        new(NotificationsRead, "notifications", "Consultar los avisos de WhatsApp enviados"),
+        new(MembersAccess, "members", "Dar, restablecer y quitar el acceso de un alumno a su portal"),
+        new(MeRead, "me", "Consultar los propios datos de alumno (portal del alumno)")
     ];
+
+    public static bool IsSensitive(string code) => All.Any(p => p.Sensitive && p.Code == code);
 
     public static bool IsPlatform(string code) => code.StartsWith("platform.", StringComparison.Ordinal);
 }

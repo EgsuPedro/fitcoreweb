@@ -6,6 +6,7 @@ using FitCore.Commercial.Application.Cash;
 using FitCore.Commercial.Application.Members;
 using FitCore.Commercial.Application.Memberships;
 using FitCore.Commercial.Application.Notifications;
+using FitCore.Commercial.Application.Portal;
 using FitCore.Commercial.Application.Plans;
 using FitCore.Commercial.Application.Promotions;
 using FitCore.Commercial.Application.Settings;
@@ -35,6 +36,7 @@ internal static class CommercialEndpoints
             .WithName("GetReceivablesSummary");
         MapSettingsAndTaxes(routes);
         MapNotifications(routes);
+        MapPortal(routes.MapGroup("/me").WithTags("Member portal"));
         return routes;
     }
 
@@ -71,6 +73,31 @@ internal static class CommercialEndpoints
             .RequirePermission(Permissions.MembersStatus)
             .Produces<MemberDto>()
             .WithName("SetMemberStatus");
+        // Acceso del alumno a su portal: la clave temporal se muestra una sola vez (respuesta sin caché).
+        group.MapPost("/{id:guid}/access", async (Guid id, HttpContext http, IDispatcher dispatcher, CancellationToken ct) =>
+            {
+                http.Response.Headers.CacheControl = "no-store";
+                return (await dispatcher.SendAsync(new GrantMemberAccessCommand(id), ct)).ToHttp(a => Results.Created($"/api/v1/members/{id}", a));
+            })
+            .RequirePermission(Permissions.MembersAccess)
+            .Produces<MemberAccessDto>(StatusCodes.Status201Created)
+            .WithName("GrantMemberAccess");
+
+        group.MapPost("/{id:guid}/access/reset", async (Guid id, HttpContext http, IDispatcher dispatcher, CancellationToken ct) =>
+            {
+                http.Response.Headers.CacheControl = "no-store";
+                return (await dispatcher.SendAsync(new ResetMemberAccessCommand(id), ct)).ToHttp(a => Results.Ok(a));
+            })
+            .RequirePermission(Permissions.MembersAccess)
+            .Produces<MemberAccessDto>()
+            .WithName("ResetMemberAccess");
+
+        group.MapPatch("/{id:guid}/access", async (Guid id, SetMemberAccessActiveRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SetMemberAccessActiveCommand(id, request), ct)).ToHttp(m => Results.Ok(m)))
+            .RequirePermission(Permissions.MembersAccess)
+            .Produces<MemberDto>()
+            .WithName("SetMemberAccessActive");
+
         // Emite (o reemplaza) el código QR del alumno. El token se devuelve una sola vez; en la base solo queda su huella.
         group.MapPost("/{id:guid}/qr-token", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new IssueMemberQrCommand(id), ct)).ToHttp(t => Results.Ok(t)))
@@ -365,6 +392,33 @@ internal static class CommercialEndpoints
             .Produces<AttendanceDto>()
             .WithName("CheckOut");
     }
+    private static void MapPortal(RouteGroupBuilder group)
+    {
+        group.MapGet("/member", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetMyMemberQuery(), ct)).ToHttp(m => Results.Ok(m)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<MyMemberDto>()
+            .WithName("GetMyMember");
+
+        group.MapGet("/memberships", async (IDispatcher dispatcher, CancellationToken ct, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMyMembershipsQuery(new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<PagedResult<MyMembershipDto>>()
+            .WithName("ListMyMemberships");
+
+        group.MapGet("/payments", async (IDispatcher dispatcher, CancellationToken ct, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMyPaymentsQuery(new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<PagedResult<MyPaymentDto>>()
+            .WithName("ListMyPayments");
+
+        group.MapGet("/attendance", async (IDispatcher dispatcher, CancellationToken ct, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMyAttendanceQuery(new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<PagedResult<MyAttendanceDto>>()
+            .WithName("ListMyAttendance");
+    }
+
     private static void MapNotifications(IEndpointRouteBuilder routes)
     {
         routes.MapGet("/notifications", async (IDispatcher dispatcher, CancellationToken ct, NotificationStatus? status = null, NotificationType? type = null, Guid? branchId = null, Guid? memberId = null, int page = 1, int pageSize = 25) =>

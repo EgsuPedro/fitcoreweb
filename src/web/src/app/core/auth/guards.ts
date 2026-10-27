@@ -8,7 +8,13 @@ export const authGuard: CanActivateFn = async (_route, state) => {
   const router = inject(Router);
 
   await session.restore();
-  return session.isAuthenticated() || router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  if (!session.isAuthenticated()) {
+    return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  }
+
+  // Con una clave temporal pendiente de cambio solo se puede ir a cambiarla (el servidor tampoco da permisos hasta entonces).
+  const mustChange = session.user()?.mustChangePassword ?? false;
+  return mustChange && !state.url.startsWith('/change-password') ? router.createUrlTree(['/change-password']) : true;
 };
 
 /** Para el login: quien ya tiene sesión va directo al inicio. */

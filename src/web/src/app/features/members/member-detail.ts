@@ -4,7 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { switchMap } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
-import type { Attendance, Member, Membership, Obligation, Payment } from '../../core/api/models';
+import type { Attendance, Member, MemberAccess, Membership, Obligation, Payment } from '../../core/api/models';
 import { Perm } from '../../core/auth/permissions';
 import { SessionService } from '../../core/auth/session.service';
 import { ErrorMessages } from '../../core/i18n/messages';
@@ -116,6 +116,31 @@ import { MemberForm } from './member-form';
           </button>
         }
       </section>
+
+      @if (can(perm.MembersAccess)) {
+        <section class="card section">
+          <h2>{{ 'members.portal.title' | transloco }}</h2>
+          @if (accessError()) {
+            <p class="alert alert-danger" role="alert">{{ accessError() }}</p>
+          }
+          @if (m.hasAccount) {
+            <p class="muted">{{ 'members.portal.has' | transloco }}</p>
+            <div class="inline-actions">
+              <button type="button" class="btn" (click)="dialog.set('accessReset')">{{ 'members.portal.reset' | transloco }}</button>
+              <button type="button" class="btn" (click)="dialog.set('accessOff')">{{ 'members.portal.suspend' | transloco }}</button>
+              <button type="button" class="btn" (click)="setAccessActive(m, true)">{{ 'members.portal.restore' | transloco }}</button>
+            </div>
+          } @else {
+            <p class="muted">{{ 'members.portal.none' | transloco }}</p>
+            @if (!m.email) {
+              <p class="muted">{{ 'members.portal.needEmail' | transloco }}</p>
+            }
+            <button type="button" class="btn" [disabled]="!m.email || m.status !== 'Active'" (click)="dialog.set('accessGrant')">
+              {{ 'members.portal.grant' | transloco }}
+            </button>
+          }
+        </section>
+      }
 
       <section class="section">
         <h2>{{ 'members.memberships' | transloco }}</h2>
@@ -278,6 +303,52 @@ import { MemberForm } from './member-form';
             (cancelled)="dialog.set(null)"
           />
         }
+        @case ('accessGrant') {
+          <fc-confirm
+            [title]="'members.portal.grant' | transloco"
+            [message]="'members.portal.grantConfirm' | transloco: { email: m.email }"
+            [confirmLabel]="'members.portal.grant' | transloco"
+            (confirmed)="grantAccess(m)"
+            (cancelled)="dialog.set(null)"
+          />
+        }
+        @case ('accessReset') {
+          <fc-confirm
+            [title]="'members.portal.reset' | transloco"
+            [message]="'members.portal.resetConfirm' | transloco"
+            [confirmLabel]="'members.portal.reset' | transloco"
+            [danger]="true"
+            (confirmed)="resetAccess(m)"
+            (cancelled)="dialog.set(null)"
+          />
+        }
+        @case ('accessOff') {
+          <fc-confirm
+            [title]="'members.portal.suspend' | transloco"
+            [message]="'members.portal.suspendConfirm' | transloco"
+            [confirmLabel]="'members.portal.suspend' | transloco"
+            [danger]="true"
+            (confirmed)="setAccessActive(m, false)"
+            (cancelled)="dialog.set(null)"
+          />
+        }
+        @case ('accessCreds') {
+          <fc-modal [title]="'members.portal.credentials' | transloco" (closed)="closeCredentials()">
+            <p class="alert alert-warning">{{ 'members.portal.credentialsWarning' | transloco }}</p>
+            @if (credentials(); as c) {
+              <dl class="kv">
+                <dt>{{ 'login.email' | transloco }}</dt>
+                <dd>{{ c.email }}</dd>
+                <dt>{{ 'account.temporaryPassword' | transloco }}</dt>
+                <dd><code class="temp-password">{{ c.temporaryPassword }}</code></dd>
+              </dl>
+            }
+            <ng-container footer>
+              <button type="button" class="btn" (click)="copyPassword()">{{ (copied() ? 'members.portal.copied' : 'members.portal.copy') | transloco }}</button>
+              <button type="button" class="btn btn-primary" (click)="closeCredentials()">{{ 'common.close' | transloco }}</button>
+            </ng-container>
+          </fc-modal>
+        }
         @case ('whatsapp') {
           <fc-confirm
             [title]="'members.whatsapp.title' | transloco"
@@ -342,7 +413,10 @@ export class MemberDetail implements OnInit {
   protected readonly visits = signal<Attendance[]>([]);
   protected readonly error = signal<string | null>(null);
 
-  protected readonly dialog = signal<'edit' | 'enroll' | 'payment' | 'status' | 'whatsapp' | 'qrConfirm' | 'qr' | null>(null);
+  protected readonly dialog = signal<'edit' | 'enroll' | 'payment' | 'status' | 'whatsapp' | 'accessGrant' | 'accessReset' | 'accessOff' | 'accessCreds' | 'qrConfirm' | 'qr' | null>(null);
+  protected readonly accessError = signal<string | null>(null);
+  protected readonly credentials = signal<MemberAccess | null>(null);
+  protected readonly copied = signal(false);
   protected readonly payObligation = signal<string | null>(null);
   protected readonly receiptId = signal<string | null>(null);
   protected readonly qrToken = signal('');
@@ -407,6 +481,61 @@ export class MemberDetail implements OnInit {
         this.error.set(this.errors.message(err));
       },
     });
+  }
+
+  protected grantAccess(member: Member): void {
+    this.accessError.set(null);
+    this.api.grantMemberAccess(member.id).subscribe({
+      next: (credentials) => this.showCredentials(member, credentials),
+      error: (err: unknown) => this.failAccess(err),
+    });
+  }
+
+  protected resetAccess(member: Member): void {
+    this.accessError.set(null);
+    this.api.resetMemberAccess(member.id).subscribe({
+      next: (credentials) => this.showCredentials(member, credentials),
+      error: (err: unknown) => this.failAccess(err),
+    });
+  }
+
+  protected setAccessActive(member: Member, active: boolean): void {
+    this.accessError.set(null);
+    this.api.setMemberAccessActive(member.id, active).subscribe({
+      next: (updated) => {
+        this.member.set(updated);
+        this.dialog.set(null);
+        this.toast.success(active ? 'members.portal.restoredToast' : 'members.portal.suspendedToast');
+      },
+      error: (err: unknown) => this.failAccess(err),
+    });
+  }
+
+  protected copyPassword(): void {
+    const password = this.credentials()?.temporaryPassword;
+    if (password && navigator.clipboard) {
+      void navigator.clipboard.writeText(password).then(() => this.copied.set(true));
+    }
+  }
+
+  protected closeCredentials(): void {
+    // La clave temporal solo se muestra una vez: al cerrar no queda en pantalla ni en memoria.
+    this.credentials.set(null);
+    this.copied.set(false);
+    this.dialog.set(null);
+  }
+
+  private showCredentials(member: Member, credentials: MemberAccess): void {
+    this.credentials.set(credentials);
+    this.copied.set(false);
+    this.dialog.set('accessCreds');
+    this.member.set({ ...member, hasAccount: true });
+    this.reload();
+  }
+
+  private failAccess(err: unknown): void {
+    this.dialog.set(null);
+    this.accessError.set(this.errors.message(err));
   }
 
   protected toggleConsent(member: Member): void {

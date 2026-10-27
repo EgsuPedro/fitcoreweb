@@ -3,10 +3,12 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '../../core/auth/session.service';
 import { NAV_ITEMS, visibleNavItems } from '../../layout/nav';
+import { Perm } from '../../core/auth/permissions';
+import { MyPortal } from '../portal/my-portal';
 
 @Component({
   selector: 'fc-home',
-  imports: [RouterLink, TranslocoPipe],
+  imports: [RouterLink, TranslocoPipe, MyPortal],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="page-header">
@@ -14,6 +16,9 @@ import { NAV_ITEMS, visibleNavItems } from '../../layout/nav';
       <p class="muted">{{ 'home.tenant' | transloco: { tenant: session.user()?.tenantSlug } }}</p>
     </header>
 
+    @if (isStudent()) {
+      <fc-my-portal />
+    } @else {
     <section class="card">
       <h2>{{ 'home.access' | transloco }}</h2>
       <dl class="summary">
@@ -50,10 +55,12 @@ import { NAV_ITEMS, visibleNavItems } from '../../layout/nav';
     } @else {
       <p class="alert alert-warning">{{ 'home.noAccess' | transloco }}</p>
     }
+    }
   `,
 })
 export class Home {
   protected readonly session = inject(SessionService);
+  protected readonly isStudent = computed(() => this.session.has(Perm.MeRead) && this.links().length === 0);
   protected readonly links = computed(() =>
     visibleNavItems(NAV_ITEMS, (permission) => this.session.has(permission)).filter((item) => item.path !== '/'),
   );

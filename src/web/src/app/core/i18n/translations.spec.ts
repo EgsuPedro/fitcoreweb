@@ -44,7 +44,7 @@ const API_ERROR_CODES = [
   'plans.branches_required', 'plans.name_taken', 'plans.not_found', 'plans.not_sellable', 'plans.scope_not_allowed',
   'promotions.apply_not_allowed', 'promotions.code_taken', 'promotions.discount_above_maximum', 'promotions.exhausted',
   'promotions.max_uses_below_used', 'promotions.not_applicable', 'promotions.not_available', 'promotions.not_found',
-  'taxes.rate_in_past', 'taxes.rate_overlap', 'members.whatsapp_phone_required',
+  'taxes.rate_in_past', 'taxes.rate_overlap', 'members.whatsapp_phone_required', 'members.access_exists', 'members.access_missing', 'members.access_email_required', 'members.access_member_inactive', 'members.access_conflict', 'members.access_role_missing', 'portal.no_member_linked',
   'validation.failed', 'request.body_required', 'request.invalid_body','conflict.duplicate', 'conflict.concurrency', 'server.internal_error',
 ];
 

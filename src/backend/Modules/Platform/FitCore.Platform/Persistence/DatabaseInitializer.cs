@@ -68,6 +68,11 @@ public static class DatabaseInitializer
             await SeedPermissionCatalogAsync(migrator, cancellationToken);
         }
 
+        foreach (var module in services.GetServices<IModuleInitializer>())
+        {
+            await module.InitializeAsync(migrationsConnection, cancellationToken);
+        }
+
         logger.LogInformation("Base de datos migrada y catálogo de permisos sincronizado");
         await BootstrapPlatformAdminAsync(services, logger, cancellationToken);
     }

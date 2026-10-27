@@ -28,13 +28,81 @@ public static class RoleTemplates
                 Permissions.UsersRead,
                 Permissions.UsersCreate,
                 Permissions.UsersUpdate,
-                Permissions.RolesRead
+                Permissions.RolesRead,
+                Permissions.MembersRead,
+                Permissions.MembersCreate,
+                Permissions.MembersUpdate,
+                Permissions.MembersStatus,
+                Permissions.PlansRead,
+                Permissions.PromotionsRead,
+                Permissions.MembershipsRead,
+                Permissions.MembershipsCreate,
+                Permissions.MembershipsRenew,
+                Permissions.MembershipsFreeze,
+                Permissions.MembershipsCancel,
+                Permissions.ObligationsRead,
+                Permissions.ObligationsCreate,
+                Permissions.ObligationsVoid,
+                Permissions.PaymentsRead,
+                Permissions.PaymentsCreate,
+                Permissions.PaymentsConfirm,
+                Permissions.PaymentsReverse,
+                Permissions.CashRead,
+                Permissions.CashOperate,
+                Permissions.AttendanceRead,
+                Permissions.AttendanceRegister,
+                Permissions.AttendanceOverride
             ]),
-        new("Recepcion", "Atención al público en sucursal", false, BasicRead),
-        new("Cajero", "Cobros y caja en sucursal", false, BasicRead),
-        new("Entrenador", "Entrenamiento de alumnos asignados", false, BasicRead),
-        new("Nutricionista", "Planes nutricionales de alumnos asignados", false, BasicRead),
-        new("Contador", "Consulta financiera de todo el gimnasio", true, [.. BasicRead, Permissions.AuditRead]),
+        new(
+            "Recepcion",
+            "Atención al público en sucursal",
+            false,
+            [
+                .. BasicRead,
+                Permissions.MembersRead,
+                Permissions.MembersCreate,
+                Permissions.MembersUpdate,
+                Permissions.PlansRead,
+                Permissions.PromotionsRead,
+                Permissions.MembershipsRead,
+                Permissions.MembershipsCreate,
+                Permissions.MembershipsRenew,
+                Permissions.ObligationsRead,
+                Permissions.PaymentsRead,
+                Permissions.PaymentsCreate,
+                Permissions.AttendanceRead,
+                Permissions.AttendanceRegister
+            ]),
+        new(
+            "Cajero",
+            "Cobros y caja en sucursal",
+            false,
+            [
+                .. BasicRead,
+                Permissions.MembersRead,
+                Permissions.MembershipsRead,
+                Permissions.ObligationsRead,
+                Permissions.PaymentsRead,
+                Permissions.PaymentsCreate,
+                Permissions.PaymentsConfirm,
+                Permissions.CashRead,
+                Permissions.CashOperate
+            ]),
+        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.MembersRead, Permissions.AttendanceRead]),
+        new("Nutricionista", "Planes nutricionales de alumnos asignados", false, [.. BasicRead, Permissions.MembersRead]),
+        new(
+            "Contador",
+            "Consulta financiera de todo el gimnasio",
+            true,
+            [
+                .. BasicRead,
+                Permissions.AuditRead,
+                Permissions.MembersRead,
+                Permissions.MembershipsRead,
+                Permissions.ObligationsRead,
+                Permissions.PaymentsRead,
+                Permissions.CashRead
+            ]),
         new("Alumno", "Acceso del alumno a su propia información", false, [])
     ];
 
@@ -42,5 +110,5 @@ public static class RoleTemplates
         PlatformAdmin,
         "Equipo de FitCore que administra los gimnasios",
         true,
-        [Permissions.PlatformTenantsManage, Permissions.OrganizationRead]);
+        [Permissions.PlatformTenantsManage, Permissions.PlatformTaxesManage, Permissions.OrganizationRead]);
 }

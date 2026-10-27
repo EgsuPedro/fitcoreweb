@@ -70,8 +70,11 @@ Con el entorno levantado:
 | Sucursales | `GET/POST /branches`, `GET/PUT /branches/{id}` |
 | Usuarios | `GET/POST /users`, `GET /users/{id}`, `PUT /users/{id}/access`, `PUT /users/{id}/status` |
 | Roles y auditoría | `GET/POST /roles`, `PUT/DELETE /roles/{id}`, `GET /permissions`, `GET /audit-logs` |
+| Alumnos (Fase 3, en curso) | `GET/POST /members`, `GET/PUT /members/{id}`, `PATCH /members/{id}/status` |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
+
+**Fase 3 en curso** (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base y los alumnos (cédula/RUC/pasaporte validados, duplicados, alcance por sucursal, RLS). Faltan planes y promociones, membresías, cobros, caja, asistencia y sus pantallas.
 
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar

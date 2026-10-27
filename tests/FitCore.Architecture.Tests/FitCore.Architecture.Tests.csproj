@@ -5,6 +5,7 @@
     <ProjectReference Include="..\..\src\backend\BuildingBlocks\FitCore.Infrastructure.Core\FitCore.Infrastructure.Core.csproj" />
     <ProjectReference Include="..\..\src\backend\FitCore.Api\FitCore.Api.csproj" />
     <ProjectReference Include="..\..\src\backend\Modules\Platform\FitCore.Platform\FitCore.Platform.csproj" />
+    <ProjectReference Include="..\..\src\backend\Modules\Commercial\FitCore.Commercial\FitCore.Commercial.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />

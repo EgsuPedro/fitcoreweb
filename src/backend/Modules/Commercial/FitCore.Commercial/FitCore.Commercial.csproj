@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\FitCore.SharedKernel\FitCore.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\FitCore.Application.Core\FitCore.Application.Core.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\FitCore.Infrastructure.Core\FitCore.Infrastructure.Core.csproj" />
+    <ProjectReference Include="..\..\Platform\FitCore.Platform\FitCore.Platform.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
+    <PackageReference Include="FluentValidation" Version="12.2.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.22" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.22">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.22" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+  </ItemGroup>
+</Project>

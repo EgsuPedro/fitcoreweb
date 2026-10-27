@@ -9,6 +9,32 @@ const staffEmail = `staff@${slug}.test`;
 const staffPassword = 'Staff-Clave-12345';
 
 test.describe('acceso', () => {
+  test('la hoja de estilos se aplica y la política de seguridad no bloquea nada', async ({ page }) => {
+    const violations: string[] = [];
+    page.on('console', (message) => {
+      if (/content security policy/i.test(message.text())) violations.push(message.text());
+    });
+
+    await page.goto('/login');
+    const submit = page.getByRole('button', { name: 'Iniciar sesión' });
+    await expect(submit).toBeVisible();
+
+    // Un botón sin estilos tendría el fondo gris del navegador; con estilos usa el color de acento.
+    const background = await submit.evaluate((el) => getComputedStyle(el).backgroundColor);
+    const accent = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
+    expect(accent).not.toBe('');
+    const probe = await page.evaluate((color) => {
+      const el = document.createElement('i');
+      el.style.color = color;
+      document.body.append(el);
+      const resolved = getComputedStyle(el).color;
+      el.remove();
+      return resolved;
+    }, accent);
+    expect(background).toBe(probe);
+    expect(violations).toEqual([]);
+  });
+
   test('credenciales incorrectas muestran un mensaje claro en español', async ({ page }) => {
     await signIn(page, 'no-existe', 'nadie@nada.test', 'Incorrecta-12345');
 

@@ -10,7 +10,7 @@
 - **Mismo origen para web y API:** en desarrollo, `ng serve` con proxy; en despliegue, nginx reenvía `/api`. Así la cookie no necesita CORS. La API confía en `X-Forwarded-For` solo desde las redes de `Network:TrustedProxies`.
 - **Autorización en el cliente = experiencia de usuario, no seguridad.** El menú y las rutas (`permissionGuard`) se filtran por permisos para no ofrecer lo que la API rechazaría (incluida la regla anti-escalada al asignar roles), pero la API valida todo en cada solicitud.
 - **Idiomas:** español por defecto e inglés (Transloco). Los errores de la API se traducen por su `code` estable (`errors.<código>`); una prueba exige que es y en tengan las mismas claves y que todos los códigos de la API estén traducidos. `<html lang>` sigue al idioma activo.
-- **Cabeceras de seguridad** en nginx (CSP, `X-Frame-Options`, `nosniff`, etc.). La CSP permite estilos en línea porque Angular los emite; endurecerla con nonces queda pendiente.
+- **Cabeceras de seguridad** en nginx (CSP, `X-Frame-Options`, `nosniff`, etc.). La CSP permite estilos en línea porque Angular los emite; endurecerla con nonces queda pendiente. La CSP **no** permite scripts en línea, por eso la build de producción desactiva `inlineCritical`: esa optimización de Angular carga la hoja de estilos principal con un `<script>` en línea que la CSP bloquea, y la página quedaba sin estilos. Una prueba e2e verifica que la hoja de estilos se aplica y que no hay violaciones de CSP.
 
 ## Pruebas
 - Unitarias (Vitest): sesión, interceptor, guards, menú por permisos, reglas de roles y traducciones.

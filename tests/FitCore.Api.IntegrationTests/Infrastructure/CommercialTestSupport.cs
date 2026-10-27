@@ -39,6 +39,54 @@ public sealed record SettingsDto(string AccessPolicy, int MinPaymentPercent, int
 
 public sealed record TaxRateDto(Guid Id, string Kind, decimal Percent, DateOnly ValidFrom, DateOnly? ValidUntil, bool IsCurrent);
 
+public sealed record ObligationDto(
+    Guid Id,
+    string Reference,
+    Guid BranchId,
+    Guid MemberId,
+    Guid? MembershipId,
+    string Concept,
+    DateOnly IssueDate,
+    DateOnly DueDate,
+    decimal OriginalAmount,
+    decimal DiscountAmount,
+    decimal PayableAmount,
+    decimal Subtotal,
+    decimal TaxAmount,
+    decimal TaxPercent,
+    string Currency,
+    string Status,
+    string? VoidReason);
+
+public sealed record MembershipDto(
+    Guid Id,
+    Guid MemberId,
+    string MemberCode,
+    string MemberName,
+    Guid BranchId,
+    Guid PlanId,
+    string PlanName,
+    decimal PlanPrice,
+    decimal TaxPercent,
+    bool AllowFreeze,
+    int MaxFreezeDays,
+    int FrozenDaysUsed,
+    int RemainingFreezeDays,
+    string? PromotionCode,
+    decimal DiscountAmount,
+    decimal AgreedPrice,
+    DateOnly StartDate,
+    DateOnly EndDate,
+    string Status,
+    DateOnly? FreezeStartedOn,
+    string? CancelReason,
+    Guid? RenewedFromId,
+    ObligationDto? Obligation,
+    Guid? CreatedBy,
+    Guid? UpdatedBy);
+
+public sealed record MembershipEventDto(Guid Id, string Type, DateTimeOffset OccurredAt, Guid? ActorId, string? Details);
+
 /// <summary>Utilidades para pruebas del módulo comercial.</summary>
 public static class CommercialTestApi
 {

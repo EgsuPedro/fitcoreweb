@@ -205,6 +205,227 @@ namespace FitCore.Commercial.Persistence.Migrations
                     b.ToTable("members", "members");
                 });
 
+            modelBuilder.Entity("FitCore.Commercial.Domain.Membership", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("AgreedPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("agreed_price");
+
+                    b.Property<bool>("AllowFreeze")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_freeze");
+
+                    b.Property<string>("AllowedAccess")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("allowed_access");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("CancelReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("cancel_reason");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<Guid?>("CancelledBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cancelled_by");
+
+                    b.Property<string>("CommercialTerms")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("commercial_terms");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("discount_amount");
+
+                    b.Property<string>("DurationUnit")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("duration_unit");
+
+                    b.Property<int>("DurationValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_value");
+
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<DateOnly?>("FreezeStartedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("freeze_started_on");
+
+                    b.Property<int>("FrozenDaysUsed")
+                        .HasColumnType("integer")
+                        .HasColumnName("frozen_days_used");
+
+                    b.Property<int>("MaxFreezeDays")
+                        .HasColumnType("integer")
+                        .HasColumnName("max_freeze_days");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_id");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("plan_name");
+
+                    b.Property<decimal>("PlanPrice")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("plan_price");
+
+                    b.Property<string>("PromotionCode")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("promotion_code");
+
+                    b.Property<Guid?>("PromotionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("promotion_id");
+
+                    b.Property<string>("PromotionName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("promotion_name");
+
+                    b.Property<Guid?>("RenewedFromId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("renewed_from_id");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TaxKind")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("tax_kind");
+
+                    b.Property<decimal>("TaxPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("tax_percent");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_memberships");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_memberships_tenant_id_id");
+
+                    b.HasIndex("TenantId", "PlanId")
+                        .HasDatabaseName("ix_memberships_tenant_id_plan_id");
+
+                    b.HasIndex("TenantId", "PromotionId")
+                        .HasDatabaseName("ix_memberships_tenant_id_promotion_id");
+
+                    b.HasIndex("TenantId", "MemberId", "StartDate")
+                        .HasDatabaseName("ix_memberships_tenant_id_member_id_start_date");
+
+                    b.HasIndex("TenantId", "BranchId", "Status", "EndDate")
+                        .HasDatabaseName("ix_memberships_tenant_id_branch_id_status_end_date");
+
+                    b.ToTable("memberships", "members");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.MembershipEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ActorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_id");
+
+                    b.Property<string>("Details")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("details");
+
+                    b.Property<Guid>("MembershipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("membership_id");
+
+                    b.Property<DateTimeOffset>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_membership_events");
+
+                    b.HasIndex("TenantId", "MembershipId", "OccurredAt")
+                        .HasDatabaseName("ix_membership_events_tenant_id_membership_id_occurred_at");
+
+                    b.ToTable("membership_events", "members");
+                });
+
             modelBuilder.Entity("FitCore.Commercial.Domain.MembershipPlan", b =>
                 {
                     b.Property<Guid>("Id")
@@ -309,12 +530,154 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasName("pk_membership_plans");
 
                     b.HasAlternateKey("TenantId", "Id")
-                        .HasName("ak_membership_plans_tenant_id_id");
+                        .HasName("ak_plans_tenant_id_id");
 
                     b.HasIndex("TenantId", "IsActive")
                         .HasDatabaseName("ix_membership_plans_tenant_id_is_active");
 
                     b.ToTable("membership_plans", "members");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.PaymentObligation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("Concept")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("concept");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("discount_amount");
+
+                    b.Property<DateOnly>("DueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("due_date");
+
+                    b.Property<DateOnly>("IssueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("issue_date");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<Guid?>("MembershipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("membership_id");
+
+                    b.Property<decimal>("OriginalAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("original_amount");
+
+                    b.Property<decimal>("PayableAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("payable_amount");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("reference");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("subtotal");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("tax_amount");
+
+                    b.Property<string>("TaxKind")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("tax_kind");
+
+                    b.Property<decimal>("TaxPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("tax_percent");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("VoidReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("void_reason");
+
+                    b.Property<DateTimeOffset?>("VoidedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("voided_at");
+
+                    b.Property<Guid?>("VoidedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("voided_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_obligations");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_payment_obligations_tenant_id_id");
+
+                    b.HasIndex("TenantId", "MembershipId")
+                        .HasDatabaseName("ix_payment_obligations_tenant_id_membership_id");
+
+                    b.HasIndex("TenantId", "Reference")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payment_obligations_tenant_id_reference");
+
+                    b.HasIndex("TenantId", "MemberId", "Status")
+                        .HasDatabaseName("ix_payment_obligations_tenant_id_member_id_status");
+
+                    b.HasIndex("TenantId", "BranchId", "Status", "DueDate")
+                        .HasDatabaseName("ix_payment_obligations_tenant_id_branch_id_status_due_date");
+
+                    b.ToTable("payment_obligations", "billing");
                 });
 
             modelBuilder.Entity("FitCore.Commercial.Domain.PlanBranch", b =>
@@ -535,6 +898,11 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("tenant_id");
 
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("time_zone");
+
                     b.HasKey("Id")
                         .HasName("pk_branches");
 
@@ -669,6 +1037,61 @@ namespace FitCore.Commercial.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.Membership", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.Member", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MemberId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_memberships_members_tenant_id_member_id");
+
+                    b.HasOne("FitCore.Commercial.Domain.MembershipPlan", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PlanId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_memberships_plans_tenant_id_plan_id");
+
+                    b.HasOne("FitCore.Commercial.Domain.Promotion", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PromotionId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_memberships_promotions_tenant_id_promotion_id");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.MembershipEvent", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.Membership", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MembershipId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_membership_events_memberships_tenant_id_membership_id");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.PaymentObligation", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.Member", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MemberId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_obligations_members_tenant_id_member_id");
+
+                    b.HasOne("FitCore.Commercial.Domain.Membership", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MembershipId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_payment_obligations_memberships_tenant_id_membership_id");
                 });
 
             modelBuilder.Entity("FitCore.Commercial.Domain.PlanBranch", b =>

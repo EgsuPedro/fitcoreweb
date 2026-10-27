@@ -49,13 +49,22 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 - **Diseño:** una tarea del Worker revisa cada día las membresías por vencer y escribe en `notifications` (tipo, destinatario, membresía, fecha programada, estado, intentos, error) con una restricción única `(membresía, tipo, destinatario)` que impide duplicados aunque el Worker corra dos veces. Los textos viven en plantillas con idioma (es por defecto) y datos mínimos: el mensaje al alumno no incluye saldos ni datos sensibles.
 - **Consentimiento (LOPDP):** el alumno guarda su aceptación de recibir WhatsApp (fecha y quién la registró); sin ella nunca se le escribe, y puede retirarla. El personal recibe avisos según su rol y número registrado.
 - **Reintentos y fallos:** reintentos con espera creciente; los fallos definitivos quedan visibles para el administrador.
+## Reglas de membresías (bloque 4, implementadas)
+- **Una sola transacción:** inscribir y renovar crean la membresía y su obligación juntas (o ninguna). Consumir un uso de la promoción también va en esa transacción, con un incremento atómico en la base.
+- **Términos copiados:** la membresía y la obligación guardan precio, descuento, duración, tipo y tarifa de IVA del momento. Editar el plan o cambiar el IVA por decreto no las toca.
+- **Estado pendiente → activo:** nace `PendingPayment`. Pasa a `Active` con el primer pago (bloque 5). `Expired` no se guarda: se deriva de la fecha de fin; nadie tiene que "vencer" membresías con un proceso.
+- **Una a la vez:** el solapamiento se valida en la aplicación y lo garantiza la base con una restricción de exclusión (`daterange` por alumno entre membresías pendientes, activas o congeladas). Dos solicitudes simultáneas no pueden dejar dos vigentes.
+- **Renovar:** crea otra membresía que empieza al terminar la actual (o hoy si ya venció). No se renueva una pendiente de pago, congelada, cancelada ni ya renovada; la original solo recibe un evento "Renovada" en su historial.
+- **Congelar:** solo membresías activas, de planes que lo permitan y con cupo. Al reactivar, el fin se alarga por los días congelados sin pasar del cupo; el historial muestra fecha anterior, nueva, días congelados y días otorgados. No se congela si ya hay una renovación programada.
+- **Cancelar:** exige motivo. Anula la obligación solo si no tiene ningún pago (cuando existan pagos, el bloque 5 los corrige con reversos). Libera el periodo.
+- **Fechas** en la zona horaria de la sucursal (Galápagos tiene una hora menos que el continente).
 ## Bloques
 | # | Bloque | Estado |
 |---|---|---|
 | 1 | Módulo, `DbContext`, RLS, migración, permisos | Hecho |
 | 2 | Alumnos | Hecho |
 | 3 | Planes, promociones, tarifas de IVA y políticas del gimnasio | Hecho |
-| 4 | Membresías | Pendiente |
+| 4 | Membresías (incluye la obligación de pago en lectura) | Hecho |
 | 4b | Notificaciones de WhatsApp (vencimientos) | Pendiente, después de las membresías |
 | 5 | Obligaciones, pagos y abonos | Pendiente |
 | 6 | Caja | Pendiente |

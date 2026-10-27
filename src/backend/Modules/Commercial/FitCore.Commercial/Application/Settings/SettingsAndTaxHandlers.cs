@@ -126,10 +126,12 @@ internal static class TaxRateLookup
 internal static class LocalDates
 {
     /// <summary>Fecha de hoy en la zona horaria por defecto del país (Ecuador continental).</summary>
-    public static DateOnly Today(IClock clock) =>
-        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(Tenant.DefaultTimeZone)).DateTime);
-}
+    public static DateOnly Today(IClock clock) => Today(clock, Tenant.DefaultTimeZone);
 
+    /// <summary>Fecha de hoy en una zona horaria (la de la sucursal: Galápagos tiene una hora menos que el continente).</summary>
+    public static DateOnly Today(IClock clock, string timeZone) =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(timeZone)).DateTime);
+}
 internal sealed class ListTaxRatesHandler(CommercialDbContext db, IClock clock) : IQueryHandler<ListTaxRatesQuery, IReadOnlyList<TaxRateDto>>
 {
     public async Task<Result<IReadOnlyList<TaxRateDto>>> HandleAsync(ListTaxRatesQuery query, CancellationToken cancellationToken)

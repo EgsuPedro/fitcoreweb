@@ -22,6 +22,9 @@ public sealed class CommercialDbContext(DbContextOptions<CommercialDbContext> op
     public DbSet<MembershipPlan> Plans => Set<MembershipPlan>();
     public DbSet<Promotion> Promotions => Set<Promotion>();
     public DbSet<CommercialSettings> Settings => Set<CommercialSettings>();
+    public DbSet<Membership> Memberships => Set<Membership>();
+    public DbSet<MembershipEvent> MembershipEvents => Set<MembershipEvent>();
+    public DbSet<PaymentObligation> Obligations => Set<PaymentObligation>();
 
     /// <summary>Tarifas de impuesto globales (sin tenant): las administra el equipo de plataforma.</summary>
     public DbSet<TaxRate> TaxRates => Set<TaxRate>();
@@ -98,5 +101,6 @@ internal sealed class BranchRef : ITenantOwned
     public Guid TenantId { get; init; }
     public string Code { get; init; } = string.Empty;
     public string Name { get; init; } = string.Empty;
+    public string TimeZone { get; init; } = string.Empty;
     public bool IsActive { get; init; }
 }

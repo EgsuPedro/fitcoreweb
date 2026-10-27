@@ -44,6 +44,9 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         // Dos solicitudes simultáneas crearon el mismo registro único (correo, código de sucursal, etc.).
         DbUpdateException { InnerException: PostgresException { SqlState: PostgresErrorCodes.UniqueViolation } } =>
             (StatusCodes.Status409Conflict, "Ya existe un registro con esos datos.", "conflict.duplicate"),
+        // Respaldo de la base: dos solicitudes simultáneas no pueden dejar membresías vigentes que se solapan.
+        DbUpdateException { InnerException: PostgresException { SqlState: PostgresErrorCodes.ExclusionViolation } } =>
+            (StatusCodes.Status409Conflict, "El alumno ya tiene una membresía que coincide con esas fechas.", "memberships.overlap"),
         DbUpdateConcurrencyException =>
             (StatusCodes.Status409Conflict, "El registro fue modificado por otra persona. Recárguelo e intente de nuevo.", "conflict.concurrency"),
         // Cuerpo ilegible (JSON mal formado, UTF-8 inválido): error del cliente, no del servidor.

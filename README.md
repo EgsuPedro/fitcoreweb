@@ -72,11 +72,12 @@ Con el entorno levantado:
 | Roles y auditoría | `GET/POST /roles`, `PUT/DELETE /roles/{id}`, `GET /permissions`, `GET /audit-logs` |
 | Alumnos (Fase 3, en curso) | `GET/POST /members`, `GET/PUT /members/{id}`, `PATCH /members/{id}/status` |
 | Planes y promociones | `GET/POST /membership-plans`, `GET/PUT /membership-plans/{id}`, `GET/POST /promotions`, `GET/PUT /promotions/{id}` |
+| Membresías y obligaciones | `GET/POST /memberships`, `GET /memberships/expiring`, `GET /memberships/{id}[/events]`, `POST /memberships/{id}/renew\|freeze\|reactivate\|cancel`, `GET /payment-obligations[/{id}]` |
 | Políticas e IVA | `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates` (solo plataforma) |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
 
-**Fase 3 en curso** (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base, los alumnos, los planes y promociones (con tope de descuento), las políticas del gimnasio y las tarifas de IVA editables por decreto (15 % por defecto). Faltan membresías, cobros, caja, asistencia, las notificaciones de WhatsApp y las pantallas.
+**Fase 3 en curso** (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base, los alumnos, los planes y promociones (con tope de descuento), las políticas del gimnasio y las tarifas de IVA editables por decreto (15 % por defecto). Hechas también las membresías (inscribir, renovar, congelar, cancelar) con su obligación de pago. Faltan los cobros, la caja, la asistencia, las notificaciones de WhatsApp y las pantallas.
 
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar

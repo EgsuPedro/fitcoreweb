@@ -63,7 +63,9 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `plans.read` / `plans.manage` | Ver planes y políticas comerciales / crear y editar planes. Quien no accede a todas las sucursales solo administra planes de las suyas |
 | `promotions.read/manage/apply` | Ver / definir promociones (requiere acceso a todas las sucursales) / aplicarlas al inscribir o renovar |
 | `commercial.settings.manage` | Cambiar las políticas del gimnasio (acceso con deuda, descuento máximo, días de vencimiento); requiere acceso a todas las sucursales |
-| `memberships.*`, `obligations.*`, `payments.*`, `cash.*`, `attendance.*` | Definidos; se aplican a medida que se implementan sus bloques |
+| `memberships.read/create/renew/freeze/cancel` | Ver / inscribir / renovar / congelar y reactivar / cancelar membresías (limitado a las sucursales del usuario) |
+| `obligations.read` | Ver obligaciones de pago |
+| `obligations.create/void`, `payments.*`, `cash.*`, `attendance.*` | Definidos; se aplican a medida que se implementan sus bloques |
 | `platform.taxes.manage` | Solo plataforma: registrar tarifas de IVA por decreto |
 
-Endpoints nuevos: `GET/POST /members`, `GET/PUT /members/{id}`, `PATCH /members/{id}/status`, `GET/POST /membership-plans`, `GET/PUT /membership-plans/{id}`, `GET/POST /promotions`, `GET/PUT /promotions/{id}`, `GET/PUT /commercial-settings`, `GET /tax-rates/current` y `GET/POST /platform/tax-rates`.
+Endpoints nuevos: `GET/POST /members`, `GET/PUT /members/{id}`, `PATCH /members/{id}/status`, `GET/POST /membership-plans`, `GET/PUT /membership-plans/{id}`, `GET/POST /promotions`, `GET/PUT /promotions/{id}`, `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates`, `GET/POST /memberships`, `GET /memberships/expiring`, `GET /memberships/{id}`, `GET /memberships/{id}/events`, `POST /memberships/{id}/renew|freeze|reactivate|cancel`, `GET /payment-obligations` y `GET /payment-obligations/{id}`.

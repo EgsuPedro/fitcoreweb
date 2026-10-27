@@ -1,6 +1,8 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
+using FitCore.Commercial.Application.Billing;
 using FitCore.Commercial.Application.Members;
+using FitCore.Commercial.Application.Memberships;
 using FitCore.Commercial.Application.Plans;
 using FitCore.Commercial.Application.Promotions;
 using FitCore.Commercial.Application.Settings;
@@ -16,6 +18,8 @@ internal static class CommercialEndpoints
         MapMembers(routes.MapGroup("/members").WithTags("Members"));
         MapPlans(routes.MapGroup("/membership-plans").WithTags("Membership plans"));
         MapPromotions(routes.MapGroup("/promotions").WithTags("Promotions"));
+        MapMemberships(routes.MapGroup("/memberships").WithTags("Memberships"));
+        MapObligations(routes.MapGroup("/payment-obligations").WithTags("Payment obligations"));
         MapSettingsAndTaxes(routes);
         return routes;
     }
@@ -113,6 +117,82 @@ internal static class CommercialEndpoints
             .WithName("UpdatePromotion");
     }
 
+    private static void MapMemberships(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, Guid? memberId = null, Guid? branchId = null, Guid? planId = null, MembershipStatus? status = null, string? search = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMembershipsQuery(new PageRequest(page, pageSize), memberId, branchId, planId, status, search), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MembershipsRead)
+            .Produces<PagedResult<MembershipDto>>()
+            .WithName("ListMemberships");
+
+        // Próximas expiraciones: membresías activas que terminan dentro de los próximos N días.
+        group.MapGet("/expiring", async (IDispatcher dispatcher, CancellationToken ct, int days = 7, Guid? branchId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ExpiringMembershipsQuery(new PageRequest(page, pageSize), days, branchId), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MembershipsRead)
+            .Produces<PagedResult<MembershipDto>>()
+            .WithName("ListExpiringMemberships");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetMembershipQuery(id), ct)).ToHttp(m => Results.Ok(m)))
+            .RequirePermission(Permissions.MembershipsRead)
+            .Produces<MembershipDto>()
+            .WithName("GetMembership");
+
+        group.MapGet("/{id:guid}/events", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListMembershipEventsQuery(id), ct)).ToHttp(e => Results.Ok(e)))
+            .RequirePermission(Permissions.MembershipsRead)
+            .Produces<IReadOnlyList<MembershipEventDto>>()
+            .WithName("ListMembershipEvents");
+
+        group.MapPost("/", async (EnrollRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new EnrollCommand(request), ct)).ToHttp(m => Results.Created($"/api/v1/memberships/{m.Id}", m)))
+            .RequirePermission(Permissions.MembershipsCreate)
+            .WithValidation<EnrollRequest>()
+            .Produces<MembershipDto>(StatusCodes.Status201Created)
+            .WithName("EnrollMember");
+
+        group.MapPost("/{id:guid}/renew", async (Guid id, RenewRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new RenewCommand(id, request), ct)).ToHttp(m => Results.Created($"/api/v1/memberships/{m.Id}", m)))
+            .RequirePermission(Permissions.MembershipsRenew)
+            .WithValidation<RenewRequest>()
+            .Produces<MembershipDto>(StatusCodes.Status201Created)
+            .WithName("RenewMembership");
+
+        group.MapPost("/{id:guid}/freeze", async (Guid id, FreezeRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new FreezeCommand(id, request), ct)).ToHttp(m => Results.Ok(m)))
+            .RequirePermission(Permissions.MembershipsFreeze)
+            .WithValidation<FreezeRequest>()
+            .Produces<MembershipDto>()
+            .WithName("FreezeMembership");
+
+        group.MapPost("/{id:guid}/reactivate", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ReactivateCommand(id), ct)).ToHttp(m => Results.Ok(m)))
+            .RequirePermission(Permissions.MembershipsFreeze)
+            .Produces<MembershipDto>()
+            .WithName("ReactivateMembership");
+
+        group.MapPost("/{id:guid}/cancel", async (Guid id, CancelRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CancelCommand(id, request), ct)).ToHttp(m => Results.Ok(m)))
+            .RequirePermission(Permissions.MembershipsCancel)
+            .WithValidation<CancelRequest>()
+            .Produces<MembershipDto>()
+            .WithName("CancelMembership");
+    }
+
+    private static void MapObligations(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, Guid? memberId = null, Guid? membershipId = null, Guid? branchId = null, ObligationStatus? status = null, string? search = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListObligationsQuery(new PageRequest(page, pageSize), memberId, membershipId, branchId, status, search), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ObligationsRead)
+            .Produces<PagedResult<ObligationDto>>()
+            .WithName("ListPaymentObligations");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetObligationQuery(id), ct)).ToHttp(o => Results.Ok(o)))
+            .RequirePermission(Permissions.ObligationsRead)
+            .Produces<ObligationDto>()
+            .WithName("GetPaymentObligation");
+    }
     private static void MapSettingsAndTaxes(IEndpointRouteBuilder routes)
     {
         routes.MapGet("/commercial-settings", async (IDispatcher dispatcher, CancellationToken ct) =>

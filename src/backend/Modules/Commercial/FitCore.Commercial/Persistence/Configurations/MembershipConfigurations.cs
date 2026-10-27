@@ -58,7 +58,7 @@ internal sealed class PaymentObligationConfiguration : IEntityTypeConfiguration<
     {
         b.ToTable("payment_obligations", CommercialDbContext.BillingSchema);
         b.HasKey(x => x.Id);
-        b.HasAlternateKey(x => new { x.TenantId, x.Id });
+        b.HasAlternateKey(x => new { x.TenantId, x.Id }).HasName("ak_payment_obligations_tenant_id_id");
         b.Property(x => x.Reference).HasMaxLength(20).IsRequired();
         b.Property(x => x.Concept).HasMaxLength(200).IsRequired();
         b.Property(x => x.OriginalAmount).HasPrecision(12, 2);

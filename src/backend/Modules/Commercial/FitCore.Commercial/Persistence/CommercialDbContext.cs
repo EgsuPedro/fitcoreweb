@@ -25,6 +25,9 @@ public sealed class CommercialDbContext(DbContextOptions<CommercialDbContext> op
     public DbSet<Membership> Memberships => Set<Membership>();
     public DbSet<MembershipEvent> MembershipEvents => Set<MembershipEvent>();
     public DbSet<PaymentObligation> Obligations => Set<PaymentObligation>();
+    public DbSet<Payment> Payments => Set<Payment>();
+    public DbSet<PaymentAllocation> PaymentAllocations => Set<PaymentAllocation>();
+    public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
 
     /// <summary>Tarifas de impuesto globales (sin tenant): las administra el equipo de plataforma.</summary>
     public DbSet<TaxRate> TaxRates => Set<TaxRate>();

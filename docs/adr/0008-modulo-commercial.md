@@ -58,6 +58,19 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 - **Congelar:** solo membresías activas, de planes que lo permitan y con cupo. Al reactivar, el fin se alarga por los días congelados sin pasar del cupo; el historial muestra fecha anterior, nueva, días congelados y días otorgados. No se congela si ya hay una renovación programada.
 - **Cancelar:** exige motivo. Anula la obligación solo si no tiene ningún pago (cuando existan pagos, el bloque 5 los corrige con reversos). Libera el periodo.
 - **Fechas** en la zona horaria de la sucursal (Galápagos tiene una hora menos que el continente).
+## Reglas de cobros (bloque 5, implementadas)
+- **Saldo = exigible − cobrado.** No hay columna de saldo: sale de las asignaciones de pagos *confirmados*. Las transferencias *pendientes* reservan saldo (nadie más puede cobrar ese monto) pero no lo pagan hasta que se confirman. Un pago revertido no cuenta en ninguno.
+- **Estado de la obligación:** `Pending → PartiallyPaid → Paid` se recalcula en la misma transacción del pago o del reverso; `Overdue` se deriva (vence antes de hoy con saldo) y no se guarda.
+- **Concurrencia:** cada pago bloquea sus obligaciones con `SELECT … FOR UPDATE` (en orden de id) antes de calcular el disponible. Diez abonos simultáneos de 10,00 sobre 34,50: entran exactamente tres. Un trigger en la base es el respaldo: las asignaciones de pagos no revertidos nunca superan lo exigible.
+- **Idempotencia:** `POST /payments`, `/payments/{id}/confirm` y `/payments/{id}/reverse` exigen `Idempotency-Key` (hasta 100 caracteres). Repetir la clave con el mismo contenido y usuario devuelve la respuesta original sin duplicar; con otro contenido u otro usuario, 422. Ocho solicitudes simultáneas con la misma clave producen un solo pago.
+- **Importe y asignaciones:** el cliente nunca envía un saldo ni "total pagado": el backend verifica. Sin asignaciones, el pago cubre las obligaciones abiertas del alumno de la más antigua a la más nueva. No hay saldo a favor: el importe no puede superar lo pendiente.
+- **Medios:** tarjeta y otros medios se confirman al registrarse (tarjeta: referencia de voucher obligatoria; otros: nombre del medio). Transferencia: referencia obligatoria y queda pendiente hasta que alguien con `payments.confirm` la confirme. **Efectivo: se rechaza hasta el bloque 6** (exige caja abierta). Nunca se guarda un número de tarjeta: una referencia que parece uno (13–19 dígitos que cumplen Luhn) se rechaza.
+- **Inmutabilidad:** un pago no se modifica ni se borra. Un reverso cambia su estado, exige motivo y deja responsable y fecha. La base lo garantiza: un trigger impide cambiar importe, medio, alumno o referencia, y reactivar un reverso; el rol de la aplicación no puede borrar pagos ni asignaciones, ni modificar o borrar el historial de membresías.
+- **Activación:** un pago confirmado activa la membresía según la política (`AllowUntilOverdue`: primer pago; `AllowWithMinimumPayment`: % mínimo; `RequireFullPayment`: saldada). Un reverso posterior **no** la desactiva: el acceso se decide con los saldos vigentes en el bloque de asistencia.
+- **Anular obligaciones:** `POST /payment-obligations/{id}/void` con motivo; no se puede si tiene pagos vigentes (primero se revierten). Cancelar una membresía anula su obligación solo si no tiene pagos; si los tiene, la conserva.
+- **Obligaciones manuales** (`POST /payment-obligations`): otros conceptos, con el IVA vigente desglosado y congelado.
+- **Recibo interno** (`GET /payments/{id}/receipt`): número `RC-000001` por gimnasio, líneas, total y quién lo recibió; aclara que no es factura tributaria.
+- **Historial de cambios** de un pago: queda en la auditoría (`Payment.Created/Updated`, `PaymentAllocation.Created`, `PaymentObligation.Updated`), sin datos de tarjeta.
 ## Bloques
 | # | Bloque | Estado |
 |---|---|---|
@@ -66,7 +79,7 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 | 3 | Planes, promociones, tarifas de IVA y políticas del gimnasio | Hecho |
 | 4 | Membresías (incluye la obligación de pago en lectura) | Hecho |
 | 4b | Notificaciones de WhatsApp (vencimientos) | Pendiente, después de las membresías |
-| 5 | Obligaciones, pagos y abonos | Pendiente |
+| 5 | Obligaciones, pagos y abonos (efectivo se habilita con la caja) | Hecho |
 | 6 | Caja | Pendiente |
 | 7 | Asistencia | Pendiente |
 | 8 | Angular | Pendiente |

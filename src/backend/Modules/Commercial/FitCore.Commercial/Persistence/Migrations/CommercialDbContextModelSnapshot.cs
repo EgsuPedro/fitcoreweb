@@ -61,6 +61,51 @@ namespace FitCore.Commercial.Persistence.Migrations
                     b.ToTable("commercial_settings", "members");
                 });
 
+            modelBuilder.Entity("FitCore.Commercial.Domain.IdempotencyKey", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Key")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("key");
+
+                    b.Property<Guid?>("ActorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("RequestHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("request_hash");
+
+                    b.Property<string>("ResponseBody")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("response_body");
+
+                    b.Property<int?>("ResponseStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("response_status");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("scope");
+
+                    b.HasKey("TenantId", "Key")
+                        .HasName("pk_idempotency_keys");
+
+                    b.ToTable("idempotency_keys", "billing");
+                });
+
             modelBuilder.Entity("FitCore.Commercial.Domain.Member", b =>
                 {
                     b.Property<Guid>("Id")
@@ -536,6 +581,169 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasDatabaseName("ix_membership_plans_tenant_id_is_active");
 
                     b.ToTable("membership_plans", "members");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<string>("BankName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("bank_name");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<Guid?>("ConfirmedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("confirmed_by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("MethodDetail")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("method_detail");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTimeOffset>("PaidAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("paid_at");
+
+                    b.Property<string>("ReceiptNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("receipt_number");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("reference");
+
+                    b.Property<string>("ReversalReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("reversal_reason");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("reversed_at");
+
+                    b.Property<Guid?>("ReversedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("reversed_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payments");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_payments_tenant_id_id");
+
+                    b.HasIndex("TenantId", "ReceiptNumber")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payments_tenant_id_receipt_number");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_payments_tenant_id_status");
+
+                    b.HasIndex("TenantId", "BranchId", "PaidAt")
+                        .HasDatabaseName("ix_payments_tenant_id_branch_id_paid_at");
+
+                    b.HasIndex("TenantId", "MemberId", "PaidAt")
+                        .HasDatabaseName("ix_payments_tenant_id_member_id_paid_at");
+
+                    b.ToTable("payments", "billing");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.PaymentAllocation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("ObligationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("obligation_id");
+
+                    b.Property<Guid>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_allocations");
+
+                    b.HasIndex("PaymentId", "ObligationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payment_allocations_payment_id_obligation_id");
+
+                    b.HasIndex("TenantId", "ObligationId")
+                        .HasDatabaseName("ix_payment_allocations_tenant_id_obligation_id");
+
+                    b.HasIndex("TenantId", "PaymentId")
+                        .HasDatabaseName("ix_payment_allocations_tenant_id_payment_id");
+
+                    b.ToTable("payment_allocations", "billing");
                 });
 
             modelBuilder.Entity("FitCore.Commercial.Domain.PaymentObligation", b =>
@@ -1076,6 +1284,36 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasConstraintName("fk_membership_events_memberships_tenant_id_membership_id");
                 });
 
+            modelBuilder.Entity("FitCore.Commercial.Domain.Payment", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.Member", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MemberId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_members_tenant_id_member_id");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.PaymentAllocation", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.PaymentObligation", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ObligationId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_allocations_obligations_tenant_id_obligation_id");
+
+                    b.HasOne("FitCore.Commercial.Domain.Payment", null)
+                        .WithMany("Allocations")
+                        .HasForeignKey("TenantId", "PaymentId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_allocations_payments_tenant_id_payment_id");
+                });
+
             modelBuilder.Entity("FitCore.Commercial.Domain.PaymentObligation", b =>
                 {
                     b.HasOne("FitCore.Commercial.Domain.Member", null)
@@ -1127,6 +1365,11 @@ namespace FitCore.Commercial.Persistence.Migrations
             modelBuilder.Entity("FitCore.Commercial.Domain.MembershipPlan", b =>
                 {
                     b.Navigation("Branches");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.Payment", b =>
+                {
+                    b.Navigation("Allocations");
                 });
 
             modelBuilder.Entity("FitCore.Commercial.Domain.Promotion", b =>

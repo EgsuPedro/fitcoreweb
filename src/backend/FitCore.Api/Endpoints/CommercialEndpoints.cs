@@ -8,6 +8,7 @@ using FitCore.Commercial.Application.Promotions;
 using FitCore.Commercial.Application.Settings;
 using FitCore.Commercial.Domain;
 using FitCore.Platform.Domain;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FitCore.Api.Endpoints;
 
@@ -20,6 +21,7 @@ internal static class CommercialEndpoints
         MapPromotions(routes.MapGroup("/promotions").WithTags("Promotions"));
         MapMemberships(routes.MapGroup("/memberships").WithTags("Memberships"));
         MapObligations(routes.MapGroup("/payment-obligations").WithTags("Payment obligations"));
+        MapPayments(routes.MapGroup("/payments").WithTags("Payments"));
         MapSettingsAndTaxes(routes);
         return routes;
     }
@@ -192,6 +194,60 @@ internal static class CommercialEndpoints
             .RequirePermission(Permissions.ObligationsRead)
             .Produces<ObligationDto>()
             .WithName("GetPaymentObligation");
+        group.MapPost("/", async (CreateObligationRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateObligationCommand(request), ct)).ToHttp(o => Results.Created($"/api/v1/payment-obligations/{o.Id}", o)))
+            .RequirePermission(Permissions.ObligationsCreate)
+            .WithValidation<CreateObligationRequest>()
+            .Produces<ObligationDto>(StatusCodes.Status201Created)
+            .WithName("CreatePaymentObligation");
+
+        group.MapPost("/{id:guid}/void", async (Guid id, VoidObligationRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new VoidObligationCommand(id, request), ct)).ToHttp(o => Results.Ok(o)))
+            .RequirePermission(Permissions.ObligationsVoid)
+            .WithValidation<VoidObligationRequest>()
+            .Produces<ObligationDto>()
+            .WithName("VoidPaymentObligation");
+    }
+    private static void MapPayments(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, Guid? memberId = null, Guid? branchId = null, PaymentMethod? method = null, PaymentStatus? status = null, DateOnly? from = null, DateOnly? to = null, string? search = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListPaymentsQuery(new PageRequest(page, pageSize), memberId, branchId, method, status, from, to, search), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PaymentsRead)
+            .Produces<PagedResult<PaymentDto>>()
+            .WithName("ListPayments");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetPaymentQuery(id), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PaymentsRead)
+            .Produces<PaymentDto>()
+            .WithName("GetPayment");
+
+        group.MapGet("/{id:guid}/receipt", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetReceiptQuery(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PaymentsRead)
+            .Produces<ReceiptDto>()
+            .WithName("GetPaymentReceipt");
+
+        // Las operaciones que mueven dinero exigen Idempotency-Key: reintentar la misma solicitud no duplica el pago.
+        group.MapPost("/", async (CreatePaymentRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreatePaymentCommand(request, idempotencyKey), ct)).ToHttp(p => Results.Created($"/api/v1/payments/{p.Id}", p)))
+            .RequirePermission(Permissions.PaymentsCreate)
+            .WithValidation<CreatePaymentRequest>()
+            .Produces<PaymentDto>(StatusCodes.Status201Created)
+            .WithName("CreatePayment");
+
+        group.MapPost("/{id:guid}/confirm", async (Guid id, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ConfirmPaymentCommand(id, idempotencyKey), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PaymentsConfirm)
+            .Produces<PaymentDto>()
+            .WithName("ConfirmPayment");
+
+        group.MapPost("/{id:guid}/reverse", async (Guid id, ReversePaymentRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ReversePaymentCommand(id, request, idempotencyKey), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PaymentsReverse)
+            .WithValidation<ReversePaymentRequest>()
+            .Produces<PaymentDto>()
+            .WithName("ReversePayment");
     }
     private static void MapSettingsAndTaxes(IEndpointRouteBuilder routes)
     {

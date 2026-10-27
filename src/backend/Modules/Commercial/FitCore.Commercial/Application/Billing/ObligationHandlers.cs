@@ -28,13 +28,17 @@ public sealed record ObligationDto(
     string TaxKind,
     decimal TaxPercent,
     string Currency,
+    decimal PaidAmount,
+    decimal ReservedAmount,
+    decimal Balance,
     string Status,
     string? VoidReason,
     DateTimeOffset? VoidedAt,
     DateTimeOffset CreatedAt,
     Guid? CreatedBy)
 {
-    public static ObligationDto From(PaymentObligation o, string memberCode, string memberName, DateOnly today) =>
+    /// <summary>El saldo es lo exigible menos lo cobrado (pagos confirmados); lo reservado son transferencias aún sin verificar.</summary>
+    public static ObligationDto From(PaymentObligation o, string memberCode, string memberName, DateOnly today, decimal paid = 0m, decimal reserved = 0m) =>
         new(
             o.Id,
             o.Reference,
@@ -54,6 +58,9 @@ public sealed record ObligationDto(
             o.TaxKind.ToString(),
             o.TaxPercent,
             PaymentObligation.Currency,
+            paid,
+            reserved,
+            o.Status == ObligationStatus.Voided ? 0m : o.PayableAmount - paid,
             o.EffectiveStatus(today).ToString(),
             o.VoidReason,
             o.VoidedAt,
@@ -139,8 +146,9 @@ internal sealed class ListObligationsHandler(CommercialDbContext db, IAccessCont
         }
 
         var paged = await rows.OrderByDescending(r => r.Obligation.IssueDate).ThenByDescending(r => r.Obligation.Reference).ToPagedAsync(query.Page, cancellationToken);
+        var balances = await Ledger.BalancesAsync(db, [.. paged.Items.Select(r => r.Obligation.Id)], cancellationToken);
         return new PagedResult<ObligationDto>(
-            [.. paged.Items.Select(r => ObligationDto.From(r.Obligation, r.Code, $"{r.FirstName} {r.LastName}", today))],
+            [.. paged.Items.Select(r => ObligationDto.From(r.Obligation, r.Code, $"{r.FirstName} {r.LastName}", today, balances.GetValueOrDefault(r.Obligation.Id).Paid, balances.GetValueOrDefault(r.Obligation.Id).Reserved))],
             paged.Page,
             paged.PageSize,
             paged.TotalCount);
@@ -162,8 +170,12 @@ internal sealed class GetObligationHandler(CommercialDbContext db, IAccessContex
                          where o.Id == query.Id
                          select new { Obligation = o, m.Code, m.FirstName, m.LastName }).FirstOrDefaultAsync(cancellationToken);
 
-        return row is null
-            ? ObligationErrors.NotFound
-            : ObligationDto.From(row.Obligation, row.Code, $"{row.FirstName} {row.LastName}", LocalDates.Today(clock));
+        if (row is null)
+        {
+            return ObligationErrors.NotFound;
+        }
+
+        var balance = (await Ledger.BalancesAsync(db, [row.Obligation.Id], cancellationToken)).GetValueOrDefault(row.Obligation.Id);
+        return ObligationDto.From(row.Obligation, row.Code, $"{row.FirstName} {row.LastName}", LocalDates.Today(clock), balance.Paid, balance.Reserved);
     }
 }

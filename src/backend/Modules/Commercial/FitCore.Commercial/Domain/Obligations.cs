@@ -107,6 +107,30 @@ public sealed class PaymentObligation : Entity<Guid>, ITenantOwned, IAuditable
     public ObligationStatus EffectiveStatus(DateOnly today) =>
         Status is ObligationStatus.Pending or ObligationStatus.PartiallyPaid && DueDate < today ? ObligationStatus.Overdue : Status;
 
+    /// <summary>
+    /// Actualiza el estado a partir de lo realmente cobrado (suma de pagos confirmados). Es el único camino para pasar entre
+    /// pendiente, parcial y pagada, y se llama dentro de la misma transacción que el pago o el reverso.
+    /// </summary>
+    public void ApplyConfirmedPayments(decimal confirmed, Guid? actor, DateTimeOffset now)
+    {
+        if (Status == ObligationStatus.Voided)
+        {
+            return;
+        }
+
+        var next = confirmed >= PayableAmount ? ObligationStatus.Paid
+            : confirmed > 0m ? ObligationStatus.PartiallyPaid
+            : ObligationStatus.Pending;
+        if (next == Status)
+        {
+            return;
+        }
+
+        Status = next;
+        UpdatedAt = now;
+        UpdatedBy = actor;
+    }
+
     public Result Void(string reason, Guid? actor, DateTimeOffset now)
     {
         if (Status == ObligationStatus.Voided)

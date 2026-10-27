@@ -45,7 +45,7 @@ public class MembershipTests(ApiFixture api)
     private static async Task<MembershipDto> GetAsync(HttpClient client, Guid id) =>
         (await client.GetFromJsonAsync<MembershipDto>($"/api/v1/memberships/{id}"))!;
 
-    /// <summary>Atajo de prueba: el bloque de cobros aún no existe, así que se simula el efecto del primer pago directamente en la base.</summary>
+    /// <summary>Atajo solo para fijar fechas o estados que el negocio no permite fabricar (por ejemplo, retroceder el calendario).</summary>
     private async Task SqlAsync(string sql)
     {
         await using var connection = new NpgsqlConnection(api.AdminConnection);
@@ -54,12 +54,12 @@ public class MembershipTests(ApiFixture api)
         await command.ExecuteNonQueryAsync();
     }
 
+    /// <summary>Activa la membresía como en producción: con un pago real del total de su obligación.</summary>
     private async Task<MembershipDto> ActivateAsync(HttpClient client, MembershipDto membership)
     {
-        await SqlAsync($"UPDATE members.memberships SET status = 'Active' WHERE id = '{membership.Id}'");
+        await PayAsync(client, membership.MemberId, membership.Obligation!.PayableAmount);
         return await GetAsync(client, membership.Id);
     }
-
     private async Task<T> ScalarAsync<T>(string sql)
     {
         await using var connection = new NpgsqlConnection(api.AdminConnection);
@@ -435,8 +435,7 @@ public class MembershipTests(ApiFixture api)
         Assert.Equal("Active", after.Status);
         Assert.Equal(original.Obligation!.Id, after.Obligation!.Id);
         var events = await s.Tenant.Owner.GetFromJsonAsync<MembershipEventDto[]>($"/api/v1/memberships/{original.Id}/events");
-        Assert.Equal(["Created", "Renewed"], events!.Select(e => e.Type));
-        Assert.Null(after.UpdatedBy);
+        Assert.Equal(["Created", "Activated", "Renewed"], events!.Select(e => e.Type));
     }
 
     [Fact]
@@ -551,7 +550,7 @@ public class MembershipTests(ApiFixture api)
 
         // El historial muestra fechas anterior y nueva, días congelados y otorgados.
         var events = (await s.Tenant.Owner.GetFromJsonAsync<MembershipEventDto[]>($"{url}/events"))!;
-        Assert.Equal(["Created", "Frozen", "Reactivated", "Frozen", "Reactivated"], events.Select(e => e.Type));
+        Assert.Equal(["Created", "Activated", "Frozen", "Reactivated", "Frozen", "Reactivated"], events.Select(e => e.Type));
         using var details = JsonDocument.Parse(events.Last().Details!);
         Assert.Equal(20, details.RootElement.GetProperty("frozenDays").GetInt32());
         Assert.Equal(5, details.RootElement.GetProperty("grantedDays").GetInt32());

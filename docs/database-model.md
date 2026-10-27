@@ -77,6 +77,8 @@ Migraciones propias, con su historial en `members.__ef_migrations_history`. Mism
 | members | `commercial_settings` | Políticas del gimnasio (acceso con deuda, % mínimo, días de vencimiento, descuento máximo) |
 | members | `memberships`, `membership_events` | Membresías con copia de los términos aplicados (precio, descuento, IVA, congelamiento) e historial append-only. Restricción de exclusión contra solapamientos por alumno |
 | billing | `payment_obligations` | Lo que debe cada alumno: importe original, descuento, exigible, subtotal e IVA con la tarifa congelada. El saldo no se guarda (bloque 5) |
+| billing | `payments`, `payment_allocations` | Pagos inmutables y sus asignaciones a obligaciones. Triggers: asignaciones ≤ exigible, pago inmutable, un reverso no se reactiva. Sin borrado para el rol de la aplicación |
+| billing | `idempotency_keys` | Clave + huella de la solicitud + respuesta guardada, por gimnasio |
 | billing | `tax_rates` | Tarifas de IVA globales con vigencia. Una sola abierta por tipo; sembradas: General 15 %, 0 %, no objeto y exento |
 
 Restricciones en la base además de las de la aplicación: precio > 0, duración ≥ 1, vigencias coherentes, descuento > 0 (≤ 100 si es porcentaje), usos ≤ máximo, rangos de las políticas, nombre de plan único sin distinguir mayúsculas.

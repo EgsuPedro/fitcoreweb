@@ -202,6 +202,7 @@ internal static class MembershipQueries
             .Select(x => new { x.Id, x.Code, x.FirstName, x.LastName }).ToDictionaryAsync(x => x.Id, cancellationToken);
         var obligations = await db.Obligations.AsNoTracking().Where(o => o.MembershipId != null && membershipIds.Contains(o.MembershipId.Value))
             .OrderBy(o => o.CreatedAt).ToListAsync(cancellationToken);
+        var balances = await Ledger.BalancesAsync(db, [.. obligations.Select(o => o.Id)], cancellationToken);
 
         return
         [
@@ -210,7 +211,7 @@ internal static class MembershipQueries
                 var member = members[m.MemberId];
                 var name = $"{member.FirstName} {member.LastName}";
                 var obligation = obligations.LastOrDefault(o => o.MembershipId == m.Id);
-                return MembershipDto.From(m, member.Code, name, obligation is null ? null : ObligationDto.From(obligation, member.Code, name, today), today);
+                return MembershipDto.From(m, member.Code, name, obligation is null ? null : ObligationDto.From(obligation, member.Code, name, today, balances.GetValueOrDefault(obligation.Id).Paid, balances.GetValueOrDefault(obligation.Id).Reserved), today);
             })
         ];
     }

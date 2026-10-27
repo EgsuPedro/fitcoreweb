@@ -1,4 +1,5 @@
 using FitCore.Application.Core;
+using FitCore.Commercial.Application.Billing;
 using FitCore.Commercial.Application.Members;
 using FitCore.Commercial.Application.Plans;
 using FitCore.Commercial.Application.Settings;
@@ -350,18 +351,28 @@ internal sealed class CancelHandler(CommercialDbContext db, IAccessContext acces
 
         var now = clock.UtcNow;
         var today = LocalDates.Today(clock, await MembershipQueries.BranchTimeZoneAsync(db, membership.BranchId, cancellationToken));
+        // Todo o nada: la cancelación, el bloqueo de las obligaciones y su anulación van en una sola transacción.
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         var cancelled = membership.Cancel(command.Request.Reason, today, currentUser.UserId, now);
         if (cancelled.IsFailure)
         {
             return cancelled.Error;
         }
 
-        // Una obligación sin ningún pago se anula junto con la membresía. (Con pagos, el bloque de cobros decide: los
-        // pagos se corrigen con reversos, nunca borrándolos.)
+        // Una obligación sin ningún pago vigente se anula junto con la membresía. Si ya tiene pagos, se conserva tal cual:
+        // el dinero recibido se corrige con un reverso del pago, nunca borrándolo ni anulando la obligación por debajo.
         var voided = new List<string>();
-        var pending = await db.Obligations.Where(o => o.MembershipId == membership.Id && o.Status == ObligationStatus.Pending).ToListAsync(cancellationToken);
-        foreach (var obligation in pending)
+        var kept = new List<string>();
+        var open = await db.Obligations.Where(o => o.MembershipId == membership.Id && o.Status != ObligationStatus.Voided).ToListAsync(cancellationToken);
+        await Ledger.LockAsync(db, open.Select(o => o.Id), cancellationToken);
+        foreach (var obligation in open)
         {
+            if (await Ledger.HasLivePaymentsAsync(db, obligation.Id, cancellationToken))
+            {
+                kept.Add(obligation.Reference);
+                continue;
+            }
+
             var result = obligation.Void($"Membresía cancelada: {command.Request.Reason.Trim()}", currentUser.UserId, now);
             if (result.IsSuccess)
             {
@@ -372,9 +383,11 @@ internal sealed class CancelHandler(CommercialDbContext db, IAccessContext acces
         db.MembershipEvents.Add(MembershipQueries.NewEvent(membership, MembershipEventType.Cancelled, currentUser.UserId, now, new
         {
             reason = command.Request.Reason.Trim(),
-            voidedObligations = voided
+            voidedObligations = voided,
+            obligationsKeptWithPayments = kept
         }));
         await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return await MembershipQueries.ToDtoAsync(db, membership, today, cancellationToken);
     }
 }

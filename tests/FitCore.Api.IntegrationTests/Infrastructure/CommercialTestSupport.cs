@@ -55,6 +55,9 @@ public sealed record ObligationDto(
     decimal TaxAmount,
     decimal TaxPercent,
     string Currency,
+    decimal PaidAmount,
+    decimal ReservedAmount,
+    decimal Balance,
     string Status,
     string? VoidReason);
 
@@ -85,11 +88,90 @@ public sealed record MembershipDto(
     Guid? CreatedBy,
     Guid? UpdatedBy);
 
+public sealed record PaymentLineDto(Guid ObligationId, string ObligationReference, string Concept, decimal Amount);
+
+public sealed record PaymentDto(
+    Guid Id,
+    string ReceiptNumber,
+    Guid BranchId,
+    Guid MemberId,
+    string MemberName,
+    string Method,
+    string? MethodDetail,
+    decimal Amount,
+    string Status,
+    string? Reference,
+    DateTimeOffset PaidAt,
+    PaymentLineDto[] Allocations,
+    DateTimeOffset? ConfirmedAt,
+    Guid? ConfirmedBy,
+    DateTimeOffset? ReversedAt,
+    string? ReversalReason,
+    Guid? CreatedBy);
+
+public sealed record ReceiptLineDto(string ObligationReference, string Concept, decimal Amount, decimal ObligationPayable, decimal ObligationBalance);
+
+public sealed record ReceiptDto(
+    string ReceiptNumber,
+    string Notice,
+    string Status,
+    string BranchCode,
+    string MemberName,
+    string Method,
+    decimal Total,
+    string? ReceivedBy,
+    ReceiptLineDto[] Lines);
 public sealed record MembershipEventDto(Guid Id, string Type, DateTimeOffset OccurredAt, Guid? ActorId, string? Details);
 
 /// <summary>Utilidades para pruebas del módulo comercial.</summary>
 public static class CommercialTestApi
 {
+    /// <summary>Registra un pago con su <c>Idempotency-Key</c>. Sin clave explícita se usa una nueva (cada llamada es un pago distinto).</summary>
+    public static async Task<HttpResponseMessage> PostPaymentAsync(HttpClient client, object body, string? key = null, bool sendKey = true)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/v1/payments") { Content = JsonContent.Create(body) };
+        if (sendKey)
+        {
+            request.Headers.Add("Idempotency-Key", key ?? Guid.NewGuid().ToString());
+        }
+
+        return await client.SendAsync(request);
+    }
+
+    public static async Task<HttpResponseMessage> PostWithKeyAsync(HttpClient client, string url, object? body, string? key = null)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, url) { Content = body is null ? null : JsonContent.Create(body) };
+        request.Headers.Add("Idempotency-Key", key ?? Guid.NewGuid().ToString());
+        return await client.SendAsync(request);
+    }
+
+    public static object PaymentBody(
+        Guid memberId,
+        decimal amount,
+        string method = "Card",
+        string? reference = "VCH-0001",
+        object[]? allocations = null,
+        string? methodDetail = null,
+        DateTimeOffset? paidAt = null) => new
+        {
+            memberId,
+            method,
+            amount,
+            reference,
+            bankName = method == "BankTransfer" ? "Banco Pichincha" : null,
+            methodDetail,
+            paidAt,
+            notes = "Pago de prueba",
+            allocations
+        };
+
+    public static async Task<PaymentDto> PayAsync(HttpClient client, Guid memberId, decimal amount, string method = "Card", string? reference = "VCH-0001", object[]? allocations = null)
+    {
+        var response = await PostPaymentAsync(client, PaymentBody(memberId, amount, method, reference, allocations));
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<PaymentDto>())!;
+    }
+
     public static async Task<Guid> CreateRoleAsync(HttpClient owner, string name, bool allBranches, params string[] permissions)
     {
         var response = await owner.PostAsJsonAsync("/api/v1/roles", new { name, description = $"Rol {name}", grantsAllBranches = allBranches, permissions });

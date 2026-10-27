@@ -82,6 +82,11 @@ Se inicia sesión con **gimnasio + correo + clave**.
 7. *Cartera*: deuda por antigüedad, por sucursal y principales deudores. *Membresías → Por vencer*: las que terminan en 3, 7, 15 o 30 días.
 8. Con `recepcion.uio` o `cajero.gye` solo se ven las pantallas que su rol permite; las rutas restringidas llevan a *Acceso denegado*.
 
+**Avisos de WhatsApp (emisor simulado)**, con el propietario `demo`:
+1. *Notificaciones*: activar los avisos y escribir un teléfono del personal (p. ej. 0987654321). Un aviso se genera solo para membresías **activas, sin renovación** que terminen en 0–3 días.
+2. En la ficha de un alumno con teléfono: *Registrar autorización* (consentimiento). Sin ella nunca se le escribe.
+3. El Worker revisa cada 30 minutos (`Notifications:IntervalMinutes`) y también al arrancar: `docker compose … restart worker`. En el log aparece `[WhatsApp simulado]` (con el teléfono enmascarado) y en *Notificaciones* el historial con el texto exacto y su estado. **No sale ningún mensaje real.**
+
 **Seguridad rápida:**
 - 5 contraseñas erróneas seguidas bloquean la cuenta 15 minutos (aunque luego se escriba la correcta).
 - Desactivar un usuario desde "Usuarios" cierra su sesión en la siguiente solicitud.

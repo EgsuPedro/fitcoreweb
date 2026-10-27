@@ -47,6 +47,9 @@ export type CashRegister = Schemas['CashRegisterDto'];
 export type CashSession = Schemas['CashSessionDto'];
 export type CashMovement = Schemas['CashMovementDto'];
 export type Attendance = Schemas['AttendanceDto'];
+export type Notification = Schemas['NotificationDto'];
+export type NotificationSettings = Schemas['NotificationSettingsDto'];
+export type UpdateNotificationSettingsRequest = Schemas['UpdateNotificationSettingsRequest'];
 export type AccessDecision = Schemas['AccessDecisionDto'];
 export type QrToken = Schemas['QrTokenDto'];
 export interface Paged<T> {

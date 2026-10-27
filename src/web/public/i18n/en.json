@@ -74,7 +74,8 @@
     "plans": "Plans",
     "promotions": "Promotions",
     "settings": "Policies",
-    "taxRates": "VAT rates"
+    "taxRates": "VAT rates",
+    "notifications": "Notifications"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -293,7 +294,8 @@
     "members": {
       "duplicate_identification": "A member with that ID document already exists.",
       "inactive": "The member is inactive.",
-      "not_found": "Member not found."
+      "not_found": "Member not found.",
+      "whatsapp_phone_required": "To turn on WhatsApp the member needs a valid phone number (for example 0991234567)."
     },
     "memberships": {
       "already_cancelled": "The membership is already cancelled.",
@@ -439,6 +441,21 @@
       "Reactivated": "Reactivated",
       "Cancelled": "Cancelled",
       "Renewed": "Renewed"
+    },
+    "notificationStatus": {
+      "Pending": "Pending",
+      "Sending": "Sending",
+      "Sent": "Sent",
+      "Failed": "Failed"
+    },
+    "notificationType": {
+      "StaffExpiringSoon": "Staff notice (expiring soon)",
+      "MemberDueDay": "To member: expires today",
+      "MemberAfterDue": "To member: expired 3 days ago"
+    },
+    "notificationRecipientKind": {
+      "Staff": "Staff",
+      "Member": "Member"
     }
   },
   "members": {
@@ -489,7 +506,19 @@
     "qrWarning": "This code is shown only once. Print it or hand it over now: it cannot be viewed again.",
     "qrToken": "Code",
     "registeredBy": "Registered by",
-    "savedToast": "Member saved."
+    "savedToast": "Member saved.",
+    "whatsapp": {
+      "title": "WhatsApp",
+      "granted": "The member agreed to receive WhatsApp messages ({{ date }}).",
+      "notGranted": "The member has not agreed to receive WhatsApp messages: they will not be contacted.",
+      "noPhone": "Enter a valid phone number for the member to turn this on.",
+      "grant": "Record consent",
+      "revoke": "Revoke consent",
+      "grantConfirm": "Do you confirm that {{ name }} agreed to receive WhatsApp messages from the gym about their membership?",
+      "revokeConfirm": "Revoke consent? {{ name }} will stop receiving WhatsApp messages.",
+      "grantedToast": "Consent recorded.",
+      "revokedToast": "Consent revoked."
+    }
   },
   "plans": {
     "title": "Plans",
@@ -811,5 +840,24 @@
     "branchPlaceholder": "Choose a branch",
     "needIdentifier": "Type the member code or scan their QR.",
     "needBranch": "Choose the branch."
+  },
+  "notifications": {
+    "title": "WhatsApp notifications",
+    "intro": "Membership expiry notices: to staff 3 days before, and to the member (only with consent) on the due date and 3 days after, if not renewed.",
+    "simulated": "Test mode: the system generates and records the messages, but nothing is sent through WhatsApp yet (the Meta account is not connected).",
+    "settings": "Settings",
+    "enabled": "Turn on expiry notices",
+    "enabledHint": "Off by default. Once on, the system starts generating notices for memberships about to expire.",
+    "staffPhones": "Staff phones that receive the advance notice",
+    "staffPhonesHint": "One per line (max 5), for example 0991234567 or +593991234567. Applies to all branches.",
+    "saved": "Notification settings saved.",
+    "history": "Notice history",
+    "type": "Type",
+    "member": "Member",
+    "recipient": "Recipient",
+    "message": "Message",
+    "endsOn": "Ends",
+    "empty": "No notices have been generated yet.",
+    "simulatedTag": "Simulated"
   }
 }

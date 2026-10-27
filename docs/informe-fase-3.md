@@ -14,7 +14,7 @@ Corresponde a la «FASE 2» del prompt del usuario (nuestra numeración: 3). Dec
 | 7 | Asistencia (entrada/salida, QR, política de acceso con deuda, excepciones auditadas) | Hecho |
 | 8 | Angular: todas las pantallas anteriores | Hecho |
 | 9 | e2e, regresión, CI más rápido, documentación | Hecho |
-| 4b | Avisos de WhatsApp por vencimiento | **Pendiente** (necesita cuenta y credenciales de Meta) |
+| 4b | Avisos de WhatsApp por vencimiento | Hecho con emisor **simulado** (falta conectar Meta) |
 
 ## Archivos principales
 - **Backend:** `src/backend/Modules/Commercial/FitCore.Commercial/` (Domain, Application por función, Persistence con configuraciones y migraciones); `src/backend/FitCore.Api/Endpoints/CommercialEndpoints.cs`; permisos y plantillas de rol en el módulo `Platform`.
@@ -53,11 +53,11 @@ Todas usan la API real. El aviso de éxito aparece solo tras la respuesta del se
 **Tiempo de CI:** la suite de integración compartía una sola colección xUnit (todo en serie, ~10 min). Ahora son 4 colecciones con su propio PostgreSQL y API, que xUnit ejecuta en paralelo: 222 pruebas en 4 min 22 s en local (antes ~10 min).
 
 ## Pendientes
-1. **Bloque 4b — WhatsApp** (ver abajo qué se necesita).
+1. **Conectar WhatsApp real** (ver abajo qué se necesita): hoy el emisor es simulado. Además, destinatarios del personal por sucursal.
 2. Cierre automático de entradas olvidadas y registro de intentos de acceso rechazados.
 3. Subida de fotos (hoy solo URL).
 4. Recuperación de contraseña (requiere proveedor de correo), pantallas de editar gimnasio y cambiar contraseña.
 5. Comprobación de que los tipos de la API no se desfasan en CI, pruebas de accesibilidad (axe), CSP con nonces.
 
 ## WhatsApp: qué se necesita
-Meta WhatsApp Cloud API (negocio verificado, número de teléfono, token permanente, plantillas de mensaje aprobadas) y el texto de consentimiento del alumno (LOPDP). El código (puerto `IWhatsAppSender`, tarea del worker, tabla `notifications`) puede hacerse antes y probarse con un emisor simulado.
+Meta WhatsApp Cloud API (negocio verificado, número de teléfono, token permanente, plantillas de mensaje aprobadas) y el texto de consentimiento del alumno (LOPDP). Ya está hecho y probado con un emisor simulado: puerto `IWhatsAppSender`, tarea del Worker, tabla `notifications`, consentimiento del alumno y pantalla *Notificaciones*. Al tener las credenciales solo se agrega `MetaCloudWhatsAppSender`.

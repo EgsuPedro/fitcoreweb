@@ -5,6 +5,7 @@ using FitCore.Commercial.Application.Billing;
 using FitCore.Commercial.Application.Cash;
 using FitCore.Commercial.Application.Members;
 using FitCore.Commercial.Application.Memberships;
+using FitCore.Commercial.Application.Notifications;
 using FitCore.Commercial.Application.Plans;
 using FitCore.Commercial.Application.Promotions;
 using FitCore.Commercial.Application.Settings;
@@ -33,6 +34,7 @@ internal static class CommercialEndpoints
             .WithTags("Receivables")
             .WithName("GetReceivablesSummary");
         MapSettingsAndTaxes(routes);
+        MapNotifications(routes);
         return routes;
     }
 
@@ -363,6 +365,39 @@ internal static class CommercialEndpoints
             .Produces<AttendanceDto>()
             .WithName("CheckOut");
     }
+    private static void MapNotifications(IEndpointRouteBuilder routes)
+    {
+        routes.MapGet("/notifications", async (IDispatcher dispatcher, CancellationToken ct, NotificationStatus? status = null, NotificationType? type = null, Guid? branchId = null, Guid? memberId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListNotificationsQuery(new PageRequest(page, pageSize), status, type, branchId, memberId), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.NotificationsRead)
+            .Produces<PagedResult<NotificationDto>>()
+            .WithTags("Notifications")
+            .WithName("ListNotifications");
+
+        routes.MapGet("/notification-settings", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetNotificationSettingsQuery(), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.NotificationsRead)
+            .Produces<NotificationSettingsDto>()
+            .WithTags("Notifications")
+            .WithName("GetNotificationSettings");
+
+        routes.MapPut("/notification-settings", async (UpdateNotificationSettingsRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdateNotificationSettingsCommand(request), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.CommercialSettingsManage)
+            .WithValidation<UpdateNotificationSettingsRequest>()
+            .Produces<NotificationSettingsDto>()
+            .WithTags("Notifications")
+            .WithName("UpdateNotificationSettings");
+
+        // Consentimiento del alumno para recibir WhatsApp (LOPDP): se registra quién y cuándo, y puede revocarse en cualquier momento.
+        routes.MapPut("/members/{id:guid}/whatsapp-consent", async (Guid id, SetWhatsAppConsentRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SetWhatsAppConsentCommand(id, request), ct)).ToHttp(m => Results.Ok(m)))
+            .RequirePermission(Permissions.MembersUpdate)
+            .Produces<MemberDto>()
+            .WithTags("Members")
+            .WithName("SetMemberWhatsAppConsent");
+    }
+
     private static void MapSettingsAndTaxes(IEndpointRouteBuilder routes)
     {
         routes.MapGet("/commercial-settings", async (IDispatcher dispatcher, CancellationToken ct) =>

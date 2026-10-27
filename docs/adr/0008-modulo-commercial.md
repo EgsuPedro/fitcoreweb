@@ -49,6 +49,14 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 - **Diseño:** una tarea del Worker revisa cada día las membresías por vencer y escribe en `notifications` (tipo, destinatario, membresía, fecha programada, estado, intentos, error) con una restricción única `(membresía, tipo, destinatario)` que impide duplicados aunque el Worker corra dos veces. Los textos viven en plantillas con idioma (es por defecto) y datos mínimos: el mensaje al alumno no incluye saldos ni datos sensibles.
 - **Consentimiento (LOPDP):** el alumno guarda su aceptación de recibir WhatsApp (fecha y quién la registró); sin ella nunca se le escribe, y puede retirarla. El personal recibe avisos según su rol y número registrado.
 - **Reintentos y fallos:** reintentos con espera creciente; los fallos definitivos quedan visibles para el administrador.
+### Implementación del bloque 4b (con emisor simulado)
+- **Hecho:** puerto `IWhatsAppSender` con un emisor **simulado** (`WhatsApp:Provider = Simulated`, el único aceptado: cualquier otro valor impide arrancar para que nadie crea que se envía algo real). Tabla `members.notifications`, consentimiento en el alumno (`whatsapp_consent`, fecha y responsable), teléfonos del personal y el interruptor de avisos en las políticas del gimnasio (**apagado por defecto**), tarea del Worker (`Notifications:IntervalMinutes`, 30 por defecto), pantalla *Notificaciones* y permiso `notifications.read`.
+- **Cuándo:** personal, con membresía activa sin renovación y faltando 0–3 días (teléfonos configurados para todo el gimnasio); alumno con consentimiento y teléfono válido: el día del vencimiento (hasta 2 días de tolerancia si el Worker estuvo detenido) y a partir de 3 días después (hasta 10 días de tolerancia). "Renovada" = existe otra membresía no cancelada que la continúa. Las fechas se calculan con la zona horaria de la sucursal.
+- **Sin duplicados:** índice único (membresía, tipo, destinatario). El envío se **reclama** con un UPDATE atómico (estado `Sending`); dos instancias del Worker no envían el mismo mensaje, y un reclamo abandonado (proceso caído) se recupera a los 10 minutos. Hasta 3 intentos; los definitivos quedan como `Failed` con su error.
+- **Privacidad:** el mensaje al alumno no incluye saldos ni deudas; el listado muestra el teléfono enmascarado; el log del emisor simulado tampoco imprime el texto.
+- **Para pasar a producción:** crear `MetaCloudWhatsAppSender` (implementa `IWhatsAppSender`), registrar plantillas aprobadas por Meta y habilitar `WhatsApp:Provider = Meta` con su token (secreto fuera del repositorio). El resto del sistema no cambia.
+- **Pendiente:** destinatarios del personal **por sucursal** (hoy es una lista para todo el gimnasio) y mensajes con idioma por alumno.
+
 ## Reglas de membresías (bloque 4, implementadas)
 - **Una sola transacción:** inscribir y renovar crean la membresía y su obligación juntas (o ninguna). Consumir un uso de la promoción también va en esa transacción, con un incremento atómico en la base.
 - **Términos copiados:** la membresía y la obligación guardan precio, descuento, duración, tipo y tarifa de IVA del momento. Editar el plan o cambiar el IVA por decreto no las toca.
@@ -99,7 +107,7 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 | 2 | Alumnos | Hecho |
 | 3 | Planes, promociones, tarifas de IVA y políticas del gimnasio | Hecho |
 | 4 | Membresías (incluye la obligación de pago en lectura) | Hecho |
-| 4b | Notificaciones de WhatsApp (vencimientos) | Pendiente, después de las membresías |
+| 4b | Notificaciones de WhatsApp (vencimientos) | Hecho con emisor simulado; falta conectar Meta |
 | 5 | Obligaciones, pagos y abonos (efectivo se habilita con la caja) | Hecho |
 | 6 | Caja y cartera (incluye el efectivo) | Hecho |
 | 7 | Asistencia (entrada/salida, QR, excepciones) | Hecho |

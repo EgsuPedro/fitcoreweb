@@ -132,6 +132,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notification-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetNotificationSettings"];
+        put: operations["UpdateNotificationSettings"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/whatsapp-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SetMemberWhatsAppConsent"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -1341,6 +1389,9 @@ export interface components {
             updatedAt: string | null;
             /** Format: uuid */
             updatedBy: string | null;
+            whatsAppConsent: boolean;
+            /** Format: date-time */
+            whatsAppConsentAt: string | null;
         };
         MembershipDto: {
             /** Format: uuid */
@@ -1423,6 +1474,40 @@ export interface components {
             permissions: string[];
             branchIds: string[];
             allBranches: boolean;
+        };
+        NotificationDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            branchId: string;
+            /** Format: uuid */
+            membershipId: string;
+            /** Format: uuid */
+            memberId: string;
+            memberName: string;
+            memberCode: string;
+            type: string;
+            recipientKind: string;
+            recipient: string;
+            messageText: string;
+            status: string;
+            /** Format: int32 */
+            attempts: number;
+            lastError: string | null;
+            provider: string | null;
+            /** Format: date */
+            membershipEndDate: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            sentAt: string | null;
+        };
+        NotificationSettingsDto: {
+            enabled: boolean;
+            staffPhones: string[];
+            provider: string;
+            /** Format: date-time */
+            updatedAt: string | null;
         };
         ObligationDto: {
             /** Format: uuid */
@@ -1586,6 +1671,15 @@ export interface components {
         };
         PagedResultOfMembershipDto: {
             items: components["schemas"]["MembershipDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfNotificationDto: {
+            items: components["schemas"]["NotificationDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -1905,6 +1999,9 @@ export interface components {
         SetUserStatusRequest: {
             isActive: boolean;
         };
+        SetWhatsAppConsentRequest: {
+            granted: boolean;
+        };
         SystemInfoResponse: {
             name: string;
             version: string;
@@ -1983,6 +2080,10 @@ export interface components {
             emergencyContactPhone: string | null;
             emergencyContactRelationship: string | null;
             notes: string | null;
+        };
+        UpdateNotificationSettingsRequest: {
+            enabled: boolean;
+            staffPhones: string[] | null;
         };
         UpdateOrganizationRequest: {
             name: string;
@@ -2271,6 +2372,103 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TaxRateDto"][];
+                };
+            };
+        };
+    };
+    ListNotifications: {
+        parameters: {
+            query?: {
+                status?: "Pending" | "Sent" | "Failed" | "Sending" | null;
+                type?: "StaffExpiringSoon" | "MemberDueDay" | "MemberAfterDue" | null;
+                branchId?: string;
+                memberId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfNotificationDto"];
+                };
+            };
+        };
+    };
+    GetNotificationSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSettingsDto"];
+                };
+            };
+        };
+    };
+    UpdateNotificationSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateNotificationSettingsRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSettingsDto"];
+                };
+            };
+        };
+    };
+    SetMemberWhatsAppConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetWhatsAppConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberDto"];
                 };
             };
         };

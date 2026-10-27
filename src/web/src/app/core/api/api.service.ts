@@ -21,6 +21,8 @@ import type {
   EnrollRequest,
   Member,
   Membership,
+  Notification,
+  NotificationSettings,
   MembershipEvent,
   Obligation,
   Paged,
@@ -41,6 +43,7 @@ import type {
   UpdateBranchRequest,
   UpdateCommercialSettingsRequest,
   UpdateMemberRequest,
+  UpdateNotificationSettingsRequest,
   UpdateRoleRequest,
   User,
 } from './models';
@@ -155,6 +158,10 @@ export class ApiService {
   }
   setMemberStatus(id: string, isActive: boolean): Observable<Member> {
     return this.http.patch<Member>(`${API_BASE}/members/${id}/status`, { isActive });
+  }
+  /** Registra o revoca el consentimiento del alumno para recibir WhatsApp (LOPDP). */
+  setWhatsAppConsent(id: string, granted: boolean): Observable<Member> {
+    return this.http.put<Member>(`${API_BASE}/members/${id}/whatsapp-consent`, { granted });
   }
   issueMemberQr(id: string): Observable<QrToken> {
     return this.http.post<QrToken>(`${API_BASE}/members/${id}/qr-token`, {});
@@ -271,6 +278,16 @@ export class ApiService {
   }
 
   // Asistencia
+  notifications(query: Query = {}): Observable<Paged<Notification>> {
+    return this.get('/notifications', query);
+  }
+  notificationSettings(): Observable<NotificationSettings> {
+    return this.get('/notification-settings');
+  }
+  updateNotificationSettings(body: UpdateNotificationSettingsRequest): Observable<NotificationSettings> {
+    return this.http.put<NotificationSettings>(`${API_BASE}/notification-settings`, body);
+  }
+
   attendance(query: Query = {}): Observable<Paged<Attendance>> {
     return this.get('/attendance', query);
   }

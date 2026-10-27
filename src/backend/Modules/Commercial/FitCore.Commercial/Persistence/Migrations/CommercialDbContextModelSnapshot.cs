@@ -342,6 +342,20 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("min_payment_percent");
 
+                    b.Property<bool>("NotificationsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("notifications_enabled");
+
+                    b.Property<string>("StaffAlertPhones")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasDefaultValue("")
+                        .HasColumnName("staff_alert_phones");
+
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -531,6 +545,20 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
+
+                    b.Property<bool>("WhatsAppConsent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("whatsapp_consent");
+
+                    b.Property<DateTimeOffset?>("WhatsAppConsentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("whatsapp_consent_at");
+
+                    b.Property<Guid?>("WhatsAppConsentBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("whatsapp_consent_by");
 
                     b.HasKey("Id")
                         .HasName("pk_members");
@@ -891,6 +919,110 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasDatabaseName("ix_membership_plans_tenant_id_is_active");
 
                     b.ToTable("membership_plans", "members");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset?>("ClaimedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("claimed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("last_error");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<DateOnly>("MembershipEndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("membership_end_date");
+
+                    b.Property<Guid>("MembershipId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("membership_id");
+
+                    b.Property<string>("MessageText")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message_text");
+
+                    b.Property<string>("Provider")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("ProviderMessageId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("provider_message_id");
+
+                    b.Property<string>("Recipient")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("recipient");
+
+                    b.Property<string>("RecipientKind")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("recipient_kind");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.HasIndex("TenantId", "MemberId")
+                        .HasDatabaseName("ix_notifications_tenant_id_member_id");
+
+                    b.HasIndex("TenantId", "Status", "CreatedAt")
+                        .HasDatabaseName("ix_notifications_tenant_id_status_created_at");
+
+                    b.HasIndex("TenantId", "MembershipId", "Type", "Recipient")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notifications_tenant_id_membership_id_type_recipient");
+
+                    b.ToTable("notifications", "members");
                 });
 
             modelBuilder.Entity("FitCore.Commercial.Domain.Payment", b =>
@@ -1646,6 +1778,25 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_membership_events_memberships_tenant_id_membership_id");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.Notification", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.Member", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MemberId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_notifications_members_tenant_id_member_id");
+
+                    b.HasOne("FitCore.Commercial.Domain.Membership", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MembershipId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_notifications_memberships_tenant_id_membership_id");
                 });
 
             modelBuilder.Entity("FitCore.Commercial.Domain.Payment", b =>

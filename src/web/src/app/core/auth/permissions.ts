@@ -41,4 +41,5 @@ export const Perm = {
   AttendanceRegister: 'attendance.register',
   AttendanceOverride: 'attendance.override',
   CommercialSettingsManage: 'commercial.settings.manage',
+  NotificationsRead: 'notifications.read',
 } as const;

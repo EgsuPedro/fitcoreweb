@@ -16,6 +16,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.payments', path: '/payments', icon: '$', permission: Perm.PaymentsRead },
   { labelKey: 'nav.receivables', path: '/receivables', icon: '≋', permission: Perm.ObligationsRead },
   { labelKey: 'nav.cash', path: '/cash', icon: '▣', permission: Perm.CashRead },
+  { labelKey: 'nav.notifications', path: '/notifications', icon: '✉', permission: Perm.NotificationsRead },
   { labelKey: 'nav.plans', path: '/plans', icon: '☷', permission: Perm.PlansRead },
   { labelKey: 'nav.promotions', path: '/promotions', icon: '%', permission: Perm.PromotionsRead },
   { labelKey: 'nav.settings', path: '/settings', icon: '⚙', permission: Perm.PlansRead },

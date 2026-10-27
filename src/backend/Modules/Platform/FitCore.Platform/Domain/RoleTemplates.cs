@@ -52,7 +52,8 @@ public static class RoleTemplates
                 Permissions.CashOperate,
                 Permissions.AttendanceRead,
                 Permissions.AttendanceRegister,
-                Permissions.AttendanceOverride
+                Permissions.AttendanceOverride,
+                Permissions.NotificationsRead
             ]),
         new(
             "Recepcion",

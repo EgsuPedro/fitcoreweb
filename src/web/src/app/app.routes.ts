@@ -88,6 +88,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/settings/tax-rates').then((m) => m.TaxRates),
       },
       {
+        path: 'notifications',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.NotificationsRead },
+        loadComponent: () => import('./features/notifications/notifications').then((m) => m.NotificationsPage),
+      },
+      {
         path: 'branches',
         canActivate: [permissionGuard],
         data: { permission: Perm.BranchesRead },

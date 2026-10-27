@@ -57,6 +57,12 @@ public sealed class Member : Entity<Guid>, ITenantOwned, IAuditable
     /// <summary>Huella (SHA-256) del token del código QR vigente. El token nunca se guarda.</summary>
     public string? QrTokenHash { get; private set; }
     public DateTimeOffset? QrTokenIssuedAt { get; private set; }
+
+    /// <summary>El alumno aceptó recibir mensajes de WhatsApp del gimnasio (LOPDP). Sin esto nunca se le escribe.</summary>
+    public bool WhatsAppConsent { get; private set; }
+
+    public DateTimeOffset? WhatsAppConsentAt { get; private set; }
+    public Guid? WhatsAppConsentBy { get; private set; }
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? CreatedBy { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
@@ -102,6 +108,15 @@ public sealed class Member : Entity<Guid>, ITenantOwned, IAuditable
         QrTokenIssuedAt = now;
         UpdatedAt = now;
         UpdatedBy = updatedBy;
+    }
+
+    public void SetWhatsAppConsent(bool granted, Guid? by, DateTimeOffset now)
+    {
+        WhatsAppConsent = granted;
+        WhatsAppConsentAt = now;
+        WhatsAppConsentBy = by;
+        UpdatedAt = now;
+        UpdatedBy = by;
     }
 
     public void SetStatus(MemberStatus status, Guid? updatedBy, DateTimeOffset now)

@@ -98,6 +98,25 @@ import { MemberForm } from './member-form';
         </section>
       </div>
 
+      <section class="card section">
+        <h2>{{ 'members.whatsapp.title' | transloco }}</h2>
+        <p class="muted">
+          @if (m.whatsAppConsent) {
+            {{ 'members.whatsapp.granted' | transloco: { date: (m.whatsAppConsentAt | fcDateTime) } }}
+          } @else {
+            {{ 'members.whatsapp.notGranted' | transloco }}
+          }
+        </p>
+        @if (!m.phone && !m.whatsAppConsent) {
+          <p class="muted">{{ 'members.whatsapp.noPhone' | transloco }}</p>
+        }
+        @if (can(perm.MembersUpdate) && (m.whatsAppConsent || m.phone)) {
+          <button type="button" class="btn" (click)="dialog.set('whatsapp')">
+            {{ (m.whatsAppConsent ? 'members.whatsapp.revoke' : 'members.whatsapp.grant') | transloco }}
+          </button>
+        }
+      </section>
+
       <section class="section">
         <h2>{{ 'members.memberships' | transloco }}</h2>
         <div class="card table-card">
@@ -259,6 +278,16 @@ import { MemberForm } from './member-form';
             (cancelled)="dialog.set(null)"
           />
         }
+        @case ('whatsapp') {
+          <fc-confirm
+            [title]="'members.whatsapp.title' | transloco"
+            [message]="(m.whatsAppConsent ? 'members.whatsapp.revokeConfirm' : 'members.whatsapp.grantConfirm') | transloco: { name: m.firstName }"
+            [confirmLabel]="(m.whatsAppConsent ? 'members.whatsapp.revoke' : 'members.whatsapp.grant') | transloco"
+            [danger]="m.whatsAppConsent"
+            (confirmed)="toggleConsent(m)"
+            (cancelled)="dialog.set(null)"
+          />
+        }
         @case ('qrConfirm') {
           <fc-confirm
             [title]="'members.qr' | transloco"
@@ -313,7 +342,7 @@ export class MemberDetail implements OnInit {
   protected readonly visits = signal<Attendance[]>([]);
   protected readonly error = signal<string | null>(null);
 
-  protected readonly dialog = signal<'edit' | 'enroll' | 'payment' | 'status' | 'qrConfirm' | 'qr' | null>(null);
+  protected readonly dialog = signal<'edit' | 'enroll' | 'payment' | 'status' | 'whatsapp' | 'qrConfirm' | 'qr' | null>(null);
   protected readonly payObligation = signal<string | null>(null);
   protected readonly receiptId = signal<string | null>(null);
   protected readonly qrToken = signal('');
@@ -372,6 +401,20 @@ export class MemberDetail implements OnInit {
         this.member.set(updated);
         this.dialog.set(null);
         this.toast.success('members.savedToast');
+      },
+      error: (err: unknown) => {
+        this.dialog.set(null);
+        this.error.set(this.errors.message(err));
+      },
+    });
+  }
+
+  protected toggleConsent(member: Member): void {
+    this.api.setWhatsAppConsent(member.id, !member.whatsAppConsent).subscribe({
+      next: (updated) => {
+        this.member.set(updated);
+        this.dialog.set(null);
+        this.toast.success(updated.whatsAppConsent ? 'members.whatsapp.grantedToast' : 'members.whatsapp.revokedToast');
       },
       error: (err: unknown) => {
         this.dialog.set(null);

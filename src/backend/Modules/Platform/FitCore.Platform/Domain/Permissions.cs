@@ -60,6 +60,8 @@ public static class Permissions
 
     public const string CommercialSettingsManage = "commercial.settings.manage";
 
+    public const string NotificationsRead = "notifications.read";
+
     public static readonly IReadOnlyList<PermissionDefinition> All =
     [
         new(PlatformTenantsManage, "platform", "Administrar gimnasios (solo equipo de plataforma)"),
@@ -102,7 +104,8 @@ public static class Permissions
         new(AttendanceRead, "attendance", "Consultar la asistencia"),
         new(AttendanceRegister, "attendance", "Registrar entradas y salidas"),
         new(AttendanceOverride, "attendance", "Autorizar accesos excepcionales"),
-        new(CommercialSettingsManage, "commercial", "Configurar políticas comerciales del gimnasio")
+        new(CommercialSettingsManage, "commercial", "Configurar políticas comerciales del gimnasio"),
+        new(NotificationsRead, "notifications", "Consultar los avisos de WhatsApp enviados")
     ];
 
     public static bool IsPlatform(string code) => code.StartsWith("platform.", StringComparison.Ordinal);

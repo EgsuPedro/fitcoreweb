@@ -1,6 +1,7 @@
 using FitCore.Application.Core;
 using FitCore.Commercial.Application;
 using FitCore.Commercial.Application.Members;
+using FitCore.Commercial.Application.Notifications;
 using FitCore.Commercial.Persistence;
 using FitCore.Infrastructure.Core;
 using FitCore.Platform.Persistence;
@@ -14,8 +15,8 @@ namespace FitCore.Commercial;
 
 public static class CommercialModule
 {
-    /// <summary>Requiere <c>AddPlatformModule</c> (comparte contexto de tenant, interceptores y control de acceso).</summary>
-    public static IServiceCollection AddCommercialModule(this IServiceCollection services, IConfiguration configuration)
+    /// <summary>Acceso a datos del módulo (sin casos de uso). Lo usa también el Worker; requiere <c>AddPlatformPersistence</c>.</summary>
+    public static IServiceCollection AddCommercialPersistence(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<CommercialDbContext>((provider, options) =>
             options
@@ -25,6 +26,33 @@ public static class CommercialModule
                 .AddInterceptors(
                     provider.GetRequiredService<TenantConnectionInterceptor>(),
                     provider.GetRequiredService<AuditSaveChangesInterceptor>()));
+
+        return services;
+    }
+
+    /// <summary>
+    /// Avisos de WhatsApp por vencimiento (los ejecuta el Worker). Hoy solo existe el emisor simulado; un proveedor desconocido
+    /// impide arrancar para que nadie crea que se están enviando mensajes.
+    /// </summary>
+    public static IServiceCollection AddWhatsAppNotifications(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<WhatsAppOptions>(configuration.GetSection(WhatsAppOptions.SectionName));
+        var provider = configuration.GetSection(WhatsAppOptions.SectionName)["Provider"] ?? "Simulated";
+        if (!provider.Equals("Simulated", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException($"WhatsApp:Provider '{provider}' no está soportado todavía. Use 'Simulated' hasta configurar Meta Cloud API.");
+        }
+
+        services.AddSingleton<IWhatsAppSender, SimulatedWhatsAppSender>();
+        services.AddSingleton<ExpiryNotificationRunner>();
+        return services;
+    }
+
+    /// <summary>Requiere <c>AddPlatformModule</c> (comparte contexto de tenant, interceptores y control de acceso).</summary>
+    public static IServiceCollection AddCommercialModule(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddCommercialPersistence(configuration);
+        services.AddWhatsAppNotifications(configuration);
 
         services.AddSingleton<IModuleInitializer, CommercialInitializer>();
         services.AddValidatorsFromAssemblyContaining<CreateMemberRequestValidator>(includeInternalTypes: true);

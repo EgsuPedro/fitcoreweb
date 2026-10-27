@@ -74,7 +74,8 @@
     "plans": "Planes",
     "promotions": "Promociones",
     "settings": "Políticas",
-    "taxRates": "Tarifas de IVA"
+    "taxRates": "Tarifas de IVA",
+    "notifications": "Notificaciones"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -293,7 +294,8 @@
     "members": {
       "duplicate_identification": "Ya existe un alumno con ese documento de identidad.",
       "inactive": "El alumno está inactivo.",
-      "not_found": "Alumno no encontrado."
+      "not_found": "Alumno no encontrado.",
+      "whatsapp_phone_required": "Para activar WhatsApp el alumno necesita un teléfono válido (por ejemplo 0991234567)."
     },
     "memberships": {
       "already_cancelled": "La membresía ya está cancelada.",
@@ -439,6 +441,21 @@
       "Reactivated": "Reactivada",
       "Cancelled": "Cancelada",
       "Renewed": "Renovada"
+    },
+    "notificationStatus": {
+      "Pending": "Pendiente",
+      "Sending": "Enviando",
+      "Sent": "Enviado",
+      "Failed": "Con error"
+    },
+    "notificationType": {
+      "StaffExpiringSoon": "Aviso al personal (por vencer)",
+      "MemberDueDay": "Al alumno: vence hoy",
+      "MemberAfterDue": "Al alumno: venció hace 3 días"
+    },
+    "notificationRecipientKind": {
+      "Staff": "Personal",
+      "Member": "Alumno"
     }
   },
   "members": {
@@ -489,7 +506,19 @@
     "qrWarning": "Este código se muestra una sola vez. Imprímalo o entréguelo ahora: no se puede volver a ver.",
     "qrToken": "Código",
     "registeredBy": "Registrado por",
-    "savedToast": "Alumno guardado."
+    "savedToast": "Alumno guardado.",
+    "whatsapp": {
+      "title": "WhatsApp",
+      "granted": "El alumno autorizó recibir mensajes de WhatsApp ({{ date }}).",
+      "notGranted": "El alumno no ha autorizado recibir mensajes de WhatsApp: no se le escribirá.",
+      "noPhone": "Registre un teléfono válido del alumno para poder activarlo.",
+      "grant": "Registrar autorización",
+      "revoke": "Revocar autorización",
+      "grantConfirm": "¿Confirma que {{ name }} aceptó recibir mensajes de WhatsApp del gimnasio sobre su membresía?",
+      "revokeConfirm": "¿Revocar la autorización? Dejará de recibir mensajes de WhatsApp de {{ name }}.",
+      "grantedToast": "Autorización registrada.",
+      "revokedToast": "Autorización revocada."
+    }
   },
   "plans": {
     "title": "Planes",
@@ -811,5 +840,24 @@
     "branchPlaceholder": "Elija una sucursal",
     "needIdentifier": "Escriba el código del alumno o escanee su QR.",
     "needBranch": "Elija la sucursal."
+  },
+  "notifications": {
+    "title": "Notificaciones de WhatsApp",
+    "intro": "Avisos por vencimiento de membresía: al personal cuando faltan 3 días y al alumno (solo si lo autorizó) el día del vencimiento y 3 días después, si no renovó.",
+    "simulated": "Modo de prueba: el sistema genera y registra los mensajes, pero todavía no se envía nada por WhatsApp (falta conectar la cuenta de Meta).",
+    "settings": "Configuración",
+    "enabled": "Activar los avisos por vencimiento",
+    "enabledHint": "Apagado por defecto. Al activarlo, el sistema empieza a generar los avisos de las membresías que estén por vencer.",
+    "staffPhones": "Teléfonos del personal que recibe el aviso previo",
+    "staffPhonesHint": "Uno por línea (máximo 5), por ejemplo 0991234567 o +593991234567. Aplica a todas las sucursales.",
+    "saved": "Configuración de avisos guardada.",
+    "history": "Historial de avisos",
+    "type": "Tipo",
+    "member": "Alumno",
+    "recipient": "Destinatario",
+    "message": "Mensaje",
+    "endsOn": "Vence",
+    "empty": "Todavía no se ha generado ningún aviso.",
+    "simulatedTag": "Simulado"
   }
 }

@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from '@playwright/test';
+import { expect, test, type APIRequestContext, type Page } from '@playwright/test';
 import { nav, platformCredentials, signIn } from './support';
 
 /**
@@ -18,7 +18,10 @@ async function login(api: APIRequestContext, tenantSlug: string, email: string, 
 }
 
 test.describe.serial('flujo comercial', () => {
-  test.beforeAll(async ({ playwright, baseURL }) => {
+  // Una sola sesión del propietario para todo el flujo: iniciar sesión en cada prueba agotaría el límite de intentos de acceso por minuto.
+  let ownerPage: Page;
+
+  test.beforeAll(async ({ playwright, baseURL, browser }) => {
     const api = await playwright.request.newContext({ baseURL });
     const platform = platformCredentials();
     const platformToken = await login(api, 'platform', platform.email, platform.password);
@@ -46,16 +49,25 @@ test.describe.serial('flujo comercial', () => {
     const register = await api.post('/api/v1/cash-registers', { headers: auth, data: { branchId, name: 'Caja E2E', allowMultipleOpenSessions: false } });
     expect(register.ok(), await register.text()).toBeTruthy();
     await api.dispose();
+
+    ownerPage = await (await browser.newContext({ baseURL, locale: 'es-EC' })).newPage();
+    await signIn(ownerPage, slug, ownerEmail, ownerPassword);
+    await expect(nav(ownerPage)).toBeVisible();
   });
 
-  test('registrar un alumno valida la cédula antes de enviar y guarda con la API real', async ({ page }) => {
-    await signIn(page, slug, ownerEmail, ownerPassword);
+  test.afterAll(async () => {
+    await ownerPage.context().close();
+  });
+
+  test('registrar un alumno valida la cédula antes de enviar y guarda con la API real', async () => {
+    const page = ownerPage;
     await nav(page).getByRole('link', { name: 'Alumnos' }).click();
     await page.getByRole('button', { name: 'Nuevo alumno' }).click();
 
     const dialog = page.getByRole('dialog');
     await dialog.locator('[formControlName="firstName"]').fill('Lucía');
     await dialog.locator('[formControlName="lastName"]').fill('Paredes');
+    await dialog.locator('[formControlName="phone"]').fill('0991234567');
     await dialog.locator('[formControlName="idNumber"]').fill('1712345670');
     await dialog.getByRole('button', { name: 'Guardar' }).click();
     // Cédula con dígito verificador inválido: no llega a la API y el diálogo sigue abierto.
@@ -67,8 +79,8 @@ test.describe.serial('flujo comercial', () => {
     await expect(page.getByRole('row', { name: /Lucía Paredes/ })).toBeVisible();
   });
 
-  test('abrir la caja, inscribir al alumno y cobrar en efectivo deja el saldo en cero', async ({ page }) => {
-    await signIn(page, slug, ownerEmail, ownerPassword);
+  test('abrir la caja, inscribir al alumno y cobrar en efectivo deja el saldo en cero', async () => {
+    const page = ownerPage;
 
     await nav(page).getByRole('link', { name: 'Caja' }).click();
     await page.getByRole('row', { name: /Caja E2E/ }).getByRole('button', { name: 'Ver caja' }).click();
@@ -108,8 +120,8 @@ test.describe.serial('flujo comercial', () => {
     await expect(page.getByText('Activa').first()).toBeVisible();
   });
 
-  test('asistencia: valida el acceso, registra la entrada y el alumno aparece dentro', async ({ page }) => {
-    await signIn(page, slug, ownerEmail, ownerPassword);
+  test('asistencia: valida el acceso, registra la entrada y el alumno aparece dentro', async () => {
+    const page = ownerPage;
     await nav(page).getByRole('link', { name: 'Alumnos' }).click();
     const code = (await page.getByRole('row', { name: /Lucía Paredes/ }).locator('strong').first().innerText()).trim();
 
@@ -154,6 +166,40 @@ test.describe.serial('flujo comercial', () => {
     await expect(page.getByRole('row', { name: /Cerrada/ })).toBeVisible();
   });
 
+  test('avisos de WhatsApp: se configuran, el alumno da su consentimiento y puede revocarlo', async () => {
+    const page = ownerPage;
+    await nav(page).getByRole('link', { name: 'Notificaciones' }).click();
+    await expect(page.getByText(/Modo de prueba/)).toBeVisible();
+
+    // Un teléfono inválido lo rechaza el servidor y el aviso de éxito no aparece.
+    await page.getByLabel('Teléfonos del personal que recibe el aviso previo').fill('abc');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('alert')).toContainText('Revise los datos ingresados');
+    await expect(page.getByText('Configuración de avisos guardada.')).toHaveCount(0);
+
+    await page.getByLabel('Activar los avisos por vencimiento').check();
+    await page.getByLabel('Teléfonos del personal que recibe el aviso previo').fill('0987654321');
+    await page.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByText('Configuración de avisos guardada.')).toBeVisible();
+    await page.reload();
+    await expect(page.getByLabel('Activar los avisos por vencimiento')).toBeChecked();
+    await expect(page.getByLabel('Teléfonos del personal que recibe el aviso previo')).toHaveValue('+593987654321');
+    await expect(page.getByText('Todavía no se ha generado ningún aviso.')).toBeVisible();
+
+    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await page.getByRole('link', { name: 'Lucía Paredes' }).first().click();
+    await expect(page.getByText(/no ha autorizado recibir mensajes/)).toBeVisible();
+    await page.getByRole('button', { name: 'Registrar autorización' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Registrar autorización' }).click();
+    await expect(page.getByText('Autorización registrada.')).toBeVisible();
+    await expect(page.getByText(/autorizó recibir mensajes de WhatsApp/)).toBeVisible();
+
+    await page.getByRole('button', { name: 'Revocar autorización' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Revocar autorización' }).click();
+    await expect(page.getByText('Autorización revocada.')).toBeVisible();
+    await expect(page.getByText(/no ha autorizado recibir mensajes/)).toBeVisible();
+  });
+
   test('un usuario sin permisos comerciales no ve las pantallas ni puede abrir sus rutas', async ({ page, playwright, baseURL }) => {
     const api = await playwright.request.newContext({ baseURL });
     const token = await login(api, slug, ownerEmail, ownerPassword);
@@ -170,7 +216,7 @@ test.describe.serial('flujo comercial', () => {
 
     await signIn(page, slug, STAFF.email, STAFF.password);
     await expect(nav(page).getByRole('link', { name: 'Alumnos' })).toBeVisible();
-    for (const hidden of ['Caja', 'Cobros', 'Cartera', 'Asistencia', 'Planes', 'Membresías']) {
+    for (const hidden of ['Caja', 'Cobros', 'Cartera', 'Asistencia', 'Planes', 'Membresías', 'Notificaciones']) {
       await expect(nav(page).getByRole('link', { name: hidden })).toHaveCount(0);
     }
     await page.goto('/cash');

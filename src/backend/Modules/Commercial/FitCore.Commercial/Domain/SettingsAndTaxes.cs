@@ -27,8 +27,24 @@ public sealed class CommercialSettings : ITenantOwned, IAuditable
     public int MinPaymentPercent { get; private set; } = DefaultMinPaymentPercent;
     public int DueDays { get; private set; } = DefaultDueDays;
     public int MaxDiscountPercent { get; private set; } = DefaultMaxDiscountPercent;
+    /// <summary>Activa los avisos de WhatsApp por vencimiento. Apagado por defecto: nada se envía hasta que el gimnasio lo decide.</summary>
+    public bool NotificationsEnabled { get; private set; }
+
+    /// <summary>Teléfonos (formato internacional, separados por coma) del personal que recibe el aviso previo al vencimiento.</summary>
+    public string StaffAlertPhones { get; private set; } = string.Empty;
+
     public DateTimeOffset? UpdatedAt { get; private set; }
     public Guid? UpdatedBy { get; private set; }
+
+    public IReadOnlyList<string> StaffPhones => StaffAlertPhones.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    public void UpdateNotifications(bool enabled, IEnumerable<string> staffPhones, Guid? updatedBy, DateTimeOffset now)
+    {
+        NotificationsEnabled = enabled;
+        StaffAlertPhones = string.Join(',', staffPhones);
+        UpdatedAt = now;
+        UpdatedBy = updatedBy;
+    }
 
     public static CommercialSettings CreateDefault(Guid tenantId) => new() { TenantId = tenantId };
 

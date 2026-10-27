@@ -34,7 +34,9 @@ public sealed record MemberDto(
     DateTimeOffset CreatedAt,
     Guid? CreatedBy,
     DateTimeOffset? UpdatedAt,
-    Guid? UpdatedBy)
+    Guid? UpdatedBy,
+    bool WhatsAppConsent,
+    DateTimeOffset? WhatsAppConsentAt)
 {
     public static MemberDto From(Member m) =>
         new(
@@ -61,7 +63,9 @@ public sealed record MemberDto(
             m.CreatedAt,
             m.CreatedBy,
             m.UpdatedAt,
-            m.UpdatedBy);
+            m.UpdatedBy,
+            m.WhatsAppConsent,
+            m.WhatsAppConsentAt);
 }
 
 /// <summary>Campos de perfil comunes a crear y editar un alumno.</summary>

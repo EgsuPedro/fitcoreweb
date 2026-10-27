@@ -85,6 +85,9 @@ internal sealed class CommercialSettingsConfiguration : IEntityTypeConfiguration
         b.HasKey(x => x.TenantId);
         b.Property(x => x.AccessPolicy).HasConversion<string>().HasMaxLength(30);
         b.Property(x => x.DueDays).HasColumnName("default_due_days");
+        b.Ignore(x => x.StaffPhones);
+        b.Property(x => x.StaffAlertPhones).HasMaxLength(200).IsRequired().HasDefaultValue(string.Empty);
+        b.Property(x => x.NotificationsEnabled).HasDefaultValue(false);
     }
 }
 

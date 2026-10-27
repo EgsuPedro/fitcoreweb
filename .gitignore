@@ -1,0 +1,16 @@
+bin/
+obj/
+.vs/
+.idea/
+*.user
+TestResults/
+coverage/
+node_modules/
+dist/
+.angular/
+.dart_tool/
+build/
+.env
+*.p12
+*.pfx
+appsettings.*.local.json

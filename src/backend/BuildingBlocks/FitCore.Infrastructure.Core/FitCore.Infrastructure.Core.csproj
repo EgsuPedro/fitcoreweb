@@ -1,0 +1,6 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\FitCore.SharedKernel\FitCore.SharedKernel.csproj" />
+    <ProjectReference Include="..\FitCore.Application.Core\FitCore.Application.Core.csproj" />
+  </ItemGroup>
+</Project>

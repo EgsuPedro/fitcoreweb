@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - name: Restore
+        run: dotnet restore FitCore.sln
+      - name: Build (warnings as errors)
+        run: dotnet build FitCore.sln --no-restore -c Release
+      - name: Test
+        run: dotnet test FitCore.sln --no-build -c Release
+      - name: Vulnerable packages
+        run: |
+          dotnet list FitCore.sln package --vulnerable --include-transitive 2>&1 | tee vuln.txt
+          ! grep -q "has the following vulnerable packages" vuln.txt
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: backend
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build API image
+        run: docker build -f infra/docker/Api.Dockerfile -t fitcore-api:ci .
+      - name: Build Worker image
+        run: docker build -f infra/docker/Worker.Dockerfile -t fitcore-worker:ci .

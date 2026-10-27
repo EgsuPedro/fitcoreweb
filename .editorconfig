@@ -1,0 +1,27 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,yml,yaml,csproj,props,ts,html,scss}]
+indent_size = 2
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning
+dotnet_style_qualification_for_field = false
+csharp_style_var_for_built_in_types = true
+# Guiones bajos permitidos en nombres de tests
+dotnet_diagnostic.CA1707.severity = none
+# Nullable ya cubre la validación de argumentos
+dotnet_diagnostic.CA1062.severity = none
+# LoggerMessage no es obligatorio
+dotnet_diagnostic.CA1848.severity = none
+# ASP.NET Core no usa SynchronizationContext
+dotnet_diagnostic.CA2007.severity = none
+# El tipo Error es deliberado (Result pattern), solo se consume desde C#
+dotnet_diagnostic.CA1716.severity = none

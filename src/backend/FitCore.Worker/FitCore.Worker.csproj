@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <ItemGroup>
+    <ProjectReference Include="..\BuildingBlocks\FitCore.SharedKernel\FitCore.SharedKernel.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\FitCore.Application.Core\FitCore.Application.Core.csproj" />
+    <ProjectReference Include="..\BuildingBlocks\FitCore.Infrastructure.Core\FitCore.Infrastructure.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+    <PackageReference Include="Serilog.Formatting.Compact" Version="3.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="10.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+  </ItemGroup>
+  <PropertyGroup>
+    <UserSecretsId>fitcore-worker</UserSecretsId>
+  </PropertyGroup>
+</Project>

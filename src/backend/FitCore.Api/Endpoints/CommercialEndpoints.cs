@@ -1,6 +1,9 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Commercial.Application.Members;
+using FitCore.Commercial.Application.Plans;
+using FitCore.Commercial.Application.Promotions;
+using FitCore.Commercial.Application.Settings;
 using FitCore.Commercial.Domain;
 using FitCore.Platform.Domain;
 
@@ -11,6 +14,9 @@ internal static class CommercialEndpoints
     public static IEndpointRouteBuilder MapCommercialEndpoints(this IEndpointRouteBuilder routes)
     {
         MapMembers(routes.MapGroup("/members").WithTags("Members"));
+        MapPlans(routes.MapGroup("/membership-plans").WithTags("Membership plans"));
+        MapPromotions(routes.MapGroup("/promotions").WithTags("Promotions"));
+        MapSettingsAndTaxes(routes);
         return routes;
     }
 
@@ -47,5 +53,104 @@ internal static class CommercialEndpoints
             .RequirePermission(Permissions.MembersStatus)
             .Produces<MemberDto>()
             .WithName("SetMemberStatus");
+    }
+
+    private static void MapPlans(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, string? search = null, bool? isActive = null, Guid? branchId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListPlansQuery(new PageRequest(page, pageSize), search, isActive, branchId), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlansRead)
+            .Produces<PagedResult<PlanDto>>()
+            .WithName("ListMembershipPlans");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetPlanQuery(id), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PlansRead)
+            .Produces<PlanDto>()
+            .WithName("GetMembershipPlan");
+
+        group.MapPost("/", async (PlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreatePlanCommand(request), ct)).ToHttp(p => Results.Created($"/api/v1/membership-plans/{p.Id}", p)))
+            .RequirePermission(Permissions.PlansManage)
+            .WithValidation<PlanRequest>()
+            .Produces<PlanDto>(StatusCodes.Status201Created)
+            .WithName("CreateMembershipPlan");
+
+        group.MapPut("/{id:guid}", async (Guid id, PlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdatePlanCommand(id, request), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PlansManage)
+            .WithValidation<PlanRequest>()
+            .Produces<PlanDto>()
+            .WithName("UpdateMembershipPlan");
+    }
+
+    private static void MapPromotions(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, string? search = null, PromotionStatus? status = null, Guid? planId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListPromotionsQuery(new PageRequest(page, pageSize), search, status, planId), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PromotionsRead)
+            .Produces<PagedResult<PromotionDto>>()
+            .WithName("ListPromotions");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetPromotionQuery(id), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PromotionsRead)
+            .Produces<PromotionDto>()
+            .WithName("GetPromotion");
+
+        group.MapPost("/", async (PromotionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreatePromotionCommand(request), ct)).ToHttp(p => Results.Created($"/api/v1/promotions/{p.Id}", p)))
+            .RequirePermission(Permissions.PromotionsManage)
+            .WithValidation<PromotionRequest>()
+            .Produces<PromotionDto>(StatusCodes.Status201Created)
+            .WithName("CreatePromotion");
+
+        group.MapPut("/{id:guid}", async (Guid id, PromotionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdatePromotionCommand(id, request), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PromotionsManage)
+            .WithValidation<PromotionRequest>()
+            .Produces<PromotionDto>()
+            .WithName("UpdatePromotion");
+    }
+
+    private static void MapSettingsAndTaxes(IEndpointRouteBuilder routes)
+    {
+        routes.MapGet("/commercial-settings", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetCommercialSettingsQuery(), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.PlansRead)
+            .Produces<CommercialSettingsDto>()
+            .WithTags("Commercial settings")
+            .WithName("GetCommercialSettings");
+
+        routes.MapPut("/commercial-settings", async (UpdateCommercialSettingsRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdateCommercialSettingsCommand(request), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.CommercialSettingsManage)
+            .WithValidation<UpdateCommercialSettingsRequest>()
+            .Produces<CommercialSettingsDto>()
+            .WithTags("Commercial settings")
+            .WithName("UpdateCommercialSettings");
+
+        // Tarifas vigentes hoy, para que los gimnasios muestren el desglose de IVA de sus planes.
+        routes.MapGet("/tax-rates/current", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetCurrentTaxRatesQuery(), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlansRead)
+            .Produces<IReadOnlyList<TaxRateDto>>()
+            .WithTags("Tax rates")
+            .WithName("GetCurrentTaxRates");
+
+        // Administración global de tarifas por decreto: solo el equipo de plataforma.
+        var platform = routes.MapGroup("/platform/tax-rates").WithTags("Platform");
+        platform.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListTaxRatesQuery(), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformTaxesManage)
+            .Produces<IReadOnlyList<TaxRateDto>>()
+            .WithName("ListTaxRates");
+
+        platform.MapPost("/", async (CreateTaxRateRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateTaxRateCommand(request), ct)).ToHttp(r => Results.Created($"/api/v1/platform/tax-rates/{r.Id}", r)))
+            .RequirePermission(Permissions.PlatformTaxesManage)
+            .WithValidation<CreateTaxRateRequest>()
+            .Produces<TaxRateDto>(StatusCodes.Status201Created)
+            .WithName("CreateTaxRate");
     }
 }

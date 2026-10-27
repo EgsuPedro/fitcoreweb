@@ -53,3 +53,17 @@ Todo endpoint exige sesión activa (política global) salvo los marcados como an
 - **Alcance por sucursal:** `user_branches` o un rol con "todas las sucursales". Una sucursal o usuario fuera del alcance responde 404. La cabecera `X-Branch-Id` se valida contra ese alcance.
 - **Anti-escalada:** nadie asigna ni concede lo que no posee; nadie edita su propio acceso; los permisos `platform.*` jamás se conceden desde un gimnasio; el rol Propietario no se modifica.
 - **Efecto inmediato:** los permisos no van en el JWT; se leen de la base de datos en cada solicitud.
+
+## Fase 3: permisos comerciales (en curso)
+Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Propietario al arrancar. Las plantillas de rol se actualizan solo para gimnasios nuevos.
+
+| Permiso | Para qué |
+|---|---|
+| `members.read/create/update/status` | Ver, registrar, editar y activar/desactivar alumnos (limitado a las sucursales del usuario) |
+| `plans.read` / `plans.manage` | Ver planes y políticas comerciales / crear y editar planes. Quien no accede a todas las sucursales solo administra planes de las suyas |
+| `promotions.read/manage/apply` | Ver / definir promociones (requiere acceso a todas las sucursales) / aplicarlas al inscribir o renovar |
+| `commercial.settings.manage` | Cambiar las políticas del gimnasio (acceso con deuda, descuento máximo, días de vencimiento); requiere acceso a todas las sucursales |
+| `memberships.*`, `obligations.*`, `payments.*`, `cash.*`, `attendance.*` | Definidos; se aplican a medida que se implementan sus bloques |
+| `platform.taxes.manage` | Solo plataforma: registrar tarifas de IVA por decreto |
+
+Endpoints nuevos: `GET/POST /members`, `GET/PUT /members/{id}`, `PATCH /members/{id}/status`, `GET/POST /membership-plans`, `GET/PUT /membership-plans/{id}`, `GET/POST /promotions`, `GET/PUT /promotions/{id}`, `GET/PUT /commercial-settings`, `GET /tax-rates/current` y `GET/POST /platform/tax-rates`.

@@ -15,12 +15,15 @@ public readonly record struct Money
             throw new ArgumentException("La moneda debe ser un código ISO 4217 de 3 letras.", nameof(currency));
         }
 
-        Amount = Math.Round(amount, 2, MidpointRounding.AwayFromZero);
+        Amount = Round(amount);
         Currency = currency.ToUpperInvariant();
     }
 
     public decimal Amount { get; }
     public string Currency { get; }
+
+    /// <summary>La única regla de redondeo monetario del sistema: 2 decimales, hacia fuera del cero.</summary>
+    public static decimal Round(decimal amount) => Math.Round(amount, 2, MidpointRounding.AwayFromZero);
 
     public static Money Zero(string currency = DefaultCurrency) => new(0m, currency);
     public static Money Usd(decimal amount) => new(amount, DefaultCurrency);

@@ -119,6 +119,15 @@ public static class DatabaseInitializer
                 FROM identity.app_roles r CROSS JOIN identity.permissions p
                 WHERE r.tenant_id = t.id AND r.is_system AND r.name = 'Propietario' AND p.code NOT LIKE 'platform.%'
                 ON CONFLICT DO NOTHING;
+
+                -- El administrador de plataforma recibe los permisos globales nuevos, y solo en el gimnasio "platform":
+                -- ningún otro gimnasio puede obtener permisos platform.* aunque cree un rol con ese nombre.
+                INSERT INTO identity.role_permissions (tenant_id, role_id, permission_code)
+                SELECT r.tenant_id, r.id, p.code
+                FROM identity.app_roles r CROSS JOIN identity.permissions p
+                WHERE r.tenant_id = t.id AND r.is_system AND r.name = 'AdministradorPlataforma' AND p.code LIKE 'platform.%'
+                  AND EXISTS (SELECT 1 FROM organizations.tenants pt WHERE pt.id = t.id AND pt.slug = 'platform')
+                ON CONFLICT DO NOTHING;
               END LOOP;
             END
             $do$;

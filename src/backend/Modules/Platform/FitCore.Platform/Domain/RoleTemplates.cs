@@ -35,6 +35,7 @@ public static class RoleTemplates
                 Permissions.MembersStatus,
                 Permissions.PlansRead,
                 Permissions.PromotionsRead,
+                Permissions.PromotionsApply,
                 Permissions.MembershipsRead,
                 Permissions.MembershipsCreate,
                 Permissions.MembershipsRenew,

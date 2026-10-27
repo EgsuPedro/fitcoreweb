@@ -33,6 +33,7 @@ public static class Permissions
     public const string PlansManage = "plans.manage";
     public const string PromotionsRead = "promotions.read";
     public const string PromotionsManage = "promotions.manage";
+    public const string PromotionsApply = "promotions.apply";
 
     public const string MembershipsRead = "memberships.read";
     public const string MembershipsCreate = "memberships.create";
@@ -82,6 +83,7 @@ public static class Permissions
         new(PlansManage, "plans", "Crear y editar planes"),
         new(PromotionsRead, "plans", "Ver promociones"),
         new(PromotionsManage, "plans", "Crear y editar promociones"),
+        new(PromotionsApply, "plans", "Aplicar promociones al inscribir o renovar"),
         new(MembershipsRead, "memberships", "Ver membresías"),
         new(MembershipsCreate, "memberships", "Inscribir alumnos en un plan"),
         new(MembershipsRenew, "memberships", "Renovar membresías"),

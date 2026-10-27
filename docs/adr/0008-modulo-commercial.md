@@ -8,7 +8,12 @@
 - **Acceso con deuda:** se permite mientras la obligación no esté vencida. Es un modo de una política configurable por gimnasio (`RequireFullPayment`, `AllowUntilOverdue`, `AllowWithMinimumPayment`); el valor inicial es `AllowUntilOverdue`.
 - **Una membresía vigente por alumno.** Renovar crea una membresía nueva que inicia al terminar la actual; la existente no se modifica.
 
-## Supuestos que tomé (revisables)
+## Supuestos confirmados por el usuario (2026-10-27)
+Todos los de la lista siguiente fueron validados. Cambios y añadidos:
+- **Notificaciones por WhatsApp (nuevo requisito):** el administrador o la recepcionista deben recibir un aviso por WhatsApp cuando una membresía esté a 3 días de terminar, y después un mensaje cordial. Ver "Notificaciones" abajo.
+- **Fotografía:** la carga de archivos se hará en una fase posterior; en esta solo hay URL opcional.
+
+## Supuestos que tomé (confirmados)
 - La **fecha de vencimiento de la obligación** es explícita al inscribir (por defecto, hoy + `DefaultDueDays` del gimnasio, 7). Con `AllowUntilOverdue` el acceso se corta cuando la obligación con saldo supera esa fecha.
 - Una membresía pasa de `PendingPayment` a `Active` al cumplirse la regla de activación de la política: con `AllowUntilOverdue`, al aplicarse el primer pago confirmado; con `RequireFullPayment`, al saldar la obligación.
 - Un alumno pertenece a la **sucursal donde se inscribió**. Quien solo accede a ciertas sucursales ve y edita únicamente los alumnos de esas sucursales (otro alumno responde 404).
@@ -38,13 +43,20 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 ## Permisos nuevos
 `members.read|create|update|status`, `plans.read|manage`, `promotions.read|manage`, `memberships.read|create|renew|freeze|cancel`, `obligations.read|create|void`, `payments.read|create|confirm|reverse`, `cash.read|manage|operate`, `attendance.read|register|override`, `commercial.settings.manage` y, solo para plataforma, `platform.taxes.manage`. El Propietario los recibe todos al arrancar. Las plantillas de rol se actualizan solo para gimnasios nuevos; los existentes ajustan sus roles desde la pantalla de roles.
 
+## Notificaciones de WhatsApp (decidido el 2026-10-27)
+- **Quién y cuándo:** a **3 días** del vencimiento, el administrador y la recepción de la sucursal reciben un aviso con las membresías por vencer. Al **alumno** se le envía un mensaje cordial **el día del vencimiento** y **3 días después** si no renovó, solo si aceptó recibir mensajes. Un mensaje ya enviado no se repite.
+- **Proveedor:** WhatsApp Business Cloud API de Meta detrás de un puerto (`IWhatsAppSender`), como la pasarela de tarjeta: queda **en espera** hasta contar con la cuenta verificada, el número y las plantillas aprobadas por Meta. Mientras tanto el sistema calcula y **registra** los avisos pendientes sin enviarlos.
+- **Diseño:** una tarea del Worker revisa cada día las membresías por vencer y escribe en `notifications` (tipo, destinatario, membresía, fecha programada, estado, intentos, error) con una restricción única `(membresía, tipo, destinatario)` que impide duplicados aunque el Worker corra dos veces. Los textos viven en plantillas con idioma (es por defecto) y datos mínimos: el mensaje al alumno no incluye saldos ni datos sensibles.
+- **Consentimiento (LOPDP):** el alumno guarda su aceptación de recibir WhatsApp (fecha y quién la registró); sin ella nunca se le escribe, y puede retirarla. El personal recibe avisos según su rol y número registrado.
+- **Reintentos y fallos:** reintentos con espera creciente; los fallos definitivos quedan visibles para el administrador.
 ## Bloques
 | # | Bloque | Estado |
 |---|---|---|
 | 1 | Módulo, `DbContext`, RLS, migración, permisos | Hecho |
 | 2 | Alumnos | Hecho |
-| 3 | Planes, promociones, tarifas de IVA | Pendiente |
+| 3 | Planes, promociones, tarifas de IVA y políticas del gimnasio | Hecho |
 | 4 | Membresías | Pendiente |
+| 4b | Notificaciones de WhatsApp (vencimientos) | Pendiente, después de las membresías |
 | 5 | Obligaciones, pagos y abonos | Pendiente |
 | 6 | Caja | Pendiente |
 | 7 | Asistencia | Pendiente |

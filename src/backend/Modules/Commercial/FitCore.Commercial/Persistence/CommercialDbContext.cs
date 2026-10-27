@@ -19,6 +19,12 @@ public sealed class CommercialDbContext(DbContextOptions<CommercialDbContext> op
     public const string AccessSchema = "access";
 
     public DbSet<Member> Members => Set<Member>();
+    public DbSet<MembershipPlan> Plans => Set<MembershipPlan>();
+    public DbSet<Promotion> Promotions => Set<Promotion>();
+    public DbSet<CommercialSettings> Settings => Set<CommercialSettings>();
+
+    /// <summary>Tarifas de impuesto globales (sin tenant): las administra el equipo de plataforma.</summary>
+    public DbSet<TaxRate> TaxRates => Set<TaxRate>();
 
     /// <summary>Sucursales del núcleo (solo lectura: se crean y editan en Platform).</summary>
     internal DbSet<BranchRef> BranchRefs => Set<BranchRef>();

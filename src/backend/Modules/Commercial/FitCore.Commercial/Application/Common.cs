@@ -78,9 +78,14 @@ internal static class QueryExtensions
 
 internal static class LikePattern
 {
-    public static string Contains(string value) =>
-        "%" + value.Trim()
+    public static string Contains(string value) => "%" + Escape(value) + "%";
+
+    /// <summary>Coincidencia exacta sin distinguir mayúsculas (para ILIKE sin comodines).</summary>
+    public static string Exact(string value) => Escape(value);
+
+    private static string Escape(string value) =>
+        value.Trim()
             .Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("%", "\\%", StringComparison.Ordinal)
-            .Replace("_", "\\_", StringComparison.Ordinal) + "%";
+            .Replace("_", "\\_", StringComparison.Ordinal);
 }

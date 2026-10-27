@@ -64,3 +64,17 @@ La prueba `Las_migraciones_estan_aplicadas_y_el_esquema_tiene_las_tablas_y_RLS_e
 dotnet ef migrations add <Nombre> --project src/backend/Modules/Platform/FitCore.Platform --startup-project src/backend/FitCore.Api --output-dir Persistence/Migrations
 ```
 Nunca se usa `EnsureCreated`. No se ejecutan migraciones destructivas ni se eliminan volúmenes sin una orden explícita.
+
+## Módulo comercial (Fase 3, `CommercialDbContext`)
+Migraciones propias, con su historial en `members.__ef_migrations_history`. Mismo aislamiento que el núcleo: `tenant_id`, RLS forzado, FK compuestas `(tenant_id, id)` y FK a `organizations.branches (tenant_id, id)`.
+
+| Esquema | Tabla | Contenido |
+|---|---|---|
+| members | `members` | Alumnos. Único `(tenant_id, tipo, número de documento)` y `(tenant_id, código)` |
+| members | `counters` | Contadores por gimnasio (código de alumno `A-000001`), incremento atómico |
+| members | `membership_plans`, `plan_branches` | Planes (precio con IVA incluido, duración, congelamiento) y sucursales donde se venden (vacío = todas) |
+| members | `promotions`, `promotion_plans` | Promociones con vigencia, usos y planes aplicables (vacío = todos) |
+| members | `commercial_settings` | Políticas del gimnasio (acceso con deuda, % mínimo, días de vencimiento, descuento máximo) |
+| billing | `tax_rates` | Tarifas de IVA globales con vigencia. Una sola abierta por tipo; sembradas: General 15 %, 0 %, no objeto y exento |
+
+Restricciones en la base además de las de la aplicación: precio > 0, duración ≥ 1, vigencias coherentes, descuento > 0 (≤ 100 si es porcentaje), usos ≤ máximo, rangos de las políticas, nombre de plan único sin distinguir mayúsculas.

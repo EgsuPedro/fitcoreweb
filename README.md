@@ -71,10 +71,12 @@ Con el entorno levantado:
 | Usuarios | `GET/POST /users`, `GET /users/{id}`, `PUT /users/{id}/access`, `PUT /users/{id}/status` |
 | Roles y auditoría | `GET/POST /roles`, `PUT/DELETE /roles/{id}`, `GET /permissions`, `GET /audit-logs` |
 | Alumnos (Fase 3, en curso) | `GET/POST /members`, `GET/PUT /members/{id}`, `PATCH /members/{id}/status` |
+| Planes y promociones | `GET/POST /membership-plans`, `GET/PUT /membership-plans/{id}`, `GET/POST /promotions`, `GET/PUT /promotions/{id}` |
+| Políticas e IVA | `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates` (solo plataforma) |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
 
-**Fase 3 en curso** (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base y los alumnos (cédula/RUC/pasaporte validados, duplicados, alcance por sucursal, RLS). Faltan planes y promociones, membresías, cobros, caja, asistencia y sus pantallas.
+**Fase 3 en curso** (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base, los alumnos, los planes y promociones (con tope de descuento), las políticas del gimnasio y las tarifas de IVA editables por decreto (15 % por defecto). Faltan membresías, cobros, caja, asistencia, las notificaciones de WhatsApp y las pantallas.
 
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar

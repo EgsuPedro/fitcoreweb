@@ -41,11 +41,25 @@ services:
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?Defina JWT_SIGNING_KEY (mínimo 32 caracteres) en infra/compose/.env}
       Platform__AdminEmail: ${PLATFORM_ADMIN_EMAIL:-}
       Platform__AdminPassword: ${PLATFORM_ADMIN_PASSWORD:-}
+      # Redes privadas de Docker: solo ahí se confía en X-Forwarded-For (lo envía el nginx del servicio web).
+      Network__TrustedProxies__0: 10.0.0.0/8
+      Network__TrustedProxies__1: 172.16.0.0/12
+      Network__TrustedProxies__2: 192.168.0.0/16
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+
+  # Frontend servido por nginx, que también reenvía /api a la API (mismo origen: la cookie de refresh no necesita CORS).
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Web.Dockerfile
+    ports:
+      - "${WEB_PORT:-8081}:80"
+    depends_on:
+      - api
 
   worker:
     build:

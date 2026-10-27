@@ -51,7 +51,8 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("Jwt:SigningKey", SigningKey);
             builder.UseSetting("Platform:AdminEmail", PlatformEmail);
             builder.UseSetting("Platform:AdminPassword", PlatformPassword);
-            builder.UseSetting("RateLimiting:AuthPermitPerMinute", "100000");
+            builder.UseSetting("RateLimiting:LoginPermitPerMinute", "100000");
+            builder.UseSetting("RateLimiting:SessionPermitPerMinute", "100000");
         });
 
         // Fuerza el arranque (migraciones, catálogo de permisos y administrador de plataforma).

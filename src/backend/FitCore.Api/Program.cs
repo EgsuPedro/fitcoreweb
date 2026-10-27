@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
@@ -13,6 +14,7 @@ using FitCore.SharedKernel;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -38,6 +40,27 @@ builder.Host.UseSerilog((context, services, configuration) =>
         configuration.WriteTo.Console(new RenderedCompactJsonFormatter());
     }
 });
+
+// Detrás de un proxy (nginx) la IP real del cliente llega en X-Forwarded-For. Solo se confía en las redes declaradas en
+// Network:TrustedProxies: si la API se expone directamente, esa cabecera la puede falsificar cualquiera.
+var trustedProxies = builder.Configuration.GetSection("Network:TrustedProxies").Get<string[]>() ?? [];
+if (trustedProxies.Length > 0)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+        foreach (var cidr in trustedProxies)
+        {
+            var parts = cidr.Split('/');
+            options.KnownNetworks.Add(new Microsoft.AspNetCore.HttpOverrides.IPNetwork(
+                IPAddress.Parse(parts[0]),
+                int.Parse(parts[1], CultureInfo.InvariantCulture)));
+        }
+    });
+}
 
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddDispatcher();
@@ -95,13 +118,13 @@ builder.Services.AddScoped<IAuthorizationHandler, ActiveUserHandler>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
 builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, SessionAwareAuthorizationResultHandler>();
 
+// Límites por IP. Se separan porque el refresh se ejecuta en cada recarga de página y varias personas de un mismo
+// gimnasio comparten IP (wifi de recepción); la defensa contra adivinar contraseñas es el bloqueo de cuenta de Identity.
 builder.Services.AddRateLimiter(options =>
 {
-    var permitPerMinute = builder.Configuration.GetValue("RateLimiting:AuthPermitPerMinute", 10);
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.AddPolicy("auth", http => RateLimitPartition.GetFixedWindowLimiter(
-        http.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-        _ => new FixedWindowRateLimiterOptions { PermitLimit = permitPerMinute, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    AddPerIpPolicy(options, RateLimitPolicies.Login, builder.Configuration.GetValue("RateLimiting:LoginPermitPerMinute", 20));
+    AddPerIpPolicy(options, RateLimitPolicies.Session, builder.Configuration.GetValue("RateLimiting:SessionPermitPerMinute", 120));
 });
 
 // Idiomas: español (Ecuador) por defecto; el resto se agrega a esta lista.
@@ -121,6 +144,11 @@ if (!string.IsNullOrWhiteSpace(connectionString))
 }
 
 var app = builder.Build();
+
+if (trustedProxies.Length > 0)
+{
+    app.UseForwardedHeaders();
+}
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
@@ -151,6 +179,11 @@ v1.MapAdministrationEndpoints();
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 
 await app.RunAsync();
+
+static void AddPerIpPolicy(Microsoft.AspNetCore.RateLimiting.RateLimiterOptions options, string name, int permitPerMinute) =>
+    options.AddPolicy(name, http => RateLimitPartition.GetFixedWindowLimiter(
+        http.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = permitPerMinute, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
 
 // Necesario para WebApplicationFactory en las pruebas de integración.
 public partial class Program;

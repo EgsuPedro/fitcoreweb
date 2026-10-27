@@ -1,0 +1,61 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
+import type { ProblemDetails } from '../api/models';
+
+/** Convierte errores HTTP de la API en mensajes en el idioma activo usando el `code` estable de negocio. */
+@Injectable({ providedIn: 'root' })
+export class ErrorMessages {
+  private readonly transloco = inject(TranslocoService);
+
+  message(error: unknown): string {
+    const problem = this.problemOf(error);
+
+    if (problem?.code) {
+      const key = `errors.${problem.code}`;
+      const text = this.transloco.translate(key);
+      if (text !== key) {
+        return text;
+      }
+    }
+
+    if (problem?.errors) {
+      const details = Object.values(problem.errors).flat();
+      if (details.length > 0) {
+        return details.join(' ');
+      }
+    }
+
+    // Solo un error HTTP tiene estado (0 = sin conexión); cualquier otra excepción es un error genérico.
+    if (!(error instanceof HttpErrorResponse)) {
+      return this.transloco.translate('errors.generic');
+    }
+
+    const statusKey = `errors.http_${error.status}`;
+    const statusText = this.transloco.translate(statusKey);
+    return statusText !== statusKey ? statusText : this.transloco.translate('errors.generic');
+  }
+
+  problemOf(error: unknown): ProblemDetails | null {
+    if (error instanceof HttpErrorResponse && error.error && typeof error.error === 'object') {
+      return error.error as ProblemDetails;
+    }
+    return null;
+  }
+}
+
+/** Fechas en el idioma activo (es-EC / en). */
+@Injectable({ providedIn: 'root' })
+export class Formatter {
+  private readonly transloco = inject(TranslocoService);
+
+  dateTime(iso: string): string {
+    const locale = this.transloco.getActiveLang() === 'en' ? 'en-US' : 'es-EC';
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+  }
+
+  date(iso: string): string {
+    const locale = this.transloco.getActiveLang() === 'en' ? 'en-US' : 'es-EC';
+    return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso));
+  }
+}

@@ -29,8 +29,9 @@ internal static class AuthEndpoints
                 return result.IsSuccess ? ToTokenResponse(http, result.Value, request.UseCookie) : result.Error.ToProblem();
             })
             .AllowAnonymous()
-            .RequireRateLimiting("auth")
+            .RequireRateLimiting(RateLimitPolicies.Login)
             .WithValidation<LoginRequest>()
+            .Produces<TokenResponse>()
             .WithName("Login");
 
         // El refresh token llega en el cuerpo (móvil) o en la cookie HttpOnly (web).
@@ -49,7 +50,8 @@ internal static class AuthEndpoints
                 return ToTokenResponse(http, result.Value, useCookie: fromCookie);
             })
             .AllowAnonymous()
-            .RequireRateLimiting("auth")
+            .RequireRateLimiting(RateLimitPolicies.Session)
+            .Produces<TokenResponse>()
             .WithName("RefreshToken");
 
         group.MapPost("/logout", async ([FromBody] RefreshRequest? request, IDispatcher dispatcher, HttpContext http, CancellationToken ct) =>
@@ -60,7 +62,7 @@ internal static class AuthEndpoints
                 return Results.NoContent();
             })
             .AllowAnonymous()
-            .RequireRateLimiting("auth")
+            .RequireRateLimiting(RateLimitPolicies.Session)
             .WithName("Logout");
 
         group.MapPost("/change-password", async (ChangePasswordRequest request, IDispatcher dispatcher, HttpContext http, CancellationToken ct) =>
@@ -80,6 +82,7 @@ internal static class AuthEndpoints
         group.MapGet("/me", async (IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new MeQuery(), ct)).ToHttp(me => Results.Ok(me)))
             .RequireAuthorization()
+            .Produces<MeResponse>()
             .WithName("GetMe");
 
         return routes;

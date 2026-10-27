@@ -14,3 +14,5 @@ build/
 *.p12
 *.pfx
 appsettings.*.local.json
+test-results/
+playwright-report/

@@ -22,23 +22,27 @@ internal static class AdministrationEndpoints
         group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, string? search = null, bool? isActive = null, int page = 1, int pageSize = 25) =>
                 (await dispatcher.QueryAsync(new ListBranchesQuery(new PageRequest(page, pageSize), search, isActive), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.BranchesRead)
+            .Produces<PagedResult<BranchDto>>()
             .WithName("ListBranches");
 
         group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new GetBranchQuery(id), ct)).ToHttp(b => Results.Ok(b)))
             .RequirePermission(Permissions.BranchesRead)
+            .Produces<BranchDto>()
             .WithName("GetBranch");
 
         group.MapPost("/", async (CreateBranchRequest request, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new CreateBranchCommand(request), ct)).ToHttp(b => Results.Created($"/api/v1/branches/{b.Id}", b)))
             .RequirePermission(Permissions.BranchesCreate)
             .WithValidation<CreateBranchRequest>()
+            .Produces<BranchDto>(StatusCodes.Status201Created)
             .WithName("CreateBranch");
 
         group.MapPut("/{id:guid}", async (Guid id, UpdateBranchRequest request, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new UpdateBranchCommand(id, request), ct)).ToHttp(b => Results.Ok(b)))
             .RequirePermission(Permissions.BranchesUpdate)
             .WithValidation<UpdateBranchRequest>()
+            .Produces<BranchDto>()
             .WithName("UpdateBranch");
     }
 
@@ -47,27 +51,32 @@ internal static class AdministrationEndpoints
         group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, string? search = null, Guid? branchId = null, bool? isActive = null, int page = 1, int pageSize = 25) =>
                 (await dispatcher.QueryAsync(new ListUsersQuery(new PageRequest(page, pageSize), search, branchId, isActive), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.UsersRead)
+            .Produces<PagedResult<UserDto>>()
             .WithName("ListUsers");
 
         group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new GetUserQuery(id), ct)).ToHttp(u => Results.Ok(u)))
             .RequirePermission(Permissions.UsersRead)
+            .Produces<UserDto>()
             .WithName("GetUser");
 
         group.MapPost("/", async (CreateUserRequest request, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new CreateUserCommand(request), ct)).ToHttp(u => Results.Created($"/api/v1/users/{u.Id}", u)))
             .RequirePermission(Permissions.UsersCreate)
             .WithValidation<CreateUserRequest>()
+            .Produces<UserDto>(StatusCodes.Status201Created)
             .WithName("CreateUser");
 
         group.MapPut("/{id:guid}/access", async (Guid id, SetUserAccessRequest request, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new SetUserAccessCommand(id, request), ct)).ToHttp(u => Results.Ok(u)))
             .RequirePermission(Permissions.UsersUpdate)
+            .Produces<UserDto>()
             .WithName("SetUserAccess");
 
         group.MapPut("/{id:guid}/status", async (Guid id, SetUserStatusRequest request, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new SetUserStatusCommand(id, request), ct)).ToHttp(u => Results.Ok(u)))
             .RequirePermission(Permissions.UsersUpdate)
+            .Produces<UserDto>()
             .WithName("SetUserStatus");
     }
 
@@ -76,6 +85,7 @@ internal static class AdministrationEndpoints
         routes.MapGet("/roles", async (IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new ListRolesQuery(), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.RolesRead)
+            .Produces<IReadOnlyList<RoleDto>>()
             .WithTags("Roles")
             .WithName("ListRoles");
 
@@ -83,6 +93,7 @@ internal static class AdministrationEndpoints
                 (await dispatcher.SendAsync(new CreateRoleCommand(request), ct)).ToHttp(r => Results.Created($"/api/v1/roles/{r.Id}", r)))
             .RequirePermission(Permissions.RolesManage)
             .WithValidation<CreateRoleRequest>()
+            .Produces<RoleDto>(StatusCodes.Status201Created)
             .WithTags("Roles")
             .WithName("CreateRole");
 
@@ -90,18 +101,21 @@ internal static class AdministrationEndpoints
                 (await dispatcher.SendAsync(new UpdateRoleCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.RolesManage)
             .WithValidation<UpdateRoleRequest>()
+            .Produces<RoleDto>()
             .WithTags("Roles")
             .WithName("UpdateRole");
 
         routes.MapDelete("/roles/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new DeleteRoleCommand(id), ct)).ToHttp(_ => Results.NoContent()))
             .RequirePermission(Permissions.RolesManage)
+            .Produces(StatusCodes.Status204NoContent)
             .WithTags("Roles")
             .WithName("DeleteRole");
 
         routes.MapGet("/permissions", async (IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new ListPermissionsQuery(), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.RolesRead)
+            .Produces<IReadOnlyList<PermissionDto>>()
             .WithTags("Roles")
             .WithName("ListPermissions");
 
@@ -117,6 +131,7 @@ internal static class AdministrationEndpoints
                 (await dispatcher.QueryAsync(new ListAuditLogsQuery(new PageRequest(page, pageSize), entity, entityId, from, to), ct))
                     .ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.AuditRead)
+            .Produces<PagedResult<AuditLogDto>>()
             .WithTags("Audit")
             .WithName("ListAuditLogs");
     }

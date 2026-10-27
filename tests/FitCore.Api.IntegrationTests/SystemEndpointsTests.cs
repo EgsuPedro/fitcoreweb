@@ -55,6 +55,33 @@ public class SystemEndpointsTests : IClassFixture<WebApplicationFactory<Program>
     }
 
     [Fact]
+    public async Task Login_limita_los_intentos_por_IP_pero_refresh_tiene_un_limite_aparte()
+    {
+        // Sin base de datos: las primeras llamadas llegan al handler y fallan (500); lo que importa es el 429 del limitador.
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseSetting("Jwt:SigningKey", "test-signing-key-test-signing-key-0123456789");
+            builder.UseSetting("RateLimiting:LoginPermitPerMinute", "3");
+            builder.UseSetting("RateLimiting:SessionPermitPerMinute", "50");
+        });
+        using var client = factory.CreateClient();
+        var login = new { tenantSlug = "x", email = "a@b.test", password = "x" };
+
+        var statuses = new List<HttpStatusCode>();
+        for (var i = 0; i < 5; i++)
+        {
+            statuses.Add((await client.PostAsJsonAsync("/api/v1/auth/login", login)).StatusCode);
+        }
+
+        Assert.Equal(2, statuses.Count(s => s == HttpStatusCode.TooManyRequests));
+        Assert.All(statuses.Take(3), s => Assert.NotEqual(HttpStatusCode.TooManyRequests, s));
+
+        // El refresh (cada recarga de página) no comparte el contador del login.
+        var refresh = await client.PostAsJsonAsync("/api/v1/auth/refresh", new { refreshToken = "basura" });
+        Assert.NotEqual(HttpStatusCode.TooManyRequests, refresh.StatusCode);
+    }
+
+    [Fact]
     public void Arranque_falla_si_la_clave_jwt_es_corta()
     {
         using var factory = new WebApplicationFactory<Program>()

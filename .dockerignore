@@ -1,6 +1,9 @@
 **/bin/
 **/obj/
 **/node_modules/
+**/dist/
+**/.angular/
+tests/e2e/test-results/
 .git/
 .vs/
 .env

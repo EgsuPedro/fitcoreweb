@@ -74,6 +74,8 @@ public sealed class Payment : Entity<Guid>, ITenantOwned, IAuditable
     public string? BankName { get; private set; }
     public DateTimeOffset PaidAt { get; private set; }
     public string? Notes { get; private set; }
+    /// <summary>Sesión de caja que recibió el efectivo. Solo los pagos en efectivo la tienen.</summary>
+    public Guid? CashSessionId { get; private set; }
     public DateTimeOffset? ConfirmedAt { get; private set; }
     public Guid? ConfirmedBy { get; private set; }
     public DateTimeOffset? ReversedAt { get; private set; }
@@ -96,7 +98,8 @@ public sealed class Payment : Entity<Guid>, ITenantOwned, IAuditable
         PaymentDetails details,
         IReadOnlyList<(Guid ObligationId, decimal Amount)> allocations,
         Guid? createdBy,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        Guid? cashSessionId = null)
     {
         var payment = new Payment(Guid.CreateVersion7())
         {
@@ -111,6 +114,7 @@ public sealed class Payment : Entity<Guid>, ITenantOwned, IAuditable
             PaidAt = details.PaidAt,
             Notes = Clean(details.Notes),
             Status = InitialStatus(details.Method),
+            CashSessionId = cashSessionId,
             CreatedAt = now,
             CreatedBy = createdBy
         };

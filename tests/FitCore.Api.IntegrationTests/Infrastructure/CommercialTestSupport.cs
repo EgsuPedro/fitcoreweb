@@ -102,6 +102,7 @@ public sealed record PaymentDto(
     string Status,
     string? Reference,
     DateTimeOffset PaidAt,
+    Guid? CashSessionId,
     PaymentLineDto[] Allocations,
     DateTimeOffset? ConfirmedAt,
     Guid? ConfirmedBy,
@@ -121,6 +122,67 @@ public sealed record ReceiptDto(
     decimal Total,
     string? ReceivedBy,
     ReceiptLineDto[] Lines);
+public sealed record CashSessionDto(
+    Guid Id,
+    Guid RegisterId,
+    string RegisterName,
+    Guid BranchId,
+    string Status,
+    Guid OpenedBy,
+    string? OpenedByName,
+    DateTimeOffset OpenedAt,
+    decimal OpeningAmount,
+    decimal TotalIn,
+    decimal TotalOut,
+    decimal ExpectedAmount,
+    decimal? CountedAmount,
+    decimal? Difference,
+    Guid? ClosedBy,
+    string? ClosedByName,
+    DateTimeOffset? ClosedAt,
+    string? OpenNotes,
+    string? CloseNotes,
+    int MovementCount);
+
+public sealed record CashRegisterDto(
+    Guid Id,
+    Guid BranchId,
+    string BranchCode,
+    string BranchName,
+    string Name,
+    bool IsActive,
+    bool AllowMultipleOpenSessions,
+    CashSessionDto[] OpenSessions);
+
+public sealed record CashMovementDto(
+    Guid Id,
+    Guid SessionId,
+    string Type,
+    string Direction,
+    decimal Amount,
+    string? Reason,
+    Guid? PaymentId,
+    string? ReceiptNumber,
+    DateTimeOffset CreatedAt,
+    Guid? CreatedBy,
+    string? CreatedByName);
+
+public sealed record AgingBucketDto(string Label, int Count, decimal Amount);
+
+public sealed record ReceivablesBranchDto(Guid BranchId, string BranchCode, string BranchName, decimal Outstanding, decimal Overdue, int OpenCount, int OverdueCount);
+
+public sealed record DebtorDto(Guid MemberId, string MemberCode, string MemberName, string? Phone, decimal Outstanding, decimal Overdue, DateOnly OldestDueDate, int OpenObligations);
+
+public sealed record ReceivablesSummaryDto(
+    string Currency,
+    DateOnly AsOf,
+    decimal Outstanding,
+    decimal Overdue,
+    int OpenCount,
+    int OverdueCount,
+    AgingBucketDto[] Aging,
+    ReceivablesBranchDto[] ByBranch,
+    DebtorDto[] TopDebtors);
 public sealed record MembershipEventDto(Guid Id, string Type, DateTimeOffset OccurredAt, Guid? ActorId, string? Details);
 
 /// <summary>Utilidades para pruebas del módulo comercial.</summary>
@@ -171,6 +233,29 @@ public static class CommercialTestApi
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         return (await response.Content.ReadFromJsonAsync<PaymentDto>())!;
     }
+
+    public static async Task<CashRegisterDto> CreateRegisterAsync(HttpClient owner, Guid branchId, string name = "Caja 1", bool allowMultiple = false)
+    {
+        var response = await owner.PostAsJsonAsync("/api/v1/cash-registers", new { branchId, name, allowMultipleOpenSessions = allowMultiple });
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<CashRegisterDto>())!;
+    }
+
+    public static Task<HttpResponseMessage> OpenCashAsync(HttpClient client, Guid registerId, decimal opening = 50m, string? key = null) =>
+        PostWithKeyAsync(client, $"/api/v1/cash-registers/{registerId}/open", new { openingAmount = opening, notes = "Apertura de prueba" }, key);
+
+    public static async Task<CashSessionDto> OpenOkAsync(HttpClient client, Guid registerId, decimal opening = 50m)
+    {
+        var response = await OpenCashAsync(client, registerId, opening);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        return (await response.Content.ReadFromJsonAsync<CashSessionDto>())!;
+    }
+
+    public static Task<HttpResponseMessage> CloseCashAsync(HttpClient client, Guid registerId, decimal counted, string? notes = null, Guid? sessionId = null, string? key = null) =>
+        PostWithKeyAsync(client, $"/api/v1/cash-registers/{registerId}/close", new { sessionId, countedAmount = counted, notes }, key);
+
+    public static Task<HttpResponseMessage> CashMovementAsync(HttpClient client, Guid registerId, string type, decimal amount, string reason = "Motivo de prueba", string? key = null) =>
+        PostWithKeyAsync(client, $"/api/v1/cash-registers/{registerId}/movements", new { type, amount, reason }, key);
 
     public static async Task<Guid> CreateRoleAsync(HttpClient owner, string name, bool allBranches, params string[] permissions)
     {

@@ -327,7 +327,7 @@ public class PaymentTests(ApiFixture api)
     }
 
     [Fact]
-    public async Task El_efectivo_se_rechaza_hasta_que_exista_una_caja_abierta()
+    public async Task El_efectivo_sin_una_caja_abierta_se_rechaza()
     {
         var s = await NewSetupAsync();
 

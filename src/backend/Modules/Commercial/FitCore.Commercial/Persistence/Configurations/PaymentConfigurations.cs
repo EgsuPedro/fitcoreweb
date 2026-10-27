@@ -24,6 +24,8 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 
         b.HasOne<Member>().WithMany().HasForeignKey(x => new { x.TenantId, x.MemberId })
             .HasPrincipalKey(x => new { x.TenantId, x.Id }).OnDelete(DeleteBehavior.Restrict);
+        b.HasOne<CashSession>().WithMany().HasForeignKey(x => new { x.TenantId, x.CashSessionId })
+            .HasPrincipalKey(x => new { x.TenantId, x.Id }).OnDelete(DeleteBehavior.Restrict);
         b.HasMany(x => x.Allocations).WithOne()
             .HasForeignKey(x => new { x.TenantId, x.PaymentId })
             .HasPrincipalKey(x => new { x.TenantId, x.Id })

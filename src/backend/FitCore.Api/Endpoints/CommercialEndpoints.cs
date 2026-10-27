@@ -1,6 +1,7 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Commercial.Application.Billing;
+using FitCore.Commercial.Application.Cash;
 using FitCore.Commercial.Application.Members;
 using FitCore.Commercial.Application.Memberships;
 using FitCore.Commercial.Application.Plans;
@@ -22,6 +23,13 @@ internal static class CommercialEndpoints
         MapMemberships(routes.MapGroup("/memberships").WithTags("Memberships"));
         MapObligations(routes.MapGroup("/payment-obligations").WithTags("Payment obligations"));
         MapPayments(routes.MapGroup("/payments").WithTags("Payments"));
+        MapCash(routes.MapGroup("/cash-registers").WithTags("Cash"));
+        routes.MapGet("/receivables/summary", async (IDispatcher dispatcher, CancellationToken ct, Guid? branchId = null, int top = 20) =>
+                (await dispatcher.QueryAsync(new GetReceivablesSummaryQuery(branchId, top), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ObligationsRead)
+            .Produces<ReceivablesSummaryDto>()
+            .WithTags("Receivables")
+            .WithName("GetReceivablesSummary");
         MapSettingsAndTaxes(routes);
         return routes;
     }
@@ -248,6 +256,68 @@ internal static class CommercialEndpoints
             .WithValidation<ReversePaymentRequest>()
             .Produces<PaymentDto>()
             .WithName("ReversePayment");
+    }
+    private static void MapCash(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, Guid? branchId = null, bool? isActive = null, string? search = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListCashRegistersQuery(new PageRequest(page, pageSize), branchId, isActive, search), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.CashRead)
+            .Produces<PagedResult<CashRegisterDto>>()
+            .WithName("ListCashRegisters");
+
+        group.MapPost("/", async (CreateCashRegisterRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateCashRegisterCommand(request), ct)).ToHttp(r => Results.Created($"/api/v1/cash-registers/{r.Id}", r)))
+            .RequirePermission(Permissions.CashManage)
+            .WithValidation<CreateCashRegisterRequest>()
+            .Produces<CashRegisterDto>(StatusCodes.Status201Created)
+            .WithName("CreateCashRegister");
+
+        group.MapPut("/{id:guid}", async (Guid id, UpdateCashRegisterRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdateCashRegisterCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.CashManage)
+            .WithValidation<UpdateCashRegisterRequest>()
+            .Produces<CashRegisterDto>()
+            .WithName("UpdateCashRegister");
+
+        // Abrir, cerrar y mover dinero exigen Idempotency-Key, igual que los pagos.
+        group.MapPost("/{id:guid}/open", async (Guid id, OpenCashRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new OpenCashCommand(id, request, idempotencyKey), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.CashOperate)
+            .WithValidation<OpenCashRequest>()
+            .Produces<CashSessionDto>()
+            .WithName("OpenCashRegister");
+
+        group.MapPost("/{id:guid}/close", async (Guid id, CloseCashRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CloseCashCommand(id, request, idempotencyKey), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.CashOperate)
+            .WithValidation<CloseCashRequest>()
+            .Produces<CashSessionDto>()
+            .WithName("CloseCashRegister");
+
+        group.MapPost("/{id:guid}/movements", async (Guid id, CashMovementRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new AddCashMovementCommand(id, request, idempotencyKey), ct)).ToHttp(m => Results.Created($"/api/v1/cash-registers/{id}/movements", m)))
+            .RequirePermission(Permissions.CashOperate)
+            .WithValidation<CashMovementRequest>()
+            .Produces<CashMovementDto>(StatusCodes.Status201Created)
+            .WithName("AddCashMovement");
+
+        group.MapGet("/{id:guid}/movements", async (Guid id, IDispatcher dispatcher, CancellationToken ct, Guid? sessionId = null, CashMovementType? type = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListCashMovementsQuery(id, sessionId, type, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.CashRead)
+            .Produces<PagedResult<CashMovementDto>>()
+            .WithName("ListCashMovements");
+
+        group.MapGet("/{id:guid}/sessions", async (Guid id, IDispatcher dispatcher, CancellationToken ct, CashSessionStatus? status = null, DateOnly? from = null, DateOnly? to = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListCashSessionsQuery(id, new PageRequest(page, pageSize), status, from, to), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.CashRead)
+            .Produces<PagedResult<CashSessionDto>>()
+            .WithName("ListCashSessions");
+
+        group.MapGet("/{id:guid}/sessions/{sessionId:guid}", async (Guid id, Guid sessionId, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetCashSessionQuery(id, sessionId), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.CashRead)
+            .Produces<CashSessionDto>()
+            .WithName("GetCashSession");
     }
     private static void MapSettingsAndTaxes(IEndpointRouteBuilder routes)
     {

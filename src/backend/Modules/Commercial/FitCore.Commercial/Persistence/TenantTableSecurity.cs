@@ -61,5 +61,34 @@ internal static class TenantTableSecurity
             END
             $do$;
             """);
+
+        AppendOnlyRevokes(migrationBuilder);
     }
+
+    /// <summary>
+    /// Tablas que el rol de la aplicación solo puede agregar (o solo cambiar de estado), nunca borrar. Como cada migración
+    /// repite los permisos del esquema, estas restricciones se reaplican siempre al final: así una migración posterior no las deshace.
+    /// </summary>
+    private static void AppendOnlyRevokes(MigrationBuilder migrationBuilder) =>
+        migrationBuilder.Sql("""
+            DO $do$
+            DECLARE r record;
+            BEGIN
+              IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'fitcore_app') THEN
+                FOR r IN SELECT * FROM (VALUES
+                  ('billing.payments', 'DELETE'),
+                  ('billing.payment_allocations', 'UPDATE, DELETE'),
+                  ('members.membership_events', 'UPDATE, DELETE'),
+                  ('cash.cash_registers', 'DELETE'),
+                  ('cash.cash_sessions', 'DELETE'),
+                  ('cash.cash_movements', 'UPDATE, DELETE')
+                ) AS t(tbl, privs) LOOP
+                  IF to_regclass(r.tbl) IS NOT NULL THEN
+                    EXECUTE format('REVOKE %s ON %s FROM fitcore_app', r.privs, r.tbl);
+                  END IF;
+                END LOOP;
+              END IF;
+            END
+            $do$;
+            """);
 }

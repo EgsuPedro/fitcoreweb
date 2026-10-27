@@ -22,6 +22,227 @@ namespace FitCore.Commercial.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("FitCore.Commercial.Domain.CashMovement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Direction")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("direction");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("payment_id");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid>("SessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("session_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_cash_movements");
+
+                    b.HasIndex("TenantId", "PaymentId")
+                        .HasDatabaseName("ix_cash_movements_tenant_id_payment_id");
+
+                    b.HasIndex("TenantId", "SessionId", "CreatedAt")
+                        .HasDatabaseName("ix_cash_movements_tenant_id_session_id_created_at");
+
+                    b.ToTable("cash_movements", "cash");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.CashRegister", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("AllowMultipleOpenSessions")
+                        .HasColumnType("boolean")
+                        .HasColumnName("allow_multiple_open_sessions");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_cash_registers");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_cash_registers_tenant_id_id");
+
+                    b.HasIndex("TenantId", "BranchId", "IsActive")
+                        .HasDatabaseName("ix_cash_registers_tenant_id_branch_id_is_active");
+
+                    b.ToTable("cash_registers", "cash");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.CashSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("CloseNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("close_notes");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<Guid?>("ClosedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("closed_by");
+
+                    b.Property<decimal?>("CountedAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("counted_amount");
+
+                    b.Property<decimal?>("Difference")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("difference");
+
+                    b.Property<bool>("Exclusive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("exclusive");
+
+                    b.Property<decimal?>("ExpectedAtClose")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("expected_at_close");
+
+                    b.Property<string>("OpenNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("open_notes");
+
+                    b.Property<DateTimeOffset>("OpenedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("opened_at");
+
+                    b.Property<Guid>("OpenedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("opened_by");
+
+                    b.Property<decimal>("OpeningAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("opening_amount");
+
+                    b.Property<Guid>("RegisterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("register_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_cash_sessions");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_cash_sessions_tenant_id_id");
+
+                    b.HasIndex("TenantId", "BranchId", "OpenedAt")
+                        .HasDatabaseName("ix_cash_sessions_tenant_id_branch_id_opened_at");
+
+                    b.HasIndex("TenantId", "OpenedBy", "Status")
+                        .HasDatabaseName("ix_cash_sessions_tenant_id_opened_by_status");
+
+                    b.HasIndex("TenantId", "RegisterId", "Status")
+                        .HasDatabaseName("ix_cash_sessions_tenant_id_register_id_status");
+
+                    b.ToTable("cash_sessions", "cash");
+                });
+
             modelBuilder.Entity("FitCore.Commercial.Domain.CommercialSettings", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -604,6 +825,10 @@ namespace FitCore.Commercial.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("branch_id");
 
+                    b.Property<Guid?>("CashSessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("cash_session_id");
+
                     b.Property<DateTimeOffset?>("ConfirmedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("confirmed_at");
@@ -689,6 +914,9 @@ namespace FitCore.Commercial.Persistence.Migrations
 
                     b.HasAlternateKey("TenantId", "Id")
                         .HasName("ak_payments_tenant_id_id");
+
+                    b.HasIndex("TenantId", "CashSessionId")
+                        .HasDatabaseName("ix_payments_tenant_id_cash_session_id");
 
                     b.HasIndex("TenantId", "ReceiptNumber")
                         .IsUnique()
@@ -1247,6 +1475,35 @@ namespace FitCore.Commercial.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("FitCore.Commercial.Domain.CashMovement", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PaymentId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_cash_movements_payments_tenant_id_payment_id");
+
+                    b.HasOne("FitCore.Commercial.Domain.CashSession", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "SessionId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_cash_movements_cash_sessions_tenant_id_session_id");
+                });
+
+            modelBuilder.Entity("FitCore.Commercial.Domain.CashSession", b =>
+                {
+                    b.HasOne("FitCore.Commercial.Domain.CashRegister", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "RegisterId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_cash_sessions_cash_registers_tenant_id_register_id");
+                });
+
             modelBuilder.Entity("FitCore.Commercial.Domain.Membership", b =>
                 {
                     b.HasOne("FitCore.Commercial.Domain.Member", null)
@@ -1286,6 +1543,13 @@ namespace FitCore.Commercial.Persistence.Migrations
 
             modelBuilder.Entity("FitCore.Commercial.Domain.Payment", b =>
                 {
+                    b.HasOne("FitCore.Commercial.Domain.CashSession", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CashSessionId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_payments_cash_sessions_tenant_id_cash_session_id");
+
                     b.HasOne("FitCore.Commercial.Domain.Member", null)
                         .WithMany()
                         .HasForeignKey("TenantId", "MemberId")

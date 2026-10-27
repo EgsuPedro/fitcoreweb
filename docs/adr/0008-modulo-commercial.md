@@ -64,13 +64,23 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 - **Concurrencia:** cada pago bloquea sus obligaciones con `SELECT … FOR UPDATE` (en orden de id) antes de calcular el disponible. Diez abonos simultáneos de 10,00 sobre 34,50: entran exactamente tres. Un trigger en la base es el respaldo: las asignaciones de pagos no revertidos nunca superan lo exigible.
 - **Idempotencia:** `POST /payments`, `/payments/{id}/confirm` y `/payments/{id}/reverse` exigen `Idempotency-Key` (hasta 100 caracteres). Repetir la clave con el mismo contenido y usuario devuelve la respuesta original sin duplicar; con otro contenido u otro usuario, 422. Ocho solicitudes simultáneas con la misma clave producen un solo pago.
 - **Importe y asignaciones:** el cliente nunca envía un saldo ni "total pagado": el backend verifica. Sin asignaciones, el pago cubre las obligaciones abiertas del alumno de la más antigua a la más nueva. No hay saldo a favor: el importe no puede superar lo pendiente.
-- **Medios:** tarjeta y otros medios se confirman al registrarse (tarjeta: referencia de voucher obligatoria; otros: nombre del medio). Transferencia: referencia obligatoria y queda pendiente hasta que alguien con `payments.confirm` la confirme. **Efectivo: se rechaza hasta el bloque 6** (exige caja abierta). Nunca se guarda un número de tarjeta: una referencia que parece uno (13–19 dígitos que cumplen Luhn) se rechaza.
+- **Medios:** tarjeta y otros medios se confirman al registrarse (tarjeta: referencia de voucher obligatoria; otros: nombre del medio). Transferencia: referencia obligatoria y queda pendiente hasta que alguien con `payments.confirm` la confirme. Efectivo: ver "Reglas de caja". Nunca se guarda un número de tarjeta: una referencia que parece uno (13–19 dígitos que cumplen Luhn) se rechaza.
 - **Inmutabilidad:** un pago no se modifica ni se borra. Un reverso cambia su estado, exige motivo y deja responsable y fecha. La base lo garantiza: un trigger impide cambiar importe, medio, alumno o referencia, y reactivar un reverso; el rol de la aplicación no puede borrar pagos ni asignaciones, ni modificar o borrar el historial de membresías.
 - **Activación:** un pago confirmado activa la membresía según la política (`AllowUntilOverdue`: primer pago; `AllowWithMinimumPayment`: % mínimo; `RequireFullPayment`: saldada). Un reverso posterior **no** la desactiva: el acceso se decide con los saldos vigentes en el bloque de asistencia.
 - **Anular obligaciones:** `POST /payment-obligations/{id}/void` con motivo; no se puede si tiene pagos vigentes (primero se revierten). Cancelar una membresía anula su obligación solo si no tiene pagos; si los tiene, la conserva.
 - **Obligaciones manuales** (`POST /payment-obligations`): otros conceptos, con el IVA vigente desglosado y congelado.
 - **Recibo interno** (`GET /payments/{id}/receipt`): número `RC-000001` por gimnasio, líneas, total y quién lo recibió; aclara que no es factura tributaria.
 - **Historial de cambios** de un pago: queda en la auditoría (`Payment.Created/Updated`, `PaymentAllocation.Created`, `PaymentObligation.Updated`), sin datos de tarjeta.
+## Reglas de caja y cartera (bloque 6, implementadas)
+- **Sesiones:** una caja se abre con un saldo inicial y se cierra con un arqueo. Una caja admite una sola sesión abierta (configurable) y cada usuario solo puede tener una abierta. La aplicación lo valida y dos índices únicos parciales deciden cuando dos aperturas llegan a la vez.
+- **Saldo esperado = apertura + ingresos − egresos**, siempre calculado a partir de los movimientos. El cierre recibe solo el saldo *contado*: cualquier "esperado" que envíe el cliente se ignora. Si hay diferencia, la observación es obligatoria; se guarda con su signo (faltante o sobrante) y el esperado del momento del cierre.
+- **Efectivo:** un cobro en efectivo entra a la sesión abierta *del propio cajero* en la sucursal del alumno (la caja que abrió otra persona, o la de otra sucursal, no sirve). El pago, su asignación, el movimiento de caja y la actualización de la obligación van en una sola transacción.
+- **Reverso de un cobro en efectivo:** si la sesión original sigue abierta, el egreso se registra ahí (el efectivo nunca salió del cajón); si ya se cerró, sale de la caja abierta de quien revierte y exige efectivo suficiente. Nada de esto modifica una sesión cerrada.
+- **Movimientos manuales** (`ManualIn`/`ManualOut`): exigen motivo, `Idempotency-Key` y, si son egresos, efectivo suficiente (la caja nunca queda en negativo). Los cobros y reversos de efectivo no se pueden inventar a mano.
+- **Cierre vs. cobros:** cobros, reversos, movimientos y cierre bloquean la fila de la sesión (`FOR UPDATE`, siempre después de las obligaciones): mientras se cierra no entra dinero, y nada se registra después del cierre. Un trigger y la restricción de estado son el respaldo en la base.
+- **Quién cierra:** quien la abrió o un supervisor con `cash.manage` (indicando la sesión).
+- **Solo-anexado:** los movimientos no se modifican ni se borran (trigger y permisos); una sesión cerrada es definitiva; las sesiones y cajas no se borran. Las migraciones reaplican siempre estas restricciones para que una migración futura no las deshaga.
+- **Cartera** (`GET /receivables/summary`): lo que se debe hoy (exigible − cobrado), por antigüedad de vencimiento (al día, 1-30, 31-60, 61-90, más de 90), por sucursal y los principales deudores con su teléfono. Excluye obligaciones saldadas o anuladas; una transferencia pendiente de verificar sigue contando como deuda.
 ## Bloques
 | # | Bloque | Estado |
 |---|---|---|
@@ -80,7 +90,7 @@ Todas las tablas de tenant llevan `tenant_id`, filtro global de EF, **RLS forzad
 | 4 | Membresías (incluye la obligación de pago en lectura) | Hecho |
 | 4b | Notificaciones de WhatsApp (vencimientos) | Pendiente, después de las membresías |
 | 5 | Obligaciones, pagos y abonos (efectivo se habilita con la caja) | Hecho |
-| 6 | Caja | Pendiente |
+| 6 | Caja y cartera (incluye el efectivo) | Hecho |
 | 7 | Asistencia | Pendiente |
 | 8 | Angular | Pendiente |
 | 9 | Pruebas de regresión y documentación | Pendiente |

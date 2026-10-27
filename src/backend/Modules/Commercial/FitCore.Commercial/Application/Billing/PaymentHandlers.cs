@@ -1,4 +1,5 @@
 using FitCore.Application.Core;
+using FitCore.Commercial.Application.Cash;
 using FitCore.Commercial.Application.Members;
 using FitCore.Commercial.Application.Memberships;
 using FitCore.Commercial.Application.Settings;
@@ -87,12 +88,6 @@ internal sealed class CreatePaymentHandler(CommercialDbContext db, IAccessContex
 
         var request = command.Request;
         var key = command.IdempotencyKey!.Trim();
-
-        // El efectivo se habilita con la caja: exige una sesión de caja abierta para que el dinero quede cuadrado.
-        if (request.Method == PaymentMethod.Cash)
-        {
-            return PaymentErrorsApp.CashRequiresOpenSession;
-        }
 
         var member = await db.Members.AsNoTracking().VisibleTo(actor.Value).FirstOrDefaultAsync(m => m.Id == request.MemberId, cancellationToken);
         if (member is null)
@@ -198,7 +193,21 @@ internal sealed class CreatePaymentHandler(CommercialDbContext db, IAccessContex
             }
         }
 
-        // 3. El pago y sus asignaciones, juntos.
+        // 3. El efectivo entra a la sesión de caja abierta del propio cajero en la sucursal del alumno. Se bloquea la sesión
+        // (después de las obligaciones, siempre en ese orden) para que un cobro no entre mientras esa caja se cierra.
+        CashSession? cashSession = null;
+        if (request.Method == PaymentMethod.Cash)
+        {
+            var open = await CashLedger.RequireOpenSessionAsync(db, currentUser.UserId!.Value, member.BranchId, null, cancellationToken);
+            if (open.IsFailure)
+            {
+                return PaymentErrorsApp.CashRequiresOpenSession;
+            }
+
+            cashSession = open.Value;
+        }
+
+        // 4. El pago, sus asignaciones y, si es efectivo, su movimiento de caja: todo en la misma transacción.
         var receipt = $"RC-{await db.NextCounterAsync(member.TenantId, "receipt", cancellationToken):D6}";
         var payment = Payment.Create(
             member.TenantId,
@@ -208,11 +217,17 @@ internal sealed class CreatePaymentHandler(CommercialDbContext db, IAccessContex
             new PaymentDetails(request.Method, request.MethodDetail, request.Reference, request.BankName, paidAt, request.Notes),
             lines,
             currentUser.UserId,
-            now);
+            now,
+            cashSession?.Id);
         db.Payments.Add(payment);
+        if (cashSession is not null)
+        {
+            db.CashMovements.Add(CashMovement.Create(member.TenantId, cashSession, CashMovementType.CashPayment, payment.Amount, null, payment.Id, currentUser.UserId, now));
+        }
+
         await db.SaveChangesAsync(cancellationToken);
 
-        // 4. Un pago confirmado actualiza el estado de las obligaciones y puede activar membresías.
+        // 5. Un pago confirmado actualiza el estado de las obligaciones y puede activar membresías.
         var affected = obligations.Where(o => lines.Any(l => l.ObligationId == o.Id)).ToList();
         if (payment.Status == PaymentStatus.Confirmed)
         {
@@ -329,11 +344,43 @@ internal sealed class ReversePaymentHandler(CommercialDbContext db, IAccessConte
         var obligationIds = payment.Allocations.Select(a => a.ObligationId).ToList();
         await Ledger.LockAsync(db, obligationIds, cancellationToken);
 
+        // Un cobro en efectivo ya recibido sale de una caja: la original si sigue abierta (el efectivo nunca salió del cajón);
+        // si ya se cerró, de la caja abierta de quien revierte, porque el dinero se devuelve de ese cajón.
+        CashSession? cashTarget = null;
+        if (payment.Method == PaymentMethod.Cash && payment.Status == PaymentStatus.Confirmed)
+        {
+            var target = await ResolveReversalSessionAsync(payment, cancellationToken);
+            if (target.IsFailure)
+            {
+                return target.Error;
+            }
+
+            cashTarget = target.Value;
+            if (await CashLedger.ExpectedAsync(db, cashTarget, cancellationToken) < payment.Amount)
+            {
+                return CashErrorsApp.InsufficientFunds;
+            }
+        }
+
         // Los pagos no se borran: el reverso cambia su estado, deja motivo y responsable, y libera el saldo.
         var reversed = payment.Reverse(command.Request.Reason, currentUser.UserId, now);
         if (reversed.IsFailure)
         {
             return reversed.Error;
+        }
+
+        if (cashTarget is not null)
+        {
+            var reason = $"Reverso del recibo {payment.ReceiptNumber}: {command.Request.Reason.Trim()}";
+            db.CashMovements.Add(CashMovement.Create(
+                payment.TenantId,
+                cashTarget,
+                CashMovementType.PaymentReversal,
+                payment.Amount,
+                reason.Length > 300 ? reason[..300] : reason,
+                payment.Id,
+                currentUser.UserId,
+                now));
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -345,6 +392,22 @@ internal sealed class ReversePaymentHandler(CommercialDbContext db, IAccessConte
         await Idempotency.CompleteAsync(db, actor.Value.TenantId, key, 200, dto, cancellationToken);
         await transaction.CommitAsync(cancellationToken);
         return dto;
+    }
+
+    private async Task<Result<CashSession>> ResolveReversalSessionAsync(Payment payment, CancellationToken cancellationToken)
+    {
+        if (payment.CashSessionId is { } originalId)
+        {
+            await CashLedger.LockSessionAsync(db, originalId, cancellationToken);
+            var original = await db.CashSessions.FirstOrDefaultAsync(s => s.Id == originalId && s.Status == CashSessionStatus.Open, cancellationToken);
+            if (original is not null)
+            {
+                return original;
+            }
+        }
+
+        var current = await CashLedger.RequireOpenSessionAsync(db, currentUser.UserId!.Value, payment.BranchId, null, cancellationToken);
+        return current.IsFailure ? PaymentErrorsApp.ReversalRequiresOpenSession : current.Value;
     }
 }
 

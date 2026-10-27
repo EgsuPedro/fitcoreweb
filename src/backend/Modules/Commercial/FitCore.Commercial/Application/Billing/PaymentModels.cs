@@ -26,6 +26,7 @@ public sealed record PaymentDto(
     string? BankName,
     DateTimeOffset PaidAt,
     string? Notes,
+    Guid? CashSessionId,
     IReadOnlyList<PaymentLineDto> Allocations,
     DateTimeOffset? ConfirmedAt,
     Guid? ConfirmedBy,
@@ -163,7 +164,8 @@ internal static class CardNumber
 internal static class PaymentErrorsApp
 {
     public static readonly Error NotFound = Error.NotFound("payments.not_found", "Pago no encontrado.");
-    public static readonly Error CashRequiresOpenSession = Error.Validation("payments.cash_requires_open_cash_session", "Los pagos en efectivo requieren una caja abierta.");
+    public static readonly Error CashRequiresOpenSession = Error.Validation("payments.cash_requires_open_cash_session", "Los pagos en efectivo requieren que tenga una caja abierta en la sucursal del alumno.");
+    public static readonly Error ReversalRequiresOpenSession = Error.Validation("payments.reversal_requires_open_cash_session", "Para revertir un cobro en efectivo de una caja ya cerrada necesita una caja abierta en la sucursal.");
     public static readonly Error ExceedsBalance = Error.Validation("payments.exceeds_balance", "El importe supera el saldo pendiente de las obligaciones.");
     public static readonly Error AllocationMismatch = Error.Validation("payments.allocation_mismatch", "La suma de las asignaciones no coincide con el importe del pago.");
     public static readonly Error ObligationNotPayable = Error.Validation("payments.obligation_not_payable", "La obligación está anulada o ya está pagada.");
@@ -207,6 +209,7 @@ internal static class PaymentQueries
                     p.BankName,
                     p.PaidAt,
                     p.Notes,
+                    p.CashSessionId,
                     [.. p.Allocations.OrderBy(a => obligations[a.ObligationId].Reference).Select(a =>
                         new PaymentLineDto(a.ObligationId, obligations[a.ObligationId].Reference, obligations[a.ObligationId].Concept, a.Amount))],
                     p.ConfirmedAt,

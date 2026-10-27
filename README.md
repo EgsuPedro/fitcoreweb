@@ -67,7 +67,7 @@ Invoke-RestMethod "$base/platform/tenants" -Method Post -Headers $h -ContentType
 | Gimnasio | `GET/PUT /organization` |
 | Sucursales | `GET/POST /branches`, `GET/PUT /branches/{id}` |
 | Usuarios | `GET/POST /users`, `GET /users/{id}`, `PUT /users/{id}/access`, `PUT /users/{id}/status` |
-| Roles y auditoría | `GET /roles`, `GET /permissions`, `GET /audit-logs` |
+| Roles y auditoría | `GET/POST /roles`, `PUT/DELETE /roles/{id}`, `GET /permissions`, `GET /audit-logs` |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
 

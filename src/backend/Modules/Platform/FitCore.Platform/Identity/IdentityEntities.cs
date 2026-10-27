@@ -11,7 +11,7 @@ public sealed class AppUser : IdentityUser<Guid>, ITenantOwned, IAuditable
     public DateTimeOffset CreatedAt { get; set; }
 }
 
-public sealed class AppRole : IdentityRole<Guid>, ITenantOwned
+public sealed class AppRole : IdentityRole<Guid>, ITenantOwned, IAuditable
 {
     public Guid TenantId { get; set; }
     public string? Description { get; set; }
@@ -35,7 +35,7 @@ public sealed class PermissionEntity
     public string Description { get; set; } = string.Empty;
 }
 
-public sealed class RolePermission : ITenantOwned
+public sealed class RolePermission : ITenantOwned, IAuditable
 {
     public Guid TenantId { get; set; }
     public Guid RoleId { get; set; }

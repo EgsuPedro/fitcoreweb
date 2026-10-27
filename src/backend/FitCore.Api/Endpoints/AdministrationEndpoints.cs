@@ -79,6 +79,26 @@ internal static class AdministrationEndpoints
             .WithTags("Roles")
             .WithName("ListRoles");
 
+        routes.MapPost("/roles", async (CreateRoleRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateRoleCommand(request), ct)).ToHttp(r => Results.Created($"/api/v1/roles/{r.Id}", r)))
+            .RequirePermission(Permissions.RolesManage)
+            .WithValidation<CreateRoleRequest>()
+            .WithTags("Roles")
+            .WithName("CreateRole");
+
+        routes.MapPut("/roles/{id:guid}", async (Guid id, UpdateRoleRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdateRoleCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.RolesManage)
+            .WithValidation<UpdateRoleRequest>()
+            .WithTags("Roles")
+            .WithName("UpdateRole");
+
+        routes.MapDelete("/roles/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DeleteRoleCommand(id), ct)).ToHttp(_ => Results.NoContent()))
+            .RequirePermission(Permissions.RolesManage)
+            .WithTags("Roles")
+            .WithName("DeleteRole");
+
         routes.MapGet("/permissions", async (IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new ListPermissionsQuery(), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.RolesRead)

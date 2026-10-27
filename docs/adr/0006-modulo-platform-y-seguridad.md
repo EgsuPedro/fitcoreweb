@@ -29,8 +29,16 @@ Organizaciones (tenants y sucursales), Identity, auditoría y outbox viven junto
 
 Además: `audit.audit_logs` es append-only (el rol de la aplicación solo tiene `SELECT` e `INSERT`).
 
+## Gestión de roles
+`POST /roles`, `PUT /roles/{id}` y `DELETE /roles/{id}` exigen `roles.manage`.
+- Solo se pueden conceder permisos que el actor posee, y `GrantsAllBranches` solo si el actor accede a todas las sucursales.
+- No se puede modificar un rol cuyo alcance supere el del actor.
+- Los permisos de plataforma (`platform.*`) nunca se conceden desde la API de un gimnasio.
+- El rol **Propietario** es inmutable e indeleble, y siempre tiene todos los permisos de gimnasio: al arrancar, `DatabaseInitializer` se los agrega a los gimnasios existentes cuando el catálogo crece.
+- Los roles de plantilla se pueden ajustar pero no renombrar ni eliminar; un rol asignado a usuarios no se elimina.
+- Los cambios en roles y sus permisos quedan auditados y surten efecto en la siguiente solicitud de cada usuario.
+
 ## Pendiente y limitaciones conocidas
-- `FindByIdAsync` de Identity usa `FindAsync` y **no aplica el filtro global**; el código usa consultas sobre `db.Users`. RLS lo cubriría igual.
-- Edición de roles y permisos por tenant (Fase 2B).
+- `FindByIdAsync` de Identity y `Find/FindAsync` de EF leen por clave y **no aplican el filtro global**. El código no los usa y un test de arquitectura (`ForbiddenApiTests`) rompe el build si alguien los introduce; RLS lo cubriría igual.
 - Particionado mensual de `audit_logs` (cuando el volumen lo pida).
 - Las migraciones en producción deben ejecutarse como un paso de despliegue con el usuario propietario; `Database:AutoMigrate` es solo para desarrollo y pruebas.

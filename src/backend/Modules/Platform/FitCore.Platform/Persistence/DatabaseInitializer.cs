@@ -94,7 +94,31 @@ public static class DatabaseInitializer
         }
 
         await db.SaveChangesAsync(cancellationToken);
+        await SyncOwnerRolesAsync(db, cancellationToken);
     }
+
+    /// <summary>
+    /// El rol Propietario (inmutable) siempre tiene todos los permisos de gimnasio: cuando se agrega un permiso al catálogo,
+    /// los gimnasios existentes lo reciben aquí. Se fija el tenant por gimnasio para respetar RLS.
+    /// </summary>
+    private static async Task SyncOwnerRolesAsync(PlatformDbContext db, CancellationToken cancellationToken) =>
+        await db.Database.ExecuteSqlRawAsync(
+            """
+            DO $do$
+            DECLARE t record;
+            BEGIN
+              FOR t IN SELECT id FROM organizations.tenants LOOP
+                PERFORM set_config('app.tenant_id', t.id::text, true);
+                INSERT INTO identity.role_permissions (tenant_id, role_id, permission_code)
+                SELECT r.tenant_id, r.id, p.code
+                FROM identity.app_roles r CROSS JOIN identity.permissions p
+                WHERE r.tenant_id = t.id AND r.is_system AND r.name = 'Propietario' AND p.code NOT LIKE 'platform.%'
+                ON CONFLICT DO NOTHING;
+              END LOOP;
+            END
+            $do$;
+            """,
+            cancellationToken);
 
     private static async Task BootstrapPlatformAdminAsync(IServiceProvider services, ILogger logger, CancellationToken cancellationToken)
     {

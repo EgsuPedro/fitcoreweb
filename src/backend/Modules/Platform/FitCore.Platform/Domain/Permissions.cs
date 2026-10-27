@@ -19,6 +19,7 @@ public static class Permissions
     public const string UsersUpdate = "users.update";
 
     public const string RolesRead = "roles.read";
+    public const string RolesManage = "roles.manage";
 
     public const string AuditRead = "audit.read";
 
@@ -34,6 +35,7 @@ public static class Permissions
         new(UsersCreate, "users", "Crear usuarios"),
         new(UsersUpdate, "users", "Editar usuarios, roles y sucursales"),
         new(RolesRead, "roles", "Ver roles y permisos"),
+        new(RolesManage, "roles", "Crear, editar y eliminar roles"),
         new(AuditRead, "audit", "Consultar la auditoría")
     ];
 

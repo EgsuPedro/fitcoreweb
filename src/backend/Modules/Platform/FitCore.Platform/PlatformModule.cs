@@ -2,6 +2,7 @@ using FitCore.Application.Core;
 using FitCore.Infrastructure.Core;
 using FitCore.Platform.Application;
 using FitCore.Platform.Application.Auth;
+using FitCore.Platform.Application.Roles;
 using FitCore.Platform.Application.Tenants;
 using FitCore.Platform.Application.Users;
 using FitCore.Platform.Identity;
@@ -68,6 +69,7 @@ public static class PlatformModule
         services.AddScoped<SessionService>();
         services.AddScoped<SecurityAudit>();
         services.AddScoped<UserAdministration>();
+        services.AddScoped<RoleAdministration>();
         services.AddScoped<TenantProvisioningService>();
 
         services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>(includeInternalTypes: true);

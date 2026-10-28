@@ -28,10 +28,17 @@ public sealed record ReportHeader(
 
 internal static class Paging
 {
+    /// <summary>Tamaño máximo interno de una página de reporte (la API limita a 100; la exportación pide páginas más grandes).</summary>
+    public const int MaxReportPageSize = 1000;
+
+    public static int ReportSize(this PageRequest page) => Math.Clamp(page.PageSize, 1, MaxReportPageSize);
+
+    public static int ReportSkip(this PageRequest page) => (page.SafePage - 1) * page.ReportSize();
+
     public static async Task<PagedResult<T>> ToPagedAsync<T>(this IQueryable<T> query, PageRequest page, CancellationToken cancellationToken)
     {
         var total = await query.CountAsync(cancellationToken);
-        var items = await query.Skip(page.Skip).Take(page.SafePageSize).ToListAsync(cancellationToken);
-        return new PagedResult<T>(items, page.SafePage, page.SafePageSize, total);
+        var items = await query.Skip(page.ReportSkip()).Take(page.ReportSize()).ToListAsync(cancellationToken);
+        return new PagedResult<T>(items, page.SafePage, page.ReportSize(), total);
     }
 }

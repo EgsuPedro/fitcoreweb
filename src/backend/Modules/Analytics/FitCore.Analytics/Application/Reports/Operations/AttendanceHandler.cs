@@ -178,8 +178,8 @@ internal sealed class GetAttendanceHandler(AnalyticsDbContext db, IAccessContext
 
     private async Task<PagedResult<MemberVisitsDto>> MembersAsync(PageRequest page, Guid tenant, string zone, Guid[] ids, DateTimeOffset start, DateTimeOffset end, int totalMembers, CancellationToken ct)
     {
-        var take = page.SafePageSize;
-        var skip = page.Skip;
+        var take = page.ReportSize();
+        var skip = page.ReportSkip();
         var rows = await db.Database.SqlQuery<VisitorRow>($"""
             SELECT member_id AS member_id, COUNT(*)::int AS visits, COUNT(DISTINCT (check_in_at AT TIME ZONE {zone})::date)::int AS days, MAX(check_in_at) AS last_visit
             FROM access.attendance

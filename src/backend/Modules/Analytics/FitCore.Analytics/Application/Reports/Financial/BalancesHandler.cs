@@ -100,7 +100,7 @@ internal sealed class GetOutstandingHandler(AnalyticsDbContext db, IAccessContex
         });
         var total = await grouped.CountAsync(ct);
         var pageRows = await grouped.OrderByDescending(g => g.Overdue).ThenByDescending(g => g.Outstanding).ThenBy(g => g.MemberId)
-            .Skip(page.Skip).Take(page.SafePageSize).ToListAsync(ct);
+            .Skip(page.ReportSkip()).Take(page.ReportSize()).ToListAsync(ct);
         var ids = pageRows.Select(r => r.MemberId).ToList();
         var names = await db.Members.Where(m => ids.Contains(m.Id)).Select(m => new { m.Id, m.Code, m.FirstName, m.LastName }).ToDictionaryAsync(m => m.Id, ct);
         var items = pageRows.Select(r =>
@@ -108,7 +108,7 @@ internal sealed class GetOutstandingHandler(AnalyticsDbContext db, IAccessContex
             var member = names[r.MemberId];
             return new MemberBalanceDto(r.MemberId, member.Code, $"{member.FirstName} {member.LastName}", r.Outstanding, r.Overdue, r.Oldest, r.Open);
         }).ToList();
-        return new PagedResult<MemberBalanceDto>(items, page.SafePage, page.SafePageSize, total);
+        return new PagedResult<MemberBalanceDto>(items, page.SafePage, page.ReportSize(), total);
     }
 
     private async Task<PagedResult<ObligationBalanceDto>> ObligationRowsAsync(IQueryable<OpenBalance> open, Dictionary<Guid, string> branchNames, DateOnly today, PageRequest page, CancellationToken ct)
@@ -133,7 +133,7 @@ internal sealed class GetOutstandingHandler(AnalyticsDbContext db, IAccessContex
                        b.Remaining
                    };
         var total = await rows.CountAsync(ct);
-        var pageRows = await rows.Skip(page.Skip).Take(page.SafePageSize).ToListAsync(ct);
+        var pageRows = await rows.Skip(page.ReportSkip()).Take(page.ReportSize()).ToListAsync(ct);
         var items = pageRows.Select(r =>
         {
             var days = Math.Max(0, today.DayNumber - r.DueDate.DayNumber);
@@ -154,6 +154,6 @@ internal sealed class GetOutstandingHandler(AnalyticsDbContext db, IAccessContex
                 days,
                 days > 0 ? "Overdue" : r.Remaining < r.PayableAmount ? "PartiallyPaid" : "Pending");
         }).ToList();
-        return new PagedResult<ObligationBalanceDto>(items, page.SafePage, page.SafePageSize, total);
+        return new PagedResult<ObligationBalanceDto>(items, page.SafePage, page.ReportSize(), total);
     }
 }

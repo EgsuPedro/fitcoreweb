@@ -102,7 +102,7 @@ Proyección de las columnas necesarias, agregaciones en PostgreSQL, sin N+1, fil
 | 5 | Reportes de alumnos y membresías (resumen, altas y bajas, retención, renovación, vencimientos) | Hecho |
 | 6 | Reportes operativos y de clases (asistencia al gimnasio, ocupación, demanda, cancelaciones) | Hecho |
 | 7 | Comparación entre sucursales (`/reports/branches/comparison`) | Hecho |
-| 8 | Exportaciones CSV (migración `report_exports`, vencimiento, descarga protegida) | Pendiente |
+| 8 | Exportaciones CSV (migración `report_exports`, vencimiento, descarga protegida) | Hecho |
 | 9 | Angular: dashboard, reportes, comparación, exportaciones | Pendiente |
 | 10 | Rendimiento medido, regresión, documentación e informe de la fase | Pendiente |
 

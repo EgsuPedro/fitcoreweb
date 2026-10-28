@@ -253,13 +253,13 @@ internal sealed class GetClassOccupancyHandler(AnalyticsDbContext db, IAccessCon
                    orderby s.StartsAt descending, s.Id
                    select new { s, Instructor = u.FullName };
         var total = await rows.CountAsync(ct);
-        var pageRows = await rows.Skip(page.Skip).Take(page.SafePageSize).ToListAsync(ct);
+        var pageRows = await rows.Skip(page.ReportSkip()).Take(page.ReportSize()).ToListAsync(ct);
         var items = pageRows.Select(r => new SessionOccupancyDto(
             r.s.Id, r.s.StartsAt, r.s.ClassName, r.s.Activity, r.Instructor, r.s.BranchId, branchNames.GetValueOrDefault(r.s.BranchId, string.Empty),
             r.s is { Status: "Scheduled", EndsAt: var ends } && ends < now ? "PendingClosure" : r.s.Status,
             r.s.Capacity, r.s.Confirmed, r.s.Waitlisted, r.s.Attended, r.s.NoShow,
             r.s.Status != "Cancelled" ? ClassReports.Percent(r.s.Confirmed, r.s.Capacity) : null)).ToList();
-        return new PagedResult<SessionOccupancyDto>(items, page.SafePage, page.SafePageSize, total);
+        return new PagedResult<SessionOccupancyDto>(items, page.SafePage, page.ReportSize(), total);
     }
 }
 
@@ -323,10 +323,10 @@ internal sealed class GetClassCancellationsHandler(AnalyticsDbContext db, IAcces
                             Affected = db.Reservations.Count(r => r.SessionId == s.Id && r.Status == "Cancelled" && r.CancelledAt >= s.CancelledAt!.Value.AddSeconds(-5))
                         };
         var total = await cancelled.CountAsync(cancellationToken);
-        var pageRows = await cancelled.Skip(query.Page.Skip).Take(query.Page.SafePageSize).ToListAsync(cancellationToken);
+        var pageRows = await cancelled.Skip(query.Page.ReportSkip()).Take(query.Page.ReportSize()).ToListAsync(cancellationToken);
         var list = new PagedResult<CancelledSessionDto>(
             pageRows.Select(r => new CancelledSessionDto(r.Id, r.StartsAt, r.CancelledAt, r.ClassName, r.Instructor, r.BranchName, r.CancelReason, r.Affected)).ToList(),
-            query.Page.SafePage, query.Page.SafePageSize, total);
+            query.Page.SafePage, query.Page.ReportSize(), total);
 
         return new ClassCancellationsReportDto(ReportHeader.Of(scope, periods, clock.UtcNow, "Inicio de la sesión, en la hora local"), instructorOnly, summary, byClass, list);
     }

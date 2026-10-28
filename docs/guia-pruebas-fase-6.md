@@ -1,6 +1,6 @@
-# Guía de validación manual — Fase 6 (analítica): bloques 2 a 7
+# Guía de validación manual — Fase 6 (analítica): bloques 2 a 8
 
-Hasta el bloque 7 la fase entrega **API** (contexto, dashboard, reportes financieros, de alumnos y membresías, operativos y de clases, y comparación de sucursales); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
+Hasta el bloque 8 la fase entrega **API** (contexto, dashboard, reportes financieros, de alumnos y membresías, operativos y de clases, comparación de sucursales y exportaciones a CSV); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
 
 ## 0. Preparación
 
@@ -173,6 +173,32 @@ Compruebe:
 5. **Subconjunto**: `?branchId=<Quito>&branchId=<Guayaquil>` o solo una; el total solo suma las elegidas. Una sucursal fuera de su alcance o de otro gimnasio → **403**.
 6. **Permisos por área**: `contador` ve cobros y alumnos pero **no** operación (las secciones de visitas y ocupación no viajan y `omittedSections` dice `operations`); `admin.uio` solo se compara con Quito; `cajero.gye`, `recepcion.uio` y `entrenador.uio` reciben **403**.
 
+### 3.10 Exportaciones a CSV (bloque 8)
+Cualquier reporte se puede exportar con los mismos filtros. Exige el permiso de **exportar** (propietario, administrador de sucursal y contador) **y** el del reporte. Desde la consola:
+
+```powershell
+./scripts/analytics-export.ps1 -DemoPassword 'DemoFit2026x' -Slug analitica -Domain analitica.fitcore.test -Reporte Collections
+./scripts/analytics-export.ps1 -DemoPassword 'DemoFit2026x' -Slug analitica -Domain analitica.fitcore.test -Reporte OutstandingBalances -Usuario contador
+```
+Reportes: `Collections`, `PaymentMethods`, `OutstandingBalances`, `CashRegisters`, `Reversals`, `MemberAcquisitions`, `MemberRetention`, `MemberRenewals`, `MemberExpirations`, `Attendance`, `ClassOccupancy`, `ClassCancellations`, `BranchComparison`. El script guarda el archivo en `%TEMP%\fitcore-exportaciones` y muestra las primeras filas.
+
+| Qué comprobar | Debe dar (propietario, `Last30Days`) |
+|---|---|
+| `Collections` | **11 filas** (los 11 pagos confirmados), 1.392 bytes aprox.; la primera fila es el encabezado con acentos correctos |
+| `OutstandingBalances` | 11 filas (una por alumno con saldo), ordenadas por lo vencido |
+| `BranchComparison` | 3 filas: Quito Norte, Guayaquil Centro y el total; igual a la comparación en pantalla |
+| Nombre del archivo | `reporte-cobros-AAAAMMDD-xxxxxxxx.csv`: nunca lleva nombres de alumnos |
+| `cajero.gye` | **403**: puede ver reportes financieros pero no tiene el permiso de exportar |
+| `contador` pidiendo `ClassOccupancy` | **403**: puede exportar, pero no tiene permiso sobre las clases |
+
+Más comprobaciones (con Swagger o el script):
+1. **Mismos filtros y alcance**: `POST /api/v1/reports/exports` acepta los mismos filtros del reporte (`preset`, `from`, `to`, `branchIds`, `planId`, `status`, `method`, `view`, `days`…). `admin.uio` solo exporta lo de Quito, y pedir Guayaquil → 403.
+2. **Archivo seguro para Excel**: UTF-8 con marca de orden de bytes, fin de línea CRLF, números con punto decimal y fechas en **hora local** (no UTC). Todo el texto va entre comillas y, si empieza por `=`, `+`, `-` o `@`, lleva un apóstrofo delante para que no se ejecute como fórmula (los números negativos, como una diferencia de −5,00, no se tocan).
+3. **Descarga protegida**: `GET /api/v1/reports/exports/{id}/download` exige sesión, el permiso de exportar y el del reporte, y **solo la puede hacer quien la pidió** (otro usuario, aunque sea del mismo gimnasio, recibe 404). Responde con `Cache-Control: private, no-store`. No existen enlaces públicos.
+4. **Vencimiento**: cada archivo dura 24 horas (`expiresAt`); después la descarga responde 404 `analytics.export_expired`, el archivo se borra y el registro queda como `Purged`. `GET /api/v1/reports/exports` lista las propias con su estado y el número de descargas.
+5. **Límites**: tope de **20.000 filas** por exportación (si se supera, se rechaza con 422 `analytics.export_too_large` y un mensaje para acotar los filtros, nunca se entrega un archivo recortado) y **10 exportaciones por hora y por usuario** (la undécima → 409 `analytics.export_rate_limited`).
+6. **Registro**: la tabla `analytics.report_exports` guarda quién, cuándo, qué reporte, filtros y filas (sin contenido); el servidor no puede borrar esos registros.
+
 ## 4. Usar Swagger en lugar del script
 1. Abra http://localhost:8080/swagger.
 2. `POST /api/v1/auth/login` con `{"tenantSlug":"analitica","email":"propietario@analitica.fitcore.test","password":"DemoFit2026x"}` y copie `accessToken`.
@@ -183,9 +209,10 @@ Compruebe:
    - `GET /api/v1/reports/financial/collections` · `…/payment-methods` · `…/outstanding-balances` · `…/cash-registers` · `…/reversals`
    - `GET /api/v1/reports/members/summary` · `…/acquisitions` · `…/retention` · `…/renewals` · `…/expirations`
    - `GET /api/v1/reports/attendance` · `…/reports/classes/occupancy` · `…/reports/classes/cancellations` · `…/reports/branches/comparison`
+   - `POST /api/v1/reports/exports` · `GET /api/v1/reports/exports` · `GET /api/v1/reports/exports/{id}` · `GET /api/v1/reports/exports/{id}/download`
 5. Parámetros comunes: `preset` (Today, Last7Days, Last30Days, CurrentMonth, PreviousMonth, CurrentYear, Custom), `from`/`to` (solo con Custom), `branchId` (repetible). Cobros: `status` (Confirmed, PendingVerification, Reversed, All), `method` (Cash, BankTransfer, Card, Other), `planId`, `page`, `pageSize`.
 
 ## 5. Qué NO está todavía
 - **Pantallas**: llegan en el bloque 9 (hoy se valida por API/consola).
-- Exportaciones CSV: bloque 8.
+- Pantallas de Angular (bloque 9), exportación a PDF (diferida: no hay biblioteca instalada) y medición de rendimiento con volumen (bloque 10).
 - Medición de rendimiento con volumen y revisión de planes de ejecución: bloque 10.

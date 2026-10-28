@@ -28,6 +28,9 @@ public sealed class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> opti
     internal DbSet<ClassAttendanceRef> ClassAttendances => Set<ClassAttendanceRef>();
     internal DbSet<UserRef> Users => Set<UserRef>();
     internal DbSet<GroupClassRef> GroupClasses => Set<GroupClassRef>();
+
+    // Lo único que este módulo escribe: el registro de sus exportaciones.
+    internal DbSet<ReportExport> Exports => Set<ReportExport>();
     internal DbSet<CashRegisterRef> CashRegisters => Set<CashRegisterRef>();
     internal DbSet<CashSessionRef> CashSessions => Set<CashSessionRef>();
     internal DbSet<CashMovementRef> CashMovements => Set<CashMovementRef>();
@@ -38,6 +41,9 @@ public sealed class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> opti
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.ApplyConfiguration(new ReportExportConfiguration());
+        modelBuilder.Entity<ReportExport>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
 
         modelBuilder.Entity<TenantRef>(b =>
         {

@@ -44,6 +44,16 @@ public sealed class ApiFixture : IAsyncLifetime
 
     public HttpClient CreateClient() => _factory!.CreateClient();
 
+    /// <summary>Un cliente de una segunda instancia de la API (misma base) con otra configuración: sirve para probar límites configurables.</summary>
+    public HttpClient CreateClientWith(params (string Key, string Value)[] settings) =>
+        _factory!.WithWebHostBuilder(builder =>
+        {
+            foreach (var (key, value) in settings)
+            {
+                builder.UseSetting(key, value);
+            }
+        }).CreateClient();
+
     public async Task InitializeAsync()
     {
         await _container.StartAsync();

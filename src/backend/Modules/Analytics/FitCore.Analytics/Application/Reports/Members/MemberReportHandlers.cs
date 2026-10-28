@@ -196,11 +196,11 @@ internal sealed class GetAcquisitionsHandler(AnalyticsDbContext db, IAccessConte
                    orderby m.CreatedAt descending, m.Id
                    select new { m.Id, m.CreatedAt, KindCode = kindCode, mem.Code, mem.FirstName, mem.LastName, m.BranchId, BranchName = br.Name, m.PlanName, m.StartDate, m.EndDate, m.Status, m.AgreedPrice };
         var total = await rows.CountAsync(ct);
-        var page = await rows.Skip(query.Page.Skip).Take(query.Page.SafePageSize).ToListAsync(ct);
+        var page = await rows.Skip(query.Page.ReportSkip()).Take(query.Page.ReportSize()).ToListAsync(ct);
         var items = page.Select(r => new MembershipRowDto(
             r.Id, r.CreatedAt, r.KindCode switch { 2 => "Renewal", 3 => "Reincorporation", _ => "New" }, r.Code, $"{r.FirstName} {r.LastName}", r.BranchId, r.BranchName,
             r.PlanName, r.StartDate, r.EndDate, MemberStatusMath.EffectiveStatus(r.Status, r.EndDate, today), r.AgreedPrice)).ToList();
-        return new PagedResult<MembershipRowDto>(items, query.Page.SafePage, query.Page.SafePageSize, total);
+        return new PagedResult<MembershipRowDto>(items, query.Page.SafePage, query.Page.ReportSize(), total);
     }
 }
 
@@ -270,9 +270,9 @@ internal sealed class GetRetentionHandler(AnalyticsDbContext db, IAccessContext 
                        LastEnd = db.Memberships.Where(x => x.MemberId == m.Id).OrderByDescending(x => x.EndDate).Select(x => (DateOnly?)x.EndDate).FirstOrDefault()
                    };
         var total = await lost.CountAsync(cancellationToken);
-        var page = await lost.Skip(query.Page.Skip).Take(query.Page.SafePageSize).ToListAsync(cancellationToken);
+        var page = await lost.Skip(query.Page.ReportSkip()).Take(query.Page.ReportSize()).ToListAsync(cancellationToken);
         var lostPage = new PagedResult<LostMemberDto>(
-            page.Select(r => new LostMemberDto(r.Code, $"{r.FirstName} {r.LastName}", r.BranchName, r.LastPlan, r.LastEnd)).ToList(), query.Page.SafePage, query.Page.SafePageSize, total);
+            page.Select(r => new LostMemberDto(r.Code, $"{r.FirstName} {r.LastName}", r.BranchName, r.LastPlan, r.LastEnd)).ToList(), query.Page.SafePage, query.Page.ReportSize(), total);
 
         return new RetentionReportDto(
             ReportHeader.Of(scope, periods, clock.UtcNow, "Alumnos activos el último día anterior al período (cohorte) y el último día del período"),
@@ -328,10 +328,10 @@ internal sealed class GetRenewalsHandler(AnalyticsDbContext db, IAccessContext a
                          orderby m.EndDate descending, mem.Code
                          select new { mem.Code, mem.FirstName, mem.LastName, BranchName = br.Name, m.PlanName, m.EndDate };
         var total = await notRenewed.CountAsync(cancellationToken);
-        var page = await notRenewed.Skip(query.Page.Skip).Take(query.Page.SafePageSize).ToListAsync(cancellationToken);
+        var page = await notRenewed.Skip(query.Page.ReportSkip()).Take(query.Page.ReportSize()).ToListAsync(cancellationToken);
         var list = new PagedResult<NotRenewedDto>(
             page.Select(r => new NotRenewedDto(r.Code, $"{r.FirstName} {r.LastName}", r.BranchName, r.PlanName, r.EndDate, today.DayNumber - r.EndDate.DayNumber)).ToList(),
-            query.Page.SafePage, query.Page.SafePageSize, total);
+            query.Page.SafePage, query.Page.ReportSize(), total);
 
         return new RenewalsReportDto(
             ReportHeader.Of(scope, periods, clock.UtcNow, "Fecha de fin de la membresía que venció; la renovación cuenta cuando exista (a la fecha de consulta)"),
@@ -427,7 +427,7 @@ internal sealed class GetExpirationsHandler(AnalyticsDbContext db, IAccessContex
                        Renewed = db.Memberships.Any(r => r.RenewedFromId == m.Id && r.Status != "Cancelled")
                    };
         var total = await rows.CountAsync(cancellationToken);
-        var page = await rows.Skip(query.Page.Skip).Take(query.Page.SafePageSize).ToListAsync(cancellationToken);
+        var page = await rows.Skip(query.Page.ReportSkip()).Take(query.Page.ReportSize()).ToListAsync(cancellationToken);
 
         // Lo que debe cada alumno de la página (una consulta para todos).
         var memberIds = page.Select(r => r.MemberId).Distinct().ToList();
@@ -446,6 +446,6 @@ internal sealed class GetExpirationsHandler(AnalyticsDbContext db, IAccessContex
             counts?.Total ?? 0,
             counts?.Renewed ?? 0,
             buckets,
-            new PagedResult<ExpiringRowDto>(items, query.Page.SafePage, query.Page.SafePageSize, total));
+            new PagedResult<ExpiringRowDto>(items, query.Page.SafePage, query.Page.ReportSize(), total));
     }
 }

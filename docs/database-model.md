@@ -116,3 +116,10 @@ Migraciones propias, con su historial en `classes.__ef_migrations_history`. Mism
 | classes | `inbox_notifications` | Aviso para un usuario (FK compuesta al usuario del mismo gimnasio): tipo, título, texto, referencias (`data` jsonb) y **clave anti-duplicado única por destinatario**; su entrega por canal (`InApp`, y reservados `Email/Sms/WhatsApp/Push` sin proveedor): estado `Pending/Delivered/Failed`, intentos, próximo intento, código del último error. Pendiente ⇔ tiene próximo intento; entregado ⇔ tiene fecha de entrega. Disparador: el contenido y el destinatario no cambian, lo leído no vuelve a no leído, lo entregado no cambia de estado. Sin `DELETE` |
 | classes | `notification_preferences` | Preferencia por usuario y tipo de aviso (sin fila = activado) |
 | classes | `idempotency_keys` | Respuesta guardada de cada solicitud con `Idempotency-Key` (clave por gimnasio): repetirla devuelve la misma reserva |
+
+## Módulo de analítica (Fase 6, `AnalyticsDbContext`)
+Casi todo lo que lee son **vistas de solo lectura** de las tablas de otros módulos (`ExcludeFromMigrations`): no crea ni modifica datos de negocio. Su única tabla propia es el registro de exportaciones. Migraciones propias, con su historial en `analytics.__ef_migrations_history` (`InitialAnalytics` → `AddAnalyticsSecurity`).
+
+| Esquema | Tabla | Contenido |
+|---|---|---|
+| analytics | `report_exports` | Quién pidió una exportación a CSV, cuándo, qué reporte, con qué filtros (`jsonb`, sin contenido), cuántas filas y bytes, la clave del archivo en el almacén privado, cuándo vence (24 h), cuántas descargas lleva y cuándo se purgó. RLS forzado por gimnasio, FK compuesta `(tenant_id, requested_by)` al usuario. CHECK: formato `csv`, reporte conocido, 0–20.000 filas, vencimiento posterior a la solicitud, y «sin clave ⇔ purgado». Disparador: la solicitud no se modifica; solo avanzan el contador de descargas y la purga del archivo (y un archivo purgado no se recupera). El rol de la aplicación puede leer, insertar y actualizar, **no borrar**. |

@@ -96,7 +96,7 @@ Proyección de las columnas necesarias, agregaciones en PostgreSQL, sin N+1, fil
 | Bloque | Contenido | Estado |
 |---|---|---|
 | 1 | Diagnóstico, inventario de indicadores y este ADR | Hecho |
-| 2 | Módulo `Analytics`: esqueleto, vistas `*Ref`, permisos, período/zona horaria, DTO de indicador y variación | Pendiente |
+| 2 | Módulo `Analytics`: esqueleto, vistas `*Ref`, permisos, período/zona horaria, variaciones y `GET /analytics/context` | Hecho |
 | 3 | Dashboard ejecutivo (`/analytics/dashboard`) y por perfil | Pendiente |
 | 4 | Reportes financieros | Pendiente |
 | 5 | Reportes de alumnos y membresías (retención, renovación) | Pendiente |

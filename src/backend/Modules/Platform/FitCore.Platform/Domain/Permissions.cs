@@ -102,6 +102,14 @@ public static class Permissions
     public const string ClassAttendanceManage = "class-attendance.manage";
     public const string InboxUse = "inbox.use";
 
+    public const string AnalyticsDashboardRead = "analytics.dashboard.read";
+    public const string ReportsFinancialRead = "reports.financial.read";
+    public const string ReportsMembersRead = "reports.members.read";
+    public const string ReportsOperationsRead = "reports.operations.read";
+    public const string ReportsInstructorRead = "reports.instructor.read";
+    public const string ReportsCompare = "reports.compare";
+    public const string ReportsExport = "reports.export";
+
     public const string MembersAccess = "members.access";
     public const string MeRead = "me.read";
 
@@ -182,6 +190,13 @@ public static class Permissions
         new(ClassAttendanceRead, "classes", "Ver la lista de participantes de cada sesión y el historial de asistencia a clases"),
         new(ClassAttendanceManage, "classes", "Registrar y corregir la asistencia a clases y cerrar las sesiones (el instructor, solo en las suyas)"),
         new(InboxUse, "classes", "Usar la bandeja de avisos propia: leerlos, marcarlos como leídos y elegir cuáles recibir"),
+        new(AnalyticsDashboardRead, "analytics", "Entrar al dashboard y a los reportes; cada sección se muestra solo si también tiene el permiso de su área"),
+        new(ReportsFinancialRead, "analytics", "Reportes financieros: cobros, métodos de pago, saldos pendientes, caja y reversiones (solo de sus sucursales)"),
+        new(ReportsMembersRead, "analytics", "Reportes de alumnos y membresías: altas, renovaciones, vencimientos y retención (solo de sus sucursales)"),
+        new(ReportsOperationsRead, "analytics", "Reportes operativos: asistencia al gimnasio y ocupación de clases (solo de sus sucursales)"),
+        new(ReportsInstructorRead, "analytics", "Ver la ocupación y la asistencia de sus propias sesiones como instructor"),
+        new(ReportsCompare, "analytics", "Comparar sucursales entre sí (solo las que puede consultar)"),
+        new(ReportsExport, "analytics", "Exportar reportes a CSV y descargar sus propias exportaciones (además del permiso del reporte)"),
         new(ClassSessionsManage, "classes", "Programar, reprogramar y cancelar sesiones y series de clases grupales"),
         new(MeRead, "me", "Consultar los propios datos de alumno (portal del alumno)")
     ];

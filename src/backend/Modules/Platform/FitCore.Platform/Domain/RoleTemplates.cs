@@ -78,7 +78,13 @@ public static class RoleTemplates
                 Permissions.ClassReservationsRead,
                 Permissions.ClassReservationsManage,
                 Permissions.ClassAttendanceRead,
-                Permissions.ClassAttendanceManage
+                Permissions.ClassAttendanceManage,
+                Permissions.AnalyticsDashboardRead,
+                Permissions.ReportsFinancialRead,
+                Permissions.ReportsMembersRead,
+                Permissions.ReportsOperationsRead,
+                Permissions.ReportsCompare,
+                Permissions.ReportsExport
             ]),
         new(
             "Recepcion",
@@ -104,7 +110,9 @@ public static class RoleTemplates
                 Permissions.ClassReservationsRead,
                 Permissions.ClassReservationsManage,
                 Permissions.ClassAttendanceRead,
-                Permissions.ClassAttendanceManage
+                Permissions.ClassAttendanceManage,
+                Permissions.AnalyticsDashboardRead,
+                Permissions.ReportsOperationsRead
             ]),
         new(
             "Cajero",
@@ -119,14 +127,16 @@ public static class RoleTemplates
                 Permissions.PaymentsCreate,
                 Permissions.PaymentsConfirm,
                 Permissions.CashRead,
-                Permissions.CashOperate
+                Permissions.CashOperate,
+                Permissions.AnalyticsDashboardRead,
+                Permissions.ReportsFinancialRead
             ]),
         // Mínimo privilegio: el entrenador trabaja solo con sus alumnos asignados (lo resuelve el módulo de bienestar), no con todo el listado
         // de alumnos ni la asistencia del gimnasio.
         new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.GroupClassesRead, Permissions.ClassSessionsRead, Permissions.ClassReservationsRead, Permissions.ClassAttendanceRead, Permissions.ClassAttendanceManage, Permissions.ExercisesRead, Permissions.ExercisesManage,
             Permissions.TrainingPlansRead, Permissions.TrainingPlansManage, Permissions.TrainingMembersManage, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog,
             Permissions.AssessmentsRead, Permissions.AssessmentsManage, Permissions.GoalsRead, Permissions.GoalsManage,
-            Permissions.PhotosRead, Permissions.PhotosManage]),
+            Permissions.PhotosRead, Permissions.PhotosManage, Permissions.AnalyticsDashboardRead, Permissions.ReportsInstructorRead]),
         new("Nutricionista", "Planes nutricionales de los alumnos", false, [.. BasicRead, Permissions.MembersRead, Permissions.NutritionPlansRead, Permissions.NutritionPlansManage,
             Permissions.NutritionMembersManage, Permissions.NutritionMemberRead, Permissions.NutritionProfileManage, Permissions.NutritionLogsRecord]),
         new(
@@ -140,7 +150,12 @@ public static class RoleTemplates
                 Permissions.MembershipsRead,
                 Permissions.ObligationsRead,
                 Permissions.PaymentsRead,
-                Permissions.CashRead
+                Permissions.CashRead,
+                Permissions.AnalyticsDashboardRead,
+                Permissions.ReportsFinancialRead,
+                Permissions.ReportsMembersRead,
+                Permissions.ReportsCompare,
+                Permissions.ReportsExport
             ]),
         new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.InboxUse, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog, Permissions.NutritionMemberRead, Permissions.NutritionLogsRecord, Permissions.AssessmentsRead, Permissions.GoalsRead, Permissions.PhotosRead, Permissions.PhotosManage])
     ];

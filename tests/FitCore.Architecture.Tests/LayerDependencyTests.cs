@@ -1,4 +1,5 @@
 using System.Reflection;
+using FitCore.Analytics;
 using FitCore.Application.Core;
 using FitCore.Classes;
 using FitCore.Commercial;
@@ -20,6 +21,7 @@ public class LayerDependencyTests
     private static readonly Assembly Commercial = typeof(CommercialModule).Assembly;
     private static readonly Assembly Wellness = typeof(WellnessModule).Assembly;
     private static readonly Assembly Classes = typeof(ClassesModule).Assembly;
+    private static readonly Assembly Analytics = typeof(AnalyticsModule).Assembly;
     private static readonly Assembly Api = typeof(Program).Assembly;
 
     [Fact]
@@ -27,7 +29,7 @@ public class LayerDependencyTests
     {
         AssertNoDependency(
             AllTypes(SharedKernel),
-            "FitCore.Application", "FitCore.Infrastructure", "FitCore.Platform", "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Api",
+            "FitCore.Application", "FitCore.Infrastructure", "FitCore.Platform", "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics", "FitCore.Api",
             "Microsoft.EntityFrameworkCore", "Npgsql", "Microsoft.AspNetCore");
     }
 
@@ -99,7 +101,7 @@ public class LayerDependencyTests
     public void Platform_no_depende_de_los_modulos_de_negocio()
     {
         // La dependencia es de un solo sentido: Commercial usa Platform (acceso, auditoría), nunca al revés.
-        AssertNoDependency(AllTypes(Platform), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes");
+        AssertNoDependency(AllTypes(Platform), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics");
     }
 
     [Fact]
@@ -143,9 +145,11 @@ public class LayerDependencyTests
     public void Los_modulos_de_negocio_no_dependen_entre_si()
     {
         // Los datos de otro módulo se leen con vistas de solo lectura propias, nunca referenciando sus tipos.
-        AssertNoDependency(AllTypes(Wellness), "FitCore.Commercial", "FitCore.Classes");
-        AssertNoDependency(AllTypes(Commercial), "FitCore.Wellness", "FitCore.Classes");
-        AssertNoDependency(AllTypes(Classes), "FitCore.Commercial", "FitCore.Wellness");
+        AssertNoDependency(AllTypes(Wellness), "FitCore.Commercial", "FitCore.Classes", "FitCore.Analytics");
+        AssertNoDependency(AllTypes(Commercial), "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics");
+        AssertNoDependency(AllTypes(Classes), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Analytics");
+        // Analytics lee los datos de los demás con vistas propias de solo lectura: no referencia sus tipos.
+        AssertNoDependency(AllTypes(Analytics), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes");
     }
 
     [Fact]
@@ -191,6 +195,35 @@ public class LayerDependencyTests
     {
         var handlers = Types.InAssembly(Classes)
             .That().HaveNameEndingWith("Handler").And().AreClasses().And().ResideInNamespaceStartingWith("FitCore.Classes.Application")
+            .GetTypes()
+            .ToList();
+
+        Assert.NotEmpty(handlers);
+        Assert.All(handlers, t => Assert.False(t.IsPublic, $"{t.Name} debe ser internal: la API solo usa el despachador."));
+    }
+
+    [Fact]
+    public void Analytics_no_depende_de_la_api_ni_de_ASP_NET_Core_web()
+    {
+        AssertNoDependency(
+            AllTypes(Analytics),
+            "FitCore.Api", "Microsoft.AspNetCore.Http", "Microsoft.AspNetCore.Mvc", "Microsoft.AspNetCore.Routing");
+    }
+
+    [Fact]
+    public void Dominio_de_Analytics_es_puro()
+    {
+        AssertNoDependency(
+            Types.InAssembly(Analytics).That().ResideInNamespace("FitCore.Analytics.Domain"),
+            "Microsoft.EntityFrameworkCore", "Microsoft.AspNetCore", "FitCore.Analytics.Persistence",
+            "FitCore.Analytics.Application", "FitCore.Platform");
+    }
+
+    [Fact]
+    public void Los_handlers_de_Analytics_son_internos()
+    {
+        var handlers = Types.InAssembly(Analytics)
+            .That().HaveNameEndingWith("Handler").And().AreClasses().And().ResideInNamespaceStartingWith("FitCore.Analytics.Application")
             .GetTypes()
             .ToList();
 

@@ -77,4 +77,11 @@ export const Perm = {
   ClassAttendanceRead: 'class-attendance.read',
   ClassAttendanceManage: 'class-attendance.manage',
   InboxUse: 'inbox.use',
+  AnalyticsDashboardRead: 'analytics.dashboard.read',
+  ReportsFinancialRead: 'reports.financial.read',
+  ReportsMembersRead: 'reports.members.read',
+  ReportsOperationsRead: 'reports.operations.read',
+  ReportsInstructorRead: 'reports.instructor.read',
+  ReportsCompare: 'reports.compare',
+  ReportsExport: 'reports.export',
 } as const;

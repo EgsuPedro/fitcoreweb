@@ -110,7 +110,8 @@ public static class RoleTemplates
         // de alumnos ni la asistencia del gimnasio.
         new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.ExercisesRead, Permissions.ExercisesManage,
             Permissions.TrainingPlansRead, Permissions.TrainingPlansManage, Permissions.TrainingMembersManage, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog]),
-        new("Nutricionista", "Planes nutricionales de alumnos asignados", false, [.. BasicRead, Permissions.MembersRead]),
+        new("Nutricionista", "Planes nutricionales de los alumnos", false, [.. BasicRead, Permissions.MembersRead, Permissions.NutritionPlansRead, Permissions.NutritionPlansManage,
+            Permissions.NutritionMembersManage, Permissions.NutritionMemberRead, Permissions.NutritionProfileManage, Permissions.NutritionLogsRecord]),
         new(
             "Contador",
             "Consulta financiera de todo el gimnasio",
@@ -124,7 +125,7 @@ public static class RoleTemplates
                 Permissions.PaymentsRead,
                 Permissions.CashRead
             ]),
-        new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog])
+        new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog, Permissions.NutritionMemberRead, Permissions.NutritionLogsRecord])
     ];
 
     public static readonly RoleTemplate ForPlatform = new(

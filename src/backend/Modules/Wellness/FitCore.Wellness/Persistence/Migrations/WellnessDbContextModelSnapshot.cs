@@ -128,6 +128,58 @@ namespace FitCore.Wellness.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("FitCore.Wellness.Domain.DietaryProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.PrimitiveCollection<string[]>("Allergies")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("allergies");
+
+                    b.PrimitiveCollection<string[]>("Intolerances")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("intolerances");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateTimeOffset>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.PrimitiveCollection<string[]>("Restrictions")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("restrictions");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_dietary_profiles");
+
+                    b.HasIndex("TenantId", "MemberId", "RecordedAt")
+                        .HasDatabaseName("ix_dietary_profiles_tenant_id_member_id_recorded_at");
+
+                    b.ToTable("dietary_profiles", "nutrition");
+                });
+
             modelBuilder.Entity("FitCore.Wellness.Domain.Exercise", b =>
                 {
                     b.Property<Guid>("Id")
@@ -251,6 +303,431 @@ namespace FitCore.Wellness.Persistence.Migrations
                         .HasDatabaseName("ix_exercises_tenant_id_primary_muscle");
 
                     b.ToTable("exercises", "training");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.MealLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AssignmentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assignment_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("LoggedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("logged_on");
+
+                    b.Property<Guid>("MealId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("meal_id");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("PlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_version_id");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_meal_logs");
+
+                    b.HasIndex("TenantId", "AssignmentId")
+                        .HasDatabaseName("ix_meal_logs_tenant_id_assignment_id");
+
+                    b.HasIndex("TenantId", "MealId")
+                        .HasDatabaseName("ix_meal_logs_tenant_id_meal_id");
+
+                    b.HasIndex("TenantId", "PlanVersionId")
+                        .HasDatabaseName("ix_meal_logs_tenant_id_plan_version_id");
+
+                    b.HasIndex("MemberId", "MealId", "LoggedOn")
+                        .IsUnique()
+                        .HasDatabaseName("ix_meal_logs_member_id_meal_id_logged_on");
+
+                    b.HasIndex("TenantId", "MemberId", "LoggedOn")
+                        .HasDatabaseName("ix_meal_logs_tenant_id_member_id_logged_on");
+
+                    b.ToTable("meal_logs", "nutrition");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionAssignment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("AssignedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("assigned_by");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<string>("EndReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("end_reason");
+
+                    b.Property<DateOnly?>("EndedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("ended_on");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_id");
+
+                    b.Property<Guid>("PlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_version_id");
+
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date")
+                        .HasColumnName("start_date");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_nutrition_assignments");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_nutrition_assignments_tenant_id_id");
+
+                    b.HasIndex("MemberId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_nutrition_assignments_open_member")
+                        .HasFilter("ended_on IS NULL");
+
+                    b.HasIndex("TenantId", "PlanId")
+                        .HasDatabaseName("ix_nutrition_assignments_tenant_id_plan_id");
+
+                    b.HasIndex("TenantId", "PlanVersionId")
+                        .HasDatabaseName("ix_nutrition_assignments_tenant_id_plan_version_id");
+
+                    b.HasIndex("TenantId", "MemberId", "StartDate")
+                        .HasDatabaseName("ix_nutrition_assignments_tenant_id_member_id_start_date");
+
+                    b.ToTable("nutrition_assignments", "nutrition");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionMeal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<TimeOnly?>("SuggestedTime")
+                        .HasColumnType("time without time zone")
+                        .HasColumnName("suggested_time");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("VersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("version_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_meals");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_nutrition_meals_tenant_id_id");
+
+                    b.HasIndex("TenantId", "VersionId")
+                        .HasDatabaseName("ix_meals_tenant_id_version_id");
+
+                    b.HasIndex("VersionId", "Position")
+                        .IsUnique()
+                        .HasDatabaseName("ix_meals_version_id_position");
+
+                    b.ToTable("meals", "nutrition");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionMealItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int?>("Calories")
+                        .HasColumnType("integer")
+                        .HasColumnName("calories");
+
+                    b.Property<decimal?>("CarbsG")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("numeric(6,1)")
+                        .HasColumnName("carbs_g");
+
+                    b.Property<decimal?>("FatG")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("numeric(6,1)")
+                        .HasColumnName("fat_g");
+
+                    b.Property<string>("FoodName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("food_name");
+
+                    b.Property<Guid>("MealId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("meal_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<decimal?>("ProteinG")
+                        .HasPrecision(6, 1)
+                        .HasColumnType("numeric(6,1)")
+                        .HasColumnName("protein_g");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(9, 2)
+                        .HasColumnType("numeric(9,2)")
+                        .HasColumnName("quantity");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("unit");
+
+                    b.HasKey("Id")
+                        .HasName("pk_meal_items");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_meal_items_tenant_id_id");
+
+                    b.HasIndex("MealId", "Position")
+                        .IsUnique()
+                        .HasDatabaseName("ix_meal_items_meal_id_position");
+
+                    b.HasIndex("TenantId", "MealId")
+                        .HasDatabaseName("ix_meal_items_tenant_id_meal_id");
+
+                    b.ToTable("meal_items", "nutrition");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<int>("CurrentVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("current_version");
+
+                    b.Property<Guid?>("CurrentVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("current_version_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plans");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_nutrition_plans_tenant_id_id");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_plans_tenant_id_status");
+
+                    b.ToTable("plans", "nutrition");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionPlanVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ChangeNote")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("change_note");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Goal")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("goal");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer")
+                        .HasColumnName("number");
+
+                    b.Property<Guid>("PlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_id");
+
+                    b.Property<string>("Recommendations")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("recommendations");
+
+                    b.Property<int?>("TargetCalories")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_calories");
+
+                    b.Property<int?>("TargetCarbsG")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_carbs_g");
+
+                    b.Property<int?>("TargetFatG")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_fat_g");
+
+                    b.Property<int?>("TargetProteinG")
+                        .HasColumnType("integer")
+                        .HasColumnName("target_protein_g");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateOnly?>("ValidFrom")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_from");
+
+                    b.Property<DateOnly?>("ValidUntil")
+                        .HasColumnType("date")
+                        .HasColumnName("valid_until");
+
+                    b.HasKey("Id")
+                        .HasName("pk_plan_versions");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_nutrition_versions_tenant_id_id");
+
+                    b.HasIndex("PlanId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_plan_versions_plan_id_number");
+
+                    b.HasIndex("TenantId", "PlanId")
+                        .HasDatabaseName("ix_plan_versions_tenant_id_plan_id");
+
+                    b.ToTable("plan_versions", "nutrition");
                 });
 
             modelBuilder.Entity("FitCore.Wellness.Domain.TrainerAssignment", b =>
@@ -613,7 +1090,7 @@ namespace FitCore.Wellness.Persistence.Migrations
                         .HasName("ak_plans_tenant_id_id");
 
                     b.HasIndex("TenantId", "Status")
-                        .HasDatabaseName("ix_plans_tenant_id_status");
+                        .HasDatabaseName("ix_plans_tenant_id_status1");
 
                     b.ToTable("plans", "training");
                 });
@@ -818,10 +1295,10 @@ namespace FitCore.Wellness.Persistence.Migrations
 
                     b.HasIndex("PlanId", "Number")
                         .IsUnique()
-                        .HasDatabaseName("ix_plan_versions_plan_id_number");
+                        .HasDatabaseName("ix_plan_versions_plan_id_number1");
 
                     b.HasIndex("TenantId", "PlanId")
-                        .HasDatabaseName("ix_plan_versions_tenant_id_plan_id");
+                        .HasDatabaseName("ix_plan_versions_tenant_id_plan_id1");
 
                     b.ToTable("plan_versions", "training");
                 });
@@ -1198,6 +1675,85 @@ namespace FitCore.Wellness.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.MealLog", b =>
+                {
+                    b.HasOne("FitCore.Wellness.Domain.NutritionAssignment", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "AssignmentId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_meal_logs_nutrition_assignments_tenant_id_assignment_id");
+
+                    b.HasOne("FitCore.Wellness.Domain.NutritionMeal", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MealId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_meal_logs_nutrition_meals_tenant_id_meal_id");
+
+                    b.HasOne("FitCore.Wellness.Domain.NutritionPlanVersion", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PlanVersionId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_meal_logs_nutrition_versions_tenant_id_plan_version_id");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionAssignment", b =>
+                {
+                    b.HasOne("FitCore.Wellness.Domain.NutritionPlan", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PlanId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_nutrition_assignments_nutrition_plans_tenant_id_plan_id");
+
+                    b.HasOne("FitCore.Wellness.Domain.NutritionPlanVersion", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PlanVersionId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_nutrition_assignments_nutrition_versions_tenant_id_plan_ver");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionMeal", b =>
+                {
+                    b.HasOne("FitCore.Wellness.Domain.NutritionPlanVersion", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "VersionId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_meals_nutrition_versions_tenant_id_version_id");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionMealItem", b =>
+                {
+                    b.HasOne("FitCore.Wellness.Domain.NutritionMeal", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "MealId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_meal_items_meals_tenant_id_meal_id");
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.NutritionPlanVersion", b =>
+                {
+                    b.HasOne("FitCore.Wellness.Domain.NutritionPlan", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PlanId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_plan_versions_plans_tenant_id_plan_id");
                 });
 
             modelBuilder.Entity("FitCore.Wellness.Domain.TrainerAssignment", b =>

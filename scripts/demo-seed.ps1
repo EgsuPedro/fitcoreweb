@@ -52,9 +52,9 @@ $template = @{
     'Recepcion'     = $basic + @('members.read', 'members.create', 'members.update', 'plans.read', 'promotions.read', 'memberships.read', 'memberships.create', 'memberships.renew', 'obligations.read', 'payments.read', 'payments.create', 'attendance.read', 'attendance.register')
     'Cajero'        = $basic + @('members.read', 'memberships.read', 'obligations.read', 'payments.read', 'payments.create', 'payments.confirm', 'cash.read', 'cash.operate')
     'AdministradorSucursal' = $basic + @('users.read', 'users.create', 'users.update', 'roles.read', 'members.read', 'members.create', 'members.update', 'members.status', 'plans.read', 'promotions.read', 'promotions.apply', 'memberships.read', 'memberships.create', 'memberships.renew', 'memberships.freeze', 'memberships.cancel', 'obligations.read', 'obligations.create', 'obligations.void', 'payments.read', 'payments.create', 'payments.confirm', 'payments.reverse', 'cash.read', 'cash.operate', 'attendance.read', 'attendance.register', 'attendance.override', 'notifications.read', 'members.access', 'trainers.read', 'trainers.manage', 'wellness.members.all', 'exercises.read', 'exercises.manage', 'training.plans.read', 'training.plans.manage', 'training.members.manage', 'training.member.read')
-    'Alumno'        = @('me.read', 'training.member.read', 'training.sessions.log')
+    'Alumno'        = @('me.read', 'training.member.read', 'training.sessions.log', 'nutrition.member.read', 'nutrition.logs.record')
     'Entrenador'    = $basic + @('trainers.read', 'trainers.notes', 'exercises.read', 'exercises.manage', 'training.plans.read', 'training.plans.manage', 'training.members.manage', 'training.member.read', 'training.sessions.log')
-    'Nutricionista' = $basic + @('members.read')
+    'Nutricionista' = $basic + @('members.read', 'nutrition.plans.read', 'nutrition.plans.manage', 'nutrition.members.manage', 'nutrition.member.read', 'nutrition.profile.manage', 'nutrition.logs.record')
     'Contador'      = $basic + @('audit.read', 'members.read', 'memberships.read', 'obligations.read', 'payments.read', 'cash.read')
 }
 $currentRoles = Invoke-Api GET '/roles' -Token $owner

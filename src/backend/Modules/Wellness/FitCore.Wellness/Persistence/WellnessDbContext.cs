@@ -14,6 +14,7 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
     : DbContext(options)
 {
     public const string TrainingSchema = "training";
+    public const string NutritionSchema = "nutrition";
 
     public DbSet<TrainerProfile> Trainers => Set<TrainerProfile>();
     public DbSet<TrainerAvailability> TrainerAvailability => Set<TrainerAvailability>();
@@ -28,6 +29,13 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
     public DbSet<WorkoutSession> WorkoutSessions => Set<WorkoutSession>();
     public DbSet<WorkoutSessionExercise> WorkoutSessionExercises => Set<WorkoutSessionExercise>();
     public DbSet<WorkoutSet> WorkoutSets => Set<WorkoutSet>();
+    public DbSet<NutritionPlan> NutritionPlans => Set<NutritionPlan>();
+    public DbSet<NutritionPlanVersion> NutritionVersions => Set<NutritionPlanVersion>();
+    public DbSet<NutritionMeal> NutritionMeals => Set<NutritionMeal>();
+    public DbSet<NutritionMealItem> NutritionMealItems => Set<NutritionMealItem>();
+    public DbSet<NutritionAssignment> NutritionAssignments => Set<NutritionAssignment>();
+    public DbSet<DietaryProfile> DietaryProfiles => Set<DietaryProfile>();
+    public DbSet<MealLog> MealLogs => Set<MealLog>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<MemberRef> MemberRefs => Set<MemberRef>();

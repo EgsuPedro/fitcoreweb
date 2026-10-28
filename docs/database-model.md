@@ -83,6 +83,10 @@ Migraciones propias, con su historial en `members.__ef_migrations_history`. Mism
 | training | `plans`, `plan_versions`, `plan_days`, `plan_exercises` | Rutinas versionadas: la cabecera apunta a la versión vigente (FK diferida); versiones, días y ejercicios prescritos son inmutables (trigger y sin UPDATE/DELETE). `plan_exercises` guarda copia del nombre y modo de registro, con CHECKs de prescripción por modo |
 | training | `training_assignments` | Rutina fijada a una versión; una sola abierta por alumno (índice único parcial); solo se cierra (trigger), sin borrar |
 | training | `workout_sessions`, `workout_session_exercises`, `workout_sets` | Sesiones con la versión usada y series reales; solo-agregar (el único cambio permitido es el comentario del entrenador, una vez); CHECKs de serie por modo |
+| nutrition | `plans`, `plan_versions`, `meals`, `meal_items` | Planes nutricionales versionados: cabecera → versión vigente (FK diferida); versiones, comidas y alimentos son inmutables. Valores nutricionales opcionales con CHECKs de rango |
+| nutrition | `nutrition_assignments` | Plan fijado a una versión; una sola abierta por alumno (índice único parcial); solo se cierra |
+| nutrition | `dietary_profiles` | Alergias, intolerancias y restricciones (`text[]`); solo-agregar, el vigente es el más reciente; nunca vacío |
+| nutrition | `meal_logs` | Cumplimiento por comida y día (único por alumno, comida y día); solo-agregar, con la versión del plan |
 | training | `exercises` | Biblioteca: `tenant_id` nulo = catálogo base global. RLS por operación (todos leen globales y lo propio; solo plataforma escribe globales; nadie borra). Nombres únicos sin distinguir mayúsculas (global y por gimnasio), enlace solo https, modo de registro |
 | training | `trainer_profiles` | Perfil de entrenador por usuario (único por gimnasio): especialidades `text[]`, certificaciones, biografía, estado. FK al usuario |
 | training | `trainer_availability` | Franjas semanales del entrenador (`day` 0–6, `end_time > start_time`), sucursal opcional |

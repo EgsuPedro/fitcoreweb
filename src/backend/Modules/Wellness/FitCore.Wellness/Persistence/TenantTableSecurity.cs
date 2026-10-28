@@ -85,6 +85,13 @@ internal static class TenantTableSecurity
                   ('training.workout_sessions', 'DELETE'),
                   ('training.workout_session_exercises', 'UPDATE, DELETE'),
                   ('training.workout_sets', 'UPDATE, DELETE'),
+                  ('nutrition.plans', 'DELETE'),
+                  ('nutrition.plan_versions', 'UPDATE, DELETE'),
+                  ('nutrition.meals', 'UPDATE, DELETE'),
+                  ('nutrition.meal_items', 'UPDATE, DELETE'),
+                  ('nutrition.nutrition_assignments', 'DELETE'),
+                  ('nutrition.dietary_profiles', 'UPDATE, DELETE'),
+                  ('nutrition.meal_logs', 'UPDATE, DELETE'),
                   ('training.trainer_assignments', 'DELETE'),
                   ('training.trainer_notes', 'UPDATE, DELETE')
                 ) AS t(tbl, privs) LOOP

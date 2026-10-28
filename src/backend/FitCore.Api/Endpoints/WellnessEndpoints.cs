@@ -2,6 +2,7 @@ using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Platform.Domain;
 using FitCore.Wellness.Application.Exercises;
+using FitCore.Wellness.Application.Nutrition;
 using FitCore.Wellness.Application.Trainers;
 using FitCore.Wellness.Application.Training;
 using FitCore.Wellness.Domain;
@@ -17,6 +18,8 @@ internal static class WellnessEndpoints
         MapExercises(routes.MapGroup("/exercises").WithTags("Exercises"));
         MapTrainingPlans(routes.MapGroup("/training-plans").WithTags("Training plans"));
         MapTraining(routes);
+        MapNutritionPlans(routes.MapGroup("/nutrition-plans").WithTags("Nutrition plans"));
+        MapNutrition(routes);
         MapPlatformExercises(routes.MapGroup("/platform/exercises").WithTags("Exercises (platform)"));
         return routes;
     }
@@ -221,6 +224,119 @@ internal static class WellnessEndpoints
             .Produces<ExerciseProgressDto>()
             .WithTags("Workout sessions")
             .WithName("GetExerciseProgress");
+    }
+
+    // Los permisos de nutrición son sensibles: no los reciben por defecto ni el propietario ni el administrador, y el entrenador no los tiene.
+    private static void MapNutritionPlans(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, string? search = null, PlanStatus? status = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListNutritionPlansQuery(new PageRequest(page, pageSize), search, status), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.NutritionPlansRead)
+            .Produces<PagedResult<NutritionPlanSummaryDto>>()
+            .WithName("ListNutritionPlans");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct, int? version = null) =>
+                (await dispatcher.QueryAsync(new GetNutritionPlanQuery(id, version), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.NutritionPlansRead)
+            .Produces<NutritionPlanDetailDto>()
+            .WithName("GetNutritionPlan");
+
+        group.MapGet("/{id:guid}/versions", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListNutritionVersionsQuery(id), ct)).ToHttp(v => Results.Ok(v)))
+            .RequirePermission(Permissions.NutritionPlansRead)
+            .Produces<IReadOnlyList<NutritionVersionDto>>()
+            .WithName("ListNutritionPlanVersions");
+
+        group.MapPost("/", async (NutritionPlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateNutritionPlanCommand(request), ct)).ToHttp(p => Results.Created($"/api/v1/nutrition-plans/{p.Id}", p)))
+            .RequirePermission(Permissions.NutritionPlansManage)
+            .WithValidation<NutritionPlanRequest>()
+            .Produces<NutritionPlanDetailDto>(StatusCodes.Status201Created)
+            .WithName("CreateNutritionPlan");
+
+        // Modificar un plan crea una versión nueva: lo ya asignado y registrado conserva la suya.
+        group.MapPut("/{id:guid}", async (Guid id, NutritionPlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdateNutritionPlanCommand(id, request), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.NutritionPlansManage)
+            .WithValidation<NutritionPlanRequest>()
+            .Produces<NutritionPlanDetailDto>()
+            .WithName("UpdateNutritionPlan");
+
+        group.MapPost("/{id:guid}/duplicate", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DuplicateNutritionPlanCommand(id), ct)).ToHttp(p => Results.Created($"/api/v1/nutrition-plans/{p.Id}", p)))
+            .RequirePermission(Permissions.NutritionPlansManage)
+            .Produces<NutritionPlanDetailDto>(StatusCodes.Status201Created)
+            .WithName("DuplicateNutritionPlan");
+
+        group.MapPatch("/{id:guid}/status", async (Guid id, SetNutritionPlanStatusRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SetNutritionPlanStatusCommand(id, request), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.NutritionPlansManage)
+            .Produces<NutritionPlanSummaryDto>()
+            .WithName("SetNutritionPlanStatus");
+
+        group.MapPost("/{id:guid}/assignments", async (Guid id, AssignNutritionPlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new AssignNutritionPlanCommand(id, request), ct)).ToHttp(a => Results.Created($"/api/v1/members/{a.MemberId}/nutrition-plan", a)))
+            .RequirePermission(Permissions.NutritionMembersManage)
+            .WithValidation<AssignNutritionPlanRequest>()
+            .Produces<NutritionAssignmentDto>(StatusCodes.Status201Created)
+            .WithName("AssignNutritionPlan");
+    }
+
+    // Plan, alergias y cumplimiento de un alumno. Quién accede a qué alumno lo resuelve el caso de uso desde la sesión del usuario.
+    private static void MapNutrition(IEndpointRouteBuilder routes)
+    {
+        routes.MapPost("/nutrition-assignments/{id:guid}/end", async (Guid id, EndNutritionAssignmentRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new EndNutritionAssignmentCommand(id, request), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.NutritionMembersManage)
+            .WithValidation<EndNutritionAssignmentRequest>()
+            .Produces<NutritionAssignmentDto>()
+            .WithTags("Nutrition plans")
+            .WithName("EndNutritionAssignment");
+
+        routes.MapGet("/members/{id:guid}/nutrition-plan", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetMemberNutritionPlanQuery(id), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.NutritionMemberRead)
+            .Produces<MemberNutritionPlanDto>()
+            .WithTags("Member nutrition")
+            .WithName("GetMemberNutritionPlan");
+
+        routes.MapGet("/members/{id:guid}/nutrition-assignments", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListMemberNutritionAssignmentsQuery(id), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.NutritionMemberRead)
+            .Produces<IReadOnlyList<NutritionAssignmentDto>>()
+            .WithTags("Member nutrition")
+            .WithName("ListMemberNutritionAssignments");
+
+        routes.MapGet("/members/{id:guid}/dietary-profile", async (Guid id, IDispatcher dispatcher, CancellationToken ct, bool history = false) =>
+                (await dispatcher.QueryAsync(new GetDietaryProfileQuery(id, history), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.NutritionMemberRead)
+            .Produces<IReadOnlyList<DietaryProfileDto>>()
+            .WithTags("Member nutrition")
+            .WithName("GetDietaryProfile");
+
+        // Cada guardado es un registro nuevo (el historial se conserva); el vigente es el más reciente.
+        routes.MapPost("/members/{id:guid}/dietary-profile", async (Guid id, DietaryProfileRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SaveDietaryProfileCommand(id, request), ct)).ToHttp(p => Results.Created($"/api/v1/members/{id}/dietary-profile", p)))
+            .RequirePermission(Permissions.NutritionProfileManage)
+            .WithValidation<DietaryProfileRequest>()
+            .Produces<DietaryProfileDto>(StatusCodes.Status201Created)
+            .WithTags("Member nutrition")
+            .WithName("SaveDietaryProfile");
+
+        routes.MapPost("/meal-logs", async (LogMealRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new LogMealCommand(request), ct)).ToHttp(l => Results.Created($"/api/v1/members/{l.MemberId}/meal-logs", l)))
+            .RequirePermission(Permissions.NutritionLogsRecord)
+            .WithValidation<LogMealRequest>()
+            .Produces<MealLogDto>(StatusCodes.Status201Created)
+            .WithTags("Member nutrition")
+            .WithName("LogMeal");
+
+        routes.MapGet("/members/{id:guid}/meal-logs", async (Guid id, IDispatcher dispatcher, CancellationToken ct, DateOnly? from = null, DateOnly? to = null) =>
+                (await dispatcher.QueryAsync(new ListMealLogsQuery(id, from, to), ct)).ToHttp(l => Results.Ok(l)))
+            .RequirePermission(Permissions.NutritionMemberRead)
+            .Produces<NutritionLogsDto>()
+            .WithTags("Member nutrition")
+            .WithName("ListMealLogs");
     }
 
     private static void MapExercises(RouteGroupBuilder group)

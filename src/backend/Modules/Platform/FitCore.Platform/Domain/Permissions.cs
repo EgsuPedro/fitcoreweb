@@ -73,6 +73,13 @@ public static class Permissions
     public const string TrainingMemberRead = "training.member.read";
     public const string TrainingSessionsLog = "training.sessions.log";
 
+    public const string NutritionPlansRead = "nutrition.plans.read";
+    public const string NutritionPlansManage = "nutrition.plans.manage";
+    public const string NutritionMembersManage = "nutrition.members.manage";
+    public const string NutritionMemberRead = "nutrition.member.read";
+    public const string NutritionProfileManage = "nutrition.profile.manage";
+    public const string NutritionLogsRecord = "nutrition.logs.record";
+
     public const string TrainersRead = "trainers.read";
     public const string TrainersManage = "trainers.manage";
     public const string TrainersNotes = "trainers.notes";
@@ -133,6 +140,12 @@ public static class Permissions
         new(TrainingMembersManage, "training", "Asignar rutinas a alumnos, cerrar asignaciones y comentar sus sesiones"),
         new(TrainingMemberRead, "training", "Ver la rutina vigente y el historial de entrenamiento de un alumno (el alumno solo ve el suyo)"),
         new(TrainingSessionsLog, "training", "Registrar sesiones de entrenamiento (el alumno solo las suyas)"),
+        new(NutritionPlansRead, "nutrition", "Ver los planes nutricionales y sus versiones", Sensitive: true),
+        new(NutritionPlansManage, "nutrition", "Crear, modificar, duplicar y archivar planes nutricionales", Sensitive: true),
+        new(NutritionMembersManage, "nutrition", "Asignar planes nutricionales a alumnos y cerrar asignaciones", Sensitive: true),
+        new(NutritionMemberRead, "nutrition", "Ver el plan, las alergias y el cumplimiento nutricional de un alumno (el alumno solo ve lo suyo)", Sensitive: true),
+        new(NutritionProfileManage, "nutrition", "Registrar las alergias, intolerancias y restricciones alimentarias de un alumno", Sensitive: true),
+        new(NutritionLogsRecord, "nutrition", "Registrar el cumplimiento de las comidas del plan (el alumno solo las suyas)", Sensitive: true),
         new(TrainersRead, "trainers", "Ver los perfiles de los entrenadores"),
         new(TrainersManage, "trainers", "Habilitar entrenadores, editar sus perfiles y asignarles alumnos"),
         new(TrainersNotes, "trainers", "Escribir y leer observaciones profesionales de los alumnos asignados", Sensitive: true),

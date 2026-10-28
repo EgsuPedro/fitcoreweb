@@ -96,7 +96,7 @@ public class MemberAccessTests(ApiFixture api)
         var fresh = await StudentClientAsync(tenant.Slug, email, NewPassword);
         var after = await GetAsync<MeRow>(fresh, "/api/v1/auth/me");
         Assert.False(after.MustChangePassword);
-        Assert.Equal(["me.read", "training.member.read", "training.sessions.log"], after.Permissions.Order());
+        Assert.Equal(["me.read", "nutrition.logs.record", "nutrition.member.read", "training.member.read", "training.sessions.log"], after.Permissions.Order());
         var mine = await GetAsync<MyMemberRow>(fresh, "/api/v1/me/member");
         Assert.Equal(member.Id, mine.Id);
         Assert.Equal(member.Code, mine.Code);

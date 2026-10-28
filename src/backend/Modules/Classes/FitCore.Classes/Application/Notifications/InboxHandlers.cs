@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 namespace FitCore.Classes.Application.Notifications;
 
 internal sealed class ListMyNotificationsHandler(ClassesDbContext db, IAccessContext access)
-    : IQueryHandler<ListMyNotificationsQuery, PagedResult<NotificationDto>>
+    : IQueryHandler<ListMyNotificationsQuery, PagedResult<InboxNotificationDto>>
 {
-    public async Task<Result<PagedResult<NotificationDto>>> HandleAsync(ListMyNotificationsQuery query, CancellationToken cancellationToken)
+    public async Task<Result<PagedResult<InboxNotificationDto>>> HandleAsync(ListMyNotificationsQuery query, CancellationToken cancellationToken)
     {
         var actor = await access.RequireAccessAsync(cancellationToken);
         if (actor.IsFailure)
@@ -31,7 +31,7 @@ internal sealed class ListMyNotificationsHandler(ClassesDbContext db, IAccessCon
         }
 
         var paged = await items.OrderByDescending(n => n.CreatedAt).ThenByDescending(n => n.Id).ToPagedAsync(query.Page, cancellationToken);
-        return new PagedResult<NotificationDto>([.. paged.Items.Select(NotificationDto.From)], paged.Page, paged.PageSize, paged.TotalCount);
+        return new PagedResult<InboxNotificationDto>([.. paged.Items.Select(InboxNotificationDto.From)], paged.Page, paged.PageSize, paged.TotalCount);
     }
 }
 
@@ -53,9 +53,9 @@ internal sealed class GetNotificationSummaryHandler(ClassesDbContext db, IAccess
 }
 
 internal sealed class MarkNotificationReadHandler(ClassesDbContext db, IAccessContext access, IClock clock)
-    : ICommandHandler<MarkNotificationReadCommand, NotificationDto>
+    : ICommandHandler<MarkNotificationReadCommand, InboxNotificationDto>
 {
-    public async Task<Result<NotificationDto>> HandleAsync(MarkNotificationReadCommand command, CancellationToken cancellationToken)
+    public async Task<Result<InboxNotificationDto>> HandleAsync(MarkNotificationReadCommand command, CancellationToken cancellationToken)
     {
         var actor = await access.RequireAccessAsync(cancellationToken);
         if (actor.IsFailure)
@@ -73,7 +73,7 @@ internal sealed class MarkNotificationReadHandler(ClassesDbContext db, IAccessCo
         // Marcar leído es idempotente y no pisa la hora de la primera lectura, aunque lleguen dos solicitudes a la vez.
         var now = clock.UtcNow;
         await own.Where(n => n.ReadAt == null).ExecuteUpdateAsync(s => s.SetProperty(n => n.ReadAt, now), cancellationToken);
-        return NotificationDto.From(await own.AsNoTracking().FirstAsync(cancellationToken));
+        return InboxNotificationDto.From(await own.AsNoTracking().FirstAsync(cancellationToken));
     }
 }
 

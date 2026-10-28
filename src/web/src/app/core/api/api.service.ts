@@ -3,6 +3,23 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type {
   AccessDecision,
+  AttendanceEntryRequest,
+  CancelSeriesResult,
+  ClassAttendance,
+  ClassReservation,
+  ClassRoster,
+  ClassSeries,
+  ClassSession,
+  CreateReservationRequest,
+  CreateSeriesRequest,
+  CreateSessionRequest,
+  GroupClass,
+  GroupClassRequest,
+  InboxNotification,
+  NotificationPreference,
+  NotificationSummary,
+  SeriesRun,
+  UpdateSessionRequest,
   Assessment,
   AssessmentComparison,
   AssessmentPoint,
@@ -582,5 +599,98 @@ export class ApiService {
   }
   deleteProgressPhoto(id: string): Observable<void> {
     return this.http.delete<void>(`${API_BASE}/progress-photos/${id}`);
+  }
+
+  // Clases grupales: definición de la clase
+  groupClasses(query: Query = {}): Observable<Paged<GroupClass>> {
+    return this.get('/group-classes', query);
+  }
+  createGroupClass(body: GroupClassRequest): Observable<GroupClass> {
+    return this.http.post<GroupClass>(`${API_BASE}/group-classes`, body);
+  }
+  updateGroupClass(id: string, body: GroupClassRequest): Observable<GroupClass> {
+    return this.http.put<GroupClass>(`${API_BASE}/group-classes/${id}`, body);
+  }
+  setGroupClassStatus(id: string, isActive: boolean): Observable<GroupClass> {
+    return this.http.patch<GroupClass>(`${API_BASE}/group-classes/${id}/status`, { isActive });
+  }
+
+  // Horario: sesiones y series
+  classSessions(query: Query = {}): Observable<Paged<ClassSession>> {
+    return this.get('/class-sessions', query);
+  }
+  classSession(id: string): Observable<ClassSession> {
+    return this.get(`/class-sessions/${id}`);
+  }
+  createClassSession(body: CreateSessionRequest): Observable<ClassSession> {
+    return this.http.post<ClassSession>(`${API_BASE}/class-sessions`, body);
+  }
+  updateClassSession(id: string, body: UpdateSessionRequest): Observable<ClassSession> {
+    return this.http.patch<ClassSession>(`${API_BASE}/class-sessions/${id}`, body);
+  }
+  cancelClassSession(id: string, reason: string): Observable<ClassSession> {
+    return this.http.post<ClassSession>(`${API_BASE}/class-sessions/${id}/cancel`, { reason });
+  }
+  completeClassSession(id: string, markPendingAsNoShow: boolean): Observable<ClassRoster> {
+    return this.http.post<ClassRoster>(`${API_BASE}/class-sessions/${id}/complete`, { markPendingAsNoShow });
+  }
+  classSeriesList(query: Query = {}): Observable<Paged<ClassSeries>> {
+    return this.get('/class-sessions/recurrences', query);
+  }
+  createClassSeries(body: CreateSeriesRequest): Observable<SeriesRun> {
+    return this.http.post<SeriesRun>(`${API_BASE}/class-sessions/recurrences`, body);
+  }
+  generateClassSeries(id: string, endDate: string | null): Observable<SeriesRun> {
+    return this.http.post<SeriesRun>(`${API_BASE}/class-sessions/recurrences/${id}/generate`, { endDate });
+  }
+  cancelClassSeries(id: string, reason: string): Observable<CancelSeriesResult> {
+    return this.http.post<CancelSeriesResult>(`${API_BASE}/class-sessions/recurrences/${id}/cancel`, { reason });
+  }
+
+  // Reservas, lista de espera y asistencia
+  classReservations(query: Query = {}): Observable<Paged<ClassReservation>> {
+    return this.get('/class-reservations', query);
+  }
+  /** Reservar exige la clave de idempotencia: reintentar la misma solicitud no reserva dos veces. */
+  reserveClass(body: CreateReservationRequest, key: string): Observable<ClassReservation> {
+    return this.postKeyed('/class-reservations', body, key);
+  }
+  cancelClassReservation(id: string, reason: string | null): Observable<ClassReservation> {
+    return this.http.post<ClassReservation>(`${API_BASE}/class-reservations/${id}/cancel`, { reason });
+  }
+  acceptClassOffer(id: string): Observable<ClassReservation> {
+    return this.http.post<ClassReservation>(`${API_BASE}/class-reservations/${id}/accept`, {});
+  }
+  declineClassOffer(id: string): Observable<ClassReservation> {
+    return this.http.post<ClassReservation>(`${API_BASE}/class-reservations/${id}/decline`, {});
+  }
+  classRoster(sessionId: string): Observable<ClassRoster> {
+    return this.get(`/class-sessions/${sessionId}/roster`);
+  }
+  recordClassAttendance(sessionId: string, entries: AttendanceEntryRequest[]): Observable<ClassRoster> {
+    return this.http.put<ClassRoster>(`${API_BASE}/class-sessions/${sessionId}/attendance`, { entries });
+  }
+  classAttendance(query: Query = {}): Observable<Paged<ClassAttendance>> {
+    return this.get('/class-attendance', query);
+  }
+
+  // Bandeja de avisos del propio usuario
+  inbox(query: Query = {}): Observable<Paged<InboxNotification>> {
+    return this.get('/me/notifications', query);
+  }
+  inboxSummary(): Observable<NotificationSummary> {
+    return this.get('/me/notifications/summary');
+  }
+  markInboxRead(id: string): Observable<InboxNotification> {
+    return this.http.patch<InboxNotification>(`${API_BASE}/me/notifications/${id}/read`, {});
+  }
+  markAllInboxRead(): Observable<{ marked: number }> {
+    return this.http.post<{ marked: number }>(`${API_BASE}/me/notifications/read-all`, {});
+  }
+  notificationPreferences(): Observable<NotificationPreference[]> {
+    return this.get('/me/notification-preferences');
+  }
+  updateNotificationPreferences(preferences: { type: string; enabled: boolean }[]): Observable<NotificationPreference[]> {
+    return this.http.put<NotificationPreference[]>(`${API_BASE}/me/notification-preferences`, { preferences });
   }
 }

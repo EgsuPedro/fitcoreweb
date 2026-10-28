@@ -16,6 +16,23 @@ function keysOf(tree: Tree, prefix = ''): string[] {
 
 // Códigos de error estables que la API puede devolver (FitCore.Platform.Application y FitCore.Api).
 const API_ERROR_CODES = [
+  'classes.not_found', 'classes.name_taken', 'classes.branch_required', 'classes.branch_immutable', 'classes.instructor_invalid',
+  'classes.instructor_not_in_branch', 'classes.booking_window_incoherent', 'classes.waitlist_capacity_required',
+  'classes.waitlist_disabled_with_capacity', 'classes.payment_policy_needs_membership', 'classes.session_not_found',
+  'classes.series_not_found', 'classes.class_inactive', 'classes.session_in_past', 'classes.session_not_modifiable',
+  'classes.instructor_overlap', 'classes.instructor_unavailable', 'classes.session_nothing_to_change', 'classes.series_cancelled',
+  'classes.series_range_invalid', 'classes.series_in_past', 'classes.series_cannot_shrink', 'classes.series_too_many_sessions',
+  'classes.series_no_sessions', 'classes.capacity_below_booked', 'classes.session_changed', 'classes.reservation_not_found',
+  'classes.member_not_found', 'classes.already_booked', 'classes.session_full', 'classes.waitlist_disabled', 'classes.waitlist_full',
+  'classes.reservation_not_offered', 'classes.offer_expired', 'classes.session_not_bookable', 'classes.booking_not_open',
+  'classes.booking_closed', 'classes.member_schedule_conflict', 'classes.cancellation_deadline_passed',
+  'classes.late_cancellation_reason_required', 'classes.session_started', 'classes.reservation_not_cancellable',
+  'classes.reservation_changed', 'classes.member_inactive', 'classes.no_active_membership', 'classes.membership_frozen',
+  'classes.membership_pending_payment', 'classes.plan_branch_restricted', 'classes.debt_pending', 'classes.debt_overdue',
+  'classes.minimum_payment_not_met', 'classes.below_min_age', 'classes.member_age_unknown', 'classes.session_not_started',
+  'classes.session_cancelled', 'classes.reservation_not_in_session', 'classes.reservation_not_attendable',
+  'classes.attendance_duplicate_entries', 'classes.notification_not_found', 'classes.notification_required',
+  'classes.notification_duplicate_types',
   'auth.invalid_credentials', 'auth.locked_out', 'auth.invalid_refresh', 'auth.refresh_reused', 'auth.unauthenticated',
   'auth.forbidden', 'auth.all_branches_required', 'auth.password_change_failed',
   'branches.not_found', 'branches.not_allowed', 'branches.code_taken', 'branches.invalid_header',

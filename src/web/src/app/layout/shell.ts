@@ -3,12 +3,13 @@ import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/rou
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { SessionService } from '../core/auth/session.service';
 import { Lang, SUPPORTED_LANGS, setLang } from '../core/i18n/transloco';
+import { InboxBell } from '../features/inbox/inbox-bell';
 import { Toasts } from '../shared/toast';
 import { NAV_ITEMS, visibleNavItems } from './nav';
 
 @Component({
   selector: 'fc-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, Toasts],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, Toasts, InboxBell],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="shell" [class.nav-open]="navOpen()">
@@ -49,6 +50,8 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
             ☰
           </button>
           <span class="topbar-spacer"></span>
+
+          <fc-inbox-bell />
 
           <span class="lang-switch">
             @for (lang of langs; track lang) {

@@ -151,3 +151,14 @@ Los avisos de reservas, lista de espera y cambios de sesión nacen de eventos qu
 ## Fase 5: lista de espera de clases grupales (Worker)
 
 El Worker (`FitCore.Worker`) ejecuta cada `Classes:WaitlistIntervalSeconds` segundos (30 por defecto, mínimo 5) el mantenimiento de la lista de espera: vence las invitaciones cuyo plazo terminó y ofrece el cupo al siguiente, completa los cupos libres con gente esperando y cierra la fila de las sesiones que ya empezaron. En `docker compose` el servicio `worker` ya lo incluye; sin el Worker las ofertas se hacen igual al cancelar o rechazar, pero **las invitaciones vencidas no pasan al siguiente** hasta que se vuelva a ejecutar.
+
+## Fase 5: pantallas de clases grupales (personal)
+
+Con la sesión iniciada como Propietario, Administrador o Recepción (tenant `revision`, contraseña `DemoFit2026x`):
+
+1. **Clases** (`/classes`): crear una clase con sus reglas (cupo, plazos de reserva y cancelación, lista de espera, política de pagos).
+2. **Horario** (`/schedule`): calendario semanal/mensual/diario en la zona horaria de la sucursal; "Programar sesión", "Serie recurrente", y clic en una sesión para ver participantes, reservar, lista de espera (aceptar/rechazar cupo), asistencia y cancelar o completar.
+3. **Historial de clases** (`/class-attendance`): quién asistió o no, con filtros por alumno, sucursal, resultado y fechas.
+4. **Campana de avisos** (barra superior) y **Avisos** (`/inbox`): bandeja interna y preferencias; los avisos importantes no se pueden apagar.
+
+El Entrenador ve Horario y Clases, y solo registra asistencia en las sesiones donde es instructor. Los avisos los genera el Worker (cada ~5 s). Tras actualizar el código, reejecutar `scripts/demo-seed.ps1` para que los tenants existentes reciban los permisos nuevos.

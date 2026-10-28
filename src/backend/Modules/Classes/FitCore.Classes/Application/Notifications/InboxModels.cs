@@ -6,9 +6,9 @@ using FluentValidation;
 namespace FitCore.Classes.Application.Notifications;
 
 /// <param name="Data">Referencias para abrir lo que corresponde (<c>sessionId</c>, <c>reservationId</c>).</param>
-public sealed record NotificationDto(Guid Id, string Type, string Title, string Body, JsonElement Data, bool Critical, DateTimeOffset CreatedAt, bool IsRead, DateTimeOffset? ReadAt)
+public sealed record InboxNotificationDto(Guid Id, string Type, string Title, string Body, JsonElement Data, bool Critical, DateTimeOffset CreatedAt, bool IsRead, DateTimeOffset? ReadAt)
 {
-    public static NotificationDto From(InboxNotification n) =>
+    public static InboxNotificationDto From(InboxNotification n) =>
         new(n.Id, n.Type.ToString(), n.Title, n.Body, ParseData(n.Data), NotificationCatalog.IsCritical(n.Type), n.CreatedAt, n.IsRead, n.ReadAt);
 
     private static JsonElement ParseData(string data)
@@ -29,11 +29,11 @@ public sealed record PreferenceChange(NotificationType Type, bool Enabled);
 
 public sealed record UpdatePreferencesRequest(IReadOnlyList<PreferenceChange> Preferences);
 
-public sealed record ListMyNotificationsQuery(PageRequest Page, bool UnreadOnly, NotificationType? Type) : IQuery<PagedResult<NotificationDto>>;
+public sealed record ListMyNotificationsQuery(PageRequest Page, bool UnreadOnly, NotificationType? Type) : IQuery<PagedResult<InboxNotificationDto>>;
 
 public sealed record GetNotificationSummaryQuery : IQuery<NotificationSummaryDto>;
 
-public sealed record MarkNotificationReadCommand(Guid Id) : ICommand<NotificationDto>;
+public sealed record MarkNotificationReadCommand(Guid Id) : ICommand<InboxNotificationDto>;
 
 public sealed record MarkAllNotificationsReadCommand : ICommand<MarkAllReadResultDto>;
 

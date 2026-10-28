@@ -2004,6 +2004,470 @@ export interface paths {
         patch: operations["SetGlobalExerciseStatus"];
         trace?: never;
     };
+    "/api/v1/group-classes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListGroupClasses"];
+        put?: never;
+        post: operations["CreateGroupClass"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/group-classes/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetGroupClass"];
+        put: operations["UpdateGroupClass"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/group-classes/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetGroupClassStatus"];
+        trace?: never;
+    };
+    "/api/v1/class-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListClassSessions"];
+        put?: never;
+        post: operations["CreateClassSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetClassSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["UpdateClassSession"];
+        trace?: never;
+    };
+    "/api/v1/class-sessions/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CancelClassSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/recurrences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListClassSeries"];
+        put?: never;
+        post: operations["CreateClassSeries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/recurrences/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetClassSeries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/recurrences/{id}/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["GenerateClassSeries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/recurrences/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CancelClassSeries"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListClassReservations"];
+        put?: never;
+        post: operations["CreateClassReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-reservations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetClassReservation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-reservations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CancelClassReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-reservations/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcceptClassReservationOffer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-reservations/{id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeclineClassReservationOffer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/class-reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMyClassReservations"];
+        put?: never;
+        post: operations["CreateMyClassReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/class-reservations/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CancelMyClassReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/class-reservations/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcceptMyClassReservationOffer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/class-reservations/{id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DeclineMyClassReservationOffer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/{id}/roster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetClassRoster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/{id}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["RecordClassAttendance"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-sessions/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CompleteClassSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/class-attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListClassAttendance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/class-attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMyClassAttendance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMyNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMyNotificationSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notifications/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["MarkMyNotificationRead"];
+        trace?: never;
+    };
+    "/api/v1/me/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MarkAllMyNotificationsRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/me/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMyNotificationPreferences"];
+        put: operations["UpdateMyNotificationPreferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2030,6 +2494,8 @@ export interface components {
         };
         /** @enum {unknown} */
         AccessPolicy: "RequireFullPayment" | "AllowUntilOverdue" | "AllowWithMinimumPayment";
+        /** @enum {unknown} */
+        ActivityType: "Yoga" | "Spinning" | "Functional" | "Zumba" | "Pilates" | "Stretching" | "Boxing" | "Dance" | "Other";
         AgingBucketDto: {
             label: string;
             /** Format: int32 */
@@ -2205,6 +2671,14 @@ export interface components {
             checkOutBy: string | null;
             isOpen: boolean;
         };
+        AttendanceEntryRequest: {
+            /** Format: uuid */
+            reservationId: string;
+            outcome: components["schemas"]["AttendanceOutcome"];
+            notes: string | null;
+        };
+        /** @enum {unknown} */
+        AttendanceOutcome: "Attended" | "NoShow";
         AuditLogDto: {
             /** Format: int64 */
             id: number;
@@ -2249,6 +2723,14 @@ export interface components {
         };
         CancelRequest: {
             reason: string;
+        };
+        CancelReservationRequest: {
+            reason: string | null;
+        };
+        CancelSeriesResultDto: {
+            series: components["schemas"]["ClassSeriesDto"];
+            /** Format: int32 */
+            cancelledSessions: number;
         };
         CashMovementDto: {
             /** Format: uuid */
@@ -2350,6 +2832,111 @@ export interface components {
             memberCode: string | null;
             qrToken: string | null;
         };
+        ClassAttendanceDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            reservationId: string;
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: uuid */
+            classId: string;
+            className: string;
+            activity: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            instructorName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: uuid */
+            memberId: string;
+            memberName: string;
+            memberCode: string;
+            outcome: string;
+            notes: string | null;
+            hasGymEntry: boolean;
+            /** Format: date-time */
+            recordedAt: string;
+            recordedByName: string;
+            /** Format: date-time */
+            correctedAt: string | null;
+        };
+        /** @enum {unknown} */
+        ClassLevel: "AllLevels" | "Beginner" | "Intermediate" | "Advanced";
+        ClassSeriesDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            classId: string;
+            className: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: uuid */
+            instructorId: string;
+            instructorName: string;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            durationMinutes: number;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
+            /** Format: time */
+            startTime: string;
+            days: string[];
+            status: string;
+            cancelReason: string | null;
+            /** Format: int32 */
+            totalSessions: number;
+            /** Format: int32 */
+            scheduledSessions: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        ClassSessionDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            classId: string;
+            className: string;
+            activity: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: uuid */
+            seriesId: string | null;
+            /** Format: uuid */
+            instructorId: string;
+            instructorName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            bookedCount: number;
+            /** Format: int32 */
+            waitlistCount: number;
+            status: string;
+            notes: string | null;
+            cancelReason: string | null;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            availabilityOverrideReason: string | null;
+            isModified: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
         CloseCashRequest: {
             /** Format: uuid */
             sessionId: string | null;
@@ -2371,6 +2958,10 @@ export interface components {
             maxDiscountPercent: number;
             /** Format: date-time */
             updatedAt: string | null;
+        };
+        CompleteSessionRequest: {
+            /** @default false */
+            markPendingAsNoShow: boolean;
         };
         CreateBranchRequest: {
             code: string;
@@ -2403,6 +2994,12 @@ export interface components {
             emergencyContactRelationship: string | null;
             notes: string | null;
         };
+        CreateMyReservationRequest: {
+            /** Format: uuid */
+            sessionId: string;
+            /** @default false */
+            joinWaitlist: boolean;
+        };
         CreateObligationRequest: {
             /** Format: uuid */
             memberId: string;
@@ -2427,11 +3024,46 @@ export interface components {
             notes: string | null;
             allocations: components["schemas"]["AllocationRequest"][] | null;
         };
+        CreateReservationRequest: {
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: uuid */
+            memberId: string;
+            /** @default false */
+            joinWaitlist: boolean;
+        };
         CreateRoleRequest: {
             name: string;
             description: string | null;
             grantsAllBranches: boolean;
             permissions: string[] | null;
+        };
+        CreateSeriesRequest: {
+            /** Format: uuid */
+            classId: string;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
+            /** Format: time */
+            startTime: string;
+            days: components["schemas"]["DayOfWeek"][];
+            /** Format: uuid */
+            instructorId: string | null;
+            /** Format: int32 */
+            capacity: number | null;
+        };
+        CreateSessionRequest: {
+            /** Format: uuid */
+            classId: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: uuid */
+            instructorId: string | null;
+            /** Format: int32 */
+            capacity: number | null;
+            notes: string | null;
+            availabilityOverrideReason: string | null;
         };
         CreateTaxRateRequest: {
             /** Format: double */
@@ -2659,6 +3291,10 @@ export interface components {
         FreezeRequest: {
             reason: string | null;
         };
+        GenerateSeriesRequest: {
+            /** Format: date */
+            endDate: string | null;
+        };
         /** @enum {unknown} */
         GoalCategory: "BodyMetric" | "SessionsPerWeek" | "Custom";
         GoalDto: {
@@ -2711,8 +3347,92 @@ export interface components {
         GrantPhotoConsentRequest: {
             guardianName: string | null;
         };
+        GroupClassDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            description: string | null;
+            activity: string;
+            /** Format: uuid */
+            instructorId: string;
+            instructorName: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: int32 */
+            durationMinutes: number;
+            /** Format: int32 */
+            capacity: number;
+            level: string;
+            requirements: string | null;
+            /** Format: int32 */
+            minBookingNoticeMinutes: number;
+            /** Format: int32 */
+            maxBookingAdvanceDays: number;
+            /** Format: int32 */
+            cancellationDeadlineMinutes: number;
+            waitlistEnabled: boolean;
+            /** Format: int32 */
+            waitlistCapacity: number;
+            /** Format: int32 */
+            offerWindowMinutes: number;
+            requireActiveMembership: boolean;
+            applyPaymentPolicy: boolean;
+            /** Format: int32 */
+            minAge: number | null;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        GroupClassRequest: {
+            /** Format: uuid */
+            branchId: string | null;
+            name: string;
+            description: string | null;
+            activity: components["schemas"]["ActivityType"];
+            /** Format: uuid */
+            instructorId: string;
+            /** Format: int32 */
+            durationMinutes: number;
+            /** Format: int32 */
+            capacity: number;
+            level: components["schemas"]["ClassLevel"];
+            requirements: string | null;
+            /** Format: int32 */
+            minBookingNoticeMinutes: number;
+            /** Format: int32 */
+            maxBookingAdvanceDays: number;
+            /** Format: int32 */
+            cancellationDeadlineMinutes: number;
+            waitlistEnabled: boolean;
+            /** Format: int32 */
+            waitlistCapacity: number;
+            /** Format: int32 */
+            offerWindowMinutes: number;
+            requireActiveMembership: boolean;
+            applyPaymentPolicy: boolean;
+            /** Format: int32 */
+            minAge: number | null;
+        };
         /** @enum {unknown} */
         IdentificationType: "Cedula" | "Ruc" | "Passport" | "Other";
+        InboxNotificationDto: {
+            /** Format: uuid */
+            id: string;
+            type: string;
+            title: string;
+            body: string;
+            data: components["schemas"]["JsonElement"];
+            critical: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            isRead: boolean;
+            /** Format: date-time */
+            readAt: string | null;
+        };
+        JsonElement: unknown;
         LoginRequest: {
             tenantSlug: string;
             email: string;
@@ -2729,6 +3449,10 @@ export interface components {
             date: string | null;
             status: components["schemas"]["MealLogStatus"];
             notes: string | null;
+        };
+        MarkAllReadResultDto: {
+            /** Format: int32 */
+            marked: number;
         };
         MealDto: {
             /** Format: uuid */
@@ -3057,6 +3781,13 @@ export interface components {
             /** Format: date-time */
             sentAt: string | null;
         };
+        NotificationPreferenceDto: {
+            type: string;
+            label: string;
+            description: string;
+            enabled: boolean;
+            required: boolean;
+        };
         NotificationSettingsDto: {
             enabled: boolean;
             staffPhones: string[];
@@ -3064,6 +3795,17 @@ export interface components {
             /** Format: date-time */
             updatedAt: string | null;
         };
+        NotificationSummaryDto: {
+            /** Format: int32 */
+            unread: number;
+        };
+        /** @enum {unknown} */
+        NotificationType: "ReservationConfirmed" | "WaitlistJoined" | "WaitlistOffer" | "WaitlistOfferExpired" | "ReservationCancelledByGym" | "SessionCancelled" | "SessionRescheduled" | "ClassReminder";
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfAttendanceOutcome: "Attended" | "NoShow" | null;
         /** @enum {unknown|null} */
         NullableOfBodyFatMethod: "Caliper" | "Bioimpedance" | "Dexa" | "Other" | null;
         /**
@@ -3093,6 +3835,11 @@ export interface components {
          * @enum {unknown}
          */
         NullableOfPlanStatus: "Active" | "Archived" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfReservationStatus: "Confirmed" | "Waitlisted" | "Offered" | "Cancelled" | "Expired" | null;
         NutritionAdherenceDto: {
             /** Format: date */
             from: string;
@@ -3417,8 +4164,53 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfClassAttendanceDto: {
+            items: components["schemas"]["ClassAttendanceDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfClassSeriesDto: {
+            items: components["schemas"]["ClassSeriesDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfClassSessionDto: {
+            items: components["schemas"]["ClassSessionDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfExerciseDto: {
             items: components["schemas"]["ExerciseDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfGroupClassDto: {
+            items: components["schemas"]["GroupClassDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfInboxNotificationDto: {
+            items: components["schemas"]["InboxNotificationDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -3527,6 +4319,15 @@ export interface components {
         };
         PagedResultOfPromotionDto: {
             items: components["schemas"]["PromotionDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfReservationDto: {
+            items: components["schemas"]["ReservationDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -3834,6 +4635,10 @@ export interface components {
             /** Format: uuid */
             createdBy: string | null;
         };
+        PreferenceChange: {
+            type: components["schemas"]["NotificationType"];
+            enabled: boolean;
+        };
         ProgressPhotoDto: {
             /** Format: uuid */
             id: string;
@@ -3972,6 +4777,9 @@ export interface components {
             byBranch: components["schemas"]["ReceivablesBranchDto"][];
             topDebtors: components["schemas"]["DebtorDto"][];
         };
+        RecordAttendanceRequest: {
+            entries: components["schemas"]["AttendanceEntryRequest"][];
+        };
         RefreshRequest: {
             refreshToken: string | null;
         } | null;
@@ -3983,6 +4791,43 @@ export interface components {
             promotionCode: string | null;
             /** Format: date */
             dueDate: string | null;
+        };
+        ReservationDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: uuid */
+            classId: string;
+            className: string;
+            activity: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            instructorName: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            sessionStatus: string;
+            /** Format: uuid */
+            memberId: string;
+            memberName: string;
+            memberCode: string;
+            status: string;
+            source: string;
+            /** Format: date-time */
+            bookedAt: string;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            cancelReason: string | null;
+            lateCancellation: boolean;
+            /** Format: int32 */
+            waitlistPosition: number | null;
+            /** Format: date-time */
+            offeredAt: string | null;
+            /** Format: date-time */
+            offerExpiresAt: string | null;
         };
         ReversePaymentRequest: {
             reason: string;
@@ -4000,6 +4845,61 @@ export interface components {
             isSystem: boolean;
             grantsAllBranches: boolean;
             permissions: string[];
+        };
+        RosterDto: {
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: uuid */
+            classId: string;
+            className: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            endsAt: string;
+            sessionStatus: string;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            confirmed: number;
+            /** Format: int32 */
+            attended: number;
+            /** Format: int32 */
+            noShow: number;
+            /** Format: int32 */
+            pending: number;
+            participants: components["schemas"]["RosterEntryDto"][];
+            offers: unknown[];
+            waitlist: unknown[];
+        };
+        RosterEntryDto: {
+            /** Format: uuid */
+            reservationId: string;
+            /** Format: uuid */
+            memberId: string;
+            memberName: string;
+            memberCode: string;
+            reservationStatus: string;
+            /** Format: int32 */
+            waitlistPosition: number | null;
+            outcome: string | null;
+            notes: string | null;
+            /** Format: date-time */
+            recordedAt: string | null;
+            hasGymEntry: boolean;
+            /** Format: date-time */
+            bookedAt: string;
+            /** Format: date-time */
+            offerExpiresAt: string | null;
+        };
+        SeriesRunDto: {
+            series: components["schemas"]["ClassSeriesDto"];
+            /** Format: int32 */
+            created: number;
+            /** Format: int32 */
+            alreadyExisted: number;
+            /** Format: int32 */
+            pastDates: number;
+            skipped: components["schemas"]["SkippedOccurrenceDto"][];
         };
         SessionComparisonDto: {
             a: components["schemas"]["WorkoutSessionDto"];
@@ -4048,6 +4948,9 @@ export interface components {
         SetExerciseStatusRequest: {
             isActive: boolean;
         };
+        SetGroupClassStatusRequest: {
+            isActive: boolean;
+        };
         SetMemberAccessActiveRequest: {
             active: boolean;
         };
@@ -4080,6 +4983,11 @@ export interface components {
         };
         SetWhatsAppConsentRequest: {
             granted: boolean;
+        };
+        SkippedOccurrenceDto: {
+            /** Format: date */
+            date: string;
+            reason: string;
         };
         SystemInfoResponse: {
             name: string;
@@ -4272,11 +5180,24 @@ export interface components {
             timeZone: string;
             locale: string;
         };
+        UpdatePreferencesRequest: {
+            preferences: components["schemas"]["PreferenceChange"][];
+        };
         UpdateRoleRequest: {
             name: string;
             description: string | null;
             grantsAllBranches: boolean;
             permissions: string[] | null;
+        };
+        UpdateSessionRequest: {
+            /** Format: date-time */
+            startsAt: string | null;
+            /** Format: uuid */
+            instructorId: string | null;
+            /** Format: int32 */
+            capacity: number | null;
+            notes: string | null;
+            availabilityOverrideReason: string | null;
         };
         UpdateTrainerRequest: {
             specialties: string[] | null;
@@ -8301,6 +9222,911 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    ListGroupClasses: {
+        parameters: {
+            query?: {
+                search?: string;
+                activity?: "Yoga" | "Spinning" | "Functional" | "Zumba" | "Pilates" | "Stretching" | "Boxing" | "Dance" | "Other" | null;
+                level?: "AllLevels" | "Beginner" | "Intermediate" | "Advanced" | null;
+                branchId?: string;
+                instructorId?: string;
+                isActive?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfGroupClassDto"];
+                };
+            };
+        };
+    };
+    CreateGroupClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupClassRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupClassDto"];
+                };
+            };
+        };
+    };
+    GetGroupClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupClassDto"];
+                };
+            };
+        };
+    };
+    UpdateGroupClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupClassRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupClassDto"];
+                };
+            };
+        };
+    };
+    SetGroupClassStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetGroupClassStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupClassDto"];
+                };
+            };
+        };
+    };
+    ListClassSessions: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                classId?: string;
+                branchId?: string;
+                instructorId?: string;
+                seriesId?: string;
+                status?: "Scheduled" | "Cancelled" | "Completed" | null;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfClassSessionDto"];
+                };
+            };
+        };
+    };
+    CreateClassSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionDto"];
+                };
+            };
+        };
+    };
+    GetClassSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionDto"];
+                };
+            };
+        };
+    };
+    UpdateClassSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionDto"];
+                };
+            };
+        };
+    };
+    CancelClassSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionDto"];
+                };
+            };
+        };
+    };
+    ListClassSeries: {
+        parameters: {
+            query?: {
+                classId?: string;
+                branchId?: string;
+                status?: "Active" | "Cancelled" | null;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfClassSeriesDto"];
+                };
+            };
+        };
+    };
+    CreateClassSeries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSeriesRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeriesRunDto"];
+                };
+            };
+        };
+    };
+    GetClassSeries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSeriesDto"];
+                };
+            };
+        };
+    };
+    GenerateClassSeries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GenerateSeriesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeriesRunDto"];
+                };
+            };
+        };
+    };
+    CancelClassSeries: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CancelSeriesResultDto"];
+                };
+            };
+        };
+    };
+    ListClassReservations: {
+        parameters: {
+            query?: {
+                sessionId?: string;
+                memberId?: string;
+                branchId?: string;
+                status?: components["schemas"]["NullableOfReservationStatus"];
+                from?: string;
+                to?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfReservationDto"];
+                };
+            };
+        };
+    };
+    CreateClassReservation: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    GetClassReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    CancelClassReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    AcceptClassReservationOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    DeclineClassReservationOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    ListMyClassReservations: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["NullableOfReservationStatus"];
+                upcomingOnly?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfReservationDto"];
+                };
+            };
+        };
+    };
+    CreateMyClassReservation: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMyReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    CancelMyClassReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelReservationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    AcceptMyClassReservationOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    DeclineMyClassReservationOffer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    GetClassRoster: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RosterDto"];
+                };
+            };
+        };
+    };
+    RecordClassAttendance: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordAttendanceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RosterDto"];
+                };
+            };
+        };
+    };
+    CompleteClassSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RosterDto"];
+                };
+            };
+        };
+    };
+    ListClassAttendance: {
+        parameters: {
+            query?: {
+                sessionId?: string;
+                memberId?: string;
+                branchId?: string;
+                outcome?: components["schemas"]["NullableOfAttendanceOutcome"];
+                from?: string;
+                to?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfClassAttendanceDto"];
+                };
+            };
+        };
+    };
+    ListMyClassAttendance: {
+        parameters: {
+            query?: {
+                outcome?: components["schemas"]["NullableOfAttendanceOutcome"];
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfClassAttendanceDto"];
+                };
+            };
+        };
+    };
+    ListMyNotifications: {
+        parameters: {
+            query?: {
+                unreadOnly?: boolean;
+                type?: "ReservationConfirmed" | "WaitlistJoined" | "WaitlistOffer" | "WaitlistOfferExpired" | "ReservationCancelledByGym" | "SessionCancelled" | "SessionRescheduled" | "ClassReminder" | null;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfInboxNotificationDto"];
+                };
+            };
+        };
+    };
+    GetMyNotificationSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSummaryDto"];
+                };
+            };
+        };
+    };
+    MarkMyNotificationRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InboxNotificationDto"];
+                };
+            };
+        };
+    };
+    MarkAllMyNotificationsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkAllReadResultDto"];
+                };
+            };
+        };
+    };
+    GetMyNotificationPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferenceDto"][];
+                };
+            };
+        };
+    };
+    UpdateMyNotificationPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePreferencesRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferenceDto"][];
                 };
             };
         };

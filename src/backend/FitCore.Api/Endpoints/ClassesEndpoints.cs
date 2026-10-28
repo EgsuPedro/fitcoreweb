@@ -30,7 +30,7 @@ internal static class ClassesEndpoints
         group.MapGet("/notifications", async (IDispatcher dispatcher, CancellationToken ct, bool unreadOnly = false, NotificationType? type = null, int page = 1, int pageSize = 25) =>
                 (await dispatcher.QueryAsync(new ListMyNotificationsQuery(new PageRequest(page, pageSize), unreadOnly, type), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.InboxUse)
-            .Produces<PagedResult<NotificationDto>>()
+            .Produces<PagedResult<InboxNotificationDto>>()
             .WithName("ListMyNotifications");
 
         group.MapGet("/notifications/summary", async (IDispatcher dispatcher, CancellationToken ct) =>
@@ -42,7 +42,7 @@ internal static class ClassesEndpoints
         group.MapPatch("/notifications/{id:guid}/read", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new MarkNotificationReadCommand(id), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.InboxUse)
-            .Produces<NotificationDto>()
+            .Produces<InboxNotificationDto>()
             .WithName("MarkMyNotificationRead");
 
         group.MapPost("/notifications/read-all", async (IDispatcher dispatcher, CancellationToken ct) =>

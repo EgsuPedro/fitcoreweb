@@ -68,4 +68,13 @@ export const Perm = {
   PhotosManage: 'wellness.photos.manage',
   WellnessMembersAll: 'wellness.members.all',
   MeRead: 'me.read',
+  GroupClassesRead: 'group-classes.read',
+  GroupClassesManage: 'group-classes.manage',
+  ClassSessionsRead: 'class-sessions.read',
+  ClassSessionsManage: 'class-sessions.manage',
+  ClassReservationsRead: 'class-reservations.read',
+  ClassReservationsManage: 'class-reservations.manage',
+  ClassAttendanceRead: 'class-attendance.read',
+  ClassAttendanceManage: 'class-attendance.manage',
+  InboxUse: 'inbox.use',
 } as const;

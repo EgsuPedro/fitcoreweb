@@ -85,6 +85,32 @@ export class Formatter {
     return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
   }
 
+  /** Fecha y hora en la zona de la sucursal (las sesiones se muestran siempre en su hora, no en la del navegador). */
+  dateTimeIn(iso: string, timeZone: string): string {
+    return new Intl.DateTimeFormat(this.locale, { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(new Date(iso));
+  }
+
+  timeIn(iso: string, timeZone: string): string {
+    return new Intl.DateTimeFormat(this.locale, { timeStyle: 'short', timeZone }).format(new Date(iso));
+  }
+
+  /** «lunes 2 de noviembre» para una fecha local `YYYY-MM-DD`. */
+  dayHeading(dateKey: string): string {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    return new Intl.DateTimeFormat(this.locale, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(year, month - 1, day)));
+  }
+
+  /** «lun» y «2» para las cabeceras de una semana. */
+  weekdayShort(dateKey: string): string {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    return new Intl.DateTimeFormat(this.locale, { weekday: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(year, month - 1, day)));
+  }
+
+  monthTitle(dateKey: string): string {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    return new Intl.DateTimeFormat(this.locale, { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(year, month - 1, day)));
+  }
+
   date(iso: string): string {
     const locale = this.transloco.getActiveLang() === 'en' ? 'en-US' : 'es-EC';
     return new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(new Date(iso));

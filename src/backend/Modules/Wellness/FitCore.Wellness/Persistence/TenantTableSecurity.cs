@@ -76,6 +76,7 @@ internal static class TenantTableSecurity
             BEGIN
               IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'fitcore_app') THEN
                 FOR r IN SELECT * FROM (VALUES
+                  ('training.exercises', 'DELETE'),
                   ('training.trainer_assignments', 'DELETE'),
                   ('training.trainer_notes', 'UPDATE, DELETE')
                 ) AS t(tbl, privs) LOOP

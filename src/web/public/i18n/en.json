@@ -77,7 +77,9 @@
     "settings": "Policies",
     "taxRates": "VAT rates",
     "notifications": "Notifications",
-    "trainers": "Trainers"
+    "trainers": "Trainers",
+    "exercises": "Exercises",
+    "globalExercises": "Exercise catalog"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -385,6 +387,11 @@
       "availability_too_many": "At most 28 availability slots.",
       "availability_invalid_range": "The end time must be after the start time.",
       "availability_overlap": "Slots on the same day cannot overlap."
+    },
+    "exercises": {
+      "not_found": "Exercise not found.",
+      "name_taken": "An exercise with that name already exists.",
+      "global_readonly": "Base catalog exercises are managed by the platform: duplicate it to adapt it."
     }
   },
   "enums": {
@@ -501,6 +508,51 @@
       "Friday": "Friday",
       "Saturday": "Saturday",
       "Sunday": "Sunday"
+    },
+    "muscleGroup": {
+      "Chest": "Chest",
+      "Back": "Back",
+      "Shoulders": "Shoulders",
+      "Biceps": "Biceps",
+      "Triceps": "Triceps",
+      "Forearms": "Forearms",
+      "Core": "Core / abs",
+      "Quadriceps": "Quadriceps",
+      "Hamstrings": "Hamstrings",
+      "Glutes": "Glutes",
+      "Calves": "Calves",
+      "FullBody": "Full body"
+    },
+    "exerciseType": {
+      "Strength": "Strength",
+      "Cardio": "Cardio",
+      "Mobility": "Mobility",
+      "Flexibility": "Flexibility",
+      "Balance": "Balance",
+      "Plyometric": "Plyometric"
+    },
+    "equipment": {
+      "BodyWeight": "Body weight",
+      "Barbell": "Barbell",
+      "Dumbbell": "Dumbbells",
+      "Kettlebell": "Kettlebell",
+      "Machine": "Machine",
+      "Cable": "Cable",
+      "Band": "Resistance band",
+      "Bench": "Bench",
+      "PullUpBar": "Pull-up bar",
+      "CardioMachine": "Cardio machine",
+      "Other": "Other"
+    },
+    "difficulty": {
+      "Beginner": "Beginner",
+      "Intermediate": "Intermediate",
+      "Advanced": "Advanced"
+    },
+    "trackingMode": {
+      "RepsAndLoad": "Reps and load",
+      "Reps": "Reps",
+      "Duration": "Time"
     }
   },
   "members": {
@@ -999,5 +1051,47 @@
     "noNotes": "No notes yet.",
     "notesDenied": "Notes are confidential and only the trainer assigned to the member can see them.",
     "noteSavedToast": "Note saved."
+  },
+  "exercises": {
+    "title": "Exercises",
+    "globalTitle": "Base exercise catalog",
+    "new": "New exercise",
+    "edit": "Edit exercise",
+    "baseNote": "The base catalog is content suggested by the platform: validate it with your trainer. To adapt it, duplicate it and edit your copy.",
+    "baseWarning": "Suggested base catalog: validate this exercise with your trainer before using it. It does not replace a professional assessment.",
+    "searchHint": "Search exercise by name…",
+    "origin": "Origin",
+    "scopeGlobal": "Base catalog",
+    "scopeOwn": "Gym’s own",
+    "base": "Base catalog",
+    "name": "Name",
+    "description": "Description",
+    "muscle": "Primary muscle",
+    "allMuscles": "All muscles",
+    "secondary": "Secondary muscles",
+    "secondaryHint": "Up to 5. Do not include the primary one.",
+    "equipment": "Equipment",
+    "allEquipment": "All equipment",
+    "difficulty": "Difficulty",
+    "allLevels": "All levels",
+    "type": "Type",
+    "allTypes": "All types",
+    "tracking": "Tracked by",
+    "trackingHint": "Defines what routines ask for: reps with load, reps only, or time.",
+    "instructions": "Step-by-step instructions",
+    "mistakes": "Common mistakes",
+    "linesHint": "One item per line.",
+    "warnings": "Contraindications or warnings",
+    "video": "External resource (video)",
+    "videoHint": "Optional. Only https links from a source you know; the system does not include its own videos.",
+    "empty": "No exercises to show.",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "deactivateConfirm": "“{{ name }}” will no longer be offered in new routines. Earlier routines and sessions keep showing it. Continue?",
+    "activateConfirm": "Offer “{{ name }}” in routines again?",
+    "duplicate": "Duplicate",
+    "invalidForm": "Check the name (at least 2 characters) and that the link, if any, starts with https://",
+    "savedToast": "Exercise saved.",
+    "duplicatedToast": "Copy created: you can edit it now."
   }
 }

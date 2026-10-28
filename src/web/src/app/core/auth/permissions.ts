@@ -2,6 +2,7 @@
 export const Perm = {
   PlatformTenantsManage: 'platform.tenants.manage',
   PlatformTaxesManage: 'platform.taxes.manage',
+  PlatformExercisesManage: 'platform.exercises.manage',
   OrganizationRead: 'organization.read',
   OrganizationUpdate: 'organization.update',
   BranchesRead: 'branches.read',
@@ -43,6 +44,8 @@ export const Perm = {
   CommercialSettingsManage: 'commercial.settings.manage',
   NotificationsRead: 'notifications.read',
   MembersAccess: 'members.access',
+  ExercisesRead: 'exercises.read',
+  ExercisesManage: 'exercises.manage',
   TrainersRead: 'trainers.read',
   TrainersManage: 'trainers.manage',
   TrainersNotes: 'trainers.notes',

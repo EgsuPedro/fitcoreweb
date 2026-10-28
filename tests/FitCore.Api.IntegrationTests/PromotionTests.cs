@@ -8,7 +8,8 @@ namespace FitCore.Api.IntegrationTests;
 [Collection(ApiCollection4.Name)]
 public class PromotionTests(ApiFixture api)
 {
-    private static DateOnly Today => DateOnly.FromDateTime(DateTime.UtcNow);
+    /// <summary>La fecha que usa el producto es la de Ecuador, no la UTC: entre las 19:00 y la medianoche locales difieren.</summary>
+    private static DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil")).DateTime);
 
     [Fact]
     public async Task Crear_una_promocion_valida_normaliza_el_codigo_y_queda_activa()

@@ -1252,6 +1252,118 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/exercises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListExercises"];
+        put?: never;
+        post: operations["CreateExercise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exercises/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetExercise"];
+        put: operations["UpdateExercise"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/exercises/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetExerciseStatus"];
+        trace?: never;
+    };
+    "/api/v1/exercises/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DuplicateExercise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/exercises": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListGlobalExercises"];
+        put?: never;
+        post: operations["CreateGlobalExercise"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/exercises/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UpdateGlobalExercise"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/exercises/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetGlobalExerciseStatus"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1621,6 +1733,8 @@ export interface components {
             openObligations: number;
         };
         /** @enum {unknown} */
+        Difficulty: "Beginner" | "Intermediate" | "Advanced";
+        /** @enum {unknown} */
         DiscountType: "Percentage" | "FixedAmount";
         /** @enum {unknown} */
         DurationUnit: "Day" | "Week" | "Month" | "Year";
@@ -1637,6 +1751,46 @@ export interface components {
             /** Format: date */
             dueDate: string | null;
         };
+        /** @enum {unknown} */
+        Equipment: "BodyWeight" | "Barbell" | "Dumbbell" | "Kettlebell" | "Machine" | "Cable" | "Band" | "Bench" | "PullUpBar" | "CardioMachine" | "Other";
+        ExerciseDto: {
+            /** Format: uuid */
+            id: string;
+            isGlobal: boolean;
+            name: string;
+            description: string | null;
+            primaryMuscle: string;
+            secondaryMuscles: string[];
+            type: string;
+            equipment: string;
+            difficulty: string;
+            trackingMode: string;
+            instructions: string[];
+            commonMistakes: string[];
+            warnings: string | null;
+            videoUrl: string | null;
+            isActive: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        ExerciseRequest: {
+            name: string;
+            description: string | null;
+            primaryMuscle: components["schemas"]["MuscleGroup"];
+            secondaryMuscles: components["schemas"]["MuscleGroup"][] | null;
+            type: components["schemas"]["ExerciseType"];
+            equipment: components["schemas"]["Equipment"];
+            difficulty: components["schemas"]["Difficulty"];
+            trackingMode: components["schemas"]["TrackingMode"];
+            instructions: string[] | null;
+            commonMistakes: string[] | null;
+            warnings: string | null;
+            videoUrl: string | null;
+        };
+        /** @enum {unknown} */
+        ExerciseType: "Strength" | "Cardio" | "Mobility" | "Flexibility" | "Balance" | "Plyometric";
         FreezeRequest: {
             reason: string | null;
         };
@@ -1778,6 +1932,8 @@ export interface components {
             /** @default false */
             mustChangePassword: boolean;
         };
+        /** @enum {unknown} */
+        MuscleGroup: "Chest" | "Back" | "Shoulders" | "Biceps" | "Triceps" | "Forearms" | "Core" | "Quadriceps" | "Hamstrings" | "Glutes" | "Calves" | "FullBody";
         MyAttendanceDto: {
             /** Format: uuid */
             id: string;
@@ -1869,6 +2025,26 @@ export interface components {
             /** Format: date-time */
             updatedAt: string | null;
         };
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfDifficulty: "Beginner" | "Intermediate" | "Advanced" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfEquipment: "BodyWeight" | "Barbell" | "Dumbbell" | "Kettlebell" | "Machine" | "Cable" | "Band" | "Bench" | "PullUpBar" | "CardioMachine" | "Other" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfExerciseType: "Strength" | "Cardio" | "Mobility" | "Flexibility" | "Balance" | "Plyometric" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfMuscleGroup: "Chest" | "Back" | "Shoulders" | "Biceps" | "Triceps" | "Forearms" | "Core" | "Quadriceps" | "Hamstrings" | "Glutes" | "Calves" | "FullBody" | null;
         ObligationDto: {
             /** Format: uuid */
             id: string;
@@ -2022,6 +2198,15 @@ export interface components {
         };
         PagedResultOfCashSessionDto: {
             items: components["schemas"]["CashSessionDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfExerciseDto: {
+            items: components["schemas"]["ExerciseDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -2406,6 +2591,9 @@ export interface components {
         SetAvailabilityRequest: {
             slots: components["schemas"]["AvailabilitySlotRequest"][] | null;
         };
+        SetExerciseStatusRequest: {
+            isActive: boolean;
+        };
         SetMemberAccessActiveRequest: {
             active: boolean;
         };
@@ -2467,6 +2655,8 @@ export interface components {
             /** Format: date-time */
             refreshTokenExpiresAt: string;
         };
+        /** @enum {unknown} */
+        TrackingMode: "RepsAndLoad" | "Reps" | "Duration";
         TrainerDto: {
             /** Format: uuid */
             id: string;
@@ -5128,6 +5318,261 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TrainerNoteDto"];
+                };
+            };
+        };
+    };
+    ListExercises: {
+        parameters: {
+            query?: {
+                search?: string;
+                muscle?: components["schemas"]["NullableOfMuscleGroup"];
+                equipment?: components["schemas"]["NullableOfEquipment"];
+                difficulty?: components["schemas"]["NullableOfDifficulty"];
+                type?: components["schemas"]["NullableOfExerciseType"];
+                scope?: string;
+                isActive?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfExerciseDto"];
+                };
+            };
+        };
+    };
+    CreateExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    GetExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    UpdateExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    SetExerciseStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetExerciseStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    DuplicateExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    ListGlobalExercises: {
+        parameters: {
+            query?: {
+                search?: string;
+                muscle?: components["schemas"]["NullableOfMuscleGroup"];
+                equipment?: components["schemas"]["NullableOfEquipment"];
+                difficulty?: components["schemas"]["NullableOfDifficulty"];
+                type?: components["schemas"]["NullableOfExerciseType"];
+                isActive?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfExerciseDto"];
+                };
+            };
+        };
+    };
+    CreateGlobalExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    UpdateGlobalExercise: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExerciseRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    SetGlobalExerciseStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetExerciseStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseDto"];
                 };
             };
         };

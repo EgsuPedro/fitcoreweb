@@ -8,6 +8,7 @@ public static class Permissions
 {
     public const string PlatformTenantsManage = "platform.tenants.manage";
     public const string PlatformTaxesManage = "platform.taxes.manage";
+    public const string PlatformExercisesManage = "platform.exercises.manage";
 
     public const string OrganizationRead = "organization.read";
     public const string OrganizationUpdate = "organization.update";
@@ -63,6 +64,9 @@ public static class Permissions
 
     public const string NotificationsRead = "notifications.read";
 
+    public const string ExercisesRead = "exercises.read";
+    public const string ExercisesManage = "exercises.manage";
+
     public const string TrainersRead = "trainers.read";
     public const string TrainersManage = "trainers.manage";
     public const string TrainersNotes = "trainers.notes";
@@ -75,6 +79,7 @@ public static class Permissions
     [
         new(PlatformTenantsManage, "platform", "Administrar gimnasios (solo equipo de plataforma)"),
         new(PlatformTaxesManage, "platform", "Administrar las tarifas de IVA (solo equipo de plataforma)"),
+        new(PlatformExercisesManage, "platform", "Administrar el catálogo base de ejercicios (solo equipo de plataforma)"),
         new(OrganizationRead, "organization", "Ver datos del gimnasio"),
         new(OrganizationUpdate, "organization", "Editar datos del gimnasio"),
         new(BranchesRead, "branches", "Ver sucursales"),
@@ -115,6 +120,8 @@ public static class Permissions
         new(AttendanceOverride, "attendance", "Autorizar accesos excepcionales"),
         new(CommercialSettingsManage, "commercial", "Configurar políticas comerciales del gimnasio"),
         new(NotificationsRead, "notifications", "Consultar los avisos de WhatsApp enviados"),
+        new(ExercisesRead, "exercises", "Ver la biblioteca de ejercicios"),
+        new(ExercisesManage, "exercises", "Crear, editar, duplicar y desactivar los ejercicios del gimnasio"),
         new(TrainersRead, "trainers", "Ver los perfiles de los entrenadores"),
         new(TrainersManage, "trainers", "Habilitar entrenadores, editar sus perfiles y asignarles alumnos"),
         new(TrainersNotes, "trainers", "Escribir y leer observaciones profesionales de los alumnos asignados", Sensitive: true),

@@ -24,7 +24,7 @@ public class TrainerTests(ApiFixture api)
 
     private sealed record Trainer(TrainerRow Profile, HttpClient Client, string Email);
 
-    private static DateOnly Today => DateOnly.FromDateTime(DateTime.UtcNow);
+    private static DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("America/Guayaquil")).DateTime);
 
     private async Task<Trainer> NewTrainerAsync(TestTenant tenant, string email, Guid branch, string[]? specialties = null, string role = "Entrenador")
     {

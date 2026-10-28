@@ -77,7 +77,9 @@
     "settings": "Políticas",
     "taxRates": "Tarifas de IVA",
     "notifications": "Notificaciones",
-    "trainers": "Entrenadores"
+    "trainers": "Entrenadores",
+    "exercises": "Ejercicios",
+    "globalExercises": "Catálogo de ejercicios"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -385,6 +387,11 @@
       "availability_too_many": "Máximo 28 franjas de disponibilidad.",
       "availability_invalid_range": "La hora de fin debe ser posterior a la de inicio.",
       "availability_overlap": "Las franjas de un mismo día no pueden solaparse."
+    },
+    "exercises": {
+      "not_found": "Ejercicio no encontrado.",
+      "name_taken": "Ya existe un ejercicio con ese nombre.",
+      "global_readonly": "Los ejercicios del catálogo base los administra la plataforma: duplíquelo para adaptarlo."
     }
   },
   "enums": {
@@ -501,6 +508,51 @@
       "Friday": "Viernes",
       "Saturday": "Sábado",
       "Sunday": "Domingo"
+    },
+    "muscleGroup": {
+      "Chest": "Pecho",
+      "Back": "Espalda",
+      "Shoulders": "Hombros",
+      "Biceps": "Bíceps",
+      "Triceps": "Tríceps",
+      "Forearms": "Antebrazos",
+      "Core": "Core / abdomen",
+      "Quadriceps": "Cuádriceps",
+      "Hamstrings": "Isquiotibiales",
+      "Glutes": "Glúteos",
+      "Calves": "Pantorrillas",
+      "FullBody": "Cuerpo completo"
+    },
+    "exerciseType": {
+      "Strength": "Fuerza",
+      "Cardio": "Cardio",
+      "Mobility": "Movilidad",
+      "Flexibility": "Flexibilidad",
+      "Balance": "Equilibrio",
+      "Plyometric": "Pliométrico"
+    },
+    "equipment": {
+      "BodyWeight": "Peso corporal",
+      "Barbell": "Barra",
+      "Dumbbell": "Mancuernas",
+      "Kettlebell": "Pesa rusa",
+      "Machine": "Máquina",
+      "Cable": "Polea",
+      "Band": "Banda elástica",
+      "Bench": "Banco",
+      "PullUpBar": "Barra de dominadas",
+      "CardioMachine": "Máquina de cardio",
+      "Other": "Otro"
+    },
+    "difficulty": {
+      "Beginner": "Principiante",
+      "Intermediate": "Intermedio",
+      "Advanced": "Avanzado"
+    },
+    "trackingMode": {
+      "RepsAndLoad": "Repeticiones y carga",
+      "Reps": "Repeticiones",
+      "Duration": "Tiempo"
     }
   },
   "members": {
@@ -999,5 +1051,47 @@
     "noNotes": "Todavía no hay observaciones.",
     "notesDenied": "Las observaciones son confidenciales y solo las ve el entrenador asignado al alumno.",
     "noteSavedToast": "Observación guardada."
+  },
+  "exercises": {
+    "title": "Ejercicios",
+    "globalTitle": "Catálogo base de ejercicios",
+    "new": "Nuevo ejercicio",
+    "edit": "Editar ejercicio",
+    "baseNote": "El catálogo base es contenido sugerido por la plataforma: valídelo con su entrenador. Para adaptarlo, duplíquelo y edite su copia.",
+    "baseWarning": "Catálogo base sugerido: valide este ejercicio con su entrenador antes de usarlo. No sustituye la valoración de un profesional.",
+    "searchHint": "Buscar ejercicio por nombre…",
+    "origin": "Origen",
+    "scopeGlobal": "Catálogo base",
+    "scopeOwn": "Del gimnasio",
+    "base": "Catálogo base",
+    "name": "Nombre",
+    "description": "Descripción",
+    "muscle": "Músculo principal",
+    "allMuscles": "Todos los músculos",
+    "secondary": "Músculos secundarios",
+    "secondaryHint": "Hasta 5. No incluya el principal.",
+    "equipment": "Equipamiento",
+    "allEquipment": "Todo el equipamiento",
+    "difficulty": "Dificultad",
+    "allLevels": "Todos los niveles",
+    "type": "Tipo",
+    "allTypes": "Todos los tipos",
+    "tracking": "Se registra por",
+    "trackingHint": "Define qué se pide en las rutinas: repeticiones con carga, solo repeticiones o tiempo.",
+    "instructions": "Instrucciones paso a paso",
+    "mistakes": "Errores comunes",
+    "linesHint": "Un elemento por línea.",
+    "warnings": "Contraindicaciones o advertencias",
+    "video": "Recurso externo (vídeo)",
+    "videoHint": "Opcional. Solo enlaces https de una fuente que usted conozca; el sistema no incluye vídeos propios.",
+    "empty": "No hay ejercicios para mostrar.",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "deactivateConfirm": "«{{ name }}» dejará de ofrecerse en nuevas rutinas. Las rutinas y sesiones anteriores lo siguen mostrando. ¿Continuar?",
+    "activateConfirm": "¿Volver a ofrecer «{{ name }}» en las rutinas?",
+    "duplicate": "Duplicar",
+    "invalidForm": "Revise el nombre (mínimo 2 caracteres) y que el enlace, si lo hay, empiece con https://",
+    "savedToast": "Ejercicio guardado.",
+    "duplicatedToast": "Copia creada: ya puede editarla."
   }
 }

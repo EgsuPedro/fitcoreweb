@@ -128,6 +128,131 @@ namespace FitCore.Wellness.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("FitCore.Wellness.Domain.Exercise", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.PrimitiveCollection<string[]>("CommonMistakes")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("common_mistakes");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Difficulty")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("difficulty");
+
+                    b.Property<string>("Equipment")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("equipment");
+
+                    b.PrimitiveCollection<string[]>("Instructions")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("instructions");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PrimaryMuscle")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("primary_muscle");
+
+                    b.PrimitiveCollection<string[]>("SecondaryMuscles")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("secondary_muscles");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("TrackingMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("tracking_mode");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("video_url");
+
+                    b.Property<string>("Warnings")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("warnings");
+
+                    b.HasKey("Id")
+                        .HasName("pk_exercises");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("ux_exercises_global_name")
+                        .HasFilter("tenant_id IS NULL");
+
+                    b.HasIndex("TenantId", "IsActive")
+                        .HasDatabaseName("ix_exercises_tenant_id_is_active");
+
+                    b.HasIndex("TenantId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("ux_exercises_tenant_name")
+                        .HasFilter("tenant_id IS NOT NULL");
+
+                    b.HasIndex("TenantId", "PrimaryMuscle")
+                        .HasDatabaseName("ix_exercises_tenant_id_primary_muscle");
+
+                    b.ToTable("exercises", "training");
+                });
+
             modelBuilder.Entity("FitCore.Wellness.Domain.TrainerAssignment", b =>
                 {
                     b.Property<Guid>("Id")

@@ -63,7 +63,9 @@ public static class RoleTemplates
                 Permissions.MembersAccess,
                 Permissions.TrainersRead,
                 Permissions.TrainersManage,
-                Permissions.WellnessMembersAll
+                Permissions.WellnessMembersAll,
+                Permissions.ExercisesRead,
+                Permissions.ExercisesManage
             ]),
         new(
             "Recepcion",
@@ -102,7 +104,7 @@ public static class RoleTemplates
             ]),
         // Mínimo privilegio: el entrenador trabaja solo con sus alumnos asignados (lo resuelve el módulo de bienestar), no con todo el listado
         // de alumnos ni la asistencia del gimnasio.
-        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes]),
+        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.ExercisesRead, Permissions.ExercisesManage]),
         new("Nutricionista", "Planes nutricionales de alumnos asignados", false, [.. BasicRead, Permissions.MembersRead]),
         new(
             "Contador",
@@ -124,5 +126,5 @@ public static class RoleTemplates
         PlatformAdmin,
         "Equipo de FitCore que administra los gimnasios",
         true,
-        [Permissions.PlatformTenantsManage, Permissions.PlatformTaxesManage, Permissions.OrganizationRead]);
+        [Permissions.PlatformTenantsManage, Permissions.PlatformTaxesManage, Permissions.PlatformExercisesManage, Permissions.OrganizationRead]);
 }

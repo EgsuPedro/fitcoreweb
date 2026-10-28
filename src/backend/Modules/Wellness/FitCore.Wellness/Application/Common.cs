@@ -30,11 +30,24 @@ internal static class LikePattern
 {
     public static string Contains(string value) => "%" + Escape(value) + "%";
 
+    /// <summary>Coincidencia exacta sin distinguir mayúsculas (para ILIKE sin comodines).</summary>
+    public static string Exact(string value) => Escape(value);
+
     private static string Escape(string value) =>
         value.Trim()
             .Replace("\\", "\\\\", StringComparison.Ordinal)
             .Replace("%", "\\%", StringComparison.Ordinal)
             .Replace("_", "\\_", StringComparison.Ordinal);
+}
+
+internal static class LocalDates
+{
+    /// <summary>Fecha de hoy en una zona horaria (la de la sucursal: Galápagos tiene una hora menos que el continente).</summary>
+    public static DateOnly Today(IClock clock, string? timeZone) =>
+        DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(string.IsNullOrWhiteSpace(timeZone) ? FitCore.Platform.Domain.Tenant.DefaultTimeZone : timeZone)).DateTime);
+
+    public static async Task<DateOnly> TodayAtBranchAsync(WellnessDbContext db, IClock clock, Guid branchId, CancellationToken cancellationToken) =>
+        Today(clock, await db.BranchRefs.AsNoTracking().Where(b => b.Id == branchId).Select(b => b.TimeZone).FirstOrDefaultAsync(cancellationToken));
 }
 
 internal static class BranchAccess

@@ -2,6 +2,7 @@ using FitCore.Application.Core;
 using FitCore.Infrastructure.Core;
 using FitCore.Platform.Persistence;
 using FitCore.Wellness.Application.Trainers;
+using FitCore.Wellness.Domain;
 using FitCore.Wellness.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,30 @@ internal sealed class WellnessInitializer : IModuleInitializer
     {
         await using var db = new WellnessDbContext(WellnessMigrations.Options(migrationsConnection), new TenantContext());
         await db.Database.MigrateAsync(cancellationToken);
+        await SeedExerciseCatalogAsync(db, cancellationToken);
+    }
+
+    /// <summary>
+    /// Carga el catálogo base de ejercicios (idempotente: solo agrega los que faltan por nombre). Las filas globales las puede escribir
+    /// por política solo la plataforma, así que el dueño de la tabla desactiva un instante el RLS forzado para esta carga inicial.
+    /// </summary>
+    private static async Task SeedExerciseCatalogAsync(WellnessDbContext db, CancellationToken cancellationToken)
+    {
+        var existing = (await db.Exercises.AsNoTracking().Where(e => e.TenantId == null).Select(e => e.Name).ToListAsync(cancellationToken))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var missing = ExerciseCatalog.All.Where(e => !existing.Contains(e.Name)).ToList();
+        if (missing.Count == 0)
+        {
+            return;
+        }
+
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE training.exercises NO FORCE ROW LEVEL SECURITY", cancellationToken);
+        var now = DateTimeOffset.UtcNow;
+        db.Exercises.AddRange(missing.Select(details => Exercise.Create(null, details, null, now)));
+        await db.SaveChangesAsync(cancellationToken);
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE training.exercises FORCE ROW LEVEL SECURITY", cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
     }
 }
 

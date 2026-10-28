@@ -124,3 +124,32 @@ internal sealed class BranchRefConfiguration : IEntityTypeConfiguration<BranchRe
         b.HasKey(x => x.Id);
     }
 }
+
+internal sealed class ExerciseConfiguration : IEntityTypeConfiguration<Exercise>
+{
+    public void Configure(EntityTypeBuilder<Exercise> b)
+    {
+        b.ToTable("exercises", WellnessDbContext.TrainingSchema);
+        b.HasKey(x => x.Id);
+        b.Ignore(x => x.IsGlobal);
+        b.Property(x => x.Name).HasMaxLength(120).IsRequired();
+        b.Property(x => x.Description).HasMaxLength(1000);
+        b.Property(x => x.PrimaryMuscle).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Type).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Equipment).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Difficulty).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.TrackingMode).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.SecondaryMuscles).HasColumnType("text[]");
+        b.Property(x => x.Instructions).HasColumnType("text[]");
+        b.Property(x => x.CommonMistakes).HasColumnType("text[]");
+        b.Property(x => x.Warnings).HasMaxLength(1000);
+        b.Property(x => x.VideoUrl).HasMaxLength(500);
+        b.Property<uint>("Version").IsRowVersion();
+
+        // Nombres únicos sin distinguir mayúsculas: entre los globales, y dentro de cada gimnasio.
+        b.HasIndex(x => x.Name).IsUnique().HasFilter("tenant_id IS NULL").HasDatabaseName("ux_exercises_global_name");
+        b.HasIndex(x => new { x.TenantId, x.Name }).IsUnique().HasFilter("tenant_id IS NOT NULL").HasDatabaseName("ux_exercises_tenant_name");
+        b.HasIndex(x => new { x.TenantId, x.PrimaryMuscle });
+        b.HasIndex(x => new { x.TenantId, x.IsActive });
+    }
+}

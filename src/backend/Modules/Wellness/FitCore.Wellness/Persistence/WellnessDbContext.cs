@@ -19,6 +19,7 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
     public DbSet<TrainerAvailability> TrainerAvailability => Set<TrainerAvailability>();
     public DbSet<TrainerAssignment> TrainerAssignments => Set<TrainerAssignment>();
     public DbSet<TrainerNote> TrainerNotes => Set<TrainerNote>();
+    public DbSet<Exercise> Exercises => Set<Exercise>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<MemberRef> MemberRefs => Set<MemberRef>();
@@ -52,6 +53,9 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
                     .Invoke(this, [modelBuilder]);
             }
         }
+
+        // Los ejercicios globales (TenantId nulo) los ven todos los gimnasios; los demás, solo su dueño.
+        modelBuilder.Entity<Exercise>().HasQueryFilter(e => e.TenantId == null || e.TenantId == CurrentTenantId);
 
         // La auditoría y la outbox pertenecen a Platform: aquí solo se mapean para que el interceptor compartido escriba en ellas
         // dentro de la misma transacción. Nunca generan migraciones de este módulo.
@@ -134,5 +138,6 @@ internal sealed class BranchRef : ITenantOwned
     public Guid Id { get; init; }
     public Guid TenantId { get; init; }
     public string Name { get; init; } = string.Empty;
+    public string TimeZone { get; init; } = string.Empty;
     public bool IsActive { get; init; }
 }

@@ -98,6 +98,12 @@ Se inicia sesión con **gimnasio + correo + clave**.
 3. Cierre sesión y entre como `entrenador.uio@demo.fitcore.test`: el menú es mínimo (sin *Alumnos* ni *Asistencia*), solo ve sus alumnos y, con *Observaciones*, escribe notas profesionales.
 4. Vuelva como propietario y abra la ficha de ese alumno: ve *Entrenador del alumno* (historial) pero **no** las observaciones: solo las ve el entrenador asignado.
 
+**Biblioteca de ejercicios** (Fase 4, bloque 3), con el propietario `demo`:
+1. *Ejercicios*: 42 ejercicios del **catálogo base** (etiqueta *Catálogo base*, solo lectura). Pruebe los filtros (músculo, equipamiento, dificultad, tipo, origen) y *Ver* para las instrucciones, errores comunes y advertencias.
+2. *Duplicar* un ejercicio base crea su copia editable en su gimnasio; *Nuevo ejercicio* crea uno desde cero (el enlace de vídeo, si lo pone, debe ser https).
+3. *Desactivar* un ejercicio propio lo saca de las nuevas rutinas sin borrarlo. Un ejercicio base no se puede editar ni desactivar desde el gimnasio.
+4. Como administrador de plataforma, *Catálogo de ejercicios* permite crear y editar el catálogo base para todos los gimnasios.
+
 **Seguridad rápida:**
 - 5 contraseñas erróneas seguidas bloquean la cuenta 15 minutos (aunque luego se escriba la correcta).
 - Desactivar un usuario desde "Usuarios" cierra su sesión en la siguiente solicitud.

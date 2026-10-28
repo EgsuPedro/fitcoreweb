@@ -203,7 +203,7 @@ internal sealed class CreateTrainerHandler(WellnessDbContext db, IAccessContext 
             return TrainerErrors.AlreadyExists;
         }
 
-        var today = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime);
+        var today = LocalDates.Today(clock, null);
         var trainer = TrainerProfile.Create(
             actor.Value.TenantId, user.Id, request.Specialties, request.Certifications, request.Bio, request.JoinedOn ?? today, currentUser.UserId, clock.UtcNow);
         db.Trainers.Add(trainer);
@@ -410,7 +410,7 @@ internal sealed class AssignMemberHandler(WellnessDbContext db, IAccessContext a
             return TrainerErrors.BranchMismatch;
         }
 
-        var today = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime);
+        var today = await LocalDates.TodayAtBranchAsync(db, clock, member.BranchId, cancellationToken);
         var current = await db.TrainerAssignments.FirstOrDefaultAsync(a => a.MemberId == member.Id && a.EndedOn == null, cancellationToken);
         if (current?.TrainerId == trainer.Id)
         {
@@ -465,7 +465,7 @@ internal sealed class UnassignMemberHandler(WellnessDbContext db, IAccessContext
             return TrainerErrors.NoActiveAssignment;
         }
 
-        assignment.End(DateOnly.FromDateTime(clock.UtcNow.UtcDateTime), command.Request.Reason, currentUser.UserId);
+        assignment.End(await LocalDates.TodayAtBranchAsync(db, clock, assignment.BranchId, cancellationToken), command.Request.Reason, currentUser.UserId);
         await db.SaveChangesAsync(cancellationToken);
         return (await TrainerQueries.ToAssignmentDtosAsync(db, [assignment], cancellationToken))[0];
     }

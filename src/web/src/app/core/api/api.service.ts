@@ -21,6 +21,8 @@ import type {
   CreateTrainerRequest,
   CreateUserRequest,
   EnrollRequest,
+  Exercise,
+  ExerciseRequest,
   Member,
   MemberAccess,
   Membership,
@@ -183,6 +185,24 @@ export class ApiService {
   }
   changePassword(currentPassword: string, newPassword: string): Observable<void> {
     return this.http.post<void>(`${API_BASE}/auth/change-password`, { currentPassword, newPassword });
+  }
+
+  // ---- Biblioteca de ejercicios ----
+  exercises(query: Query = {}): Observable<Paged<Exercise>> {
+    return this.get('/exercises', query);
+  }
+  globalExercises(query: Query = {}): Observable<Paged<Exercise>> {
+    return this.get('/platform/exercises', query);
+  }
+  saveExercise(body: ExerciseRequest, id: string | null, global: boolean): Observable<Exercise> {
+    const base = global ? '/platform/exercises' : '/exercises';
+    return id ? this.http.put<Exercise>(`${API_BASE}${base}/${id}`, body) : this.http.post<Exercise>(`${API_BASE}${base}`, body);
+  }
+  setExerciseStatus(id: string, isActive: boolean, global: boolean): Observable<Exercise> {
+    return this.http.patch<Exercise>(`${API_BASE}${global ? '/platform/exercises' : '/exercises'}/${id}/status`, { isActive });
+  }
+  duplicateExercise(id: string): Observable<Exercise> {
+    return this.http.post<Exercise>(`${API_BASE}/exercises/${id}/duplicate`, {});
   }
 
   // ---- Entrenadores (módulo de bienestar) ----

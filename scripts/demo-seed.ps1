@@ -51,9 +51,9 @@ $basic = @('organization.read', 'branches.read')
 $template = @{
     'Recepcion'     = $basic + @('members.read', 'members.create', 'members.update', 'plans.read', 'promotions.read', 'memberships.read', 'memberships.create', 'memberships.renew', 'obligations.read', 'payments.read', 'payments.create', 'attendance.read', 'attendance.register')
     'Cajero'        = $basic + @('members.read', 'memberships.read', 'obligations.read', 'payments.read', 'payments.create', 'payments.confirm', 'cash.read', 'cash.operate')
-    'AdministradorSucursal' = $basic + @('users.read', 'users.create', 'users.update', 'roles.read', 'members.read', 'members.create', 'members.update', 'members.status', 'plans.read', 'promotions.read', 'promotions.apply', 'memberships.read', 'memberships.create', 'memberships.renew', 'memberships.freeze', 'memberships.cancel', 'obligations.read', 'obligations.create', 'obligations.void', 'payments.read', 'payments.create', 'payments.confirm', 'payments.reverse', 'cash.read', 'cash.operate', 'attendance.read', 'attendance.register', 'attendance.override', 'notifications.read', 'members.access', 'trainers.read', 'trainers.manage', 'wellness.members.all')
+    'AdministradorSucursal' = $basic + @('users.read', 'users.create', 'users.update', 'roles.read', 'members.read', 'members.create', 'members.update', 'members.status', 'plans.read', 'promotions.read', 'promotions.apply', 'memberships.read', 'memberships.create', 'memberships.renew', 'memberships.freeze', 'memberships.cancel', 'obligations.read', 'obligations.create', 'obligations.void', 'payments.read', 'payments.create', 'payments.confirm', 'payments.reverse', 'cash.read', 'cash.operate', 'attendance.read', 'attendance.register', 'attendance.override', 'notifications.read', 'members.access', 'trainers.read', 'trainers.manage', 'wellness.members.all', 'exercises.read', 'exercises.manage')
     'Alumno'        = @('me.read')
-    'Entrenador'    = $basic + @('trainers.read', 'trainers.notes')
+    'Entrenador'    = $basic + @('trainers.read', 'trainers.notes', 'exercises.read', 'exercises.manage')
     'Nutricionista' = $basic + @('members.read')
     'Contador'      = $basic + @('audit.read', 'members.read', 'memberships.read', 'obligations.read', 'payments.read', 'cash.read')
 }

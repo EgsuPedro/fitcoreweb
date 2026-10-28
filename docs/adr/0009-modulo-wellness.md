@@ -36,6 +36,14 @@
 - **Observaciones profesionales (`trainers.notes`, sensible):** solo se agregan (trigger: ni se editan ni se borran) y **solo las lee y escribe el entrenador que tiene hoy asignado al alumno**; ni el propietario ni el administrador, aunque administren entrenadores. Al cambiar de entrenador, el anterior pierde el acceso y el nuevo ve el historial. Se audita el hecho (creación y lectura), nunca el texto.
 - **Mínimo privilegio en el rol `Entrenador`:** deja de tener `members.read` y `attendance.read` (veían todo el gimnasio); trabaja con sus alumnos asignados mediante el módulo de entrenadores. El propietario también deja de recibir los permisos sensibles: la sincronización de arranque se los **retira** si los tenía (se corrigió un defecto por el que se los volvía a conceder en cada reinicio).
 
+## Implementación del bloque 3 (biblioteca de ejercicios)
+- **Un solo modelo, dos orígenes:** `training.exercises` con `tenant_id` nulo = **global** (catálogo base de plataforma) o con valor = del gimnasio. Campos: nombre, descripción, músculo principal y hasta 5 secundarios, tipo, equipamiento, dificultad, **modo de registro** (repeticiones y carga / solo repeticiones / tiempo: las rutinas y sesiones lo usarán para validar series, repeticiones, duración y carga), instrucciones paso a paso (máx. 20), errores comunes (máx. 10), contraindicaciones o advertencias, enlace https opcional y estado.
+- **RLS por operación:** todos los gimnasios *leen* los globales y lo propio; solo el gimnasio dueño inserta o modifica lo suyo; **solo la plataforma** inserta o modifica globales; nadie borra (sin política ni permiso de DELETE). Una prueba verifica estas reglas directamente en la base, con el rol de la aplicación.
+- **Nunca se borran:** desactivar un ejercicio lo oculta de las nuevas rutinas (`isActive=true`), pero las rutinas y sesiones históricas lo siguen mostrando; reactivarlo es posible.
+- **El catálogo base no se edita desde un gimnasio** (`exercises.global_readonly`): se **duplica** (`POST /exercises/{id}/duplicate`, copia propia «(copia)», «(copia 2)»…) y se adapta la copia. Cambios en la copia no tocan el original.
+- **Catálogo base (42 ejercicios):** texto propio, general y conservador, **sin vídeos ni enlaces** (una prueba lo comprueba) y marcado en pantalla como contenido sugerido que cada gimnasio debe validar con su entrenador. Se carga de forma idempotente al arrancar (solo agrega los que faltan por nombre). El sistema no incorpora multimedia propia: el enlace opcional es del usuario y debe ser https (también lo exige la base).
+- **API:** `GET/POST /exercises`, `GET/PUT /exercises/{id}`, `PATCH /exercises/{id}/status`, `POST /exercises/{id}/duplicate` (permisos `exercises.read`/`exercises.manage`, que reciben propietario, administrador de sucursal y entrenador) y `/platform/exercises` (`platform.exercises.manage`) para el catálogo base. Búsqueda por nombre y filtros por músculo (principal o secundario), equipamiento, dificultad, tipo, origen y estado, con paginación.
+
 ## Principios del dominio (de las reglas del prompt)
 - **Versiones inmutables:** una rutina o un plan nutricional se versiona; modificarlo crea una versión nueva y las sesiones y registros ya hechos conservan la versión con la que se hicieron.
 - **Mediciones, no diagnósticos:** cada medición guarda unidad, fecha, fuente y método; lo estimado se marca como derivado. El IMC se muestra como indicador general (peso / estatura²) solo con estatura > 0; no se calcula grasa corporal sin método y datos válidos. El sistema no diagnostica ni sustituye una valoración clínica, y las estimaciones calóricas no se presentan como exactas.
@@ -53,7 +61,7 @@ App móvil Flutter, facturación electrónica, nómina y contabilidad.
 | 1 | Diagnóstico y dependencias (este documento) | Hecho |
 | 2a | Acceso del alumno: vínculo alumno–usuario, clave temporal con cambio obligatorio, endpoints «de mí», permisos sensibles | Hecho |
 | 2b | Módulo `Wellness`: entrenadores, disponibilidad, asignaciones con historial y observaciones | Hecho |
-| 3 | Biblioteca de ejercicios (globales y del gimnasio, catálogo base) | Pendiente |
+| 3 | Biblioteca de ejercicios (globales y del gimnasio, catálogo base) | Hecho |
 | 4 | Rutinas, asignaciones y sesiones (versionado) | Pendiente |
 | 5 | Nutrición (planes versionados, asignaciones, registro de cumplimiento) | Pendiente |
 | 6 | Evaluaciones físicas (IMC, historial, comparación) | Pendiente |

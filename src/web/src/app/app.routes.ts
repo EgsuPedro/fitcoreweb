@@ -112,6 +112,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/trainers/trainer-detail').then((m) => m.TrainerDetail),
       },
       {
+        path: 'exercises',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ExercisesRead },
+        loadComponent: () => import('./features/exercises/exercises').then((m) => m.Exercises),
+      },
+      {
+        path: 'platform/exercises',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformExercisesManage, platform: true },
+        loadComponent: () => import('./features/exercises/exercises').then((m) => m.Exercises),
+      },
+      {
         path: 'branches',
         canActivate: [permissionGuard],
         data: { permission: Perm.BranchesRead },

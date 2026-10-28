@@ -284,6 +284,7 @@ public static class SessionErrors
     public static readonly Error NotModifiable = Error.Conflict("classes.session_not_modifiable", "La sesión ya empezó, se canceló o se completó: no se puede modificar.");
     public static readonly Error InstructorOverlap = Error.Conflict("classes.instructor_overlap", "El instructor ya tiene otra sesión en ese horario.");
     public static readonly Error InstructorUnavailable = Error.Conflict("classes.instructor_unavailable", "El horario queda fuera de la disponibilidad declarada del instructor. Si es una excepción, indique el motivo.");
+    public static readonly Error CapacityBelowBooked = Error.Conflict("classes.capacity_below_booked", "La capacidad no puede ser menor que los cupos ya ocupados por reservas.");
     public static readonly Error Changed = Error.Conflict("classes.session_changed", "La sesión cambió mientras la editaba: vuelva a cargarla e inténtelo de nuevo.");
     public static readonly Error NothingToChange = Error.Validation("classes.session_nothing_to_change", "Indique al menos un dato a modificar.");
     public static readonly Error SeriesCancelled = Error.Conflict("classes.series_cancelled", "La serie está cancelada.");

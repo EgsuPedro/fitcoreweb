@@ -235,6 +235,13 @@ internal sealed class UpdateSessionHandler(ClassesDbContext db, IAccessContext a
             }
         }
 
+        // Nadie baja la capacidad por debajo de los cupos ya ocupados (la base lo exige también, por si dos cambios se cruzan).
+        if (request.Capacity is { } newCapacity && newCapacity < session.Capacity
+            && (await SessionScheduling.ReservationCountsAsync(db, [session.Id], cancellationToken)).GetValueOrDefault(session.Id).Booked > newCapacity)
+        {
+            return SessionErrors.CapacityBelowBooked;
+        }
+
         var notes = request.Notes is null ? session.Notes : request.Notes;
         session.Reschedule(startsAt, endsAt, instructorId, request.Capacity ?? session.Capacity, notes, overrideReason, currentUser.UserId, now);
         try
@@ -244,6 +251,10 @@ internal sealed class UpdateSessionHandler(ClassesDbContext db, IAccessContext a
         catch (DbUpdateConcurrencyException)
         {
             return SessionErrors.Changed;
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException { SqlState: Reservations.Booking.CapacityBelowBooked })
+        {
+            return SessionErrors.CapacityBelowBooked;
         }
         catch (DbUpdateException ex) when (SessionScheduling.IsConcurrencyConflict(ex))
         {
@@ -265,11 +276,15 @@ internal sealed class CancelSessionHandler(ClassesDbContext db, IAccessContext a
             return actor.Error;
         }
 
-        var session = await db.ClassSessions.VisibleTo(actor.Value).FirstOrDefaultAsync(s => s.Id == command.Id, cancellationToken);
-        if (session is null)
+        if (!await db.ClassSessions.AsNoTracking().VisibleTo(actor.Value).AnyAsync(s => s.Id == command.Id, cancellationToken))
         {
             return SessionErrors.NotFound;
         }
+
+        // Cancelar la sesión y sus reservas es una sola operación: se bloquea la sesión primero, así nadie reserva a mitad de camino.
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await SessionScheduling.LockSessionsAsync(db, [command.Id], cancellationToken);
+        var session = await db.ClassSessions.FirstAsync(s => s.Id == command.Id, cancellationToken);
 
         // Cancelar dos veces es idempotente: devuelve la sesión tal como quedó, sin tocar el motivo original.
         if (session.Status == SessionStatus.Cancelled)
@@ -284,9 +299,11 @@ internal sealed class CancelSessionHandler(ClassesDbContext db, IAccessContext a
         }
 
         session.Cancel(command.Request.Reason, currentUser.UserId, now);
+        await SessionScheduling.CancelLiveReservationsAsync(db, [session.Id], command.Request.Reason, currentUser.UserId, now, cancellationToken);
         try
         {
             await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -537,8 +554,15 @@ internal sealed class CancelSeriesHandler(ClassesDbContext db, IAccessContext ac
             return new CancelSeriesResultDto(await SessionScheduling.ToSeriesDtoAsync(db, series, cancellationToken), 0);
         }
 
-        // Cancela la serie y las sesiones futuras que aún están programadas; las pasadas conservan su historia.
+        // Cancela la serie, las sesiones futuras que aún están programadas y sus reservas; las pasadas conservan su historia. Se bloquean
+        // las sesiones antes de leerlas, así nadie reserva en una a mitad de camino.
         var now = clock.UtcNow;
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        var futureIds = await db.ClassSessions.AsNoTracking()
+            .Where(s => s.SeriesId == series.Id && s.Status == SessionStatus.Scheduled && s.StartsAt > now)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+        await SessionScheduling.LockSessionsAsync(db, futureIds, cancellationToken);
         var future = await db.ClassSessions
             .Where(s => s.SeriesId == series.Id && s.Status == SessionStatus.Scheduled && s.StartsAt > now)
             .ToListAsync(cancellationToken);
@@ -547,8 +571,10 @@ internal sealed class CancelSeriesHandler(ClassesDbContext db, IAccessContext ac
             session.Cancel(command.Request.Reason, currentUser.UserId, now);
         }
 
+        await SessionScheduling.CancelLiveReservationsAsync(db, [.. future.Select(s => s.Id)], command.Request.Reason, currentUser.UserId, now, cancellationToken);
         series.Cancel(command.Request.Reason, currentUser.UserId, now);
         await db.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
         return new CancelSeriesResultDto(await SessionScheduling.ToSeriesDtoAsync(db, series, cancellationToken), future.Count);
     }
 }

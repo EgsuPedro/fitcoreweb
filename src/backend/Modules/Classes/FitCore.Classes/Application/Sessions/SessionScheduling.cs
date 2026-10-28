@@ -79,15 +79,57 @@ internal static class SessionScheduling
         var classes = await ClassNamesAsync(db, [.. sessions.Select(s => s.ClassId).Distinct()], cancellationToken);
         var instructors = await InstructorNamesAsync(db, [.. sessions.Select(s => s.InstructorId).Distinct()], cancellationToken);
         var branches = await BranchNamesAsync(db, [.. sessions.Select(s => s.BranchId).Distinct()], cancellationToken);
+        var counts = await ReservationCountsAsync(db, [.. sessions.Select(s => s.Id)], cancellationToken);
 
         return
         [
             .. sessions.Select(s =>
             {
                 var known = classes.TryGetValue(s.ClassId, out var c);
-                return ClassSessionDto.From(s, known ? c.Name : string.Empty, known ? c.Activity : string.Empty, instructors.GetValueOrDefault(s.InstructorId, string.Empty), branches.GetValueOrDefault(s.BranchId, string.Empty));
+                return ClassSessionDto.From(s, known ? c.Name : string.Empty, known ? c.Activity : string.Empty, instructors.GetValueOrDefault(s.InstructorId, string.Empty), branches.GetValueOrDefault(s.BranchId, string.Empty), counts.GetValueOrDefault(s.Id).Booked, counts.GetValueOrDefault(s.Id).Waitlist);
             })
         ];
+    }
+
+    /// <summary>Cupos ocupados (confirmadas y ofrecidas) y personas en espera de cada sesión.</summary>
+    public static async Task<Dictionary<Guid, (int Booked, int Waitlist)>> ReservationCountsAsync(ClassesDbContext db, IReadOnlyCollection<Guid> sessionIds, CancellationToken cancellationToken) =>
+        (await db.Reservations.AsNoTracking()
+            .Where(r => sessionIds.Contains(r.SessionId))
+            .GroupBy(r => r.SessionId)
+            .Select(g => new
+            {
+                g.Key,
+                Booked = g.Count(x => x.Status == ReservationStatus.Confirmed || x.Status == ReservationStatus.Offered),
+                Waitlist = g.Count(x => x.Status == ReservationStatus.Waitlisted)
+            })
+            .ToListAsync(cancellationToken))
+        .ToDictionary(x => x.Key, x => (x.Booked, x.Waitlist));
+
+    /// <summary>Bloquea las filas de las sesiones, en orden de id para que dos operaciones cruzadas no se interbloqueen. Quien reserva espera aquí.</summary>
+    public static async Task LockSessionsAsync(ClassesDbContext db, IEnumerable<Guid> sessionIds, CancellationToken cancellationToken)
+    {
+        var ids = sessionIds.Distinct().Order().ToArray();
+        if (ids.Length == 0)
+        {
+            return;
+        }
+
+        await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM classes.class_sessions WHERE id = ANY({ids}) ORDER BY id FOR UPDATE", cancellationToken);
+    }
+
+    /// <summary>Cancela las reservas vivas de sesiones que se cancelan (el cupo ya no existe). Devuelve cuántas.</summary>
+    public static async Task<int> CancelLiveReservationsAsync(ClassesDbContext db, IReadOnlyCollection<Guid> sessionIds, string reason, Guid? by, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var live = await db.Reservations
+            .Where(r => sessionIds.Contains(r.SessionId) && (r.Status == ReservationStatus.Confirmed || r.Status == ReservationStatus.Waitlisted || r.Status == ReservationStatus.Offered))
+            .ToListAsync(cancellationToken);
+        var text = "Sesión cancelada: " + reason.Trim();
+        foreach (var reservation in live)
+        {
+            reservation.Cancel(text.Length > ClassReservation.MaxReasonLength ? text[..ClassReservation.MaxReasonLength] : text, late: false, by, now);
+        }
+
+        return live.Count;
     }
 
     public static async Task<ClassSessionDto> ToDtoAsync(ClassesDbContext db, ClassSession session, CancellationToken cancellationToken) =>

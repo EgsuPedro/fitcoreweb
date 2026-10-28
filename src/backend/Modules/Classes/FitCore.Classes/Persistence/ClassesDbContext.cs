@@ -18,10 +18,19 @@ public sealed class ClassesDbContext(DbContextOptions<ClassesDbContext> options,
     public DbSet<GroupClass> GroupClasses => Set<GroupClass>();
     public DbSet<ClassSeries> ClassSeries => Set<ClassSeries>();
     public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
+    public DbSet<ClassReservation> Reservations => Set<ClassReservation>();
+    public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<TrainerRef> TrainerRefs => Set<TrainerRef>();
     internal DbSet<TrainerAvailabilityRef> TrainerAvailabilityRefs => Set<TrainerAvailabilityRef>();
+    internal DbSet<MemberRef> MemberRefs => Set<MemberRef>();
+    internal DbSet<MembershipRef> MembershipRefs => Set<MembershipRef>();
+    internal DbSet<PlanBranchRef> PlanBranchRefs => Set<PlanBranchRef>();
+    internal DbSet<ObligationRef> ObligationRefs => Set<ObligationRef>();
+    internal DbSet<AllocationRef> AllocationRefs => Set<AllocationRef>();
+    internal DbSet<PaymentRef> PaymentRefs => Set<PaymentRef>();
+    internal DbSet<SettingsRef> SettingsRefs => Set<SettingsRef>();
     internal DbSet<UserRef> UserRefs => Set<UserRef>();
     internal DbSet<UserBranchRef> UserBranchRefs => Set<UserBranchRef>();
     internal DbSet<BranchRef> BranchRefs => Set<BranchRef>();
@@ -98,6 +107,81 @@ internal sealed class TrainerAvailabilityRef : ITenantOwned
     public TimeOnly StartTime { get; init; }
     public TimeOnly EndTime { get; init; }
     public Guid? BranchId { get; init; }
+}
+
+/// <summary>Vista mínima de <c>members.members</c> (módulo comercial): quién reserva y con qué datos se decide su elegibilidad.</summary>
+internal sealed class MemberRef : ITenantOwned
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid BranchId { get; init; }
+    public string Code { get; init; } = string.Empty;
+    public string FirstName { get; init; } = string.Empty;
+    public string LastName { get; init; } = string.Empty;
+    public string Status { get; init; } = string.Empty;
+    public Guid? UserId { get; init; }
+    public DateOnly? BirthDate { get; init; }
+
+    public string FullName => $"{FirstName} {LastName}";
+
+    public bool IsActive => Status == "Active";
+}
+
+/// <summary>Vista mínima de <c>members.memberships</c>.</summary>
+internal sealed class MembershipRef : ITenantOwned
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid MemberId { get; init; }
+    public Guid PlanId { get; init; }
+    public string Status { get; init; } = string.Empty;
+    public DateOnly StartDate { get; init; }
+    public DateOnly EndDate { get; init; }
+}
+
+/// <summary>Vista mínima de <c>members.plan_branches</c>: sucursales en las que vale un plan (sin filas = todas).</summary>
+internal sealed class PlanBranchRef : ITenantOwned
+{
+    public Guid TenantId { get; init; }
+    public Guid PlanId { get; init; }
+    public Guid BranchId { get; init; }
+}
+
+/// <summary>Vista mínima de <c>billing.payment_obligations</c>.</summary>
+internal sealed class ObligationRef : ITenantOwned
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid? MembershipId { get; init; }
+    public decimal PayableAmount { get; init; }
+    public DateOnly DueDate { get; init; }
+    public string Status { get; init; } = string.Empty;
+}
+
+/// <summary>Vista mínima de <c>billing.payment_allocations</c>.</summary>
+internal sealed class AllocationRef : ITenantOwned
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid PaymentId { get; init; }
+    public Guid ObligationId { get; init; }
+    public decimal Amount { get; init; }
+}
+
+/// <summary>Vista mínima de <c>billing.payments</c>: solo el estado, para contar únicamente lo confirmado.</summary>
+internal sealed class PaymentRef : ITenantOwned
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public string Status { get; init; } = string.Empty;
+}
+
+/// <summary>Vista mínima de <c>members.commercial_settings</c>: la política de acceso con deuda del gimnasio.</summary>
+internal sealed class SettingsRef : ITenantOwned
+{
+    public Guid TenantId { get; init; }
+    public string AccessPolicy { get; init; } = string.Empty;
+    public int MinPaymentPercent { get; init; }
 }
 
 /// <summary>Vista mínima de <c>identity.app_users</c>.</summary>

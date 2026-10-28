@@ -17,6 +17,8 @@ public sealed record ClassSessionDto(
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
     int Capacity,
+    int BookedCount,
+    int WaitlistCount,
     string Status,
     string? Notes,
     string? CancelReason,
@@ -26,7 +28,7 @@ public sealed record ClassSessionDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? UpdatedAt)
 {
-    public static ClassSessionDto From(ClassSession s, string className, string activity, string instructorName, string branchName) =>
+    public static ClassSessionDto From(ClassSession s, string className, string activity, string instructorName, string branchName, int booked, int waitlist) =>
         new(
             s.Id,
             s.ClassId,
@@ -40,6 +42,8 @@ public sealed record ClassSessionDto(
             s.StartsAt,
             s.EndsAt,
             s.Capacity,
+            booked,
+            waitlist,
             s.Status.ToString(),
             s.Notes,
             s.CancelReason,

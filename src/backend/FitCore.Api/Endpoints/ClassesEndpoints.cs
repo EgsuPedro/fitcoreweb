@@ -1,9 +1,11 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Classes.Application.GroupClasses;
+using FitCore.Classes.Application.Reservations;
 using FitCore.Classes.Application.Sessions;
 using FitCore.Classes.Domain;
 using FitCore.Platform.Domain;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FitCore.Api.Endpoints;
 
@@ -13,7 +15,62 @@ internal static class ClassesEndpoints
     {
         MapGroupClasses(routes.MapGroup("/group-classes").WithTags("Group classes"));
         MapSessions(routes.MapGroup("/class-sessions").WithTags("Class sessions"));
+        MapReservations(routes.MapGroup("/class-reservations").WithTags("Class reservations"));
+        MapMyReservations(routes.MapGroup("/me/class-reservations").WithTags("Member portal"));
         return routes;
+    }
+
+    private static void MapReservations(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, Guid? sessionId = null, Guid? memberId = null, Guid? branchId = null, ReservationStatus? status = null, DateTimeOffset? from = null, DateTimeOffset? to = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListReservationsQuery(new PageRequest(page, pageSize), sessionId, memberId, branchId, status, from, to), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassReservationsRead)
+            .Produces<PagedResult<ReservationDto>>()
+            .WithName("ListClassReservations");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetReservationQuery(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassReservationsRead)
+            .Produces<ReservationDto>()
+            .WithName("GetClassReservation");
+
+        // Reservar exige Idempotency-Key: reintentar la misma solicitud (corte de red, doble clic) no reserva dos veces.
+        group.MapPost("/", async (CreateReservationRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateReservationCommand(request, idempotencyKey), ct)).ToHttp(r => Results.Created($"/api/v1/class-reservations/{r.Id}", r)))
+            .RequirePermission(Permissions.ClassReservationsManage)
+            .WithValidation<CreateReservationRequest>()
+            .Produces<ReservationDto>(StatusCodes.Status201Created)
+            .WithName("CreateClassReservation");
+
+        group.MapPost("/{id:guid}/cancel", async (Guid id, CancelReservationRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CancelReservationCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassReservationsManage)
+            .WithValidation<CancelReservationRequest>()
+            .Produces<ReservationDto>()
+            .WithName("CancelClassReservation");
+    }
+
+    private static void MapMyReservations(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, ReservationStatus? status = null, bool upcomingOnly = false, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMyReservationsQuery(new PageRequest(page, pageSize), status, upcomingOnly), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<PagedResult<ReservationDto>>()
+            .WithName("ListMyClassReservations");
+
+        group.MapPost("/", async (CreateMyReservationRequest request, [FromHeader(Name = "Idempotency-Key")] string? idempotencyKey, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateMyReservationCommand(request, idempotencyKey), ct)).ToHttp(r => Results.Created($"/api/v1/me/class-reservations/{r.Id}", r)))
+            .RequirePermission(Permissions.MeRead)
+            .WithValidation<CreateMyReservationRequest>()
+            .Produces<ReservationDto>(StatusCodes.Status201Created)
+            .WithName("CreateMyClassReservation");
+
+        group.MapPost("/{id:guid}/cancel", async (Guid id, CancelReservationRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CancelMyReservationCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .WithValidation<CancelReservationRequest>()
+            .Produces<ReservationDto>()
+            .WithName("CancelMyClassReservation");
     }
 
     private static void MapSessions(RouteGroupBuilder group)

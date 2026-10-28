@@ -1,0 +1,109 @@
+﻿<#
+.SYNOPSIS
+  Muestra en la consola el dashboard y los reportes de analítica de un gimnasio, para validarlos a mano sin pantallas.
+.DESCRIPTION
+  Solo lectura. Inicia sesión con el usuario que se indique (por defecto el propietario) y consulta los endpoints reales de /analytics y /reports.
+  Cambie -Usuario para ver qué recibe cada rol (por ejemplo cajero.gye, recepcion.uio, entrenador.uio, contador, admin.uio).
+.EXAMPLE
+  ./scripts/analytics-check.ps1 -DemoPassword 'DemoFit2026x' -Slug revision -Domain revision.fitcore.test
+  ./scripts/analytics-check.ps1 -DemoPassword 'DemoFit2026x' -Slug revision -Domain revision.fitcore.test -Usuario cajero.gye -Periodo Last7Days
+#>
+param(
+    [Parameter(Mandatory)] [string] $DemoPassword,
+    [string] $ApiUrl = 'http://localhost:8080/api/v1',
+    [string] $Slug = 'demo',
+    [string] $Domain = 'demo.fitcore.test',
+    [string] $Usuario = 'propietario',
+    [ValidateSet('Today', 'Last7Days', 'Last30Days', 'CurrentMonth', 'PreviousMonth', 'CurrentYear')] [string] $Periodo = 'Last30Days'
+)
+
+$ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
+
+function Get-Api([string] $Path, [string] $Token) {
+    try { Invoke-RestMethod -Method GET -Uri "$ApiUrl$Path" -Headers @{ Authorization = "Bearer $Token" } }
+    catch {
+        $status = [int]$_.Exception.Response.StatusCode
+        [pscustomobject]@{ __error = $status; __detail = $_.ErrorDetails.Message }
+    }
+}
+
+$login = Invoke-RestMethod -Method POST -Uri "$ApiUrl/auth/login" -ContentType 'application/json' `
+    -Body (@{ tenantSlug = $Slug; email = "$Usuario@$Domain"; password = $DemoPassword } | ConvertTo-Json)
+$token = $login.accessToken
+
+function Show-Kpis([string] $Title, $Kpis) {
+    Write-Host ''
+    Write-Host "== $Title" -ForegroundColor Cyan
+    foreach ($k in $Kpis) {
+        $value = if ($null -eq $k.value) { 'Sin datos' } elseif ($k.unit -eq 'Currency') { ('{0:N2} USD' -f $k.value) } elseif ($k.unit -eq 'Percent') { ('{0:N1} %' -f $k.value) } else { [string]$k.value }
+        $change = switch ($k.variation.state) {
+            'Ok' { if ($null -ne $k.variation.percent) { ('{0:+0.0;-0.0;0.0} % vs anterior ({1})' -f $k.variation.percent, $k.previous) } else { ('{0:+0.0;-0.0;0.0} pts vs anterior' -f $k.variation.absolute) } }
+            'NoBaseline' { 'Sin base de comparación' }
+            'NoData' { 'Sin datos' }
+            'NotApplicable' { 'medida de hoy' }
+            default { '' }
+        }
+        $empty = if ($k.isEmpty) { ' (vacío)' } else { '' }
+        Write-Host ('  {0,-34} {1,16}   {2}{3}' -f $k.name, $value, $change, $empty)
+    }
+}
+
+$query = "preset=$Periodo"
+$context = Get-Api "/analytics/context?$query" $token
+if ($context.__error) { Write-Host "Sin acceso a analítica (HTTP $($context.__error)) con el usuario '$Usuario'." -ForegroundColor Yellow; return }
+Write-Host ("Usuario: {0}@{1} · Gimnasio: {2} · Zona horaria: {3} · Hoy: {4}" -f $Usuario, $Domain, $Slug, $context.timeZone, $context.today)
+Write-Host ("Período: {0} → {1} ({2} días) · Comparable: {3} → {4}" -f $context.period.from, $context.period.to, $context.period.days, $context.comparable.from, $context.comparable.to)
+Write-Host ("Sucursales: {0}" -f (($context.branches | ForEach-Object { $_.name }) -join ', '))
+Write-Host ("Áreas permitidas: " + (($context.sections.PSObject.Properties | Where-Object { $_.Value } | ForEach-Object { $_.Name }) -join ', '))
+
+$dash = Get-Api "/analytics/dashboard?$query" $token
+if ($dash.financial) { Show-Kpis 'DASHBOARD · Finanzas' $dash.financial.kpis; Write-Host ('  Medios de pago: ' + (($dash.financial.methods | ForEach-Object { '{0} {1:N2} ({2} %)' -f $_.method, $_.amount, $_.share }) -join ' · ')) }
+if ($dash.members) { Show-Kpis 'DASHBOARD · Alumnos y membresías' $dash.members.kpis }
+if ($dash.operations) {
+    Show-Kpis 'DASHBOARD · Operación' $dash.operations.kpis
+    $s = $dash.operations.sessions
+    Write-Host ("  Sesiones: {0} realizadas · {1} canceladas · {2} por ocurrir · {3} pendientes de cierre" -f $s.held, $s.cancelled, $s.upcoming, $s.pendingClosure)
+}
+if ($dash.instructor) { Show-Kpis 'DASHBOARD · Instructor (sus sesiones)' $dash.instructor.kpis }
+if ($dash.omittedSections.Count -gt 0) { Write-Host ("`n  Secciones que este usuario NO recibe: " + ($dash.omittedSections -join ', ')) -ForegroundColor DarkYellow }
+
+$series = Get-Api "/analytics/dashboard/comparison?$query" $token
+if ($series.series) {
+    Write-Host "`n== EVOLUCIÓN (tramos de $($series.bucketDays) día/s; actual vs comparable)" -ForegroundColor Cyan
+    foreach ($s in $series.series) {
+        $now = ($s.current.values | Measure-Object -Sum).Sum
+        $before = ($s.previous.values | Measure-Object -Sum).Sum
+        Write-Host ('  {0,-30} total actual {1,10:N2} · total anterior {2,10:N2} · puntos: {3}' -f $s.name, $now, $before, $s.current.values.Count)
+    }
+}
+
+if ($context.sections.financial) {
+    $c = Get-Api "/reports/financial/collections?$query&pageSize=5" $token
+    Show-Kpis 'REPORTE · Cobros' $c.summary
+    Write-Host ('  Por sucursal: ' + (($c.byBranch | ForEach-Object { '{0} {1:N2}' -f $_.branchName, $_.amount }) -join ' · '))
+    Write-Host ('  Por plan:     ' + (($c.byPlan | ForEach-Object { '{0} {1:N2}' -f $_.planName, $_.amount }) -join ' · '))
+    Write-Host ("  Últimos pagos ({0} en total):" -f $c.payments.totalCount)
+    foreach ($p in $c.payments.items) { Write-Host ('    {0} {1:yyyy-MM-dd HH:mm} {2,-16} {3,-12} {4,8:N2} {5}' -f $p.receiptNumber, $p.paidAt, $p.memberName, $p.method, $p.amount, $p.status) }
+
+    $o = Get-Api '/reports/financial/outstanding-balances?pageSize=5' $token
+    Write-Host "`n== REPORTE · Saldos pendientes (foto de hoy)" -ForegroundColor Cyan
+    Write-Host ('  Pendiente {0:N2} USD en {1} obligaciones · Vencido {2:N2} USD en {3}' -f $o.outstanding, $o.openCount, $o.overdue, $o.overdueCount)
+    Write-Host ('  Antigüedad: ' + (($o.aging | ForEach-Object { '{0}: {1:N2}' -f $_.label, $_.amount }) -join ' · '))
+    foreach ($m in $o.members.items) { Write-Host ('    {0} {1,-18} debe {2,7:N2} (vencido {3,7:N2}) desde {4}' -f $m.memberCode, $m.memberName, $m.outstanding, $m.overdue, $m.oldestDueDate) }
+
+    $cash = Get-Api "/reports/financial/cash-registers?$query" $token
+    Write-Host "`n== REPORTE · Caja" -ForegroundColor Cyan
+    Write-Host ('  Turnos: {0} abiertos en el período ({1} siguen abiertos, {2} cerrados) · Faltante {3:N2} · Sobrante {4:N2}' -f $cash.sessionsOpened, $cash.sessionsStillOpen, $cash.sessionsClosed, $cash.shortage, $cash.surplus)
+    foreach ($s in $cash.sessions.items) { Write-Host ('    {0} {1,-14} apertura {2,7:N2} esperado {3,8} contado {4,8} diferencia {5,6}' -f $s.status, $s.registerName, $s.openingAmount, $s.expected, $s.counted, $s.difference) }
+
+    $rev = Get-Api "/reports/financial/reversals?$query" $token
+    Write-Host "`n== REPORTE · Reversiones y anulaciones" -ForegroundColor Cyan
+    Write-Host ('  Pagos revertidos: {0} por {1:N2} USD · Obligaciones anuladas: {2} por {3:N2} USD' -f $rev.reversedCount, $rev.reversedAmount, $rev.voidedCount, $rev.voidedAmount)
+    foreach ($r in $rev.reversals.items) { Write-Host ('    {0} {1,-18} {2,7:N2} "{3}" por {4}' -f $r.receiptNumber, $r.memberName, $r.amount, $r.reason, $r.reversedBy) }
+}
+else {
+    Write-Host "`n(Este usuario no tiene reportes financieros: es lo esperado según su rol.)" -ForegroundColor DarkYellow
+}
+Write-Host ''

@@ -112,7 +112,7 @@ internal sealed class CreateReservationHandler(ClassesDbContext db, IAccessConte
             return ReservationErrors.MemberNotFound;
         }
 
-        return await Booking.BookAsync(db, clock, actor.Value, member, session, ReservationSource.Staff, command.IdempotencyKey, command.Request, cancellationToken);
+        return await Booking.BookAsync(db, clock, actor.Value, member, session, ReservationSource.Staff, command.Request.JoinWaitlist, command.IdempotencyKey, command.Request, cancellationToken);
     }
 }
 
@@ -196,7 +196,7 @@ internal sealed class CreateMyReservationHandler(ClassesDbContext db, IAccessCon
             return SessionErrors.NotFound;
         }
 
-        return await Booking.BookAsync(db, clock, actor.Value, member.Value, session, ReservationSource.Member, command.IdempotencyKey, command.Request, cancellationToken);
+        return await Booking.BookAsync(db, clock, actor.Value, member.Value, session, ReservationSource.Member, command.Request.JoinWaitlist, command.IdempotencyKey, command.Request, cancellationToken);
     }
 }
 
@@ -225,5 +225,81 @@ internal sealed class CancelMyReservationHandler(ClassesDbContext db, IAccessCon
         }
 
         return await Cancelling.CancelAsync(db, clock, actor.Value.UserId, reservation, isSelf: true, command.Request.Reason, cancellationToken);
+    }
+}
+
+internal sealed class AcceptReservationHandler(ClassesDbContext db, IAccessContext access, IClock clock)
+    : ICommandHandler<AcceptReservationCommand, ReservationDto>
+{
+    public async Task<Result<ReservationDto>> HandleAsync(AcceptReservationCommand command, CancellationToken cancellationToken)
+    {
+        var actor = await access.RequireAccessAsync(cancellationToken);
+        if (actor.IsFailure)
+        {
+            return actor.Error;
+        }
+
+        var reservation = await db.Reservations.VisibleTo(actor.Value).FirstOrDefaultAsync(r => r.Id == command.Id, cancellationToken);
+        return reservation is null ? ReservationErrors.NotFound : await Waitlist.AcceptAsync(db, clock, actor.Value.UserId, reservation, cancellationToken);
+    }
+}
+
+internal sealed class DeclineReservationHandler(ClassesDbContext db, IAccessContext access, IClock clock)
+    : ICommandHandler<DeclineReservationCommand, ReservationDto>
+{
+    public async Task<Result<ReservationDto>> HandleAsync(DeclineReservationCommand command, CancellationToken cancellationToken)
+    {
+        var actor = await access.RequireAccessAsync(cancellationToken);
+        if (actor.IsFailure)
+        {
+            return actor.Error;
+        }
+
+        var reservation = await db.Reservations.VisibleTo(actor.Value).FirstOrDefaultAsync(r => r.Id == command.Id, cancellationToken);
+        return reservation is null ? ReservationErrors.NotFound : await Waitlist.DeclineAsync(db, clock, actor.Value.UserId, reservation, isSelf: false, cancellationToken);
+    }
+}
+
+internal sealed class AcceptMyReservationHandler(ClassesDbContext db, IAccessContext access, IClock clock)
+    : ICommandHandler<AcceptMyReservationCommand, ReservationDto>
+{
+    public async Task<Result<ReservationDto>> HandleAsync(AcceptMyReservationCommand command, CancellationToken cancellationToken)
+    {
+        var actor = await access.RequireAccessAsync(cancellationToken);
+        if (actor.IsFailure)
+        {
+            return actor.Error;
+        }
+
+        var member = await MyMember.ResolveAsync(db, actor.Value, cancellationToken);
+        if (member.IsFailure)
+        {
+            return member.Error;
+        }
+
+        var reservation = await db.Reservations.FirstOrDefaultAsync(r => r.Id == command.Id && r.MemberId == member.Value.Id, cancellationToken);
+        return reservation is null ? ReservationErrors.NotFound : await Waitlist.AcceptAsync(db, clock, actor.Value.UserId, reservation, cancellationToken);
+    }
+}
+
+internal sealed class DeclineMyReservationHandler(ClassesDbContext db, IAccessContext access, IClock clock)
+    : ICommandHandler<DeclineMyReservationCommand, ReservationDto>
+{
+    public async Task<Result<ReservationDto>> HandleAsync(DeclineMyReservationCommand command, CancellationToken cancellationToken)
+    {
+        var actor = await access.RequireAccessAsync(cancellationToken);
+        if (actor.IsFailure)
+        {
+            return actor.Error;
+        }
+
+        var member = await MyMember.ResolveAsync(db, actor.Value, cancellationToken);
+        if (member.IsFailure)
+        {
+            return member.Error;
+        }
+
+        var reservation = await db.Reservations.FirstOrDefaultAsync(r => r.Id == command.Id && r.MemberId == member.Value.Id, cancellationToken);
+        return reservation is null ? ReservationErrors.NotFound : await Waitlist.DeclineAsync(db, clock, actor.Value.UserId, reservation, isSelf: true, cancellationToken);
     }
 }

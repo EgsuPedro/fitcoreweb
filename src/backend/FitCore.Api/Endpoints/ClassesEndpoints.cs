@@ -48,6 +48,19 @@ internal static class ClassesEndpoints
             .WithValidation<CancelReservationRequest>()
             .Produces<ReservationDto>()
             .WithName("CancelClassReservation");
+
+        // Responder una invitación de la lista de espera: aceptar confirma el cupo reservado; rechazar lo pasa al siguiente.
+        group.MapPost("/{id:guid}/accept", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new AcceptReservationCommand(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassReservationsManage)
+            .Produces<ReservationDto>()
+            .WithName("AcceptClassReservationOffer");
+
+        group.MapPost("/{id:guid}/decline", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DeclineReservationCommand(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassReservationsManage)
+            .Produces<ReservationDto>()
+            .WithName("DeclineClassReservationOffer");
     }
 
     private static void MapMyReservations(RouteGroupBuilder group)
@@ -71,6 +84,18 @@ internal static class ClassesEndpoints
             .WithValidation<CancelReservationRequest>()
             .Produces<ReservationDto>()
             .WithName("CancelMyClassReservation");
+
+        group.MapPost("/{id:guid}/accept", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new AcceptMyReservationCommand(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<ReservationDto>()
+            .WithName("AcceptMyClassReservationOffer");
+
+        group.MapPost("/{id:guid}/decline", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DeclineMyReservationCommand(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<ReservationDto>()
+            .WithName("DeclineMyClassReservationOffer");
     }
 
     private static void MapSessions(RouteGroupBuilder group)

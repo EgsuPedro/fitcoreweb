@@ -243,6 +243,7 @@ internal sealed class UpdateSessionHandler(ClassesDbContext db, IAccessContext a
         }
 
         var notes = request.Notes is null ? session.Notes : request.Notes;
+        var capacityBefore = session.Capacity;
         session.Reschedule(startsAt, endsAt, instructorId, request.Capacity ?? session.Capacity, notes, overrideReason, currentUser.UserId, now);
         try
         {
@@ -259,6 +260,12 @@ internal sealed class UpdateSessionHandler(ClassesDbContext db, IAccessContext a
         catch (DbUpdateException ex) when (SessionScheduling.IsConcurrencyConflict(ex))
         {
             return SessionErrors.InstructorOverlap;
+        }
+
+        // Más capacidad = cupos libres: se ofrecen de inmediato a la lista de espera (si falla, el barrido del Worker lo completa).
+        if (session.Capacity > capacityBefore)
+        {
+            await Reservations.Waitlist.PromoteSessionAsync(db, clock, session.Id, currentUser.UserId, cancellationToken);
         }
 
         return await SessionScheduling.ToDtoAsync(db, session, cancellationToken);

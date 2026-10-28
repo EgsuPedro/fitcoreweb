@@ -40,6 +40,54 @@ public class ReservationDomainTests
         Assert.Equal(Now.AddHours(1), reservation.CancelledAt);
     }
 
+    private static ClassReservation Waiting() =>
+        ClassReservation.Waitlist(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), ReservationSource.Staff, null, Now);
+
+    [Fact]
+    public void Quien_espera_esta_vivo_pero_no_ocupa_cupo()
+    {
+        var reservation = Waiting();
+
+        Assert.Equal(ReservationStatus.Waitlisted, reservation.Status);
+        Assert.True(reservation.IsLive);
+        Assert.False(reservation.HoldsSeat);
+        Assert.Null(reservation.OfferExpiresAt);
+    }
+
+    [Fact]
+    public void Una_invitacion_ocupa_cupo_hasta_su_plazo_y_aceptarla_la_confirma()
+    {
+        var reservation = Waiting();
+        var by = Guid.NewGuid();
+
+        reservation.Offer(Now.AddMinutes(30), by, Now);
+
+        Assert.Equal(ReservationStatus.Offered, reservation.Status);
+        Assert.True(reservation.HoldsSeat);
+        Assert.Equal(Now, reservation.OfferedAt);
+        Assert.Equal(Now.AddMinutes(30), reservation.OfferExpiresAt);
+
+        reservation.Accept(by, Now.AddMinutes(5));
+
+        Assert.Equal(ReservationStatus.Confirmed, reservation.Status);
+        Assert.True(reservation.HoldsSeat);
+        Assert.Equal(Now, reservation.OfferedAt); // conserva de dónde viene
+        Assert.Equal(Now.AddMinutes(5), reservation.UpdatedAt);
+    }
+
+    [Fact]
+    public void Una_invitacion_vencida_libera_el_cupo_y_ya_no_esta_viva()
+    {
+        var reservation = Waiting();
+        reservation.Offer(Now.AddMinutes(30), null, Now);
+
+        reservation.Expire(null, Now.AddMinutes(31));
+
+        Assert.Equal(ReservationStatus.Expired, reservation.Status);
+        Assert.False(reservation.IsLive);
+        Assert.False(reservation.HoldsSeat);
+    }
+
     [Fact]
     public void Un_motivo_en_blanco_no_se_guarda()
     {

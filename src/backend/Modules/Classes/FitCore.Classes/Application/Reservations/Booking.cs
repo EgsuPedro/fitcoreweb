@@ -102,6 +102,7 @@ internal static class Booking
         MemberRef member,
         ClassSession authorizedSession,
         ReservationSource source,
+        bool joinWaitlist,
         string? idempotencyKey,
         object request,
         CancellationToken cancellationToken)
@@ -169,23 +170,45 @@ internal static class Booking
                 return ReservationErrors.AlreadyBooked;
             }
 
-            var crossing = await (from r in db.Reservations.AsNoTracking()
-                                  join s in db.ClassSessions.AsNoTracking() on r.SessionId equals s.Id
-                                  where r.MemberId == member.Id && (r.Status == ReservationStatus.Confirmed || r.Status == ReservationStatus.Offered)
-                                        && s.Status == SessionStatus.Scheduled && s.StartsAt < session.EndsAt && s.EndsAt > session.StartsAt
-                                  select r.Id).AnyAsync(cancellationToken);
-            if (crossing)
+            if (await CrossesAsync(db, member.Id, session, cancellationToken))
             {
                 return ReservationErrors.ScheduleConflict;
             }
 
-            var taken = await db.Reservations.CountAsync(r => r.SessionId == session.Id && (r.Status == ReservationStatus.Confirmed || r.Status == ReservationStatus.Offered), cancellationToken);
-            if (taken >= session.Capacity)
+            // Un cupo liberado que aún no se ofreció se ofrece antes de contar: nadie se cuela delante de la fila.
+            if ((await Waitlist.PromoteAsync(db, groupClass, session, now, actor.UserId, cancellationToken)).Count > 0)
             {
-                return ReservationErrors.SessionFull;
+                await db.SaveChangesAsync(cancellationToken);
             }
 
-            var reservation = ClassReservation.Confirm(actor.TenantId, session.BranchId, session.Id, member.Id, source, actor.UserId, now);
+            var taken = await db.Reservations.CountAsync(r => r.SessionId == session.Id && (r.Status == ReservationStatus.Confirmed || r.Status == ReservationStatus.Offered), cancellationToken);
+            ClassReservation reservation;
+            if (taken < session.Capacity)
+            {
+                reservation = ClassReservation.Confirm(actor.TenantId, session.BranchId, session.Id, member.Id, source, actor.UserId, now);
+            }
+            else
+            {
+                // Sesión llena: solo entra a la lista de espera quien lo pide expresamente y la clase la admite.
+                if (!joinWaitlist)
+                {
+                    return ReservationErrors.SessionFull;
+                }
+
+                if (!groupClass.WaitlistEnabled)
+                {
+                    return ReservationErrors.WaitlistDisabled;
+                }
+
+                var waiting = await db.Reservations.CountAsync(r => r.SessionId == session.Id && r.Status == ReservationStatus.Waitlisted, cancellationToken);
+                if (waiting >= groupClass.WaitlistCapacity)
+                {
+                    return ReservationErrors.WaitlistFull;
+                }
+
+                reservation = ClassReservation.Waitlist(actor.TenantId, session.BranchId, session.Id, member.Id, source, actor.UserId, now);
+            }
+
             db.Reservations.Add(reservation);
             await db.SaveChangesAsync(cancellationToken);
 
@@ -206,13 +229,25 @@ internal static class Booking
         PostgresErrorCodes.UniqueViolation => ReservationErrors.AlreadyBooked,
         CapacityFull => ReservationErrors.SessionFull,
         SessionNotOpen => ReservationErrors.SessionNotBookable,
+        WaitlistOff => ReservationErrors.WaitlistDisabled,
+        WaitlistIsFull => ReservationErrors.WaitlistFull,
         _ => null
     };
+
+    /// <summary>¿El alumno ya tiene una reserva con cupo (confirmada u ofrecida) que se cruza con la sesión?</summary>
+    public static Task<bool> CrossesAsync(ClassesDbContext db, Guid memberId, ClassSession session, CancellationToken cancellationToken) =>
+        (from r in db.Reservations.AsNoTracking()
+         join s in db.ClassSessions.AsNoTracking() on r.SessionId equals s.Id
+         where r.MemberId == memberId && r.SessionId != session.Id && (r.Status == ReservationStatus.Confirmed || r.Status == ReservationStatus.Offered)
+               && s.Status == SessionStatus.Scheduled && s.StartsAt < session.EndsAt && s.EndsAt > session.StartsAt
+         select r.Id).AnyAsync(cancellationToken);
 
     // Códigos propios del disparador de capacidad (ver la migración AddReservationsSecurity).
     public const string CapacityFull = "FC001";
     public const string SessionNotOpen = "FC002";
     public const string CapacityBelowBooked = "FC003";
+    public const string WaitlistOff = "FC004";
+    public const string WaitlistIsFull = "FC005";
 
     /// <summary>La sesión debe estar programada, no haber empezado y estar dentro de la ventana de reserva de su clase.</summary>
     private static Error? Availability(ClassSession session, GroupClass groupClass, DateTimeOffset now)
@@ -230,8 +265,9 @@ internal static class Cancelling
 {
     /// <summary>
     /// Cancela una reserva. El alumno solo puede dentro del plazo de la clase; el personal también fuera de plazo, como excepción explícita
-    /// (motivo obligatorio) que queda marcada y auditada. Nadie cancela una sesión que ya empezó. Cancelar libera el cupo al instante,
-    /// porque la capacidad se cuenta por estado. Repetir la cancelación devuelve la reserva tal como quedó.
+    /// (motivo obligatorio) que queda marcada y auditada. Nadie cancela una sesión que ya empezó. Si la reserva ocupaba un cupo, el cupo
+    /// liberado se ofrece al primero elegible de la lista de espera <b>en la misma transacción</b>, con la sesión bloqueada: nadie puede
+    /// colarse entre la cancelación y la oferta. Repetir la cancelación devuelve la reserva tal como quedó.
     /// </summary>
     public static async Task<Result<ReservationDto>> CancelAsync(
         ClassesDbContext db,
@@ -240,7 +276,8 @@ internal static class Cancelling
         ClassReservation reservation,
         bool isSelf,
         string? reason,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool onlyOffered = false)
     {
         if (reservation.Status == ReservationStatus.Cancelled)
         {
@@ -252,6 +289,25 @@ internal static class Cancelling
             return ReservationErrors.NotCancellable;
         }
 
+        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await SessionScheduling.LockSessionsAsync(db, [reservation.SessionId], cancellationToken);
+        await db.Entry(reservation).ReloadAsync(cancellationToken);
+        if (reservation.Status == ReservationStatus.Cancelled)
+        {
+            return (await ReservationMapper.ToDtosAsync(db, [reservation], cancellationToken))[0];
+        }
+
+        if (!reservation.IsLive)
+        {
+            return ReservationErrors.NotCancellable;
+        }
+
+        // Rechazar solo vale sobre una invitación: si mientras tanto la aceptaron, no se cancela una reserva confirmada por error.
+        if (onlyOffered && reservation.Status != ReservationStatus.Offered)
+        {
+            return ReservationErrors.NotOffered;
+        }
+
         var session = await db.ClassSessions.AsNoTracking().FirstAsync(s => s.Id == reservation.SessionId, cancellationToken);
         var groupClass = await db.GroupClasses.AsNoTracking().FirstAsync(c => c.Id == session.ClassId, cancellationToken);
         var now = clock.UtcNow;
@@ -260,8 +316,8 @@ internal static class Cancelling
             return ReservationErrors.SessionStarted;
         }
 
-        // Salir de la lista de espera no tiene plazo: solo quien ocupa un cupo debe avisar con tiempo.
-        var late = reservation.HoldsSeat && !EligibilityRules.CancellationOnTime(session.StartsAt, groupClass.CancellationDeadlineMinutes, now);
+        // Solo quien ocupa un cupo confirmado debe avisar con tiempo: salir de la lista de espera o rechazar una invitación no tiene plazo.
+        var late = reservation.Status == ReservationStatus.Confirmed && !EligibilityRules.CancellationOnTime(session.StartsAt, groupClass.CancellationDeadlineMinutes, now);
         if (late)
         {
             if (isSelf)
@@ -275,10 +331,17 @@ internal static class Cancelling
             }
         }
 
+        var heldSeat = reservation.HoldsSeat;
         reservation.Cancel(reason, late, actorUserId, now);
         try
         {
             await db.SaveChangesAsync(cancellationToken);
+            if (heldSeat && (await Waitlist.PromoteAsync(db, groupClass, session, now, actorUserId, cancellationToken)).Count > 0)
+            {
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
+            await transaction.CommitAsync(cancellationToken);
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -319,6 +382,7 @@ internal static class ReservationMapper
         var classes = await SessionScheduling.ClassNamesAsync(db, [.. sessions.Values.Select(s => s.ClassId).Distinct()], cancellationToken);
         var instructors = await SessionScheduling.InstructorNamesAsync(db, [.. sessions.Values.Select(s => s.InstructorId).Distinct()], cancellationToken);
         var branches = await SessionScheduling.BranchNamesAsync(db, [.. sessions.Values.Select(s => s.BranchId).Distinct()], cancellationToken);
+        var positions = await Waitlist.PositionsAsync(db, [.. reservations.Where(r => r.Status == ReservationStatus.Waitlisted).Select(r => r.SessionId).Distinct()], cancellationToken);
 
         return
         [
@@ -348,7 +412,10 @@ internal static class ReservationMapper
                     r.CreatedAt,
                     r.CancelledAt,
                     r.CancelReason,
-                    r.LateCancellation);
+                    r.LateCancellation,
+                    positions.TryGetValue(r.Id, out var position) ? position : null,
+                    r.OfferedAt,
+                    r.OfferExpiresAt);
             })
         ];
     }

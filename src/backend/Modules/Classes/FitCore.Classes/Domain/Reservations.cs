@@ -59,6 +59,12 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
     /// <summary>Se canceló pasado el plazo: solo el personal puede hacerlo, con motivo, y queda marcado.</summary>
     public bool LateCancellation { get; private set; }
 
+    /// <summary>Cuándo se le ofreció el cupo liberado (solo reservas que pasaron por la lista de espera).</summary>
+    public DateTimeOffset? OfferedAt { get; private set; }
+
+    /// <summary>Hasta cuándo puede aceptar el cupo ofrecido; pasado ese instante el Worker lo vence y lo ofrece al siguiente.</summary>
+    public DateTimeOffset? OfferExpiresAt { get; private set; }
+
     public DateTimeOffset CreatedAt { get; private set; }
     public Guid? CreatedBy { get; private set; }
     public DateTimeOffset? UpdatedAt { get; private set; }
@@ -82,6 +88,48 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
             CreatedAt = now,
             CreatedBy = by
         };
+
+    /// <summary>
+    /// Entra a la lista de espera. El orden de la fila es la hora de creación (y el identificador, que es creciente): estable aunque
+    /// otros salgan o entren.
+    /// </summary>
+    public static ClassReservation Waitlist(Guid tenantId, Guid branchId, Guid sessionId, Guid memberId, ReservationSource source, Guid? by, DateTimeOffset now) =>
+        new(Guid.CreateVersion7())
+        {
+            TenantId = tenantId,
+            BranchId = branchId,
+            SessionId = sessionId,
+            MemberId = memberId,
+            Status = ReservationStatus.Waitlisted,
+            Source = source,
+            CreatedAt = now,
+            CreatedBy = by
+        };
+
+    /// <summary>Se le reserva el cupo liberado: desde aquí ocupa cupo, y tiene hasta <paramref name="expiresAt"/> para aceptarlo.</summary>
+    public void Offer(DateTimeOffset expiresAt, Guid? by, DateTimeOffset now)
+    {
+        Status = ReservationStatus.Offered;
+        OfferedAt = now;
+        OfferExpiresAt = expiresAt;
+        UpdatedAt = now;
+        UpdatedBy = by;
+    }
+
+    public void Accept(Guid? by, DateTimeOffset now)
+    {
+        Status = ReservationStatus.Confirmed;
+        UpdatedAt = now;
+        UpdatedBy = by;
+    }
+
+    /// <summary>La invitación venció sin respuesta, o la sesión empezó con el alumno aún en espera.</summary>
+    public void Expire(Guid? by, DateTimeOffset now)
+    {
+        Status = ReservationStatus.Expired;
+        UpdatedAt = now;
+        UpdatedBy = by;
+    }
 
     public void Cancel(string? reason, bool late, Guid? by, DateTimeOffset now)
     {
@@ -174,6 +222,10 @@ public static class ReservationErrors
     public static readonly Error MemberNotFound = Error.NotFound("classes.member_not_found", "Alumno no encontrado.");
     public static readonly Error AlreadyBooked = Error.Conflict("classes.already_booked", "El alumno ya tiene una reserva en esta sesión.");
     public static readonly Error SessionFull = Error.Conflict("classes.session_full", "La sesión está llena.");
+    public static readonly Error WaitlistDisabled = Error.Conflict("classes.waitlist_disabled", "Esta clase no tiene lista de espera.");
+    public static readonly Error WaitlistFull = Error.Conflict("classes.waitlist_full", "La lista de espera de esta sesión está llena.");
+    public static readonly Error NotOffered = Error.Conflict("classes.reservation_not_offered", "La reserva no tiene un cupo ofrecido pendiente de respuesta.");
+    public static readonly Error OfferExpired = Error.Conflict("classes.offer_expired", "El plazo para aceptar el cupo ya venció.");
     public static readonly Error SessionNotBookable = Error.Conflict("classes.session_not_bookable", "La sesión está cancelada, ya empezó o terminó: no admite reservas.");
     public static readonly Error BookingNotOpen = Error.Conflict("classes.booking_not_open", "Todavía no se abren las reservas de esta sesión.");
     public static readonly Error BookingClosed = Error.Conflict("classes.booking_closed", "Las reservas de esta sesión ya cerraron.");

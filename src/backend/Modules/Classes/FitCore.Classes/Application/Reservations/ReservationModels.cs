@@ -24,13 +24,17 @@ public sealed record ReservationDto(
     DateTimeOffset BookedAt,
     DateTimeOffset? CancelledAt,
     string? CancelReason,
-    bool LateCancellation);
+    bool LateCancellation,
+    int? WaitlistPosition,
+    DateTimeOffset? OfferedAt,
+    DateTimeOffset? OfferExpiresAt);
 
 /// <param name="MemberId">El alumno por quien se reserva: el personal debe poder administrar la sucursal de la sesión.</param>
-public sealed record CreateReservationRequest(Guid SessionId, Guid MemberId);
+/// <param name="JoinWaitlist">Si la sesión está llena, entrar a la lista de espera (solo si la clase la admite). Si hay cupo, se reserva igual.</param>
+public sealed record CreateReservationRequest(Guid SessionId, Guid MemberId, bool JoinWaitlist = false);
 
 /// <summary>El alumno que reserva por sí mismo es siempre el de su sesión: nunca se envía su identificador.</summary>
-public sealed record CreateMyReservationRequest(Guid SessionId);
+public sealed record CreateMyReservationRequest(Guid SessionId, bool JoinWaitlist = false);
 
 /// <param name="Reason">Opcional dentro del plazo. Obligatorio (≥ 5 caracteres) si el personal cancela fuera de plazo: queda marcado como excepción.</param>
 public sealed record CancelReservationRequest(string? Reason);
@@ -55,6 +59,14 @@ public sealed record ListMyReservationsQuery(PageRequest Page, ReservationStatus
 public sealed record CreateMyReservationCommand(CreateMyReservationRequest Request, string? IdempotencyKey) : ICommand<ReservationDto>;
 
 public sealed record CancelMyReservationCommand(Guid Id, CancelReservationRequest Request) : ICommand<ReservationDto>;
+
+public sealed record AcceptReservationCommand(Guid Id) : ICommand<ReservationDto>;
+
+public sealed record DeclineReservationCommand(Guid Id) : ICommand<ReservationDto>;
+
+public sealed record AcceptMyReservationCommand(Guid Id) : ICommand<ReservationDto>;
+
+public sealed record DeclineMyReservationCommand(Guid Id) : ICommand<ReservationDto>;
 
 public sealed class CreateReservationRequestValidator : AbstractValidator<CreateReservationRequest>
 {

@@ -143,3 +143,7 @@ Las e2e crean sus propios gimnasios con nombres únicos; no tocan el gimnasio `d
 | Login 401 con la clave correcta | Cuenta bloqueada 15 minutos, usuario desactivado o gimnasio suspendido |
 | Subir una foto falla en el servidor | Compruebe que `FileStorage:RootPath` existe y que el usuario de la API puede escribir en él (en Docker lo prepara el Dockerfile) |
 | 429 al iniciar sesión | Límite de intentos por IP (20 por minuto en login) |
+
+## Fase 5: lista de espera de clases grupales (Worker)
+
+El Worker (`FitCore.Worker`) ejecuta cada `Classes:WaitlistIntervalSeconds` segundos (30 por defecto, mínimo 5) el mantenimiento de la lista de espera: vence las invitaciones cuyo plazo terminó y ofrece el cupo al siguiente, completa los cupos libres con gente esperando y cierra la fila de las sesiones que ya empezaron. En `docker compose` el servicio `worker` ya lo incluye; sin el Worker las ofertas se hacen igual al cancelar o rechazar, pero **las invitaciones vencidas no pasan al siguiente** hasta que se vuelva a ejecutar.

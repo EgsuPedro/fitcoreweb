@@ -698,12 +698,13 @@ public class ClassReservationTests(ApiFixture api)
         // Lo que ancla la reserva no cambia, y una cancelada no se reactiva.
         Assert.Equal(PostgresErrorCodes.CheckViolation, await ErrorAsync($"UPDATE classes.class_reservations SET member_id = '{b.Id}' WHERE id = '{first.Id}'"));
         Assert.Equal(PostgresErrorCodes.CheckViolation, await ErrorAsync($"UPDATE classes.class_reservations SET session_id = '{cancelledSession.Id}' WHERE id = '{first.Id}'"));
+        // Al cancelar, el cupo pasa a quien esperaba (bloque 5); se agranda la sesión para que el cupo no sea lo primero que rechace la base.
         await CancelAsync(s.Tenant.Owner, first.Id);
+        await SqlAsync($"UPDATE classes.class_sessions SET capacity = 5 WHERE id = '{session.Id}'");
         Assert.Equal(PostgresErrorCodes.CheckViolation, await ErrorAsync($"UPDATE classes.class_reservations SET status = 'Confirmed', cancelled_at = NULL WHERE id = '{first.Id}'"));
 
-        // La capacidad de la sesión no baja de lo ocupado: con dos cupos tomados, bajar a uno lo impide la base.
+        // La capacidad de la sesión no baja de lo ocupado: con tres cupos tomados (uno ofrecido), bajar a uno lo impide la base.
         await SqlAsync(Insert(s.Tenant.Id, s.Branch, session.Id, c.Id));
-        await SqlAsync($"UPDATE classes.class_sessions SET capacity = 5 WHERE id = '{session.Id}'");
         await SqlAsync(Insert(s.Tenant.Id, s.Branch, session.Id, d.Id));
         Assert.Equal("FC003", await ErrorAsync($"UPDATE classes.class_sessions SET capacity = 1 WHERE id = '{session.Id}'"));
     }

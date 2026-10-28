@@ -126,6 +126,8 @@ Se inicia sesión con **gimnasio + correo + clave**.
 - En Swagger: `POST /api/v1/auth/login` con `{"tenantSlug":"demo","email":"…","password":"…"}`, copiar `accessToken`, botón **Authorize** y probar endpoints. Con un usuario de otro gimnasio, pedir un id ajeno devuelve 404.
 
 ## 7. Pruebas automáticas
+La validación manual de la Fase 5 (clases, reservas, espera, asistencia, avisos y portal) está en [guia-pruebas-fase-5.md](guia-pruebas-fase-5.md).
+
 ```powershell
 dotnet test FitCore.sln                           # ~8 min en total; unitarias, arquitectura e integración (PostgreSQL real con Testcontainers; 4 colecciones en paralelo)
 cd src/web; npm ci; npm run check:i18n; npm test   # claves de traducción es/en y unitarias de Angular

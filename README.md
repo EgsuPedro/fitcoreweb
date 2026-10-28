@@ -86,6 +86,10 @@ Con el entorno levantado:
 | Nutrición (Fase 4) | `GET/POST /nutrition-plans`, `GET/PUT /nutrition-plans/{id}[/versions]`, `POST …/duplicate|assignments`, `GET /members/{id}/nutrition-plan|meal-logs|nutrition-adherence`, `GET/POST /members/{id}/dietary-profile`, `POST /meal-logs` |
 | Evaluaciones y objetivos (Fase 4) | `GET/POST /members/{id}/assessments` (`/compare`, `/progress`), `GET/POST /members/{id}/goals`, `POST /goals/{id}/close` |
 | Fotos de progreso (Fase 4) | `GET /members/{id}/photo-consent`, `POST …/photo-consent/grant|revoke`, `GET/POST /members/{id}/progress-photos`, `GET /progress-photos/{id}/content`, `DELETE /progress-photos/{id}` |
+| Clases grupales (Fase 5) | `GET/POST /group-classes`, `GET/PUT /group-classes/{id}`, `PATCH …/status`; `GET/POST /class-sessions`, `GET/PATCH /class-sessions/{id}`, `POST …/cancel|complete`, `GET …/roster`, `PUT …/attendance`; series en `/class-sessions/recurrences` (`POST …/{id}/generate|cancel`) |
+| Reservas y asistencia a clase (Fase 5) | `GET/POST /class-reservations`, `POST …/{id}/cancel|accept|decline`, `GET /class-attendance` |
+| Portal del alumno: clases (Fase 5) | `GET /me/class-sessions`, `GET/POST /me/class-reservations`, `POST …/{id}/cancel|accept|decline`, `GET /me/class-attendance` |
+| Avisos internos (Fase 5) | `GET /me/notifications` (`/summary`, `PATCH …/{id}/read`, `POST …/read-all`), `GET/PUT /me/notification-preferences` |
 | Políticas e IVA | `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates` (solo plataforma) |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
@@ -94,6 +98,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 
 **Fase 4** (completa) (módulo `FitCore.Wellness`, [ADR 0009](docs/adr/0009-modulo-wellness.md)): entrenadores con alumnos asignados y observaciones profesionales, biblioteca de 42 ejercicios base más los propios, rutinas y planes nutricionales versionados, registro de sesiones y comidas por el propio alumno, evaluaciones con IMC y comparación, objetivos, adherencia y fotos de progreso privadas con consentimiento. Los datos sensibles (nutrición, alergias, evaluaciones, objetivos, fotos, observaciones) **no** se conceden por defecto al Propietario ni al AdministradorSucursal, y toda lectura de personal queda auditada. Las fotos se guardan en un volumen privado (`FileStorage:RootPath`, volumen `fitcore_files` en Docker). Resumen en [docs/informe-fase-4.md](docs/informe-fase-4.md).
 
+**Fase 5** (completa) (módulo `FitCore.Classes`, [ADR 0010](docs/adr/0010-modulo-classes.md)): clases grupales con reglas configurables, sesiones sueltas y series recurrentes idempotentes, control de superposición y disponibilidad del instructor, reservas con cupo protegido bajo concurrencia, lista de espera con invitación con plazo (la vence y promueve el Worker), asistencia a clase, bandeja de avisos internos con preferencias, calendario de Angular para el personal y sección «Mis clases» en el portal del alumno. **Solo existe el canal interno**: no se envían correos, SMS, WhatsApp ni push (no hay proveedor). Requiere el servicio `worker`. Resumen en [docs/informe-fase-5.md](docs/informe-fase-5.md); validación manual en [docs/guia-pruebas-fase-5.md](docs/guia-pruebas-fase-5.md).
+
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
 - [Arquitectura](docs/architecture.md): estructura, auditoría, primer administrador, configuración y ambientes
@@ -101,6 +107,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 - [Matriz de permisos](docs/permissions-matrix.md): catálogo, roles y permiso de cada endpoint
 - [Informe de la Fase 3](docs/informe-fase-3.md): archivos, migraciones, endpoints, pantallas, pruebas y pendientes
 - [Informe de la Fase 4](docs/informe-fase-4.md): bienestar, privacidad, migraciones, endpoints, pruebas y pendientes
+- [Informe de la Fase 5](docs/informe-fase-5.md): clases, reservas, espera, asistencia, avisos, pruebas y pendientes
+- [Guía de pruebas de la Fase 5](docs/guia-pruebas-fase-5.md): validación manual pantalla por pantalla
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación
 

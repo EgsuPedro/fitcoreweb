@@ -1,6 +1,6 @@
 # Guía de ejecución y validación manual
 
-Para levantar el sistema en una máquina de desarrollo y comprobar a mano lo implementado hasta la Fase 2. Todo es local; las claves de abajo no se guardan en el repositorio.
+Para levantar el sistema en una máquina de desarrollo y comprobar a mano lo implementado hasta la Fase 4. Todo es local; las claves de abajo no se guardan en el repositorio.
 
 ## 1. Requisitos
 .NET SDK 9, Node 24 y Docker Desktop encendido.
@@ -104,6 +104,22 @@ Se inicia sesión con **gimnasio + correo + clave**.
 3. *Desactivar* un ejercicio propio lo saca de las nuevas rutinas sin borrarlo. Un ejercicio base no se puede editar ni desactivar desde el gimnasio.
 4. Como administrador de plataforma, *Catálogo de ejercicios* permite crear y editar el catálogo base para todos los gimnasios.
 
+**Rutinas** (Fase 4, bloque 4), con `entrenador.uio@`:
+1. *Rutinas → Nueva rutina*: agregue días y ejercicios de la biblioteca (series, repeticiones o tiempo, descanso). Guardar una edición crea una **versión nueva**; las asignaciones en curso conservan la suya.
+2. Desde *Entrenadores → Seguimiento* de un alumno asigne la rutina. Entre como el alumno y use *Registrar sesión*: series con repeticiones y carga, o solo repeticiones, o tiempo según el ejercicio.
+3. El entrenador ve la sesión, la evolución por ejercicio y puede comentar. Ni el propietario ni el administrador de sucursal ven observaciones, evaluaciones, objetivos ni fotos.
+
+**Nutrición** (Fase 4, bloque 5), con `nutricionista.gye@`:
+1. *Planes nutricionales → Nuevo plan* (comidas y alimentos). En la ficha del alumno, *Nutrición*: perfil alimentario con **alergias destacadas** y asignación del plan.
+2. Como alumno: *Registrar comida* del día (cumplida, parcial u omitida). La adherencia se calcula con esos registros.
+3. El entrenador no ve la pestaña de nutrición.
+
+**Evaluaciones, objetivos y fotos** (Fase 4, bloques 6 a 8):
+1. Como entrenador, en *Seguimiento* de un alumno: *Nueva evaluación* (peso, talla, perímetros); el IMC se calcula y se muestra siempre como indicador general, no como diagnóstico. Una evaluación no se edita: se **corrige** con otra que la referencia y un motivo.
+2. *Objetivos*: cree uno con valor inicial, meta y fecha; el avance se ve en barra y gráfico. Un objetivo no se cierra solo, aunque alcance la meta: lo cierra una persona con su estado final y una nota opcional.
+3. *Fotos*: sin consentimiento no se puede subir ninguna. El alumno (o el personal por él) registra el consentimiento; **si el alumno es menor de edad solo puede darlo el personal con el nombre del representante**. Suba una foto JPEG o PNG (máx. 8 MB): la imagen se muestra solo con sesión iniciada. *Retirar consentimiento* pide confirmación y **borra todas las fotos** del alumno.
+4. Los archivos están en el volumen `fitcore_files` (`FileStorage:RootPath`). **No lo borre ni lo comparta**; inclúyalo en los respaldos junto con la base de datos.
+
 **Seguridad rápida:**
 - 5 contraseñas erróneas seguidas bloquean la cuenta 15 minutos (aunque luego se escriba la correcta).
 - Desactivar un usuario desde "Usuarios" cierra su sesión en la siguiente solicitud.
@@ -111,7 +127,7 @@ Se inicia sesión con **gimnasio + correo + clave**.
 
 ## 7. Pruebas automáticas
 ```powershell
-dotnet test FitCore.sln                           # unitarias, arquitectura e integración (PostgreSQL real con Testcontainers; 4 colecciones en paralelo)
+dotnet test FitCore.sln                           # ~8 min en total; unitarias, arquitectura e integración (PostgreSQL real con Testcontainers; 4 colecciones en paralelo)
 cd src/web; npm ci; npm run check:i18n; npm test   # claves de traducción es/en y unitarias de Angular
 cd ../../tests/e2e; npm ci; npx playwright install chromium
 $env:E2E_BASE_URL = 'http://localhost:8081'       # usa el entorno ya levantado; las claves del administrador vienen de .env
@@ -125,4 +141,5 @@ Las e2e crean sus propios gimnasios con nombres únicos; no tocan el gimnasio `d
 | El puerto 5432 u 8081 está ocupado | Cambie `POSTGRES_PORT` o `WEB_PORT` en `.env` y repita `up -d` |
 | La API no arranca: "Jwt:SigningKey" | `JWT_SIGNING_KEY` vacío o con menos de 32 caracteres |
 | Login 401 con la clave correcta | Cuenta bloqueada 15 minutos, usuario desactivado o gimnasio suspendido |
+| Subir una foto falla en el servidor | Compruebe que `FileStorage:RootPath` existe y que el usuario de la API puede escribir en él (en Docker lo prepara el Dockerfile) |
 | 429 al iniciar sesión | Límite de intentos por IP (20 por minuto en login) |

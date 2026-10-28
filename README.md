@@ -2,7 +2,7 @@
 
 Plataforma SaaS para la administración integral de gimnasios (Ecuador, USD).
 
-**Estado:** Fase 2 completa (identidad, multiempresa y shell web). Implementado: gimnasios, sucursales, usuarios, roles y permisos con edición, autenticación JWT con refresh rotativo, auditoría, outbox y un frontend Angular (login, menú por permisos, sucursales, usuarios, roles, auditoría y administración de gimnasios). Los módulos de negocio (alumnos, membresías, pagos…) y Flutter aún no existen.
+**Estado:** Fases 1 a 4 completas. Identidad y multiempresa; comercial (alumnos, planes, membresías, cobros, caja, asistencia); y bienestar (entrenadores, ejercicios, rutinas, nutrición, evaluaciones, objetivos, fotos de progreso privadas), con su interfaz Angular. Pendientes: Flutter, facturación electrónica SRI, inventario/punto de venta, reportes, WhatsApp real y recuperación de contraseña.
 
 ## Estructura
 
@@ -11,6 +11,8 @@ src/backend/
   FitCore.Api/                   Host HTTP: endpoints, JWT, autorización, ProblemDetails, OpenAPI
   FitCore.Worker/                Procesos en segundo plano (outbox)
   BuildingBlocks/                SharedKernel, Application.Core (despachador, contratos), Infrastructure.Core
+  Modules/Commercial/FitCore.Commercial/   Alumnos, planes, membresías, cobros, caja, asistencia, avisos
+  Modules/Wellness/FitCore.Wellness/       Entrenadores, ejercicios, rutinas, nutrición, evaluaciones, objetivos, fotos
   Modules/Platform/FitCore.Platform/
     Domain/                      Tenant, Branch, catálogo de permisos, plantillas de rol
     Identity/  Persistence/      Usuarios, roles, DbContext, RLS, migraciones, outbox
@@ -80,11 +82,17 @@ Con el entorno levantado:
 | Ejercicios (Fase 4) | `GET/POST /exercises`, `GET/PUT /exercises/{id}`, `PATCH /exercises/{id}/status`, `POST /exercises/{id}/duplicate`; catálogo base en `/platform/exercises` |
 | Portal del alumno | `POST /members/{id}/access`, `POST /members/{id}/access/reset`, `PATCH /members/{id}/access`, `GET /me/member|memberships|payments|attendance` |
 | Avisos de WhatsApp | `GET /notifications`, `GET/PUT /notification-settings`, `PUT /members/{id}/whatsapp-consent` |
+| Rutinas (Fase 4) | `GET/POST /training-plans`, `GET/PUT /training-plans/{id}[/versions]`, `POST …/duplicate|assignments`, `PATCH …/status`, `POST /training-assignments/{id}/end`, `GET /members/{id}/training-plan|workout-sessions|exercise-progress|training-adherence`, `POST /workout-sessions` |
+| Nutrición (Fase 4) | `GET/POST /nutrition-plans`, `GET/PUT /nutrition-plans/{id}[/versions]`, `POST …/duplicate|assignments`, `GET /members/{id}/nutrition-plan|meal-logs|nutrition-adherence`, `GET/POST /members/{id}/dietary-profile`, `POST /meal-logs` |
+| Evaluaciones y objetivos (Fase 4) | `GET/POST /members/{id}/assessments` (`/compare`, `/progress`), `GET/POST /members/{id}/goals`, `POST /goals/{id}/close` |
+| Fotos de progreso (Fase 4) | `GET /members/{id}/photo-consent`, `POST …/photo-consent/grant|revoke`, `GET/POST /members/{id}/progress-photos`, `GET /progress-photos/{id}/content`, `DELETE /progress-photos/{id}` |
 | Políticas e IVA | `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates` (solo plataforma) |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
 
 **Fase 3** (casi cerrada) (módulo `FitCore.Commercial`, [ADR 0008](docs/adr/0008-modulo-commercial.md)): hecho el módulo base, los alumnos, los planes y promociones (con tope de descuento), las políticas del gimnasio y las tarifas de IVA editables por decreto (15 % por defecto). Hechas también las membresías (inscribir, renovar, congelar, cancelar) con su obligación de pago. Hechos también los cobros (pagos completos y abonos, transferencias con verificación, reversos, idempotencia, recibo interno). Hecha también la caja (apertura, movimientos, cierre con arqueo, efectivo) y la cartera. Hecha también la asistencia (entrada/salida manual o por QR, política de acceso con deuda, excepciones autorizadas). Hechas las pantallas de Angular de todo lo anterior y sus pruebas end-to-end. El bloque 4b (avisos de WhatsApp por vencimiento) está hecho con un **emisor simulado**: genera y registra los mensajes, pero no envía nada real hasta conectar la cuenta de Meta. Resumen completo en [docs/informe-fase-3.md](docs/informe-fase-3.md).
+
+**Fase 4** (completa) (módulo `FitCore.Wellness`, [ADR 0009](docs/adr/0009-modulo-wellness.md)): entrenadores con alumnos asignados y observaciones profesionales, biblioteca de 42 ejercicios base más los propios, rutinas y planes nutricionales versionados, registro de sesiones y comidas por el propio alumno, evaluaciones con IMC y comparación, objetivos, adherencia y fotos de progreso privadas con consentimiento. Los datos sensibles (nutrición, alergias, evaluaciones, objetivos, fotos, observaciones) **no** se conceden por defecto al Propietario ni al AdministradorSucursal, y toda lectura de personal queda auditada. Las fotos se guardan en un volumen privado (`FileStorage:RootPath`, volumen `fitcore_files` en Docker). Resumen en [docs/informe-fase-4.md](docs/informe-fase-4.md).
 
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
@@ -92,6 +100,7 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 - [Modelo de datos](docs/database-model.md): esquemas, aislamiento, migraciones (aplicar y comprobar)
 - [Matriz de permisos](docs/permissions-matrix.md): catálogo, roles y permiso de cada endpoint
 - [Informe de la Fase 3](docs/informe-fase-3.md): archivos, migraciones, endpoints, pantallas, pruebas y pendientes
+- [Informe de la Fase 4](docs/informe-fase-4.md): bienestar, privacidad, migraciones, endpoints, pruebas y pendientes
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación
 

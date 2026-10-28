@@ -6,8 +6,10 @@
 | 0 | Arquitectura, decisiones y ADR | Aprobada |
 | 1 / 2A | Núcleo: multiempresa (4 capas), identidad, JWT con refresh rotativo, roles y permisos con edición, auditoría, outbox, Docker, CI | Hecha |
 | 2B | Angular: login, menú por permisos, sucursales, usuarios, roles, auditoría, gimnasios; pruebas e2e | Hecha |
+| 3 | Comercial: alumnos, planes, membresías, cobros, caja, asistencia, avisos (ver [informe](informe-fase-3.md)) | Hecha |
+| 4 | Bienestar: entrenadores, ejercicios, rutinas, nutrición, evaluaciones, objetivos, fotos privadas, Angular (ver [informe](informe-fase-4.md)) | Hecha |
 
-Pruebas actuales: 88 de backend (13 unitarias, 9 de arquitectura, 66 de integración con PostgreSQL real), 35 unitarias de Angular y 13 e2e con Playwright. CI en GitHub Actions: backend, web, e2e y docker.
+Pruebas actuales: ver el informe de la Fase 4 (cifras de la última regresión completa). CI en GitHub Actions: backend, web, e2e y docker.
 
 ## Pendiente de la Fase 1/2
 | Tema | Nota |
@@ -24,7 +26,6 @@ Pruebas actuales: 88 de backend (13 unitarias, 9 de arquitectura, 66 de integrac
 ## Siguientes fases
 | Fase | Contenido |
 |---|---|
-| 3 | Alumnos, planes y membresías, obligaciones de pago, pagos por transferencia con comprobante manual, caja. IVA confirmado en **15 %** por defecto, como tabla de tarifas con vigencia editable por plataforma para cambios por decreto (ADR 0003) |
-| 4 en adelante | Asistencia y control de acceso, entrenamiento, nutrición, inventario y punto de venta, reportes, facturación electrónica SRI (Fase 8, firma XML directa tras un puerto), pasarela de tarjeta (puerto, en espera), app móvil Flutter |
+| 5 en adelante | Inventario y punto de venta, reportes, facturación electrónica SRI (firma XML directa tras un puerto), pasarela de tarjeta (puerto, en espera), app móvil Flutter. Pendientes heredados: WhatsApp real (cuenta de Meta), recuperación de contraseña (proveedor de correo), comparación de sesiones lado a lado, asignación nutricionista–alumno |
 
 El orden de las fases 4 en adelante se reconfirma con el usuario al terminar cada fase.

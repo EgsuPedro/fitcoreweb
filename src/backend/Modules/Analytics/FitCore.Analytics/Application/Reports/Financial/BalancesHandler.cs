@@ -7,16 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.Analytics.Application.Reports.Financial;
 
-internal sealed class OpenBalance
-{
-    public Guid ObligationId { get; init; }
-    public Guid MemberId { get; init; }
-    public Guid BranchId { get; init; }
-    public Guid? MembershipId { get; init; }
-    public DateOnly DueDate { get; init; }
-    public decimal Remaining { get; init; }
-}
-
 internal sealed class GetOutstandingHandler(AnalyticsDbContext db, IAccessContext access, IClock clock)
     : IQueryHandler<OutstandingQuery, OutstandingReportDto>
 {
@@ -30,7 +20,7 @@ internal sealed class GetOutstandingHandler(AnalyticsDbContext db, IAccessContex
 
         var (_, scope, periods) = begin.Value;
         var today = scope.Today;
-        var open = OpenBalances(scope.BranchIds, query.PlanId);
+        var open = Metrics.OpenBalances(db, scope.BranchIds, query.PlanId);
         if (query.OverdueOnly)
         {
             open = open.Where(b => b.DueDate < today);
@@ -97,22 +87,6 @@ internal sealed class GetOutstandingHandler(AnalyticsDbContext db, IAccessContex
             members,
             obligations);
     }
-
-    /// <summary>
-    /// Obligaciones Pendiente o Parcial con lo que aún se debe (exigible − pagos Confirmados), la misma regla de la cartera existente. Solo las
-    /// que todavía deben algo.
-    /// </summary>
-    private IQueryable<OpenBalance> OpenBalances(IReadOnlyList<Guid> branches, Guid? planId) =>
-        from o in db.Obligations
-        where branches.Contains(o.BranchId) && (o.Status == "Pending" || o.Status == "PartiallyPaid")
-              && (planId == null || db.Memberships.Any(m => m.Id == o.MembershipId && m.PlanId == planId))
-        let paid = (from a in db.Allocations
-                    join p in db.Payments on a.PaymentId equals p.Id
-                    where a.ObligationId == o.Id && p.Status == "Confirmed"
-                    select (decimal?)a.Amount).Sum() ?? 0m
-        let remaining = o.PayableAmount - paid
-        where remaining > 0m
-        select new OpenBalance { ObligationId = o.Id, MemberId = o.MemberId, BranchId = o.BranchId, MembershipId = o.MembershipId, DueDate = o.DueDate, Remaining = remaining };
 
     private async Task<PagedResult<MemberBalanceDto>> MemberRowsAsync(IQueryable<OpenBalance> open, DateOnly today, PageRequest page, CancellationToken ct)
     {

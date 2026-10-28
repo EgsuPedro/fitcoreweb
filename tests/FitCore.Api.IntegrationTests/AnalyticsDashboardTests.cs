@@ -227,7 +227,7 @@ public class AnalyticsDashboardTests(ApiFixture api)
         Assert.Equal(100.0m, collected.Variation.Percent);
 
         // La obligación de la membresía vence hoy+N: se mueve su vencimiento al pasado y pasa a saldo vencido (10 pendientes de 30 − 20 pagados).
-        await SqlAsync($"UPDATE billing.payment_obligations SET issue_date = current_date - 10, due_date = current_date - 5 WHERE tenant_id = '{gym.Tenant.Id}' AND membership_id IS NOT NULL");
+        await SqlAsync($"UPDATE billing.payment_obligations SET issue_date = '{Today:yyyy-MM-dd}'::date - 10, due_date = '{Today:yyyy-MM-dd}'::date - 5 WHERE tenant_id = '{gym.Tenant.Id}' AND membership_id IS NOT NULL");
         var financial = (await DashboardAsync(owner, Last(10))).Financial!;
         Assert.Equal(10m, Kpi(financial.Kpis, "outstanding").Value);
         Assert.Equal(10m, Kpi(financial.Kpis, "overdue").Value);
@@ -309,8 +309,8 @@ public class AnalyticsDashboardTests(ApiFixture api)
         await PayAsync(owner, expired.Id, 30m, "Cash", null);
 
         // Una termina en 5 días y la otra terminó hace 3 (el rango de fechas no tiene triggers de inmutabilidad en la base de pruebas).
-        await SqlAsync($"UPDATE members.memberships SET start_date = current_date - 20, end_date = current_date + 5 WHERE id = '{soonMembership.Id}'");
-        await SqlAsync($"UPDATE members.memberships SET start_date = current_date - 33, end_date = current_date - 3 WHERE id = '{expiredMembership.Id}'");
+        await SqlAsync($"UPDATE members.memberships SET start_date = '{Today:yyyy-MM-dd}'::date - 20, end_date = '{Today:yyyy-MM-dd}'::date + 5 WHERE id = '{soonMembership.Id}'");
+        await SqlAsync($"UPDATE members.memberships SET start_date = '{Today:yyyy-MM-dd}'::date - 33, end_date = '{Today:yyyy-MM-dd}'::date - 3 WHERE id = '{expiredMembership.Id}'");
 
         var members = (await DashboardAsync(owner, $"{Last(10)}&expiringDays=7")).Members!;
         Assert.Equal(1m, Kpi(members.Kpis, "expiring_soon").Value);

@@ -4,6 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FitCore.Analytics.Application;
 
+internal sealed class OpenBalance
+{
+    public Guid ObligationId { get; init; }
+    public Guid MemberId { get; init; }
+    public Guid BranchId { get; init; }
+    public Guid? MembershipId { get; init; }
+    public DateOnly DueDate { get; init; }
+    public decimal Remaining { get; init; }
+}
+
 internal sealed record PaymentTotals(decimal Collected, int CollectedCount, decimal PendingVerification);
 
 internal sealed record MethodTotal(string Method, decimal Amount, int Count);
@@ -112,6 +122,22 @@ internal static class Metrics
         return row is null ? new OutstandingTotals(0m, 0m, 0, 0) : new OutstandingTotals(row.Total, row.Overdue, row.Count, row.OverdueCount);
     }
 
+    /// <summary>
+    /// Obligaciones Pendiente o Parcial con lo que aún se debe (exigible − pagos Confirmados), la misma regla de la cartera existente. Solo las
+    /// que todavía deben algo.
+    /// </summary>
+    public static IQueryable<OpenBalance> OpenBalances(AnalyticsDbContext db, IReadOnlyList<Guid> branches, Guid? planId) =>
+        from o in db.Obligations
+        where branches.Contains(o.BranchId) && (o.Status == "Pending" || o.Status == "PartiallyPaid")
+              && (planId == null || db.Memberships.Any(m => m.Id == o.MembershipId && m.PlanId == planId))
+        let paid = (from a in db.Allocations
+                    join p in db.Payments on a.PaymentId equals p.Id
+                    where a.ObligationId == o.Id && p.Status == "Confirmed"
+                    select (decimal?)a.Amount).Sum() ?? 0m
+        let remaining = o.PayableAmount - paid
+        where remaining > 0m
+        select new OpenBalance { ObligationId = o.Id, MemberId = o.MemberId, BranchId = o.BranchId, MembershipId = o.MembershipId, DueDate = o.DueDate, Remaining = remaining };
+
     // ---- Alumnos y membresías -------------------------------------------------------------------------------------------
 
     /// <summary>
@@ -137,6 +163,30 @@ internal static class Metrics
             .CountAsync(ct);
     }
 
+    /// <summary>Los ids de los alumnos activos al cierre del día D (misma definición que <see cref="ActiveMembersAsync"/>).</summary>
+    public static IQueryable<Guid> ActiveMemberIds(AnalyticsDbContext db, IReadOnlyList<Guid> branches, DateOnly day, string timeZoneId, Guid? planId = null)
+    {
+        var valid = ValidOn(db, branches, day, timeZoneId);
+        if (planId is { } plan)
+        {
+            valid = valid.Where(v => v.PlanId == plan);
+        }
+
+        return db.Members
+            .Where(m => branches.Contains(m.BranchId) && m.Status == "Active" && valid.Any(v => v.MemberId == m.Id))
+            .Select(m => m.Id);
+    }
+
+    /// <summary>Cohorte y retenidos: de los activos el día <paramref name="cohortDay"/>, cuántos siguen activos el día <paramref name="endDay"/>.</summary>
+    public static async Task<(int Cohort, int Retained)> RetentionAsync(AnalyticsDbContext db, IReadOnlyList<Guid> branches, DateOnly cohortDay, DateOnly endDay, string timeZoneId, Guid? planId, CancellationToken ct)
+    {
+        var cohort = ActiveMemberIds(db, branches, cohortDay, timeZoneId, planId);
+        var ending = ActiveMemberIds(db, branches, endDay, timeZoneId);
+        var total = await cohort.CountAsync(ct);
+        var retained = total == 0 ? 0 : await cohort.CountAsync(id => ending.Contains(id), ct);
+        return (total, retained);
+    }
+
     public static Task<int> NewMembersAsync(AnalyticsDbContext db, IReadOnlyList<Guid> branches, ReportPeriod period, CancellationToken ct)
     {
         var from = period.From;
@@ -148,12 +198,12 @@ internal static class Metrics
     /// Membresías creadas en el período: renovación (viene de otra), inscripción nueva (primera del alumno) o reincorporación (tiene
     /// membresías previas pero no es renovación). Se cuenta la fecha de creación (venta).
     /// </summary>
-    public static async Task<MembershipFlow> MembershipFlowAsync(AnalyticsDbContext db, IReadOnlyList<Guid> branches, ReportPeriod period, CancellationToken ct)
+    public static async Task<MembershipFlow> MembershipFlowAsync(AnalyticsDbContext db, IReadOnlyList<Guid> branches, ReportPeriod period, CancellationToken ct, Guid? planId = null)
     {
         var start = period.StartUtc;
         var end = period.EndUtcExclusive;
         var rows = await db.Memberships
-            .Where(m => branches.Contains(m.BranchId) && m.CreatedAt >= start && m.CreatedAt < end)
+            .Where(m => branches.Contains(m.BranchId) && m.CreatedAt >= start && m.CreatedAt < end && (planId == null || m.PlanId == planId))
             .Select(m => new
             {
                 Renewal = m.RenewedFromId != null,

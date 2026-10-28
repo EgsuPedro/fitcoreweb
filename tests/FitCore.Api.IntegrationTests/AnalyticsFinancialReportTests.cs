@@ -245,8 +245,8 @@ public class AnalyticsFinancialReportTests(ApiFixture api)
         await PayAsync(owner, c.Id, 30m, "Card", "V-C");
         var d = await NewMemberAsync(owner, gym.Gye);
         var membershipD = await EnrollAsync(owner, d, gym.Trimestral);
-        await SqlAsync($"UPDATE billing.payment_obligations SET issue_date = current_date - 60, due_date = current_date - 45 WHERE id = '{membershipB.Obligation!.Id}'");
-        await SqlAsync($"UPDATE billing.payment_obligations SET issue_date = current_date - 20, due_date = current_date - 5 WHERE id = '{membershipD.Obligation!.Id}'");
+        await SqlAsync($"UPDATE billing.payment_obligations SET issue_date = '{Today:yyyy-MM-dd}'::date - 60, due_date = '{Today:yyyy-MM-dd}'::date - 45 WHERE id = '{membershipB.Obligation!.Id}'");
+        await SqlAsync($"UPDATE billing.payment_obligations SET issue_date = '{Today:yyyy-MM-dd}'::date - 20, due_date = '{Today:yyyy-MM-dd}'::date - 5 WHERE id = '{membershipD.Obligation!.Id}'");
 
         var report = await GetAsync(owner, "outstanding-balances");
         Assert.Equal(130m, Num(report, "outstanding")); // 30 + 20 + 80

@@ -183,6 +183,7 @@ internal sealed class MembershipRef : ITenantRow
     public DateTimeOffset CreatedAt { get; init; }
     public DateTimeOffset? CancelledAt { get; init; }
     public Guid? RenewedFromId { get; init; }
+    public decimal AgreedPrice { get; init; }
 }
 
 internal sealed class MembershipEventRef

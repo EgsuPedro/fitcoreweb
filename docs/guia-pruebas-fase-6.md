@@ -1,6 +1,6 @@
-# Guía de validación manual — Fase 6 (analítica): bloques 2 a 4
+# Guía de validación manual — Fase 6 (analítica): bloques 2 a 5
 
-Hasta el bloque 4 la fase entrega **API** (contexto, dashboard y reportes financieros); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
+Hasta el bloque 5 la fase entrega **API** (contexto, dashboard, reportes financieros y reportes de alumnos y membresías); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
 
 ## 0. Preparación
 
@@ -15,7 +15,12 @@ Hasta el bloque 4 la fase entrega **API** (contexto, dashboard y reportes financ
    ./scripts/analytics-demo-data.ps1 -DemoPassword 'DemoFit2026x' -Slug analitica -Domain analitica.fitcore.test -ConDatosPasados
    ```
    `analytics-demo-data.ps1` crea por la API 16 alumnos con membresías y pagos repartidos en los últimos 28 días (efectivo, tarjeta, transferencia sin verificar, abonos, dos pagos revertidos y un pago repartido en dos obligaciones), entradas al gimnasio, una clase con reservas, lista de espera y una sesión cancelada, y un cierre de caja con 5 dólares de faltante. Con `-ConDatosPasados` (necesita Docker) mueve fechas en la base para ver saldos vencidos y una clase ya realizada. **Cárguelo una sola vez**: repetirlo duplica los datos.
-3. (El gimnasio `revision` también tiene datos, pero de varias cargas de prueba: sus cifras son mayores y no sirven para comparar con esta guía.)
+3. **Historial de membresías** (para ver retención, renovación y vencimientos): el lote anterior deja todas las membresías recién vendidas. Ejecute una vez:
+   ```powershell
+   ./scripts/analytics-demo-history.ps1 -DemoPassword 'DemoFit2026x' -Slug analitica -Domain analitica.fitcore.test
+   ```
+   Toma 5 membresías cobradas y mueve sus fechas en la base (necesita Docker): 3 vencieron hace 5 días (la primera se renueva por la API y la segunda queda sin renovar), una vence en 5 días y otra en 20 días. **Cárguelo una sola vez.**
+4. (El gimnasio `revision` también tiene datos, pero de varias cargas de prueba: sus cifras son mayores y no sirven para comparar con esta guía.)
 
 ## 1. Ver todo de una vez desde la consola
 
@@ -92,6 +97,29 @@ Además, en Swagger: con `admin.uio` pida un reporte con `branchId` de Guayaquil
 2. Rango invertido (`from` > `to`), de más de 366 días, sin fechas con `Custom`, o fechas junto a un preajuste → **422** con su código (`analytics.period_invalid`, `…_too_long`, `…_required`, `…_preset_with_dates`).
 3. `expiringDays` en el dashboard solo acepta 7, 15 o 30; otro valor → 422 `analytics.expiring_days_invalid`.
 
+### 3.7 Alumnos y membresías (bloque 5; requiere haber ejecutado el historial del paso 0.3)
+Todos exigen `reports.members.read` (propietario, administrador de sucursal y contador). Con `Last30Days` y los datos de `analitica` se espera:
+
+| Reporte | Qué comprobar | Debe dar |
+|---|---|---|
+| `/reports/members/summary` | Estado de las membresías (hoy) | Activas 9 · Vencidas 3 · Pendientes de pago 5 · Congeladas 0 · Canceladas 0 |
+| | Alumnos activos / nuevos | 9 / 16 (activo = ficha activa con membresía vigente y **cobrada**) |
+| | Por plan | Mensual 5 · Trimestral 4 |
+| `/reports/members/retention` | Cohorte (activos el 28/09) / retenidos / bajas | 3 / 0 / 3 → **0 %** de retención (la primera renovó pero **aún no pagó** la renovación, por eso no cuenta como activa) |
+| | Quiénes salieron | Lista con **código y nombre** (sin teléfono ni correo) |
+| `/reports/members/renewals` | Vencidas / renovadas / sin renovar | 3 / 1 / 2 → **33,3 %** |
+| `/reports/members/expirations?days=30` | Total y tramos | 6 en total: 0-7 días: 1 · 16-30 días: 5; cada fila indica si ya renovó y cuánto debe el alumno |
+| `/reports/members/acquisitions` | Nuevas inscripciones / renovaciones / bajas | 11 / 1 / 3 (las 5 membresías movidas al pasado quedan fuera de los últimos 30 días) |
+| | Tendencia | Un tramo por mes calendario (el primero y el último pueden ser parciales); la suma de los tramos es el total |
+
+Compruebe además:
+1. **Retención con filtro**: `retention?planId=<id de Mensual>` reduce la cohorte a quienes tenían ese plan.
+2. **Una membresía cancelada no es una baja si el alumno tiene otra vigente**: la baja se mide por «sin membresía vigente al cierre».
+3. **Sin base**: `retention?preset=Custom&from=2020-01-01&to=2020-01-31` → cohorte 0, porcentaje vacío («Sin base de comparación»), sin error.
+4. **Próximos vencimientos**: `days` solo acepta 7, 15, 30, 60 o 90 (otro valor → 422 `analytics.expiration_days_invalid`); `hideRenewed=true` oculta a quienes ya renovaron.
+5. **Historial de membresías**: `acquisitions?kind=Renewal|New|Reincorporation` filtra el listado paginado por tipo.
+6. **Permisos**: `cajero.gye`, `recepcion.uio` y `entrenador.uio` reciben **403** en `/reports/members/*`; `contador` y `admin.uio` sí.
+
 ## 4. Usar Swagger en lugar del script
 1. Abra http://localhost:8080/swagger.
 2. `POST /api/v1/auth/login` con `{"tenantSlug":"analitica","email":"propietario@analitica.fitcore.test","password":"DemoFit2026x"}` y copie `accessToken`.
@@ -100,9 +128,10 @@ Además, en Swagger: con `admin.uio` pida un reporte con `branchId` de Guayaquil
    - `GET /api/v1/analytics/context`
    - `GET /api/v1/analytics/dashboard` y `GET /api/v1/analytics/dashboard/comparison`
    - `GET /api/v1/reports/financial/collections` · `…/payment-methods` · `…/outstanding-balances` · `…/cash-registers` · `…/reversals`
+   - `GET /api/v1/reports/members/summary` · `…/acquisitions` · `…/retention` · `…/renewals` · `…/expirations`
 5. Parámetros comunes: `preset` (Today, Last7Days, Last30Days, CurrentMonth, PreviousMonth, CurrentYear, Custom), `from`/`to` (solo con Custom), `branchId` (repetible). Cobros: `status` (Confirmed, PendingVerification, Reversed, All), `method` (Cash, BankTransfer, Card, Other), `planId`, `page`, `pageSize`.
 
 ## 5. Qué NO está todavía
 - **Pantallas**: llegan en el bloque 9 (hoy se valida por API/consola).
-- Reportes de alumnos y membresías (retención, renovación, vencimientos), operativos (asistencia por día, ocupación por sesión, demanda), comparación de sucursales y exportaciones CSV: bloques 5 a 8.
+- Reportes operativos (asistencia por día, ocupación por sesión, demanda), comparación de sucursales y exportaciones CSV: bloques 6 a 8.
 - Medición de rendimiento con volumen y revisión de planes de ejecución: bloque 10.

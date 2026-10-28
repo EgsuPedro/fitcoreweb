@@ -1,5 +1,6 @@
 using FitCore.Analytics.Application.Reports;
 using FitCore.Analytics.Application.Reports.Financial;
+using FitCore.Analytics.Application.Reports.Members;
 using FitCore.Analytics.Domain;
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
@@ -13,6 +14,7 @@ internal static class ReportsEndpoints
     public static IEndpointRouteBuilder MapReportsEndpoints(this IEndpointRouteBuilder routes)
     {
         MapFinancial(routes.MapGroup("/reports/financial").WithTags("Reports: financial"));
+        MapMembers(routes.MapGroup("/reports/members").WithTags("Reports: members"));
         return routes;
     }
 
@@ -50,5 +52,41 @@ internal static class ReportsEndpoints
             .RequirePermission(Permissions.ReportsFinancialRead)
             .Produces<ReversalsReportDto>()
             .WithName("GetReversalsReport");
+    }
+
+    private static void MapMembers(RouteGroupBuilder group)
+    {
+        group.MapGet("/summary", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null, Guid[]? branchId = null, Guid? planId = null) =>
+                (await dispatcher.QueryAsync(new MembersSummaryQuery(new ReportFilter(preset, from, to, branchId ?? []), planId), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ReportsMembersRead)
+            .Produces<MembersSummaryDto>()
+            .WithName("GetMembersSummaryReport");
+
+        group.MapGet("/acquisitions", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null,
+                    Guid[]? branchId = null, Guid? planId = null, MembershipKind kind = MembershipKind.Any, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new AcquisitionsQuery(new ReportFilter(preset, from, to, branchId ?? []), planId, kind, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ReportsMembersRead)
+            .Produces<AcquisitionsReportDto>()
+            .WithName("GetMemberAcquisitionsReport");
+
+        group.MapGet("/retention", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null,
+                    Guid[]? branchId = null, Guid? planId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new RetentionQuery(new ReportFilter(preset, from, to, branchId ?? []), planId, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ReportsMembersRead)
+            .Produces<RetentionReportDto>()
+            .WithName("GetMemberRetentionReport");
+
+        group.MapGet("/renewals", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null,
+                    Guid[]? branchId = null, Guid? planId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new RenewalsQuery(new ReportFilter(preset, from, to, branchId ?? []), planId, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ReportsMembersRead)
+            .Produces<RenewalsReportDto>()
+            .WithName("GetMemberRenewalsReport");
+
+        group.MapGet("/expirations", async (IDispatcher dispatcher, CancellationToken ct, Guid[]? branchId = null, int days = 30, Guid? planId = null, bool hideRenewed = false, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ExpirationsQuery(new ReportFilter(PeriodPreset.Today, null, null, branchId ?? []), days, planId, hideRenewed, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ReportsMembersRead)
+            .Produces<ExpirationsReportDto>()
+            .WithName("GetMemberExpirationsReport");
     }
 }

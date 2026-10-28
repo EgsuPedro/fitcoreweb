@@ -2,6 +2,7 @@ using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Classes.Application.Attendance;
 using FitCore.Classes.Application.GroupClasses;
+using FitCore.Classes.Application.Notifications;
 using FitCore.Classes.Application.Reservations;
 using FitCore.Classes.Application.Sessions;
 using FitCore.Classes.Domain;
@@ -19,7 +20,49 @@ internal static class ClassesEndpoints
         MapReservations(routes.MapGroup("/class-reservations").WithTags("Class reservations"));
         MapMyReservations(routes.MapGroup("/me/class-reservations").WithTags("Member portal"));
         MapAttendance(routes);
+        MapNotifications(routes.MapGroup("/me").WithTags("Notifications"));
         return routes;
+    }
+
+    // La bandeja es de cada usuario (alumno, instructor o personal) y siempre es la del usuario de la sesión; el permiso solo permite usarla.
+    private static void MapNotifications(RouteGroupBuilder group)
+    {
+        group.MapGet("/notifications", async (IDispatcher dispatcher, CancellationToken ct, bool unreadOnly = false, NotificationType? type = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMyNotificationsQuery(new PageRequest(page, pageSize), unreadOnly, type), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InboxUse)
+            .Produces<PagedResult<NotificationDto>>()
+            .WithName("ListMyNotifications");
+
+        group.MapGet("/notifications/summary", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetNotificationSummaryQuery(), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InboxUse)
+            .Produces<NotificationSummaryDto>()
+            .WithName("GetMyNotificationSummary");
+
+        group.MapPatch("/notifications/{id:guid}/read", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new MarkNotificationReadCommand(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InboxUse)
+            .Produces<NotificationDto>()
+            .WithName("MarkMyNotificationRead");
+
+        group.MapPost("/notifications/read-all", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new MarkAllNotificationsReadCommand(), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InboxUse)
+            .Produces<MarkAllReadResultDto>()
+            .WithName("MarkAllMyNotificationsRead");
+
+        group.MapGet("/notification-preferences", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetNotificationPreferencesQuery(), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InboxUse)
+            .Produces<IReadOnlyList<NotificationPreferenceDto>>()
+            .WithName("GetMyNotificationPreferences");
+
+        group.MapPut("/notification-preferences", async (UpdatePreferencesRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdateNotificationPreferencesCommand(request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InboxUse)
+            .WithValidation<UpdatePreferencesRequest>()
+            .Produces<IReadOnlyList<NotificationPreferenceDto>>()
+            .WithName("UpdateMyNotificationPreferences");
     }
 
     private static void MapAttendance(IEndpointRouteBuilder routes)

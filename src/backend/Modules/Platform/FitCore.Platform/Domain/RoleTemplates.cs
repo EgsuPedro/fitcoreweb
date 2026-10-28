@@ -9,7 +9,7 @@ public static class RoleTemplates
     public const string BranchAdmin = "AdministradorSucursal";
     public const string PlatformAdmin = "AdministradorPlataforma";
 
-    private static readonly string[] BasicRead = [Permissions.OrganizationRead, Permissions.BranchesRead];
+    private static readonly string[] BasicRead = [Permissions.OrganizationRead, Permissions.BranchesRead, Permissions.InboxUse];
 
     /// <summary>
     /// Permisos que el rol Propietario nunca recibe por defecto: los sensibles (nutrición, evaluaciones, fotos, observaciones…).
@@ -31,6 +31,7 @@ public static class RoleTemplates
             [
                 Permissions.OrganizationRead,
                 Permissions.BranchesRead,
+                Permissions.InboxUse,
                 Permissions.UsersRead,
                 Permissions.UsersCreate,
                 Permissions.UsersUpdate,
@@ -141,7 +142,7 @@ public static class RoleTemplates
                 Permissions.PaymentsRead,
                 Permissions.CashRead
             ]),
-        new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog, Permissions.NutritionMemberRead, Permissions.NutritionLogsRecord, Permissions.AssessmentsRead, Permissions.GoalsRead, Permissions.PhotosRead, Permissions.PhotosManage])
+        new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.InboxUse, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog, Permissions.NutritionMemberRead, Permissions.NutritionLogsRecord, Permissions.AssessmentsRead, Permissions.GoalsRead, Permissions.PhotosRead, Permissions.PhotosManage])
     ];
 
     public static readonly RoleTemplate ForPlatform = new(

@@ -21,6 +21,8 @@ public sealed class ClassesDbContext(DbContextOptions<ClassesDbContext> options,
     public DbSet<ClassReservation> Reservations => Set<ClassReservation>();
     public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
     public DbSet<ClassAttendance> ClassAttendances => Set<ClassAttendance>();
+    public DbSet<InboxNotification> Notifications => Set<InboxNotification>();
+    public DbSet<NotificationPreference> NotificationPreferences => Set<NotificationPreference>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<TrainerRef> TrainerRefs => Set<TrainerRef>();

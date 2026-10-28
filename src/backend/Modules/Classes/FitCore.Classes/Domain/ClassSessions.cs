@@ -100,6 +100,8 @@ public sealed class ClassSession : Entity<Guid>, ITenantOwned, IAuditable
 
     public void Reschedule(DateTimeOffset startsAt, DateTimeOffset endsAt, Guid instructorId, int capacity, string? notes, string? availabilityOverrideReason, Guid? by, DateTimeOffset now)
     {
+        var moved = startsAt != StartsAt || instructorId != InstructorId;
+        var (oldStartsAt, oldInstructorId) = (StartsAt, InstructorId);
         StartsAt = startsAt;
         EndsAt = endsAt;
         InstructorId = instructorId;
@@ -108,6 +110,12 @@ public sealed class ClassSession : Entity<Guid>, ITenantOwned, IAuditable
         AvailabilityOverrideReason = Clean(availabilityOverrideReason);
         UpdatedAt = now;
         UpdatedBy = by;
+
+        // Solo un cambio de día, hora o instructor le importa a los inscritos; cambiar la capacidad o las notas no se avisa.
+        if (moved)
+        {
+            Raise(new SessionRescheduled(Id, oldStartsAt, startsAt, oldInstructorId, instructorId, Guid.CreateVersion7(), now));
+        }
     }
 
     /// <summary>Cierra la sesión una vez dada: ya no se reprograma ni se cancela, y su asistencia queda registrada.</summary>
@@ -126,6 +134,7 @@ public sealed class ClassSession : Entity<Guid>, ITenantOwned, IAuditable
         CancelledBy = by;
         UpdatedAt = now;
         UpdatedBy = by;
+        Raise(new SessionCancelled(Id, CancelReason, Guid.CreateVersion7(), now));
     }
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();

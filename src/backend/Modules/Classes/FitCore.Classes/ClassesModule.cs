@@ -1,5 +1,6 @@
 using FitCore.Application.Core;
 using FitCore.Classes.Application.GroupClasses;
+using FitCore.Classes.Application.Notifications;
 using FitCore.Classes.Application.Reservations;
 using FitCore.Classes.Persistence;
 using FitCore.Infrastructure.Core;
@@ -36,11 +37,31 @@ public static class ClassesModule
         return services;
     }
 
+    /// <summary>
+    /// Avisos internos: los manejadores que convierten los eventos de la outbox en avisos de la bandeja, el canal de la bandeja y el trabajo
+    /// periódico (recordatorios y entrega con reintentos) que ejecuta el Worker. Los manejadores se registran también en la API, que es quien
+    /// procesa la outbox en las pruebas; en producción los dispara el Worker.
+    /// </summary>
+    public static IServiceCollection AddClassNotifications(this IServiceCollection services)
+    {
+        services.AddSingleton<INotificationChannel, InAppChannel>();
+        services.AddSingleton<NotificationRunner>();
+        services.AddScoped<IOutboxEventHandler, ReservationConfirmedHandler>();
+        services.AddScoped<IOutboxEventHandler, WaitlistJoinedHandler>();
+        services.AddScoped<IOutboxEventHandler, WaitlistOfferMadeHandler>();
+        services.AddScoped<IOutboxEventHandler, WaitlistOfferExpiredHandler>();
+        services.AddScoped<IOutboxEventHandler, ReservationCancelledHandler>();
+        services.AddScoped<IOutboxEventHandler, SessionRescheduledHandler>();
+        services.AddScoped<IOutboxEventHandler, SessionCancelledHandler>();
+        return services;
+    }
+
     /// <summary>Requiere <c>AddPlatformModule</c> y se registra después de <c>AddWellnessModule</c> (sus claves foráneas apuntan a entrenadores).</summary>
     public static IServiceCollection AddClassesModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddClassesPersistence(configuration);
         services.AddWaitlistMaintenance();
+        services.AddClassNotifications();
 
         services.AddSingleton<IModuleInitializer, ClassesInitializer>();
         services.AddValidatorsFromAssemblyContaining<GroupClassRequestValidator>(includeInternalTypes: true);

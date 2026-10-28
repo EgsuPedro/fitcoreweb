@@ -36,12 +36,14 @@ builder.Services.AddCommercialPersistence(builder.Configuration);
 builder.Services.AddWhatsAppNotifications(builder.Configuration);
 builder.Services.AddClassesPersistence(builder.Configuration);
 builder.Services.AddWaitlistMaintenance();
+builder.Services.AddClassNotifications();
 
 // Jobs: la outbox publica los eventos de dominio. Los siguientes (cuotas recurrentes, vencimientos,
 // recordatorios) se registran aquí por módulo cuando existan.
 builder.Services.AddHostedService<OutboxProcessor>();
 builder.Services.AddHostedService<ExpiryNotificationWorker>();
 builder.Services.AddHostedService<WaitlistWorker>();
+builder.Services.AddHostedService<NotificationWorker>();
 builder.Services.AddHostedService<HeartbeatService>();
 
 await builder.Build().RunAsync();

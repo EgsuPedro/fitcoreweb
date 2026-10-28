@@ -34,7 +34,10 @@ public sealed class ApiFixture : IAsyncLifetime
     {
         Username = AppRole,
         Password = AppPassword,
-        Pooling = false
+        // Con reutilización: la suite abre miles de conexiones cortas y, sin ella, Windows agota los puertos efímeros (error 10048).
+        // El grupo reinicia la sesión al devolver cada conexión (DISCARD ALL), así que app.tenant_id no se filtra entre pruebas.
+        Pooling = true,
+        MaxPoolSize = 30
     }.ConnectionString;
 
     public IServiceProvider Services => _factory!.Services;

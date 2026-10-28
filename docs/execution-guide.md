@@ -144,6 +144,10 @@ Las e2e crean sus propios gimnasios con nombres únicos; no tocan el gimnasio `d
 | Subir una foto falla en el servidor | Compruebe que `FileStorage:RootPath` existe y que el usuario de la API puede escribir en él (en Docker lo prepara el Dockerfile) |
 | 429 al iniciar sesión | Límite de intentos por IP (20 por minuto en login) |
 
+## Fase 5: notificaciones internas de clases (Worker y outbox)
+
+Los avisos de reservas, lista de espera y cambios de sesión nacen de eventos que se guardan en la outbox junto con el cambio; el `OutboxProcessor` del Worker (cada 5 s) los convierte en avisos de la bandeja de cada usuario. Además el Worker ejecuta el `NotificationWorker` (cada `Classes:NotificationIntervalSeconds`, 60 por defecto): genera los recordatorios de las clases que empiezan dentro de `Classes:ReminderLeadMinutes` (180 por defecto) y entrega con reintentos los avisos pendientes de canales externos. **Hoy solo existe la bandeja interna**: no hay variables de correo/SMS/WhatsApp/push porque no hay proveedor; cuando exista, sus credenciales irán por configuración (variables de entorno o un gestor de secretos), nunca en el repositorio. Sin el Worker los avisos **no se generan** (los eventos esperan en la outbox).
+
 ## Fase 5: lista de espera de clases grupales (Worker)
 
 El Worker (`FitCore.Worker`) ejecuta cada `Classes:WaitlistIntervalSeconds` segundos (30 por defecto, mínimo 5) el mantenimiento de la lista de espera: vence las invitaciones cuyo plazo terminó y ofrece el cupo al siguiente, completa los cupos libres con gente esperando y cierra la fila de las sesiones que ya empezaron. En `docker compose` el servicio `worker` ya lo incluye; sin el Worker las ofertas se hacen igual al cancelar o rechazar, pero **las invitaciones vencidas no pasan al siguiente** hasta que se vuelva a ejecutar.

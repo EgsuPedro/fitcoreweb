@@ -126,7 +126,7 @@ internal static class SessionScheduling
         var text = "Sesión cancelada: " + reason.Trim();
         foreach (var reservation in live)
         {
-            reservation.Cancel(text.Length > ClassReservation.MaxReasonLength ? text[..ClassReservation.MaxReasonLength] : text, late: false, by, now);
+            reservation.Cancel(text.Length > ClassReservation.MaxReasonLength ? text[..ClassReservation.MaxReasonLength] : text, late: false, by, now, bySession: true, sessionReason: reason.Trim());
         }
 
         return live.Count;

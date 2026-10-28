@@ -76,8 +76,9 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
     /// <summary>Ocupa cupo de la sesión: la confirmada y la ofrecida (el cupo ofrecido está reservado para quien lo recibió).</summary>
     public bool HoldsSeat => Status is ReservationStatus.Confirmed or ReservationStatus.Offered;
 
-    public static ClassReservation Confirm(Guid tenantId, Guid branchId, Guid sessionId, Guid memberId, ReservationSource source, Guid? by, DateTimeOffset now) =>
-        new(Guid.CreateVersion7())
+    public static ClassReservation Confirm(Guid tenantId, Guid branchId, Guid sessionId, Guid memberId, ReservationSource source, Guid? by, DateTimeOffset now)
+    {
+        var reservation = new ClassReservation(Guid.CreateVersion7())
         {
             TenantId = tenantId,
             BranchId = branchId,
@@ -88,13 +89,17 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
             CreatedAt = now,
             CreatedBy = by
         };
+        reservation.Raise(new ReservationConfirmed(reservation.Id, sessionId, memberId, Guid.CreateVersion7(), now));
+        return reservation;
+    }
 
     /// <summary>
     /// Entra a la lista de espera. El orden de la fila es la hora de creación (y el identificador, que es creciente): estable aunque
     /// otros salgan o entren.
     /// </summary>
-    public static ClassReservation Waitlist(Guid tenantId, Guid branchId, Guid sessionId, Guid memberId, ReservationSource source, Guid? by, DateTimeOffset now) =>
-        new(Guid.CreateVersion7())
+    public static ClassReservation Waitlist(Guid tenantId, Guid branchId, Guid sessionId, Guid memberId, ReservationSource source, Guid? by, DateTimeOffset now)
+    {
+        var reservation = new ClassReservation(Guid.CreateVersion7())
         {
             TenantId = tenantId,
             BranchId = branchId,
@@ -105,6 +110,9 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
             CreatedAt = now,
             CreatedBy = by
         };
+        reservation.Raise(new WaitlistJoined(reservation.Id, sessionId, memberId, Guid.CreateVersion7(), now));
+        return reservation;
+    }
 
     /// <summary>Se le reserva el cupo liberado: desde aquí ocupa cupo, y tiene hasta <paramref name="expiresAt"/> para aceptarlo.</summary>
     public void Offer(DateTimeOffset expiresAt, Guid? by, DateTimeOffset now)
@@ -114,6 +122,7 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
         OfferExpiresAt = expiresAt;
         UpdatedAt = now;
         UpdatedBy = by;
+        Raise(new WaitlistOfferMade(Id, SessionId, MemberId, expiresAt, Guid.CreateVersion7(), now));
     }
 
     public void Accept(Guid? by, DateTimeOffset now)
@@ -121,17 +130,25 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
         Status = ReservationStatus.Confirmed;
         UpdatedAt = now;
         UpdatedBy = by;
+        Raise(new ReservationConfirmed(Id, SessionId, MemberId, Guid.CreateVersion7(), now));
     }
 
     /// <summary>La invitación venció sin respuesta, o la sesión empezó con el alumno aún en espera.</summary>
     public void Expire(Guid? by, DateTimeOffset now)
     {
+        var wasOffered = Status == ReservationStatus.Offered;
         Status = ReservationStatus.Expired;
         UpdatedAt = now;
         UpdatedBy = by;
+        if (wasOffered)
+        {
+            Raise(new WaitlistOfferExpired(Id, SessionId, MemberId, Guid.CreateVersion7(), now));
+        }
     }
 
-    public void Cancel(string? reason, bool late, Guid? by, DateTimeOffset now)
+    /// <param name="bySession">Se cancela porque la sesión se canceló (el aviso al alumno es distinto).</param>
+    /// <param name="sessionReason">Motivo de la cancelación de la sesión, que sí se le comunica al alumno.</param>
+    public void Cancel(string? reason, bool late, Guid? by, DateTimeOffset now, bool bySession = false, string? sessionReason = null)
     {
         Status = ReservationStatus.Cancelled;
         CancelReason = string.IsNullOrWhiteSpace(reason) ? null : reason.Trim();
@@ -140,6 +157,7 @@ public sealed class ClassReservation : Entity<Guid>, ITenantOwned, IAuditable
         CancelledBy = by;
         UpdatedAt = now;
         UpdatedBy = by;
+        Raise(new ReservationCancelled(Id, SessionId, MemberId, by, bySession, sessionReason, Guid.CreateVersion7(), now));
     }
 }
 

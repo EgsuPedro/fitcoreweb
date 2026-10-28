@@ -52,7 +52,7 @@ Regresión completa del 2026-10-28, en local, contra PostgreSQL real:
 | Integración (API + PostgreSQL con Testcontainers, 4 colecciones en paralelo) | 388 correctas, 0 fallos (8 min 18 s) |
 | Angular: Vitest | 60 correctas |
 | Angular: claves de traducción es/en | 770 claves, todas presentes |
-| Angular:  de producción | correcto |
+| Angular: compilación de producción (ng build) | correcta |
 | e2e Playwright (navegador real, API y base reales) | 30 correctas (1,6 min) |
 
 Las pruebas de integración incluyen el aislamiento entre gimnasios (RLS), los permisos sensibles por rol, el alcance por alumno, la inmutabilidad en base de datos y la carrera entre retirar el consentimiento y subir fotos (6 subidas contra 1 retiro: no queda ninguna fila ni archivo).

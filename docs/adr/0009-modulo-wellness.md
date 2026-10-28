@@ -133,4 +133,4 @@ App móvil Flutter, facturación electrónica, nómina y contabilidad.
 | 7 | Objetivos, seguimiento y adherencia | Hecho |
 | 8 | Fotografías y privacidad (`IFileStore`, consentimiento) | Hecho |
 | 9 | Integración Angular (panel del entrenador, panel del alumno, gráficos) | Hecho |
-| 10 | Pruebas, regresión y documentación | Pendiente |
+| 10 | Pruebas, regresión y documentación | Hecho |

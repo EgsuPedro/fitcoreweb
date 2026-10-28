@@ -55,4 +55,24 @@ internal static class AnalyticsScopes
         var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(clock.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(zone)).DateTime);
         return new AnalyticsScope(actor, zone, today, effective, authorized);
     }
+
+    /// <summary>Alcance (sucursales, zona horaria, hoy) más el período pedido y su comparable: lo que todo reporte necesita para empezar.</summary>
+    public static async Task<Result<(AnalyticsScope Scope, PeriodPair Periods)>> ResolveRequestAsync(
+        AnalyticsDbContext db, UserAccess actor, IReadOnlyCollection<Guid> requestedBranchIds, PeriodPreset preset, DateOnly? from, DateOnly? to,
+        IClock clock, CancellationToken cancellationToken)
+    {
+        var scope = await ResolveAsync(db, actor, requestedBranchIds, clock, cancellationToken);
+        if (scope.IsFailure)
+        {
+            return scope.Error;
+        }
+
+        var periods = PeriodResolver.Resolve(preset, from, to, scope.Value.Today, scope.Value.TimeZoneId);
+        if (periods.IsFailure)
+        {
+            return periods.Error;
+        }
+
+        return (scope.Value, periods.Value);
+    }
 }

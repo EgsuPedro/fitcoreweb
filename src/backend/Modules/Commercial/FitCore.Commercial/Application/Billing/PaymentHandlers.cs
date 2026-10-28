@@ -96,7 +96,7 @@ internal sealed class CreatePaymentHandler(CommercialDbContext db, IAccessContex
         }
 
         var now = clock.UtcNow;
-        var paidAt = request.PaidAt ?? now;
+        var paidAt = (request.PaidAt ?? now).ToUniversalTime();
         if (paidAt > now.AddMinutes(5) || paidAt < now.AddDays(-30))
         {
             return PaymentErrorsApp.PaidAtInvalid;

@@ -9,7 +9,10 @@ public enum VariationState
     NoBaseline = 2,
 
     /// <summary>No hay dato en el período actual (la medida no se pudo calcular): no se compara.</summary>
-    NoData = 3
+    NoData = 3,
+
+    /// <summary>Medida de un instante (saldo pendiente de hoy, vencimientos próximos): no existe el valor de un período anterior, así que no se compara.</summary>
+    NotApplicable = 4
 }
 
 /// <param name="Absolute">Actual − anterior (en puntos porcentuales si la medida es una razón).</param>
@@ -17,6 +20,8 @@ public enum VariationState
 public sealed record Variation(VariationState State, decimal? Absolute, decimal? Percent)
 {
     public static readonly Variation NoDataYet = new(VariationState.NoData, null, null);
+
+    public static readonly Variation Snapshot = new(VariationState.NotApplicable, null, null);
 
     /// <summary>Compara dos cantidades o importes. Sin base (anterior = 0 o ausente) no hay porcentaje.</summary>
     public static Variation Of(decimal? current, decimal? previous)

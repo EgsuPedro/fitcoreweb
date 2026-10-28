@@ -128,6 +128,20 @@ public class PaymentTests(ApiFixture api)
     }
 
     [Fact]
+    public async Task Una_fecha_de_pago_con_desfase_horario_se_guarda_en_UTC_en_lugar_de_fallar()
+    {
+        var s = await NewSetupAsync();
+
+        // Un cliente que envía la hora local de Quito (−05:00) no debe provocar un error del servidor: se guarda el mismo instante en UTC.
+        var local = new DateTimeOffset(DateTime.SpecifyKind(DateTime.UtcNow.AddHours(-5).AddDays(-2).Date.AddHours(23).AddMinutes(30), DateTimeKind.Unspecified), TimeSpan.FromHours(-5));
+        var response = await PostPaymentAsync(s.Tenant.Owner, PaymentBody(s.Member.Id, 5m, paidAt: local));
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var payment = (await response.Content.ReadFromJsonAsync<PaymentDto>())!;
+        Assert.Equal(local.UtcDateTime, payment.PaidAt.UtcDateTime);
+    }
+
+    [Fact]
     public async Task Una_asignacion_explicita_reparte_el_pago_entre_obligaciones_y_la_suma_debe_coincidir()
     {
         var s = await NewSetupAsync();

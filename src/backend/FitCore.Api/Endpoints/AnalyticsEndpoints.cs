@@ -1,4 +1,5 @@
 using FitCore.Analytics.Application;
+using FitCore.Analytics.Application.Dashboard;
 using FitCore.Analytics.Domain;
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
@@ -18,6 +19,19 @@ internal static class AnalyticsEndpoints
             .RequirePermission(Permissions.AnalyticsDashboardRead)
             .Produces<AnalyticsContextDto>()
             .WithName("GetAnalyticsContext");
+
+        group.MapGet("/dashboard", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null, Guid[]? branchId = null, int expiringDays = 15) =>
+                (await dispatcher.QueryAsync(new GetDashboardQuery(preset, from, to, branchId ?? [], expiringDays), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.AnalyticsDashboardRead)
+            .Produces<DashboardDto>()
+            .WithName("GetAnalyticsDashboard");
+
+        // Evolución del período y de su comparable, por tramos, para los gráficos (el cálculo es del servidor).
+        group.MapGet("/dashboard/comparison", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null, Guid[]? branchId = null) =>
+                (await dispatcher.QueryAsync(new GetDashboardSeriesQuery(preset, from, to, branchId ?? []), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.AnalyticsDashboardRead)
+            .Produces<DashboardSeriesDto>()
+            .WithName("GetAnalyticsDashboardComparison");
 
         return routes;
     }

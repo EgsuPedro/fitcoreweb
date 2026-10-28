@@ -65,6 +65,17 @@
 - **API:** `/nutrition-plans` (CRUD por versiones, `/duplicate`, `/status`, `/versions`, `/assignments`), `/nutrition-assignments/{id}/end`, `/members/{id}/nutrition-plan`, `/nutrition-assignments`, `/dietary-profile` (GET/POST), `/meal-logs` (POST) y `/members/{id}/meal-logs`.
 - **Pruebas:** 14 de dominio y 27 de integración (permisos sensibles, versionado, fijación de versión, asignaciones simultáneas, alergias como historial, cumplimiento, aislamiento entre alumnos y gimnasios, auditoría sin contenido, inmutabilidad y CHECKs en la base). La interfaz Angular se entrega en el bloque 9.
 
+## Implementación del bloque 6 (evaluaciones físicas)
+- **Tabla `wellness.body_assessments`** (migraciones `AddAssessments` y `AddAssessmentsSecurity`): peso (kg), estatura, perímetros de cintura, cadera, pecho, brazo y muslo (cm) y porcentaje de grasa (%), todas **opcionales** pero con al menos una. Cada evaluación guarda fecha, **fuente** (manual, báscula, cinta, plicómetro, bioimpedancia, otra), notas y quién la registró. RLS forzado, claves compuestas, CHECKs de rango y disparador que impide modificar o borrar.
+- **Solo se agrega:** un error se corrige con una evaluación nueva que apunta a la anterior (`corrects_id`, única: no se corrige dos veces). La corregida se conserva y se marca; el historial vigente y el progreso la omiten (`includeCorrected=true` la muestra).
+- **IMC = peso / estatura², un decimal, solo con peso y estatura válidos** (nunca se divide por cero). Si la evaluación no trae estatura se usa la más reciente anterior y se marca `heightCarried` (no se rellena hacia atrás). El **rango de referencia** (Below < 18,5, Reference 18,5–24,9, Above ≥ 25) solo se informa a **adultos** con fecha de nacimiento conocida; en menores o sin fecha es nulo. Es un indicador general, **no un diagnóstico**. También se deriva la relación cintura/cadera cuando hay ambas medidas.
+- **Grasa corporal:** solo se registra **medida y con su método** (plicómetro, bioimpedancia, DEXA, otro); el sistema nunca la calcula por su cuenta. Método sin valor, o valor sin método, se rechaza (también en la base).
+- **Fechas:** no futuras (en la zona horaria de la sucursal) ni de hace más de diez años.
+- **Comparación y progreso:** `compare` entrega los cambios por métrica de la evaluación más antigua a la más reciente (sin diferencia si falta el dato en una de las dos); `progress` entrega la serie cronológica para los gráficos.
+- **Permisos sensibles** (`wellness.assessments.read|manage`): no los reciben por defecto Propietario, AdministradorSucursal ni Nutricionista. Los recibe **Entrenador** (leer y registrar) y **Alumno** (solo leer lo suyo). El acceso del personal exige además ser el entrenador asignado o tener `wellness.members.all` (si no, 404). Se audita el hecho de registrar y de leer, nunca las mediciones (una prueba lo comprueba).
+- **API:** `POST|GET /members/{id}/assessments`, `GET …/assessments/compare?a=&b=` y `GET …/assessments/progress`.
+- **Pruebas:** 13 de dominio y 19 de integración. La interfaz Angular (formulario, tabla y gráficos) se entrega en el bloque 9.
+
 ## Principios del dominio (de las reglas del prompt)
 - **Versiones inmutables:** una rutina o un plan nutricional se versiona; modificarlo crea una versión nueva y las sesiones y registros ya hechos conservan la versión con la que se hicieron.
 - **Mediciones, no diagnósticos:** cada medición guarda unidad, fecha, fuente y método; lo estimado se marca como derivado. El IMC se muestra como indicador general (peso / estatura²) solo con estatura > 0; no se calcula grasa corporal sin método y datos válidos. El sistema no diagnostica ni sustituye una valoración clínica, y las estimaciones calóricas no se presentan como exactas.
@@ -85,7 +96,7 @@ App móvil Flutter, facturación electrónica, nómina y contabilidad.
 | 3 | Biblioteca de ejercicios (globales y del gimnasio, catálogo base) | Hecho |
 | 4 | Rutinas, asignaciones y sesiones (versionado) | Hecho (backend; UI en bloque 9) |
 | 5 | Nutrición (planes versionados, asignaciones, registro de cumplimiento) | Hecho (backend; UI en bloque 9) |
-| 6 | Evaluaciones físicas (IMC, historial, comparación) | Pendiente |
+| 6 | Evaluaciones físicas (IMC, historial, comparación) | Hecho (backend; UI en bloque 9) |
 | 7 | Objetivos, seguimiento y adherencia | Pendiente |
 | 8 | Fotografías y privacidad (`IFileStore`, consentimiento) | Pendiente |
 | 9 | Integración Angular (panel del entrenador, panel del alumno, gráficos) | Pendiente |

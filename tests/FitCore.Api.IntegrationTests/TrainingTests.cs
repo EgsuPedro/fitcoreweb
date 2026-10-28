@@ -766,7 +766,7 @@ public class TrainingTests(ApiFixture api)
         Assert.All(new[] { "training.plans.read", "training.plans.manage", "training.members.manage", "training.member.read" }, p => Assert.Contains(p, roles["Propietario"]));
         Assert.Contains("training.sessions.log", roles["Entrenador"]);
         Assert.DoesNotContain("training.sessions.log", roles["AdministradorSucursal"]);
-        Assert.Equal(["me.read", "nutrition.logs.record", "nutrition.member.read", "training.member.read", "training.sessions.log"], roles["Alumno"].Order());
+        Assert.Equal(["me.read", "nutrition.logs.record", "nutrition.member.read", "training.member.read", "training.sessions.log", "wellness.assessments.read"], roles["Alumno"].Order());
         Assert.DoesNotContain("training.plans.read", roles["Recepcion"]);
         var recepcion = await ClientWithRoleAsync(api, s.Tenant, Unique("rec"), true, ["members.read"]);
         Assert.Equal(HttpStatusCode.Forbidden, (await recepcion.GetAsync("/api/v1/training-plans")).StatusCode);

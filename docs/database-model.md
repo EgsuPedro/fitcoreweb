@@ -87,6 +87,7 @@ Migraciones propias, con su historial en `members.__ef_migrations_history`. Mism
 | nutrition | `nutrition_assignments` | Plan fijado a una versión; una sola abierta por alumno (índice único parcial); solo se cierra |
 | nutrition | `dietary_profiles` | Alergias, intolerancias y restricciones (`text[]`); solo-agregar, el vigente es el más reciente; nunca vacío |
 | nutrition | `meal_logs` | Cumplimiento por comida y día (único por alumno, comida y día); solo-agregar, con la versión del plan |
+| wellness | `body_assessments` | Evaluaciones físicas solo-agregar (trigger): mediciones opcionales con CHECKs de rango, grasa con su método, fuente, corrección única por `corrects_id` |
 | training | `exercises` | Biblioteca: `tenant_id` nulo = catálogo base global. RLS por operación (todos leen globales y lo propio; solo plataforma escribe globales; nadie borra). Nombres únicos sin distinguir mayúsculas (global y por gimnasio), enlace solo https, modo de registro |
 | training | `trainer_profiles` | Perfil de entrenador por usuario (único por gimnasio): especialidades `text[]`, certificaciones, biografía, estado. FK al usuario |
 | training | `trainer_availability` | Franjas semanales del entrenador (`day` 0–6, `end_time > start_time`), sucursal opcional |

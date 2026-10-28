@@ -80,6 +80,9 @@ public static class Permissions
     public const string NutritionProfileManage = "nutrition.profile.manage";
     public const string NutritionLogsRecord = "nutrition.logs.record";
 
+    public const string AssessmentsRead = "wellness.assessments.read";
+    public const string AssessmentsManage = "wellness.assessments.manage";
+
     public const string TrainersRead = "trainers.read";
     public const string TrainersManage = "trainers.manage";
     public const string TrainersNotes = "trainers.notes";
@@ -146,6 +149,8 @@ public static class Permissions
         new(NutritionMemberRead, "nutrition", "Ver el plan, las alergias y el cumplimiento nutricional de un alumno (el alumno solo ve lo suyo)", Sensitive: true),
         new(NutritionProfileManage, "nutrition", "Registrar las alergias, intolerancias y restricciones alimentarias de un alumno", Sensitive: true),
         new(NutritionLogsRecord, "nutrition", "Registrar el cumplimiento de las comidas del plan (el alumno solo las suyas)", Sensitive: true),
+        new(AssessmentsRead, "wellness", "Ver las evaluaciones físicas de un alumno (el alumno solo ve las suyas)", Sensitive: true),
+        new(AssessmentsManage, "wellness", "Registrar y corregir evaluaciones físicas de los alumnos", Sensitive: true),
         new(TrainersRead, "trainers", "Ver los perfiles de los entrenadores"),
         new(TrainersManage, "trainers", "Habilitar entrenadores, editar sus perfiles y asignarles alumnos"),
         new(TrainersNotes, "trainers", "Escribir y leer observaciones profesionales de los alumnos asignados", Sensitive: true),

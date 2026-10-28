@@ -109,7 +109,8 @@ public static class RoleTemplates
         // Mínimo privilegio: el entrenador trabaja solo con sus alumnos asignados (lo resuelve el módulo de bienestar), no con todo el listado
         // de alumnos ni la asistencia del gimnasio.
         new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.ExercisesRead, Permissions.ExercisesManage,
-            Permissions.TrainingPlansRead, Permissions.TrainingPlansManage, Permissions.TrainingMembersManage, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog]),
+            Permissions.TrainingPlansRead, Permissions.TrainingPlansManage, Permissions.TrainingMembersManage, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog,
+            Permissions.AssessmentsRead, Permissions.AssessmentsManage]),
         new("Nutricionista", "Planes nutricionales de los alumnos", false, [.. BasicRead, Permissions.MembersRead, Permissions.NutritionPlansRead, Permissions.NutritionPlansManage,
             Permissions.NutritionMembersManage, Permissions.NutritionMemberRead, Permissions.NutritionProfileManage, Permissions.NutritionLogsRecord]),
         new(
@@ -125,7 +126,7 @@ public static class RoleTemplates
                 Permissions.PaymentsRead,
                 Permissions.CashRead
             ]),
-        new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog, Permissions.NutritionMemberRead, Permissions.NutritionLogsRecord])
+        new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog, Permissions.NutritionMemberRead, Permissions.NutritionLogsRecord, Permissions.AssessmentsRead])
     ];
 
     public static readonly RoleTemplate ForPlatform = new(

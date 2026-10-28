@@ -15,6 +15,7 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
 {
     public const string TrainingSchema = "training";
     public const string NutritionSchema = "nutrition";
+    public const string WellnessSchema = "wellness";
 
     public DbSet<TrainerProfile> Trainers => Set<TrainerProfile>();
     public DbSet<TrainerAvailability> TrainerAvailability => Set<TrainerAvailability>();
@@ -36,6 +37,7 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
     public DbSet<NutritionAssignment> NutritionAssignments => Set<NutritionAssignment>();
     public DbSet<DietaryProfile> DietaryProfiles => Set<DietaryProfile>();
     public DbSet<MealLog> MealLogs => Set<MealLog>();
+    public DbSet<BodyAssessment> BodyAssessments => Set<BodyAssessment>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<MemberRef> MemberRefs => Set<MemberRef>();
@@ -108,6 +110,7 @@ internal sealed class MemberRef : ITenantOwned
     public string LastName { get; init; } = string.Empty;
     public string Status { get; init; } = string.Empty;
     public Guid? UserId { get; init; }
+    public DateOnly? BirthDate { get; init; }
 
     public string FullName => $"{FirstName} {LastName}";
 

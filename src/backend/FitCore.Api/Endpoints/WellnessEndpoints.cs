@@ -1,6 +1,7 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Platform.Domain;
+using FitCore.Wellness.Application.Assessments;
 using FitCore.Wellness.Application.Exercises;
 using FitCore.Wellness.Application.Nutrition;
 using FitCore.Wellness.Application.Trainers;
@@ -20,6 +21,7 @@ internal static class WellnessEndpoints
         MapTraining(routes);
         MapNutritionPlans(routes.MapGroup("/nutrition-plans").WithTags("Nutrition plans"));
         MapNutrition(routes);
+        MapAssessments(routes);
         MapPlatformExercises(routes.MapGroup("/platform/exercises").WithTags("Exercises (platform)"));
         return routes;
     }
@@ -337,6 +339,39 @@ internal static class WellnessEndpoints
             .Produces<NutritionLogsDto>()
             .WithTags("Member nutrition")
             .WithName("ListMealLogs");
+    }
+
+    // Evaluaciones físicas: dato sensible y solo-agregar (un error se corrige con una evaluación nueva). El IMC es un indicador general, no un diagnóstico.
+    private static void MapAssessments(IEndpointRouteBuilder routes)
+    {
+        routes.MapPost("/members/{id:guid}/assessments", async (Guid id, AssessmentRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateAssessmentCommand(id, request), ct)).ToHttp(a => Results.Created($"/api/v1/members/{id}/assessments", a)))
+            .RequirePermission(Permissions.AssessmentsManage)
+            .WithValidation<AssessmentRequest>()
+            .Produces<AssessmentDto>(StatusCodes.Status201Created)
+            .WithTags("Assessments")
+            .WithName("CreateAssessment");
+
+        routes.MapGet("/members/{id:guid}/assessments", async (Guid id, IDispatcher dispatcher, CancellationToken ct, bool includeCorrected = false, DateOnly? from = null, DateOnly? to = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListAssessmentsQuery(id, includeCorrected, from, to, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.AssessmentsRead)
+            .Produces<PagedResult<AssessmentDto>>()
+            .WithTags("Assessments")
+            .WithName("ListAssessments");
+
+        routes.MapGet("/members/{id:guid}/assessments/compare", async (Guid id, Guid a, Guid b, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new CompareAssessmentsQuery(id, a, b), ct)).ToHttp(c => Results.Ok(c)))
+            .RequirePermission(Permissions.AssessmentsRead)
+            .Produces<AssessmentComparisonDto>()
+            .WithTags("Assessments")
+            .WithName("CompareAssessments");
+
+        routes.MapGet("/members/{id:guid}/assessments/progress", async (Guid id, IDispatcher dispatcher, CancellationToken ct, DateOnly? from = null, DateOnly? to = null) =>
+                (await dispatcher.QueryAsync(new AssessmentProgressQuery(id, from, to), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.AssessmentsRead)
+            .Produces<IReadOnlyList<AssessmentPointDto>>()
+            .WithTags("Assessments")
+            .WithName("GetAssessmentProgress");
     }
 
     private static void MapExercises(RouteGroupBuilder group)

@@ -128,6 +128,113 @@ namespace FitCore.Wellness.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("FitCore.Wellness.Domain.BodyAssessment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal?>("ArmCm")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("numeric(4,1)")
+                        .HasColumnName("arm_cm");
+
+                    b.Property<DateOnly>("AssessedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("assessed_on");
+
+                    b.Property<string>("BodyFatMethod")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("body_fat_method");
+
+                    b.Property<decimal?>("BodyFatPercent")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("numeric(4,1)")
+                        .HasColumnName("body_fat_percent");
+
+                    b.Property<decimal?>("ChestCm")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("numeric(4,1)")
+                        .HasColumnName("chest_cm");
+
+                    b.Property<Guid?>("CorrectsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("corrects_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal?>("HeightCm")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("numeric(4,1)")
+                        .HasColumnName("height_cm");
+
+                    b.Property<decimal?>("HipCm")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("numeric(4,1)")
+                        .HasColumnName("hip_cm");
+
+                    b.Property<Guid>("MemberId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("member_id");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid>("RecordedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("recorded_by");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal?>("ThighCm")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("numeric(4,1)")
+                        .HasColumnName("thigh_cm");
+
+                    b.Property<decimal?>("WaistCm")
+                        .HasPrecision(4, 1)
+                        .HasColumnType("numeric(4,1)")
+                        .HasColumnName("waist_cm");
+
+                    b.Property<decimal?>("WeightKg")
+                        .HasPrecision(5, 1)
+                        .HasColumnType("numeric(5,1)")
+                        .HasColumnName("weight_kg");
+
+                    b.HasKey("Id")
+                        .HasName("pk_body_assessments");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_body_assessments_tenant_id_id");
+
+                    b.HasIndex("CorrectsId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_body_assessments_corrects")
+                        .HasFilter("corrects_id IS NOT NULL");
+
+                    b.HasIndex("TenantId", "CorrectsId")
+                        .HasDatabaseName("ix_body_assessments_tenant_id_corrects_id");
+
+                    b.HasIndex("TenantId", "MemberId", "AssessedOn")
+                        .HasDatabaseName("ix_body_assessments_tenant_id_member_id_assessed_on");
+
+                    b.ToTable("body_assessments", "wellness");
+                });
+
             modelBuilder.Entity("FitCore.Wellness.Domain.DietaryProfile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1533,6 +1640,10 @@ namespace FitCore.Wellness.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<DateOnly?>("BirthDate")
+                        .HasColumnType("date")
+                        .HasColumnName("birth_date");
+
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uuid")
                         .HasColumnName("branch_id");
@@ -1675,6 +1786,16 @@ namespace FitCore.Wellness.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("FitCore.Wellness.Domain.BodyAssessment", b =>
+                {
+                    b.HasOne("FitCore.Wellness.Domain.BodyAssessment", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CorrectsId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_body_assessments_body_assessments_tenant_id_corrects_id");
                 });
 
             modelBuilder.Entity("FitCore.Wellness.Domain.MealLog", b =>

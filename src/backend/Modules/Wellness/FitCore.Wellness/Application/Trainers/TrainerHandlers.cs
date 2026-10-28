@@ -434,7 +434,7 @@ internal sealed class AssignMemberHandler(WellnessDbContext db, IAccessContext a
             await transaction.CommitAsync(cancellationToken);
             return (await TrainerQueries.ToAssignmentDtosAsync(db, [assignment], cancellationToken))[0];
         }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation or PostgresErrorCodes.CheckViolation })
         {
             return TrainerErrors.AssignmentConflict;
         }

@@ -368,7 +368,7 @@ public class NutritionTests(ApiFixture api)
     {
         var s = await NewSetupAsync("RAC");
         var plans = new List<PlanRow>();
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < 8; i++)
         {
             plans.Add(await CreatePlanAsync(s.Nutritionist, PlanBody($"Plan {i}")));
         }

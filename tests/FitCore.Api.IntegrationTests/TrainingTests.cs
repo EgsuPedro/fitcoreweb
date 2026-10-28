@@ -434,7 +434,7 @@ public class TrainingTests(ApiFixture api)
     {
         var s = await NewSetupAsync("RAC");
         var plans = new List<PlanRow>();
-        for (var i = 0; i < 4; i++)
+        for (var i = 0; i < 8; i++)
         {
             plans.Add(await CreatePlanAsync(s.TrainerClient, PlanBody(s, name: $"Rutina {i}")));
         }

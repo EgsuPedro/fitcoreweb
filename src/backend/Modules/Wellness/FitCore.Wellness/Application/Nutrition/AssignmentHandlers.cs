@@ -142,7 +142,9 @@ internal sealed class AssignNutritionPlanHandler(WellnessDbContext db, IAccessCo
             await audit.RecordAccessAsync("Wellness.NutritionPlanAssigned", "Member", member.Id.ToString(), cancellationToken);
             return (await NutritionAssignmentMapper.ToDtosAsync(db, [assignment], today, cancellationToken))[0];
         }
-        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
+        // Dos asignaciones simultáneas: la base deja pasar a una. A la otra le llega un índice único violado (dos abiertas) o el disparador de
+        // «asignación cerrada no se modifica» (la otra ya cerró la vigente); en ambos casos es un conflicto, no un error del servidor.
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation or PostgresErrorCodes.CheckViolation })
         {
             return Error.Conflict("nutrition.assignment_conflict", "El alumno cambió de plan al mismo tiempo; intente de nuevo.");
         }

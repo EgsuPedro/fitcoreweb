@@ -1,8 +1,10 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Platform.Domain;
+using FitCore.Wellness.Application.Adherence;
 using FitCore.Wellness.Application.Assessments;
 using FitCore.Wellness.Application.Exercises;
+using FitCore.Wellness.Application.Goals;
 using FitCore.Wellness.Application.Nutrition;
 using FitCore.Wellness.Application.Trainers;
 using FitCore.Wellness.Application.Training;
@@ -22,6 +24,7 @@ internal static class WellnessEndpoints
         MapNutritionPlans(routes.MapGroup("/nutrition-plans").WithTags("Nutrition plans"));
         MapNutrition(routes);
         MapAssessments(routes);
+        MapGoalsAndAdherence(routes);
         MapPlatformExercises(routes.MapGroup("/platform/exercises").WithTags("Exercises (platform)"));
         return routes;
     }
@@ -372,6 +375,47 @@ internal static class WellnessEndpoints
             .Produces<IReadOnlyList<AssessmentPointDto>>()
             .WithTags("Assessments")
             .WithName("GetAssessmentProgress");
+    }
+
+    // Objetivos (los define una persona, no el sistema) y adherencia (cumplimiento registrado, no resultados).
+    private static void MapGoalsAndAdherence(IEndpointRouteBuilder routes)
+    {
+        routes.MapPost("/members/{id:guid}/goals", async (Guid id, GoalRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateGoalCommand(id, request), ct)).ToHttp(g => Results.Created($"/api/v1/members/{id}/goals", g)))
+            .RequirePermission(Permissions.GoalsManage)
+            .WithValidation<GoalRequest>()
+            .Produces<GoalDto>(StatusCodes.Status201Created)
+            .WithTags("Goals")
+            .WithName("CreateGoal");
+
+        routes.MapGet("/members/{id:guid}/goals", async (Guid id, IDispatcher dispatcher, CancellationToken ct, GoalStatus? status = null) =>
+                (await dispatcher.QueryAsync(new ListGoalsQuery(id, status), ct)).ToHttp(g => Results.Ok(g)))
+            .RequirePermission(Permissions.GoalsRead)
+            .Produces<IReadOnlyList<GoalDto>>()
+            .WithTags("Goals")
+            .WithName("ListGoals");
+
+        routes.MapPost("/goals/{id:guid}/close", async (Guid id, CloseGoalRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CloseGoalCommand(id, request), ct)).ToHttp(g => Results.Ok(g)))
+            .RequirePermission(Permissions.GoalsManage)
+            .WithValidation<CloseGoalRequest>()
+            .Produces<GoalDto>()
+            .WithTags("Goals")
+            .WithName("CloseGoal");
+
+        routes.MapGet("/members/{id:guid}/training-adherence", async (Guid id, IDispatcher dispatcher, CancellationToken ct, DateOnly? from = null, DateOnly? to = null) =>
+                (await dispatcher.QueryAsync(new TrainingAdherenceQuery(id, from, to), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.TrainingMemberRead)
+            .Produces<TrainingAdherenceDto>()
+            .WithTags("Adherence")
+            .WithName("GetTrainingAdherence");
+
+        routes.MapGet("/members/{id:guid}/nutrition-adherence", async (Guid id, IDispatcher dispatcher, CancellationToken ct, DateOnly? from = null, DateOnly? to = null) =>
+                (await dispatcher.QueryAsync(new NutritionAdherenceQuery(id, from, to), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.NutritionMemberRead)
+            .Produces<NutritionAdherenceDto>()
+            .WithTags("Adherence")
+            .WithName("GetNutritionAdherence");
     }
 
     private static void MapExercises(RouteGroupBuilder group)

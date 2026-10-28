@@ -86,6 +86,7 @@ internal static class TenantTableSecurity
                   ('training.workout_session_exercises', 'UPDATE, DELETE'),
                   ('training.workout_sets', 'UPDATE, DELETE'),
                   ('wellness.body_assessments', 'UPDATE, DELETE'),
+                  ('wellness.goals', 'DELETE'),
                   ('nutrition.plans', 'DELETE'),
                   ('nutrition.plan_versions', 'UPDATE, DELETE'),
                   ('nutrition.meals', 'UPDATE, DELETE'),

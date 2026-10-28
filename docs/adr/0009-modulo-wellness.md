@@ -76,6 +76,17 @@
 - **API:** `POST|GET /members/{id}/assessments`, `GET …/assessments/compare?a=&b=` y `GET …/assessments/progress`.
 - **Pruebas:** 13 de dominio y 19 de integración. La interfaz Angular (formulario, tabla y gráficos) se entrega en el bloque 9.
 
+## Implementación del bloque 7 (objetivos, seguimiento y adherencia)
+- **Objetivos (`wellness.goals`)**: los define siempre una persona; el sistema nunca los propone a partir del peso o la apariencia. Tres categorías: **medida corporal** (peso, cintura, cadera, pecho, brazo, muslo o grasa, con meta en rango), **constancia** (1 a 14 sesiones por semana) y **libre** (sin medida ni meta, seguimiento manual). Máximo 5 activos por alumno y uno por medida. Fecha meta posterior al inicio y a 5 años como máximo.
+- **El progreso se calcula al leer**, no se guarda: para una medida corporal, del valor de partida (la última medición al crear el objetivo, o el que se indique) a la meta, de 0 a 100, sirve para subir o bajar; si falta partida o dato actual el progreso es nulo (no se inventa). La constancia usa las sesiones de los últimos 7 días. Al alcanzar la meta el objetivo **no se cierra solo**: lo cierra una persona.
+- **Salvaguarda de peso:** a un adulto con estatura conocida no se le registra una meta de peso cuyo IMC quede por debajo de 18,5 (`goal.target_unsafe`). En menores o sin estatura no hay base para juzgarlo y no se bloquea.
+- **Inmutable salvo el cierre:** la definición de un objetivo no cambia (para cambiarla se cierra y se crea otro); cerrar es alcanzado o abandonado (abandonar exige motivo) y es definitivo; nunca se borra. Lo impone un disparador en la base.
+- **Permisos sensibles** `wellness.goals.read|manage`: Entrenador (de sus alumnos asignados, o todos con `wellness.members.all`) y Alumno (lee los suyos). No los reciben por defecto Propietario, AdministradorSucursal ni Nutricionista. Se audita crear, cerrar y leer, nunca el texto.
+- **Adherencia = cumplimiento registrado frente a lo asignado**, no resultados fisiológicos. *Entrenamiento* (`GET /members/{id}/training-adherence`, permiso `training.member.read`): por semana (lunes a domingo), sesiones hechas frente a las esperadas; **supuesto documentado:** una rutina de N días se entrena N veces por semana, prorrateado hacia arriba por los días de la semana en que la rutina estuvo vigente. Lo hecho de más no suma sobre 100 %. *Nutrición* (`GET /members/{id}/nutrition-adherence`, permiso sensible `nutrition.member.read`, lectura del personal auditada): comidas completas (1), parciales (0,5), omitidas y **no registradas** (0, contadas aparte); las comidas pendientes de hoy no cuentan en contra. Rango por defecto de 4 semanas, máximo 92 días, recortado a hoy; las semanas sin rutina o plan no tienen porcentaje.
+- **Alcance:** igual que en los demás bloques (el alumno solo ve lo suyo desde su sesión; el personal necesita el permiso y el alumno a su alcance, si no 404). El entrenador no ve la adherencia de nutrición.
+- **API:** `POST|GET /members/{id}/goals`, `POST /goals/{id}/close`, `GET /members/{id}/training-adherence` y `GET /members/{id}/nutrition-adherence`.
+- **Pruebas:** 27 de dominio y 19 de integración. La interfaz Angular (tarjetas de objetivos, gráficos de adherencia) se entrega en el bloque 9.
+
 ## Principios del dominio (de las reglas del prompt)
 - **Versiones inmutables:** una rutina o un plan nutricional se versiona; modificarlo crea una versión nueva y las sesiones y registros ya hechos conservan la versión con la que se hicieron.
 - **Mediciones, no diagnósticos:** cada medición guarda unidad, fecha, fuente y método; lo estimado se marca como derivado. El IMC se muestra como indicador general (peso / estatura²) solo con estatura > 0; no se calcula grasa corporal sin método y datos válidos. El sistema no diagnostica ni sustituye una valoración clínica, y las estimaciones calóricas no se presentan como exactas.
@@ -97,7 +108,7 @@ App móvil Flutter, facturación electrónica, nómina y contabilidad.
 | 4 | Rutinas, asignaciones y sesiones (versionado) | Hecho (backend; UI en bloque 9) |
 | 5 | Nutrición (planes versionados, asignaciones, registro de cumplimiento) | Hecho (backend; UI en bloque 9) |
 | 6 | Evaluaciones físicas (IMC, historial, comparación) | Hecho (backend; UI en bloque 9) |
-| 7 | Objetivos, seguimiento y adherencia | Pendiente |
+| 7 | Objetivos, seguimiento y adherencia | Hecho (backend; UI en bloque 9) |
 | 8 | Fotografías y privacidad (`IFileStore`, consentimiento) | Pendiente |
 | 9 | Integración Angular (panel del entrenador, panel del alumno, gráficos) | Pendiente |
 | 10 | Pruebas, regresión y documentación | Pendiente |

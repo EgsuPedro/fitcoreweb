@@ -6,6 +6,7 @@ import type { MyAttendance, MyMember, MyMembership, MyPayment } from '../../core
 import { ErrorMessages } from '../../core/i18n/messages';
 import { Badge, membershipTone } from '../../shared/badge';
 import { FcDate, FcDateTime, FcMoney } from '../../shared/format.pipes';
+import { MyClasses } from './my-classes';
 import { MemberWellness } from '../wellness/member-wellness';
 
 /**
@@ -14,7 +15,7 @@ import { MemberWellness } from '../wellness/member-wellness';
  */
 @Component({
   selector: 'fc-my-portal',
-  imports: [TranslocoPipe, Badge, FcDate, FcDateTime, FcMoney, MemberWellness],
+  imports: [TranslocoPipe, Badge, FcDate, FcDateTime, FcMoney, MemberWellness, MyClasses],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (error()) {
@@ -26,6 +27,8 @@ import { MemberWellness } from '../wellness/member-wellness';
           <p class="muted">{{ m.code }} · {{ m.branchName }}</p>
         </div>
       </header>
+
+      <fc-my-classes [timeZone]="m.branchTimeZone" />
 
       <fc-member-wellness [memberId]="m.id" [self]="true" />
 

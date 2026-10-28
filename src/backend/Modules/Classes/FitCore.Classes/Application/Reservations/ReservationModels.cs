@@ -1,4 +1,5 @@
 using FitCore.Application.Core;
+using FitCore.Classes.Application.Sessions;
 using FitCore.Classes.Domain;
 using FluentValidation;
 
@@ -92,3 +93,8 @@ public sealed class CancelReservationRequestValidator : AbstractValidator<Cancel
         RuleFor(x => x.Reason).MaximumLength(ClassReservation.MaxReasonLength);
     }
 }
+
+/// <summary>Una sesión de la agenda del alumno, con su propia reserva si la tiene (sin datos internos del personal).</summary>
+public sealed record MyClassSessionDto(ClassSessionDto Session, Guid? ReservationId, string? ReservationStatus);
+
+public sealed record ListMyClassSessionsQuery(PageRequest Page, DateTimeOffset? From, DateTimeOffset? To, Guid? ClassId) : IQuery<PagedResult<MyClassSessionDto>>;

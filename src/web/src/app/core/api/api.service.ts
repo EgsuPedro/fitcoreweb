@@ -16,6 +16,7 @@ import type {
   GroupClass,
   GroupClassRequest,
   InboxNotification,
+  MyClassSession,
   NotificationPreference,
   NotificationSummary,
   SeriesRun,
@@ -672,6 +673,29 @@ export class ApiService {
   }
   classAttendance(query: Query = {}): Observable<Paged<ClassAttendance>> {
     return this.get('/class-attendance', query);
+  }
+
+  // Portal del alumno: agenda, reservas propias e historial de clases
+  mySessions(query: Query = {}): Observable<Paged<MyClassSession>> {
+    return this.get('/me/class-sessions', query);
+  }
+  myClassReservations(query: Query = {}): Observable<Paged<ClassReservation>> {
+    return this.get('/me/class-reservations', query);
+  }
+  reserveMyClass(body: { sessionId: string; joinWaitlist: boolean }, key: string): Observable<ClassReservation> {
+    return this.postKeyed('/me/class-reservations', body, key);
+  }
+  cancelMyClassReservation(id: string, reason: string | null): Observable<ClassReservation> {
+    return this.http.post<ClassReservation>(`${API_BASE}/me/class-reservations/${id}/cancel`, { reason });
+  }
+  acceptMyClassOffer(id: string): Observable<ClassReservation> {
+    return this.http.post<ClassReservation>(`${API_BASE}/me/class-reservations/${id}/accept`, {});
+  }
+  declineMyClassOffer(id: string): Observable<ClassReservation> {
+    return this.http.post<ClassReservation>(`${API_BASE}/me/class-reservations/${id}/decline`, {});
+  }
+  myClassAttendance(query: Query = {}): Observable<Paged<ClassAttendance>> {
+    return this.get('/me/class-attendance', query);
   }
 
   // Bandeja de avisos del propio usuario

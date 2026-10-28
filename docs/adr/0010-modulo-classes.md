@@ -104,5 +104,5 @@
 | 6 | Asistencia a clase (participantes, asistió/no asistió, historial) | Hecho |
 | 7 | Notificaciones internas: eventos, entrega, preferencias, reintentos, recordatorios | Hecho |
 | 8 | Angular del personal: clases, calendario, series, detalle de sesión, reservas, espera, asistencia | Hecho |
-| 9 | Portal del alumno: agenda, reservar, cancelar, espera, historial, notificaciones | Pendiente |
+| 9 | Portal del alumno: agenda, reservar, cancelar, espera, historial, notificaciones | Hecho |
 | 10 | Pruebas, regresión y documentación | Pendiente |

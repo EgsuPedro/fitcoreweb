@@ -303,3 +303,55 @@ internal sealed class DeclineMyReservationHandler(ClassesDbContext db, IAccessCo
         return reservation is null ? ReservationErrors.NotFound : await Waitlist.DeclineAsync(db, clock, actor.Value.UserId, reservation, isSelf: true, cancellationToken);
     }
 }
+
+/// <summary>Agenda del alumno: sesiones programadas y por venir de su sucursal, con el estado de su reserva activa en cada una.</summary>
+internal sealed class ListMyClassSessionsHandler(ClassesDbContext db, IAccessContext access, IClock clock)
+    : IQueryHandler<ListMyClassSessionsQuery, PagedResult<MyClassSessionDto>>
+{
+    public async Task<Result<PagedResult<MyClassSessionDto>>> HandleAsync(ListMyClassSessionsQuery query, CancellationToken cancellationToken)
+    {
+        var actor = await access.RequireAccessAsync(cancellationToken);
+        if (actor.IsFailure)
+        {
+            return actor.Error;
+        }
+
+        var member = await MyMember.ResolveAsync(db, actor.Value, cancellationToken);
+        if (member.IsFailure)
+        {
+            return member.Error;
+        }
+
+        var now = clock.UtcNow;
+        var from = query.From?.ToUniversalTime() ?? now;
+        var sessions = db.ClassSessions.AsNoTracking()
+            .Where(s => s.BranchId == member.Value.BranchId && s.Status == SessionStatus.Scheduled && s.EndsAt > now && s.StartsAt >= from);
+        if (query.To is { } to)
+        {
+            var toUtc = to.ToUniversalTime();
+            sessions = sessions.Where(s => s.StartsAt < toUtc);
+        }
+
+        if (query.ClassId is { } classId)
+        {
+            sessions = sessions.Where(s => s.ClassId == classId);
+        }
+
+        var paged = await sessions.OrderBy(s => s.StartsAt).ThenBy(s => s.Id).ToPagedAsync(query.Page, cancellationToken);
+        var dtos = await SessionScheduling.ToDtosAsync(db, paged.Items, cancellationToken);
+        var ids = paged.Items.Select(s => s.Id).ToList();
+        var mine = (await db.Reservations.AsNoTracking()
+                .Where(r => r.MemberId == member.Value.Id && ids.Contains(r.SessionId)
+                    && (r.Status == ReservationStatus.Confirmed || r.Status == ReservationStatus.Waitlisted || r.Status == ReservationStatus.Offered))
+                .Select(r => new { r.SessionId, r.Id, r.Status })
+                .ToListAsync(cancellationToken))
+            .ToDictionary(r => r.SessionId);
+
+        return new PagedResult<MyClassSessionDto>(
+            [.. dtos.Select(d => new MyClassSessionDto(
+                d with { AvailabilityOverrideReason = null, Notes = null },
+                mine.TryGetValue(d.Id, out var r) ? r.Id : null,
+                mine.TryGetValue(d.Id, out var s) ? s.Status.ToString() : null))],
+            paged.Page, paged.PageSize, paged.TotalCount);
+    }
+}

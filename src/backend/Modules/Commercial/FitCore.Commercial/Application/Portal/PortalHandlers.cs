@@ -19,6 +19,7 @@ public sealed record MyMemberDto(
     string LastName,
     Guid BranchId,
     string BranchName,
+    string BranchTimeZone,
     string? Email,
     string? Phone,
     string Status,
@@ -82,8 +83,8 @@ internal sealed class GetMyMemberHandler(CommercialDbContext db, IAccessContext 
         }
 
         var m = member.Value;
-        var branch = await db.BranchRefs.AsNoTracking().Where(b => b.Id == m.BranchId).Select(b => b.Name).FirstOrDefaultAsync(cancellationToken);
-        return new MyMemberDto(m.Id, m.Code, m.FirstName, m.LastName, m.BranchId, branch ?? string.Empty, m.Email, m.Phone, m.Status.ToString(), m.WhatsAppConsent, m.QrTokenHash != null);
+        var branch = await db.BranchRefs.AsNoTracking().Where(b => b.Id == m.BranchId).Select(b => new { b.Name, b.TimeZone }).FirstOrDefaultAsync(cancellationToken);
+        return new MyMemberDto(m.Id, m.Code, m.FirstName, m.LastName, m.BranchId, branch?.Name ?? string.Empty, branch?.TimeZone ?? string.Empty, m.Email, m.Phone, m.Status.ToString(), m.WhatsAppConsent, m.QrTokenHash != null);
     }
 }
 

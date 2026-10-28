@@ -1831,5 +1831,33 @@
     "recordedBy": "Recorded by",
     "corrected": "corrected",
     "empty": "No attendance recorded."
+  },
+  "myClasses": {
+    "title": "My classes",
+    "branchTime": "Times in your branch time zone ({{ zone }})",
+    "seats": "Seats",
+    "full": "Full",
+    "reserve": "Book",
+    "joinWaitlist": "Join the waitlist",
+    "cancel": "Cancel",
+    "accept": "Accept spot",
+    "decline": "Decline",
+    "cancelTitle": "Cancel booking",
+    "position": "position {{ n }}",
+    "respondBy": "reply by {{ time }}",
+    "lateReasonHint": "Within the deadline the reason is optional; after it, a reason is required and the cancellation is flagged.",
+    "emptyAgenda": "There are no classes scheduled right now.",
+    "emptyReservations": "You have no upcoming bookings.",
+    "emptyHistory": "You have no recorded classes yet.",
+    "reservedToast": "Booking registered.",
+    "waitlistedToast": "You are on the waitlist.",
+    "cancelledToast": "Booking cancelled.",
+    "acceptedToast": "Spot confirmed.",
+    "declinedToast": "Spot declined.",
+    "tabs": {
+      "agenda": "Agenda",
+      "reservations": "My bookings",
+      "history": "History"
+    }
   }
 }

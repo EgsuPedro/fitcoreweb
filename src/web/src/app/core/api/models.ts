@@ -110,6 +110,7 @@ export type ClassRoster = Omit<Schemas['RosterDto'], 'offers' | 'waitlist'> & { 
 export type AttendanceEntryRequest = Schemas['AttendanceEntryRequest'];
 export type AttendanceOutcome = Schemas['AttendanceOutcome'];
 export type ClassAttendance = Schemas['ClassAttendanceDto'];
+export type MyClassSession = Schemas['MyClassSessionDto'];
 export type InboxNotification = Schemas['InboxNotificationDto'];
 export type NotificationPreference = Schemas['NotificationPreferenceDto'];
 export type NotificationSummary = Schemas['NotificationSummaryDto'];

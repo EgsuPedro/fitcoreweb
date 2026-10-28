@@ -1831,5 +1831,33 @@
     "recordedBy": "Registró",
     "corrected": "corregida",
     "empty": "No hay asistencias registradas."
+  },
+  "myClasses": {
+    "title": "Mis clases",
+    "branchTime": "Horas en la zona de su sucursal ({{ zone }})",
+    "seats": "Cupos",
+    "full": "Llena",
+    "reserve": "Reservar",
+    "joinWaitlist": "Anotarme en la espera",
+    "cancel": "Cancelar",
+    "accept": "Aceptar cupo",
+    "decline": "Rechazar",
+    "cancelTitle": "Cancelar reserva",
+    "position": "puesto {{ n }}",
+    "respondBy": "responda hasta las {{ time }}",
+    "lateReasonHint": "Dentro del plazo el motivo es opcional; fuera de plazo es obligatorio y la cancelación queda marcada.",
+    "emptyAgenda": "No hay clases programadas por ahora.",
+    "emptyReservations": "No tiene reservas próximas.",
+    "emptyHistory": "Todavía no tiene clases registradas.",
+    "reservedToast": "Reserva registrada.",
+    "waitlistedToast": "Quedó en la lista de espera.",
+    "cancelledToast": "Reserva cancelada.",
+    "acceptedToast": "Cupo confirmado.",
+    "declinedToast": "Cupo rechazado.",
+    "tabs": {
+      "agenda": "Agenda",
+      "reservations": "Mis reservas",
+      "history": "Historial"
+    }
   }
 }

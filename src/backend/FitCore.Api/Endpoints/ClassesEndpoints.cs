@@ -19,6 +19,12 @@ internal static class ClassesEndpoints
         MapSessions(routes.MapGroup("/class-sessions").WithTags("Class sessions"));
         MapReservations(routes.MapGroup("/class-reservations").WithTags("Class reservations"));
         MapMyReservations(routes.MapGroup("/me/class-reservations").WithTags("Member portal"));
+        routes.MapGroup("/me/class-sessions").WithTags("Member portal")
+            .MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, DateTimeOffset? from = null, DateTimeOffset? to = null, Guid? classId = null, int page = 1, int pageSize = 25) =>
+                    (await dispatcher.QueryAsync(new ListMyClassSessionsQuery(new PageRequest(page, pageSize), from, to, classId), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<PagedResult<MyClassSessionDto>>()
+            .WithName("ListMyClassSessions");
         MapAttendance(routes);
         MapNotifications(routes.MapGroup("/me").WithTags("Notifications"));
         return routes;

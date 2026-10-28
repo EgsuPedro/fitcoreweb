@@ -2308,6 +2308,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/me/class-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMyClassSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/class-sessions/{id}/roster": {
         parameters: {
             query?: never;
@@ -3708,6 +3724,12 @@ export interface components {
             /** Format: int32 */
             durationMinutes: number | null;
         };
+        MyClassSessionDto: {
+            session: components["schemas"]["ClassSessionDto"];
+            /** Format: uuid */
+            reservationId: string | null;
+            reservationStatus: string | null;
+        };
         MyMemberDto: {
             /** Format: uuid */
             id: string;
@@ -3717,6 +3739,7 @@ export interface components {
             /** Format: uuid */
             branchId: string;
             branchName: string;
+            branchTimeZone: string;
             email: string | null;
             phone: string | null;
             status: string;
@@ -4238,6 +4261,15 @@ export interface components {
         };
         PagedResultOfMyAttendanceDto: {
             items: components["schemas"]["MyAttendanceDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfMyClassSessionDto: {
+            items: components["schemas"]["MyClassSessionDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -9869,6 +9901,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    ListMyClassSessions: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                classId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfMyClassSessionDto"];
                 };
             };
         };

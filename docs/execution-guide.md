@@ -162,3 +162,13 @@ Con la sesión iniciada como Propietario, Administrador o Recepción (tenant `re
 4. **Campana de avisos** (barra superior) y **Avisos** (`/inbox`): bandeja interna y preferencias; los avisos importantes no se pueden apagar.
 
 El Entrenador ve Horario y Clases, y solo registra asistencia en las sesiones donde es instructor. Los avisos los genera el Worker (cada ~5 s). Tras actualizar el código, reejecutar `scripts/demo-seed.ps1` para que los tenants existentes reciban los permisos nuevos.
+
+## Fase 5: «Mis clases» en el portal del alumno
+
+Con un alumno con acceso al portal (se le concede desde su ficha; clave temporal y cambio obligatorio), en la página de inicio aparece **Mis clases** con tres pestañas:
+
+1. **Agenda**: sesiones programadas de su sucursal (`GET /api/v1/me/class-sessions`), con cupos y el estado de su propia reserva. "Reservar" o, si está llena, "Anotarme en la espera" (solo entra a la fila porque lo pide con ese botón).
+2. **Mis reservas**: próximas reservas con puesto en la espera; "Cancelar" (fuera de plazo pide motivo y queda marcada) y, si se le ofreció un cupo, "Aceptar cupo" / "Rechazar" antes del plazo indicado.
+3. **Historial**: asistió / no asistió. Los avisos llegan a la campana de la barra superior.
+
+Todas las horas se muestran en la zona de su sucursal. El alumno nunca envía su identificador: la API lo resuelve desde su sesión.

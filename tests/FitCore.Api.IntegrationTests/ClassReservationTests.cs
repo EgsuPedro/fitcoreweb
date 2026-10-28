@@ -546,6 +546,44 @@ public class ClassReservationTests(ApiFixture api)
 
     // ---- Portal del alumno -------------------------------------------------------------------------------------------
 
+    private sealed record MySessionRow(SessionRow Session, Guid? ReservationId, string? ReservationStatus);
+
+    [Fact]
+    public async Task La_agenda_del_alumno_muestra_solo_sesiones_futuras_de_su_sucursal_con_su_propia_reserva()
+    {
+        var s = await NewSetupAsync();
+        var otherInstructor = await NewTrainerAsync(s.Tenant, "gye@gym.test", s.OtherBranch);
+        var otherClass = await NewClassAsync(s.Tenant.Owner, s.OtherBranch, otherInstructor, name: "Spinning GYE");
+        var mine = await NewSessionAsync(s.Tenant.Owner, s.Class.Id, InDays(3, 9));
+        var later = await NewSessionAsync(s.Tenant.Owner, s.Class.Id, InDays(5, 9));
+        var cancelled = await NewSessionAsync(s.Tenant.Owner, s.Class.Id, InDays(4, 9));
+        await NewSessionAsync(s.Tenant.Owner, otherClass.Id, InDays(3, 9));
+        Assert.Equal(HttpStatusCode.OK, (await s.Tenant.Owner.PostAsJsonAsync($"/api/v1/class-sessions/{cancelled.Id}/cancel", new { reason = "Mantenimiento" })).StatusCode);
+
+        var ana = await NewMemberAsync(s);
+        var luis = await NewMemberAsync(s);
+        var anaClient = await StudentAsync(s, ana);
+        var luisClient = await StudentAsync(s, luis);
+        Assert.Equal(HttpStatusCode.Created, (await BookMineAsync(anaClient, mine.Id)).StatusCode);
+
+        var agenda = (await anaClient.GetFromJsonAsync<PagedDto<MySessionRow>>("/api/v1/me/class-sessions"))!;
+        Assert.Equal([mine.Id, later.Id], agenda.Items.Select(i => i.Session.Id));
+        Assert.Equal("Confirmed", agenda.Items[0].ReservationStatus);
+        Assert.NotNull(agenda.Items[0].ReservationId);
+        Assert.Null(agenda.Items[1].ReservationStatus);
+
+        // La reserva de Ana no aparece en la agenda de Luis, y el rango filtra.
+        var luisAgenda = (await luisClient.GetFromJsonAsync<PagedDto<MySessionRow>>("/api/v1/me/class-sessions"))!;
+        Assert.All(luisAgenda.Items, i => Assert.Null(i.ReservationId));
+        var from = Uri.EscapeDataString(InDays(4, 0).ToString("o"));
+        var ranged = (await anaClient.GetFromJsonAsync<PagedDto<MySessionRow>>($"/api/v1/me/class-sessions?from={from}"))!;
+        Assert.Equal([later.Id], ranged.Items.Select(i => i.Session.Id));
+
+        // Es solo del alumno: recepción no tiene me.read.
+        var reception = await StaffAsync(s, "recep2@gym.test", "Recepcion", s.Branch);
+        Assert.Equal(HttpStatusCode.Forbidden, (await reception.GetAsync("/api/v1/me/class-sessions")).StatusCode);
+    }
+
     [Fact]
     public async Task El_alumno_reserva_y_cancela_lo_suyo_y_no_puede_tocar_lo_de_otro_ni_usar_los_endpoints_del_personal()
     {

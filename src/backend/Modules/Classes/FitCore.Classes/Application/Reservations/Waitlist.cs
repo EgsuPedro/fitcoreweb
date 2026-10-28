@@ -102,7 +102,7 @@ internal static class Waitlist
             await transaction.CommitAsync(cancellationToken);
             return offered.Count;
         }
-        catch (DbUpdateException ex) when (SessionScheduling.IsRetryable(ex))
+        catch (Exception ex) when (SessionScheduling.IsRetryable(ex))
         {
             // Otra solicitud llegó primero: el próximo barrido lo completa.
             db.ChangeTracker.Clear();
@@ -145,7 +145,7 @@ internal static class Waitlist
             await transaction.CommitAsync(cancellationToken);
             return true;
         }
-        catch (DbUpdateException ex) when (SessionScheduling.IsRetryable(ex))
+        catch (Exception ex) when (SessionScheduling.IsRetryable(ex))
         {
             db.ChangeTracker.Clear();
             return false;

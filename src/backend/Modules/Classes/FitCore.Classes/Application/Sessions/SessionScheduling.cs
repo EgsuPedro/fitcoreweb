@@ -38,12 +38,18 @@ internal static class SessionScheduling
 
     /// <summary>
     /// Además de lo anterior, que la fila cambiara entre la lectura y la escritura (token de versión) o que PostgreSQL abortara esta
-    /// transacción por un interbloqueo con otra solicitud igual: en todos los casos vale la pena releer y reintentar.
+    /// transacción por un interbloqueo con otra solicitud igual: en todos los casos vale la pena releer y reintentar. El proveedor de Npgsql
+    /// envuelve los fallos transitorios (interbloqueo, serialización) en una <see cref="InvalidOperationException"/>, así que se mira también
+    /// la excepción interna.
     /// </summary>
-    public static bool IsRetryable(DbUpdateException exception) =>
-        exception is DbUpdateConcurrencyException
-        || IsConcurrencyConflict(exception)
-        || exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.DeadlockDetected or PostgresErrorCodes.SerializationFailure };
+    public static bool IsRetryable(Exception exception)
+    {
+        var update = exception as DbUpdateException ?? (exception as InvalidOperationException)?.InnerException as DbUpdateException;
+        return update is not null
+            && (update is DbUpdateConcurrencyException
+                || IsConcurrencyConflict(update)
+                || update.InnerException is PostgresException { SqlState: PostgresErrorCodes.DeadlockDetected or PostgresErrorCodes.SerializationFailure });
+    }
 
     public static async Task<TimeZoneInfo> ZoneAsync(ClassesDbContext db, Guid branchId, CancellationToken cancellationToken)
     {

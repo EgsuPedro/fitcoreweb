@@ -282,8 +282,9 @@ public class AssessmentTests(ApiFixture api)
 
         Assert.Contains("Wellness.AssessmentRecorded", audit);
         Assert.Contains("Wellness.AssessmentsRead", audit);
-        Assert.DoesNotContain("73.7", audit);
-        Assert.DoesNotContain("21.3", audit);
+        // Las mediciones no deben aparecer como números sueltos (una marca de hora como 21:30:21.39 no es una medición).
+        Assert.DoesNotMatch(@"(?<![\d:.])73\.7(?!\d)", audit);
+        Assert.DoesNotMatch(@"(?<![\d:.])21\.3(?!\d)", audit);
     }
 
     [Fact]

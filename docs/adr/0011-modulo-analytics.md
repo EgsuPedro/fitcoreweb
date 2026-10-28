@@ -98,7 +98,7 @@ Proyección de las columnas necesarias, agregaciones en PostgreSQL, sin N+1, fil
 | 1 | Diagnóstico, inventario de indicadores y este ADR | Hecho |
 | 2 | Módulo `Analytics`: esqueleto, vistas `*Ref`, permisos, período/zona horaria, variaciones y `GET /analytics/context` | Hecho |
 | 3 | Dashboard ejecutivo (`/analytics/dashboard`, `/analytics/dashboard/comparison`) y por perfil | Hecho |
-| 4 | Reportes financieros | Pendiente |
+| 4 | Reportes financieros (cobros, medios de pago, saldos, caja, reversiones) | Hecho |
 | 5 | Reportes de alumnos y membresías (retención, renovación) | Pendiente |
 | 6 | Reportes operativos y de clases | Pendiente |
 | 7 | Comparación entre sucursales | Pendiente |

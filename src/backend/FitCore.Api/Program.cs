@@ -203,6 +203,7 @@ v1.MapCommercialEndpoints();
 v1.MapWellnessEndpoints();
 v1.MapClassesEndpoints();
 v1.MapAnalyticsEndpoints();
+v1.MapReportsEndpoints();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 

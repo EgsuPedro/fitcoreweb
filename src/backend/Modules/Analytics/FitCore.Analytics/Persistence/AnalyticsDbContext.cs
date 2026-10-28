@@ -26,6 +26,10 @@ public sealed class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> opti
     internal DbSet<ClassSessionRef> ClassSessions => Set<ClassSessionRef>();
     internal DbSet<ReservationRef> Reservations => Set<ReservationRef>();
     internal DbSet<ClassAttendanceRef> ClassAttendances => Set<ClassAttendanceRef>();
+    internal DbSet<UserRef> Users => Set<UserRef>();
+    internal DbSet<CashRegisterRef> CashRegisters => Set<CashRegisterRef>();
+    internal DbSet<CashSessionRef> CashSessions => Set<CashSessionRef>();
+    internal DbSet<CashMovementRef> CashMovements => Set<CashMovementRef>();
 
     // Guid.Empty nunca coincide con un tenant real: sin tenant activo no se ve ninguna fila.
     private Guid CurrentTenantId => tenantContext.TenantId ?? Guid.Empty;
@@ -51,6 +55,10 @@ public sealed class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> opti
         View<ClassSessionRef>(modelBuilder, "class_sessions", "classes");
         View<ReservationRef>(modelBuilder, "class_reservations", "classes");
         View<ClassAttendanceRef>(modelBuilder, "class_attendance", "classes");
+        View<UserRef>(modelBuilder, "app_users", "identity");
+        View<CashRegisterRef>(modelBuilder, "cash_registers", "cash");
+        View<CashSessionRef>(modelBuilder, "cash_sessions", "cash");
+        View<CashMovementRef>(modelBuilder, "cash_movements", "cash");
 
         // Sin clave propia en la fuente (se identifican por sus columnas): se leen solo para sumar.
         modelBuilder.Entity<AllocationRef>(b =>
@@ -123,11 +131,15 @@ internal sealed class PaymentRef : ITenantRow
     public Guid TenantId { get; init; }
     public Guid BranchId { get; init; }
     public Guid MemberId { get; init; }
+    public string ReceiptNumber { get; init; } = string.Empty;
     public string Method { get; init; } = string.Empty;
+    public string? MethodDetail { get; init; }
     public decimal Amount { get; init; }
     public string Status { get; init; } = string.Empty;
     public DateTimeOffset PaidAt { get; init; }
     public DateTimeOffset? ReversedAt { get; init; }
+    public Guid? ReversedBy { get; init; }
+    public string? ReversalReason { get; init; }
 }
 
 internal sealed class AllocationRef
@@ -146,10 +158,15 @@ internal sealed class ObligationRef : ITenantRow
     public Guid BranchId { get; init; }
     public Guid MemberId { get; init; }
     public Guid? MembershipId { get; init; }
+    public string Reference { get; init; } = string.Empty;
+    public string Concept { get; init; } = string.Empty;
     public DateOnly IssueDate { get; init; }
     public DateOnly DueDate { get; init; }
     public decimal PayableAmount { get; init; }
     public string Status { get; init; } = string.Empty;
+    public DateTimeOffset? VoidedAt { get; init; }
+    public Guid? VoidedBy { get; init; }
+    public string? VoidReason { get; init; }
 }
 
 internal sealed class MembershipRef : ITenantRow
@@ -226,4 +243,49 @@ internal sealed class ClassAttendanceRef : ITenantRow
     public Guid SessionId { get; init; }
     public Guid ReservationId { get; init; }
     public string Outcome { get; init; } = string.Empty;
+}
+
+internal sealed class UserRef : ITenantRow
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public string FullName { get; init; } = string.Empty;
+}
+
+internal sealed class CashRegisterRef : ITenantRow
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid BranchId { get; init; }
+    public string Name { get; init; } = string.Empty;
+}
+
+/// <summary>Turno de caja. El esperado, el contado y la diferencia son los que se guardaron al cerrar; nunca se recalculan.</summary>
+internal sealed class CashSessionRef : ITenantRow
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid BranchId { get; init; }
+    public Guid RegisterId { get; init; }
+    public Guid OpenedBy { get; init; }
+    public DateTimeOffset OpenedAt { get; init; }
+    public decimal OpeningAmount { get; init; }
+    public string Status { get; init; } = string.Empty;
+    public Guid? ClosedBy { get; init; }
+    public DateTimeOffset? ClosedAt { get; init; }
+    public decimal? CountedAmount { get; init; }
+    public decimal? ExpectedAtClose { get; init; }
+    public decimal? Difference { get; init; }
+}
+
+internal sealed class CashMovementRef : ITenantRow
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid BranchId { get; init; }
+    public Guid SessionId { get; init; }
+    public string Type { get; init; } = string.Empty;
+    public string Direction { get; init; } = string.Empty;
+    public decimal Amount { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
 }

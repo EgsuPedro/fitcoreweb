@@ -448,7 +448,7 @@ internal sealed class CreateSeriesHandler(ClassesDbContext db, IAccessContext ac
             {
                 await db.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException ex) when (SessionScheduling.IsRetryable(ex))
+            catch (Exception ex) when (SessionScheduling.IsRetryable(ex))
             {
                 db.ChangeTracker.Clear();
                 continue;
@@ -527,7 +527,7 @@ internal sealed class GenerateSeriesHandler(ClassesDbContext db, IAccessContext 
             {
                 await db.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException ex) when (SessionScheduling.IsRetryable(ex))
+            catch (Exception ex) when (SessionScheduling.IsRetryable(ex))
             {
                 continue;
             }

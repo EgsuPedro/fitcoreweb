@@ -83,6 +83,8 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `wellness.assessments.manage` | **Sensible.** Registrar y corregir evaluaciones físicas. Entrenador (de sus alumnos asignados) |
 | `wellness.goals.read` | **Sensible.** Ver los objetivos de un alumno y su progreso (el alumno, solo los suyos). Entrenador (asignado) y Alumno |
 | `wellness.goals.manage` | **Sensible.** Definir y cerrar objetivos. Entrenador (de sus alumnos asignados) |
+| `wellness.photos.read` | **Sensible.** Ver las fotos de progreso de un alumno y su consentimiento (el alumno, solo las suyas). Entrenador (asignado) y Alumno |
+| `wellness.photos.manage` | **Sensible.** Registrar o retirar el consentimiento y subir o borrar fotos (retirar borra todas). Entrenador (asignado) y Alumno (solo las suyas) |
 | `platform.exercises.manage` | Solo plataforma: crear y editar el catálogo base de ejercicios (visible para todos los gimnasios, de solo lectura para ellos) |
 | `trainers.read` / `trainers.manage` | Ver perfiles de entrenadores y listar los propios alumnos / habilitar entrenadores, editar perfiles, asignar y quitar alumnos, ver el historial de entrenadores de un alumno |
 | `trainers.notes` (**sensible**) | Escribir y leer observaciones profesionales, solo del alumno que el entrenador tiene asignado hoy. No lo reciben Propietario ni AdministradorSucursal por defecto; quien administra roles puede concederlo a un rol |

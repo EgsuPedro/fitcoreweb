@@ -25,6 +25,9 @@ public sealed class ApiFixture : IAsyncLifetime
 
     private WebApplicationFactory<Program>? _factory;
 
+    /// <summary>Carpeta del almacén privado de archivos de esta API (una por colección de pruebas); se borra al terminar.</summary>
+    public string FilesRoot { get; } = Path.Combine(Path.GetTempPath(), "fitcore-tests-files-" + Guid.NewGuid().ToString("N"));
+
     public string AdminConnection => _container.GetConnectionString();
 
     public string AppConnection => new NpgsqlConnectionStringBuilder(AdminConnection)
@@ -53,6 +56,7 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("Platform:AdminPassword", PlatformPassword);
             builder.UseSetting("RateLimiting:LoginPermitPerMinute", "100000");
             builder.UseSetting("RateLimiting:SessionPermitPerMinute", "100000");
+            builder.UseSetting("FileStorage:RootPath", FilesRoot);
         });
 
         // Fuerza el arranque (migraciones, catálogo de permisos y administrador de plataforma).
@@ -63,6 +67,10 @@ public sealed class ApiFixture : IAsyncLifetime
     {
         _factory?.Dispose();
         await _container.DisposeAsync();
+        if (Directory.Exists(FilesRoot))
+        {
+            Directory.Delete(FilesRoot, recursive: true);
+        }
     }
 }
 

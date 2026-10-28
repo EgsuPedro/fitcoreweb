@@ -39,6 +39,8 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
     public DbSet<MealLog> MealLogs => Set<MealLog>();
     public DbSet<BodyAssessment> BodyAssessments => Set<BodyAssessment>();
     public DbSet<Goal> Goals => Set<Goal>();
+    public DbSet<PhotoConsent> PhotoConsents => Set<PhotoConsent>();
+    public DbSet<ProgressPhoto> ProgressPhotos => Set<ProgressPhoto>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<MemberRef> MemberRefs => Set<MemberRef>();

@@ -84,6 +84,8 @@ public static class Permissions
     public const string AssessmentsManage = "wellness.assessments.manage";
     public const string GoalsRead = "wellness.goals.read";
     public const string GoalsManage = "wellness.goals.manage";
+    public const string PhotosRead = "wellness.photos.read";
+    public const string PhotosManage = "wellness.photos.manage";
 
     public const string TrainersRead = "trainers.read";
     public const string TrainersManage = "trainers.manage";
@@ -155,6 +157,8 @@ public static class Permissions
         new(AssessmentsManage, "wellness", "Registrar y corregir evaluaciones físicas de los alumnos", Sensitive: true),
         new(GoalsRead, "wellness", "Ver los objetivos de un alumno y su progreso (el alumno solo ve los suyos)", Sensitive: true),
         new(GoalsManage, "wellness", "Definir y cerrar los objetivos de los alumnos", Sensitive: true),
+        new(PhotosRead, "wellness", "Ver las fotos de progreso de un alumno y su consentimiento (el alumno solo ve las suyas)", Sensitive: true),
+        new(PhotosManage, "wellness", "Registrar o retirar el consentimiento y subir o borrar fotos de progreso (el alumno solo las suyas)", Sensitive: true),
         new(TrainersRead, "trainers", "Ver los perfiles de los entrenadores"),
         new(TrainersManage, "trainers", "Habilitar entrenadores, editar sus perfiles y asignarles alumnos"),
         new(TrainersNotes, "trainers", "Escribir y leer observaciones profesionales de los alumnos asignados", Sensitive: true),

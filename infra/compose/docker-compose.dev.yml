@@ -47,6 +47,9 @@ services:
       Network__TrustedProxies__0: 10.0.0.0/8
       Network__TrustedProxies__1: 172.16.0.0/12
       Network__TrustedProxies__2: 192.168.0.0/16
+    volumes:
+      # Fotos de progreso: privadas, solo accesibles desde la API. Incluir este volumen en las copias de seguridad.
+      - fitcore_files:/var/lib/fitcore/files
     ports:
       - "8080:8080"
     depends_on:
@@ -79,3 +82,4 @@ services:
 
 volumes:
   pgdata:
+  fitcore_files:

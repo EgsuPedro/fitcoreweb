@@ -88,6 +88,8 @@ Migraciones propias, con su historial en `members.__ef_migrations_history`. Mism
 | nutrition | `dietary_profiles` | Alergias, intolerancias y restricciones (`text[]`); solo-agregar, el vigente es el más reciente; nunca vacío |
 | nutrition | `meal_logs` | Cumplimiento por comida y día (único por alumno, comida y día); solo-agregar, con la versión del plan |
 | wellness | `body_assessments` | Evaluaciones físicas solo-agregar (trigger): mediciones opcionales con CHECKs de rango, grasa con su método, fuente, corrección única por `corrects_id` |
+| wellness | `photo_consents` | Consentimiento para guardar fotos de progreso: solo-agregar (trigger + sin UPDATE/DELETE para la app), versión del aviso y representante si es menor; el estado vigente es la última fila |
+| wellness | `progress_photos` | Datos de cada foto (el archivo está en el almacén privado bajo una clave aleatoria, validada por CHECK); un trigger exige que referencie el consentimiento vigente, no se edita; retirar el consentimiento las borra |
 | wellness | `goals` | Objetivos de un alumno: categoría/medida coherentes (CHECK), solo cambian al cerrarse (trigger), nunca se borran; el progreso no se guarda, se calcula al leer |
 | training | `exercises` | Biblioteca: `tenant_id` nulo = catálogo base global. RLS por operación (todos leen globales y lo propio; solo plataforma escribe globales; nadie borra). Nombres únicos sin distinguir mayúsculas (global y por gimnasio), enlace solo https, modo de registro |
 | training | `trainer_profiles` | Perfil de entrenador por usuario (único por gimnasio): especialidades `text[]`, certificaciones, biografía, estado. FK al usuario |

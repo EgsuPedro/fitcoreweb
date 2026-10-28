@@ -11,6 +11,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 COPY --from=build /app .
 ENV ASPNETCORE_URLS=http://+:8080
+# Almacén privado de archivos (fotos de progreso): fuera de /app, solo lo lee y escribe la API. Un volumen nombrado hereda este dueño.
+ENV FileStorage__RootPath=/var/lib/fitcore/files
+RUN mkdir -p /var/lib/fitcore/files && chown -R $APP_UID /var/lib/fitcore && chmod -R 700 /var/lib/fitcore
 EXPOSE 8080
 USER $APP_UID
 ENTRYPOINT ["dotnet", "FitCore.Api.dll"]

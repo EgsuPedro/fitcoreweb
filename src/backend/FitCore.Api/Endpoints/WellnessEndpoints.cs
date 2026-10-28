@@ -6,6 +6,7 @@ using FitCore.Wellness.Application.Assessments;
 using FitCore.Wellness.Application.Exercises;
 using FitCore.Wellness.Application.Goals;
 using FitCore.Wellness.Application.Nutrition;
+using FitCore.Wellness.Application.Photos;
 using FitCore.Wellness.Application.Trainers;
 using FitCore.Wellness.Application.Training;
 using FitCore.Wellness.Domain;
@@ -25,6 +26,7 @@ internal static class WellnessEndpoints
         MapNutrition(routes);
         MapAssessments(routes);
         MapGoalsAndAdherence(routes);
+        MapProgressPhotos(routes);
         MapPlatformExercises(routes.MapGroup("/platform/exercises").WithTags("Exercises (platform)"));
         return routes;
     }
@@ -416,6 +418,100 @@ internal static class WellnessEndpoints
             .Produces<NutritionAdherenceDto>()
             .WithTags("Adherence")
             .WithName("GetNutritionAdherence");
+    }
+
+    // Fotos de progreso: datos personales sensibles. Solo con consentimiento vigente, en almacenamiento privado, y el archivo
+    // únicamente lo entrega la API tras autorizar (nunca una URL pública). Retirar el consentimiento borra las fotos.
+    private static void MapProgressPhotos(IEndpointRouteBuilder routes)
+    {
+        routes.MapGet("/members/{id:guid}/photo-consent", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetPhotoConsentQuery(id), ct)).ToHttp(c => Results.Ok(c)))
+            .RequirePermission(Permissions.PhotosRead)
+            .Produces<PhotoConsentDto>()
+            .WithTags("Progress photos")
+            .WithName("GetPhotoConsent");
+
+        routes.MapPost("/members/{id:guid}/photo-consent/grant", async (Guid id, GrantPhotoConsentRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new GrantPhotoConsentCommand(id, request), ct)).ToHttp(c => Results.Ok(c)))
+            .RequirePermission(Permissions.PhotosManage)
+            .WithValidation<GrantPhotoConsentRequest>()
+            .Produces<PhotoConsentDto>()
+            .WithTags("Progress photos")
+            .WithName("GrantPhotoConsent");
+
+        // Retirar el consentimiento borra todas las fotos del alumno (base de datos y archivos).
+        routes.MapPost("/members/{id:guid}/photo-consent/revoke", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new RevokePhotoConsentCommand(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PhotosManage)
+            .Produces<RevokePhotoConsentResult>()
+            .WithTags("Progress photos")
+            .WithName("RevokePhotoConsent");
+
+        routes.MapGet("/members/{id:guid}/progress-photos", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListProgressPhotosQuery(id), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.PhotosRead)
+            .Produces<IReadOnlyList<ProgressPhotoDto>>()
+            .WithTags("Progress photos")
+            .WithName("ListProgressPhotos");
+
+        // Multipart: campos "file" (JPEG o PNG, máximo 8 MB), "takenOn" (yyyy-MM-dd) y "angle". La autenticación es por JWT en cabecera
+        // (no por cookie), por eso no aplica la protección antifalsificación de formularios.
+        routes.MapPost("/members/{id:guid}/progress-photos", async (Guid id, HttpRequest http, IDispatcher dispatcher, CancellationToken ct) =>
+            {
+                if (!http.HasFormContentType)
+                {
+                    return PhotoErrors.FileRequired.ToProblem();
+                }
+
+                var form = await http.ReadFormAsync(ct);
+                if (form.Files.GetFile("file") is not { Length: > 0 } file)
+                {
+                    return PhotoErrors.FileRequired.ToProblem();
+                }
+
+                if (!DateOnly.TryParseExact(form["takenOn"], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var takenOn))
+                {
+                    return PhotoErrors.DateInvalid.ToProblem();
+                }
+
+                if (!Enum.TryParse<PhotoAngle>(form["angle"], ignoreCase: true, out var angle) || !Enum.IsDefined(angle))
+                {
+                    return PhotoErrors.AngleInvalid.ToProblem();
+                }
+
+                await using var content = file.OpenReadStream();
+                return (await dispatcher.SendAsync(new UploadProgressPhotoCommand(id, takenOn, angle, content), ct))
+                    .ToHttp(p => Results.Created($"/api/v1/progress-photos/{p.Id}/content", p));
+            })
+            .RequirePermission(Permissions.PhotosManage)
+            .DisableAntiforgery()
+            .WithMetadata(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(PhotoRules.MaxBytes + 1024 * 1024))
+            .Produces<ProgressPhotoDto>(StatusCodes.Status201Created)
+            .WithTags("Progress photos")
+            .WithName("UploadProgressPhoto");
+
+        routes.MapGet("/progress-photos/{id:guid}/content", async (Guid id, HttpContext http, IDispatcher dispatcher, CancellationToken ct) =>
+            {
+                var result = await dispatcher.QueryAsync(new GetProgressPhotoContentQuery(id), ct);
+                return result.ToHttp(content =>
+                {
+                    // Dato personal: no se guarda en cachés compartidas ni se interpreta como otro tipo de contenido.
+                    http.Response.Headers.CacheControl = "private, no-store";
+                    http.Response.Headers.XContentTypeOptions = "nosniff";
+                    return Results.Stream(content.Content, content.ContentType);
+                });
+            })
+            .RequirePermission(Permissions.PhotosRead)
+            .Produces(StatusCodes.Status200OK, contentType: "image/jpeg")
+            .WithTags("Progress photos")
+            .WithName("GetProgressPhotoContent");
+
+        routes.MapDelete("/progress-photos/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DeleteProgressPhotoCommand(id), ct)).ToHttp(_ => Results.NoContent()))
+            .RequirePermission(Permissions.PhotosManage)
+            .Produces(StatusCodes.Status204NoContent)
+            .WithTags("Progress photos")
+            .WithName("DeleteProgressPhoto");
     }
 
     private static void MapExercises(RouteGroupBuilder group)

@@ -6,6 +6,8 @@ export interface NavItem {
   icon: string;
   /** Permiso necesario para ver el elemento; sin permiso, siempre visible. */
   permission?: string;
+  /** Se oculta a quien tiene este permiso (por ejemplo, «Mis clases» del instructor no se muestra a quien ya ve todas las clases). */
+  unlessPermission?: string;
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
@@ -19,6 +21,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.schedule', path: '/schedule', icon: '▤', permission: Perm.ClassSessionsRead },
   { labelKey: 'nav.classes', path: '/classes', icon: '♫', permission: Perm.GroupClassesRead },
   { labelKey: 'nav.classAttendance', path: '/class-attendance', icon: '☑', permission: Perm.ClassAttendanceRead },
+  { labelKey: 'nav.analytics', path: '/analytics', icon: '◔', permission: Perm.AnalyticsDashboardRead },
+  { labelKey: 'nav.reportsFinancial', path: '/analytics/financial', icon: '▥', permission: Perm.ReportsFinancialRead },
+  { labelKey: 'nav.reportsMembers', path: '/analytics/members', icon: '▦', permission: Perm.ReportsMembersRead },
+  { labelKey: 'nav.reportsOperations', path: '/analytics/operations', icon: '▧', permission: Perm.ReportsOperationsRead },
+  { labelKey: 'nav.reportsMyClasses', path: '/analytics/my-classes', icon: '▨', permission: Perm.ReportsInstructorRead, unlessPermission: Perm.ReportsOperationsRead },
+  { labelKey: 'nav.reportsBranches', path: '/analytics/branches', icon: '▩', permission: Perm.ReportsCompare },
+  { labelKey: 'nav.reportsExports', path: '/analytics/exports', icon: '⇩', permission: Perm.ReportsExport },
   { labelKey: 'nav.memberships', path: '/memberships', icon: '❖', permission: Perm.MembershipsRead },
   { labelKey: 'nav.payments', path: '/payments', icon: '$', permission: Perm.PaymentsRead },
   { labelKey: 'nav.receivables', path: '/receivables', icon: '≋', permission: Perm.ObligationsRead },
@@ -38,5 +47,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
 
 /** Elementos del menú que el usuario puede ver según sus permisos. */
 export function visibleNavItems(items: readonly NavItem[], has: (permission: string) => boolean): NavItem[] {
-  return items.filter((item) => !item.permission || has(item.permission));
+  return items.filter((item) => (!item.permission || has(item.permission)) && !(item.unlessPermission && has(item.unlessPermission)));
 }

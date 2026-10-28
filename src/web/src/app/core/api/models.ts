@@ -137,3 +137,33 @@ export interface ProblemDetails {
   code?: string;
   errors?: Record<string, string[]>;
 }
+
+// Analítica (Fase 6). El generador tipa como unknown[] las listas repetidas de la misma clase; se precisan aquí.
+export type AnalyticsContext = Schemas['AnalyticsContextDto'];
+export type Kpi = Schemas['KpiDto'];
+export type KpiVariation = Schemas['Variation'];
+export type Dashboard = Omit<Schemas['DashboardDto'], 'members' | 'operations' | 'instructor'> & {
+  members: { kpis: Kpi[] } | null;
+  operations: { kpis: Kpi[]; sessions: Schemas['SessionBreakdownDto'] } | null;
+  instructor: { kpis: Kpi[]; sessions: Schemas['SessionBreakdownDto'] } | null;
+};
+export type DashboardSeries = Schemas['DashboardSeriesDto'];
+export type CollectionsReport = Schemas['CollectionsReportDto'];
+export type PaymentMethodsReport = Schemas['PaymentMethodsReportDto'];
+export type OutstandingReport = Schemas['OutstandingReportDto'];
+export type CashReport = Schemas['CashReportDto'];
+export type ReversalsReport = Schemas['ReversalsReportDto'];
+export type MembersSummaryReport = Omit<Schemas['MembersSummaryDto'], 'kpis'> & { kpis: Kpi[] };
+export type AcquisitionsReport = Schemas['AcquisitionsReportDto'];
+export type RetentionReport = Omit<Schemas['RetentionReportDto'], 'byPlan'> & { byPlan: Schemas['RetentionGroupDto'][] };
+export type RenewalsReport = Omit<Schemas['RenewalsReportDto'], 'byBranch'> & { byBranch: Schemas['RenewalGroupDto'][] };
+export type ExpirationsReport = Schemas['ExpirationsReportDto'];
+export type AttendanceReport = Omit<Schemas['AttendanceReportDto'], 'byHour'> & { byHour: Schemas['AttendanceSlotDto'][] };
+export type ClassOccupancyReport = Omit<Schemas['ClassOccupancyReportDto'], 'byActivity'> & { byActivity: Schemas['OccupancyGroupDto'][] };
+export type ClassCancellationsReport = Schemas['ClassCancellationsReportDto'];
+export type BranchComparison = Schemas['BranchComparisonReportDto'];
+export type BranchComparisonRow = Schemas['BranchComparisonRowDto'];
+export type ReportExport = Schemas['ExportDto'];
+export type ExportReportKey = Schemas['ExportReport'];
+export type ExportRequest = Schemas['ExportRequest'];
+export type PeriodPresetKey = Schemas['PeriodPreset'];

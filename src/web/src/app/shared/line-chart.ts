@@ -63,7 +63,7 @@ export class LineChart {
 
   /** Las fechas ISO (yyyy-MM-dd) se muestran en el idioma activo; cualquier otra etiqueta, tal cual. */
   protected labelOf(label: string): string {
-    return /^d{4}-d{2}-d{2}$/.test(label) ? this.formatter.dateOnly(label) : label;
+    return /^\d{4}-\d{2}-\d{2}$/.test(label) ? this.formatter.dateOnly(label) : label;
   }
 
   protected format(value: number): string {

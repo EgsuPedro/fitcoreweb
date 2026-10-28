@@ -63,7 +63,7 @@ test.describe.serial('flujo comercial', () => {
 
   test('registrar un alumno valida la cédula antes de enviar y guarda con la API real', async () => {
     const page = ownerPage;
-    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(page).getByRole('link', { name: 'Alumnos', exact: true }).click();
     await page.getByRole('button', { name: 'Nuevo alumno' }).click();
 
     const dialog = page.getByRole('dialog');
@@ -93,7 +93,7 @@ test.describe.serial('flujo comercial', () => {
     await openDialog.getByRole('button', { name: 'Abrir caja' }).click();
     await expect(page.getByText('Caja abierta.')).toBeVisible();
 
-    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(page).getByRole('link', { name: 'Alumnos', exact: true }).click();
     await page.getByRole('link', { name: 'Lucía Paredes' }).first().click();
     await page.getByRole('button', { name: 'Inscribir alumno' }).click();
     const enroll = page.getByRole('dialog');
@@ -125,7 +125,7 @@ test.describe.serial('flujo comercial', () => {
 
   test('asistencia: valida el acceso, registra la entrada y el alumno aparece dentro', async () => {
     const page = ownerPage;
-    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(page).getByRole('link', { name: 'Alumnos', exact: true }).click();
     const code = (await page.getByRole('row', { name: /Lucía Paredes/ }).locator('strong').first().innerText()).trim();
 
     await nav(page).getByRole('link', { name: 'Asistencia' }).click();
@@ -189,7 +189,7 @@ test.describe.serial('flujo comercial', () => {
     await expect(page.getByLabel('Teléfonos del personal que recibe el aviso previo')).toHaveValue('+593987654321');
     await expect(page.getByText('Todavía no se ha generado ningún aviso.')).toBeVisible();
 
-    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(page).getByRole('link', { name: 'Alumnos', exact: true }).click();
     await page.getByRole('link', { name: 'Lucía Paredes' }).first().click();
     await expect(page.getByText(/no ha autorizado recibir mensajes/)).toBeVisible();
     await page.getByRole('button', { name: 'Registrar autorización' }).click();
@@ -205,7 +205,7 @@ test.describe.serial('flujo comercial', () => {
 
   test('acceso del alumno: clave temporal, cambio obligatorio y portal con solo sus datos', async ({ browser, baseURL }) => {
     const page = ownerPage;
-    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(page).getByRole('link', { name: 'Alumnos', exact: true }).click();
     await page.getByRole('link', { name: 'Lucía Paredes' }).first().click();
     await page.getByRole('button', { name: 'Dar acceso' }).click();
     await page.getByRole('dialog').getByRole('button', { name: 'Dar acceso' }).click();
@@ -260,7 +260,7 @@ test.describe.serial('flujo comercial', () => {
     await api.dispose();
 
     await signIn(page, slug, STAFF.email, STAFF.password);
-    await expect(nav(page).getByRole('link', { name: 'Alumnos' })).toBeVisible();
+    await expect(nav(page).getByRole('link', { name: 'Alumnos', exact: true })).toBeVisible();
     for (const hidden of ['Caja', 'Cobros', 'Cartera', 'Asistencia', 'Planes', 'Membresías', 'Notificaciones']) {
       await expect(nav(page).getByRole('link', { name: hidden })).toHaveCount(0);
     }

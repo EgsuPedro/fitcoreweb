@@ -215,7 +215,7 @@ test.describe.serial('bienestar', () => {
     await page.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByText('Guardado.')).toBeVisible();
 
-    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(page).getByRole('link', { name: 'Alumnos', exact: true }).click();
     await page.getByRole('link', { name: memberName }).first().click();
     await page.getByRole('button', { name: 'Editar alergias y restricciones' }).click();
     const profile = page.getByRole('dialog');
@@ -245,7 +245,7 @@ test.describe.serial('bienestar', () => {
 
   test('el propietario no ve nutrición, evaluaciones, objetivos ni fotos: son datos sensibles', async () => {
     const page = ownerPage;
-    await nav(page).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(page).getByRole('link', { name: 'Alumnos', exact: true }).click();
     await page.getByRole('link', { name: memberName }).first().click();
     await expect(page.getByRole('heading', { name: 'Entrenador del alumno' })).toBeVisible();
     // Las rutinas no son un dato sensible: el propietario las ve. Nutrición, evaluaciones, objetivos y fotos, no.

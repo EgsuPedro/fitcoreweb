@@ -2484,6 +2484,326 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analytics/context": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetAnalyticsContext"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetAnalyticsDashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analytics/dashboard/comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetAnalyticsDashboardComparison"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/financial/collections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetCollectionsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/financial/payment-methods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetPaymentMethodsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/financial/outstanding-balances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetOutstandingBalancesReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/financial/cash-registers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetCashRegistersReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/financial/reversals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetReversalsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/members/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMembersSummaryReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/members/acquisitions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMemberAcquisitionsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/members/retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMemberRetentionReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/members/renewals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMemberRenewalsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/members/expirations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMemberExpirationsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetGymAttendanceReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/classes/occupancy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetClassOccupancyReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/classes/cancellations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetClassCancellationsReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/branches/comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetBranchComparisonReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListReportExports"];
+        put?: never;
+        post: operations["CreateReportExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetReportExport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/exports/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DownloadReportExport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2510,9 +2830,22 @@ export interface components {
         };
         /** @enum {unknown} */
         AccessPolicy: "RequireFullPayment" | "AllowUntilOverdue" | "AllowWithMinimumPayment";
+        AcquisitionsReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            summary: components["schemas"]["KpiDto"][];
+            trend: components["schemas"]["TrendRowDto"][];
+            memberships: components["schemas"]["PagedResultOfMembershipRowDto"];
+        };
         /** @enum {unknown} */
         ActivityType: "Yoga" | "Spinning" | "Functional" | "Zumba" | "Pilates" | "Stretching" | "Boxing" | "Dance" | "Other";
         AgingBucketDto: {
+            label: string;
+            /** Format: int32 */
+            count: number;
+            /** Format: double */
+            amount: number;
+        };
+        AgingRowDto: {
             label: string;
             /** Format: int32 */
             count: number;
@@ -2524,6 +2857,28 @@ export interface components {
             obligationId: string;
             /** Format: double */
             amount: number;
+        };
+        AnalyticsContextDto: {
+            currency: string;
+            timeZone: string;
+            /** Format: date */
+            today: string;
+            preset: components["schemas"]["PeriodPreset"];
+            period: components["schemas"]["PeriodDto"];
+            comparable: components["schemas"]["PeriodDto"];
+            branchIds: string[];
+            branches: components["schemas"]["BranchOptionDto"][];
+            sections: components["schemas"]["AnalyticsSectionsDto"];
+            /** Format: int32 */
+            maxRangeDays: number;
+        };
+        AnalyticsSectionsDto: {
+            financial: boolean;
+            members: boolean;
+            operations: boolean;
+            instructor: boolean;
+            compare: boolean;
+            export: boolean;
         };
         AssessmentComparisonDto: {
             a: components["schemas"]["AssessmentDto"];
@@ -2657,6 +3012,17 @@ export interface components {
             /** Format: date */
             endDate: string | null;
         };
+        AttendanceBranchDto: {
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: int32 */
+            visits: number;
+            /** Format: int32 */
+            visitors: number;
+            /** Format: double */
+            share: number | null;
+        };
         AttendanceDto: {
             /** Format: uuid */
             id: string;
@@ -2695,6 +3061,30 @@ export interface components {
         };
         /** @enum {unknown} */
         AttendanceOutcome: "Attended" | "NoShow";
+        AttendancePointDto: {
+            /** Format: date */
+            start: string;
+            /** Format: int32 */
+            visits: number;
+            /** Format: int32 */
+            visitors: number;
+        };
+        AttendanceReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            grouping: string;
+            summary: components["schemas"]["KpiDto"][];
+            series: components["schemas"]["AttendancePointDto"][];
+            byBranch: components["schemas"]["AttendanceBranchDto"][];
+            byWeekday: components["schemas"]["AttendanceSlotDto"][];
+            byHour: unknown[];
+            frequency: components["schemas"]["FrequencyBucketDto"][];
+            members: components["schemas"]["PagedResultOfMemberVisitsDto"];
+        };
+        AttendanceSlotDto: {
+            key: string;
+            /** Format: int32 */
+            visits: number;
+        };
         AuditLogDto: {
             /** Format: int64 */
             id: number;
@@ -2725,6 +3115,37 @@ export interface components {
             /** Format: uuid */
             branchId: string | null;
         };
+        BalanceByBranchDto: {
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: double */
+            outstanding: number;
+            /** Format: double */
+            overdue: number;
+            /** Format: int32 */
+            openCount: number;
+            /** Format: int32 */
+            overdueCount: number;
+        };
+        BranchComparisonReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            branches: components["schemas"]["BranchComparisonRowDto"][];
+            total: components["schemas"]["BranchComparisonRowDto"];
+            months: components["schemas"]["MonthRangeDto"][];
+            evolution: components["schemas"]["BranchEvolutionDto"][];
+            omittedSections: string[];
+        };
+        BranchComparisonRowDto: {
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            isActive: boolean;
+            hasActivity: boolean;
+            financial: components["schemas"]["FinancialComparisonDto"];
+            members: components["schemas"]["MembersComparisonDto"];
+            operations: components["schemas"]["OperationsComparisonDto"];
+        };
         BranchDto: {
             /** Format: uuid */
             id: string;
@@ -2736,6 +3157,45 @@ export interface components {
             isActive: boolean;
             /** Format: date-time */
             createdAt: string;
+        };
+        BranchEvolutionDto: {
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            collected: number[] | null;
+            newEnrollments: number[] | null;
+            visits: number[] | null;
+        };
+        BranchOptionDto: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            timeZone: string;
+            isActive: boolean;
+        };
+        CancellationByClassDto: {
+            className: string;
+            /** Format: int32 */
+            sessions: number;
+            /** Format: int32 */
+            cancelled: number;
+            /** Format: double */
+            cancelRatePercent: number | null;
+        };
+        CancelledSessionDto: {
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: date-time */
+            startsAt: string;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            className: string;
+            instructorName: string;
+            branchName: string;
+            reason: string | null;
+            /** Format: int32 */
+            reservationsAffected: number;
         };
         CancelRequest: {
             reason: string;
@@ -2773,6 +3233,14 @@ export interface components {
             amount: number;
             reason: string;
         };
+        CashMovementTotalDto: {
+            type: string;
+            direction: string;
+            /** Format: double */
+            amount: number;
+            /** Format: int32 */
+            count: number;
+        };
         /** @enum {unknown} */
         CashMovementType: "CashPayment" | "PaymentReversal" | "ManualIn" | "ManualOut";
         CashRegisterDto: {
@@ -2792,6 +3260,23 @@ export interface components {
             createdBy: string | null;
             /** Format: date-time */
             updatedAt: string | null;
+        };
+        CashReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            /** Format: int32 */
+            sessionsOpened: number;
+            /** Format: int32 */
+            sessionsStillOpen: number;
+            /** Format: int32 */
+            sessionsClosed: number;
+            /** Format: double */
+            shortage: number;
+            /** Format: double */
+            surplus: number;
+            /** Format: int32 */
+            sessionsWithDifference: number;
+            movements: components["schemas"]["CashMovementTotalDto"][];
+            sessions: components["schemas"]["PagedResultOfCashSessionRowDto"];
         };
         CashSessionDto: {
             /** Format: uuid */
@@ -2828,6 +3313,29 @@ export interface components {
             closeNotes: string | null;
             /** Format: int32 */
             movementCount: number;
+        };
+        CashSessionRowDto: {
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            registerName: string;
+            openedBy: string;
+            /** Format: date-time */
+            openedAt: string;
+            closedBy: string | null;
+            /** Format: date-time */
+            closedAt: string | null;
+            status: string;
+            /** Format: double */
+            openingAmount: number;
+            /** Format: double */
+            expected: number | null;
+            /** Format: double */
+            counted: number | null;
+            /** Format: double */
+            difference: number | null;
         };
         ChangePasswordRequest: {
             currentPassword: string;
@@ -2880,8 +3388,43 @@ export interface components {
             /** Format: date-time */
             correctedAt: string | null;
         };
+        ClassBranchPerformanceDto: {
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: int32 */
+            held: number;
+            /** Format: int32 */
+            cancelled: number;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            confirmed: number;
+            /** Format: double */
+            occupancyPercent: number | null;
+            /** Format: int32 */
+            noShows: number;
+        };
+        ClassCancellationsReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            instructorOnly: boolean;
+            summary: components["schemas"]["KpiDto"][];
+            byClass: components["schemas"]["CancellationByClassDto"][];
+            cancelledSessions: components["schemas"]["PagedResultOfCancelledSessionDto"];
+        };
         /** @enum {unknown} */
         ClassLevel: "AllLevels" | "Beginner" | "Intermediate" | "Advanced";
+        ClassOccupancyReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            instructorOnly: boolean;
+            summary: components["schemas"]["KpiDto"][];
+            sessions: components["schemas"]["SessionBreakdownDto"];
+            byClass: components["schemas"]["OccupancyGroupDto"][];
+            byActivity: unknown[];
+            topSlots: components["schemas"]["OccupancySlotDto"][];
+            byBranch: components["schemas"]["ClassBranchPerformanceDto"][];
+            sessionList: components["schemas"]["PagedResultOfSessionOccupancyDto"];
+        };
         ClassSeriesDto: {
             /** Format: uuid */
             id: string;
@@ -2964,6 +3507,53 @@ export interface components {
             status: components["schemas"]["GoalStatus"];
             note: string | null;
         };
+        CollectionRowDto: {
+            /** Format: uuid */
+            paymentId: string;
+            receiptNumber: string;
+            /** Format: date-time */
+            paidAt: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            memberCode: string;
+            memberName: string;
+            method: string;
+            methodDetail: string | null;
+            /** Format: double */
+            amount: number;
+            status: string;
+            /** Format: int32 */
+            allocations: number;
+            isPartial: boolean;
+        };
+        CollectionsByBranchDto: {
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: double */
+            amount: number;
+            /** Format: int32 */
+            count: number;
+            /** Format: double */
+            share: number | null;
+        };
+        CollectionsByPlanDto: {
+            /** Format: uuid */
+            planId: string | null;
+            planName: string;
+            /** Format: double */
+            amount: number;
+            /** Format: double */
+            share: number | null;
+        };
+        CollectionsReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            summary: components["schemas"]["KpiDto"][];
+            byBranch: components["schemas"]["CollectionsByBranchDto"][];
+            byPlan: components["schemas"]["CollectionsByPlanDto"][];
+            payments: components["schemas"]["PagedResultOfCollectionRowDto"];
+        };
         CommercialSettingsDto: {
             accessPolicy: string;
             /** Format: int32 */
@@ -2978,6 +3568,12 @@ export interface components {
         CompleteSessionRequest: {
             /** @default false */
             markPendingAsNoShow: boolean;
+        };
+        CountRowDto: {
+            key: string;
+            label: string;
+            /** Format: int32 */
+            count: number;
         };
         CreateBranchRequest: {
             code: string;
@@ -3126,6 +3722,31 @@ export interface components {
             durationMinutes: number | null;
             notes: string | null;
             exercises: components["schemas"]["SessionExerciseRequest"][] | null;
+        };
+        DashboardDto: {
+            currency: string;
+            timeZone: string;
+            /** Format: date */
+            today: string;
+            /** Format: date-time */
+            generatedAt: string;
+            period: components["schemas"]["PeriodDto"];
+            comparable: components["schemas"]["PeriodDto"];
+            branchIds: string[];
+            financial: components["schemas"]["FinancialDashboardDto"];
+            members: components["schemas"]["MembersDashboardDto"];
+            operations: components["schemas"]["OperationsDashboardDto"];
+            instructor: components["schemas"]["InstructorDashboardDto"];
+            omittedSections: string[];
+        };
+        DashboardSeriesDto: {
+            timeZone: string;
+            /** Format: int32 */
+            bucketDays: number;
+            period: components["schemas"]["PeriodDto"];
+            comparable: components["schemas"]["PeriodDto"];
+            branchIds: string[];
+            series: components["schemas"]["SeriesDto"][];
         };
         DayAdherenceDto: {
             /** Format: date */
@@ -3304,8 +3925,122 @@ export interface components {
         } | null;
         /** @enum {unknown} */
         ExerciseType: "Strength" | "Cardio" | "Mobility" | "Flexibility" | "Balance" | "Plyometric";
+        ExpirationsReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            /** Format: int32 */
+            days: number;
+            /** Format: int32 */
+            total: number;
+            /** Format: int32 */
+            alreadyRenewed: number;
+            buckets: components["schemas"]["CountRowDto"][];
+            memberships: components["schemas"]["PagedResultOfExpiringRowDto"];
+        };
+        ExpiringRowDto: {
+            /** Format: uuid */
+            membershipId: string;
+            memberCode: string;
+            memberName: string;
+            branchName: string;
+            planName: string;
+            /** Format: date */
+            endDate: string;
+            /** Format: int32 */
+            daysLeft: number;
+            alreadyRenewed: boolean;
+            /** Format: double */
+            balance: number;
+        };
+        ExportDto: {
+            /** Format: uuid */
+            id: string;
+            report: string;
+            format: string;
+            /** Format: date-time */
+            requestedAt: string;
+            /** Format: int32 */
+            rowCount: number;
+            /** Format: int64 */
+            fileSize: number;
+            /** Format: date-time */
+            expiresAt: string;
+            status: string;
+            /** Format: int32 */
+            downloadCount: number;
+            fileName: string;
+            downloadPath: string;
+            filters: string;
+        };
+        /** @enum {unknown} */
+        ExportReport: "Collections" | "PaymentMethods" | "OutstandingBalances" | "CashRegisters" | "Reversals" | "MemberAcquisitions" | "MemberRetention" | "MemberRenewals" | "MemberExpirations" | "Attendance" | "ClassOccupancy" | "ClassCancellations" | "BranchComparison";
+        ExportRequest: {
+            report: components["schemas"]["ExportReport"];
+            preset?: components["schemas"]["PeriodPreset2"];
+            /**
+             * Format: date
+             * @default null
+             */
+            from: string | null;
+            /**
+             * Format: date
+             * @default null
+             */
+            to: string | null;
+            /** @default null */
+            branchIds: string[] | null;
+            /**
+             * Format: uuid
+             * @default null
+             */
+            planId: string | null;
+            status?: components["schemas"]["NullableOfPaymentStatusFilter"];
+            /** @default null */
+            method: string | null;
+            view?: components["schemas"]["NullableOfBalanceView"];
+            /** @default null */
+            overdueOnly: boolean | null;
+            kind?: components["schemas"]["NullableOfMembershipKind"];
+            /**
+             * Format: int32
+             * @default null
+             */
+            days: number | null;
+            /** @default null */
+            hideRenewed: boolean | null;
+            /** @default null */
+            onlyWithDifference: boolean | null;
+            /** @default null */
+            activity: string | null;
+            /**
+             * Format: uuid
+             * @default null
+             */
+            classId: string | null;
+        };
+        FinancialComparisonDto: {
+            /** Format: double */
+            collected: number;
+            /** Format: double */
+            previousCollected: number;
+            collectedVariation: components["schemas"]["Variation"];
+            /** Format: double */
+            collectedShare: number | null;
+            /** Format: double */
+            outstanding: number;
+            /** Format: double */
+            overdue: number;
+        } | null;
+        FinancialDashboardDto: {
+            kpis: components["schemas"]["KpiDto"][];
+            methods: components["schemas"]["PaymentMethodShareDto"][];
+        } | null;
         FreezeRequest: {
             reason: string | null;
+        };
+        FrequencyBucketDto: {
+            label: string;
+            /** Format: int32 */
+            members: number;
         };
         GenerateSeriesRequest: {
             /** Format: date */
@@ -3448,7 +4183,28 @@ export interface components {
             /** Format: date-time */
             readAt: string | null;
         };
+        InstructorDashboardDto: {
+            kpis: unknown[];
+            sessions: components["schemas"]["SessionBreakdownDto"];
+        } | null;
         JsonElement: unknown;
+        KpiDto: {
+            key: string;
+            name: string;
+            definition: string;
+            basis: string;
+            unit: components["schemas"]["KpiUnit"];
+            currency: string | null;
+            /** Format: double */
+            value: number | null;
+            /** Format: double */
+            previous: number | null;
+            variation: components["schemas"]["Variation"];
+            isEmpty: boolean;
+            report: string | null;
+        };
+        /** @enum {unknown} */
+        KpiUnit: "Count" | "Currency" | "Percent" | "Average";
         LoginRequest: {
             tenantSlug: string;
             email: string;
@@ -3465,6 +4221,14 @@ export interface components {
             date: string | null;
             status: components["schemas"]["MealLogStatus"];
             notes: string | null;
+        };
+        LostMemberDto: {
+            memberCode: string;
+            memberName: string;
+            branchName: string;
+            lastPlan: string | null;
+            /** Format: date */
+            lastEndDate: string | null;
         };
         MarkAllReadResultDto: {
             /** Format: int32 */
@@ -3551,6 +4315,20 @@ export interface components {
             email: string;
             temporaryPassword: string;
         };
+        MemberBalanceDto: {
+            /** Format: uuid */
+            memberId: string;
+            memberCode: string;
+            memberName: string;
+            /** Format: double */
+            outstanding: number;
+            /** Format: double */
+            overdue: number;
+            /** Format: date */
+            oldestDueDate: string;
+            /** Format: int32 */
+            openObligations: number;
+        };
         MemberDto: {
             /** Format: uuid */
             id: string;
@@ -3608,6 +4386,42 @@ export interface components {
             prescription: components["schemas"]["PlanExerciseDto"];
             guide: components["schemas"]["ExerciseGuideDto"];
         };
+        MembersByBranchDto: {
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            /** Format: int32 */
+            active: number;
+            /** Format: int32 */
+            inactive: number;
+        };
+        MembersByPlanDto: {
+            /** Format: uuid */
+            planId: string;
+            planName: string;
+            /** Format: int32 */
+            members: number;
+        };
+        MembersComparisonDto: {
+            /** Format: int32 */
+            activeMembers: number;
+            /** Format: int32 */
+            previousActiveMembers: number;
+            activeVariation: components["schemas"]["Variation"];
+            /** Format: int32 */
+            newEnrollments: number;
+            /** Format: int32 */
+            previousNewEnrollments: number;
+            enrollmentsVariation: components["schemas"]["Variation"];
+            /** Format: int32 */
+            renewals: number;
+            /** Format: int32 */
+            previousRenewals: number;
+            renewalsVariation: components["schemas"]["Variation"];
+        } | null;
+        MembersDashboardDto: {
+            kpis: unknown[];
+        } | null;
         MembershipDto: {
             /** Format: uuid */
             id: string;
@@ -3677,6 +4491,33 @@ export interface components {
             actorId: string | null;
             details: string | null;
         };
+        MembershipRowDto: {
+            /** Format: uuid */
+            membershipId: string;
+            /** Format: date-time */
+            soldAt: string;
+            kind: string;
+            memberCode: string;
+            memberName: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            planName: string;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string;
+            status: string;
+            /** Format: double */
+            agreedPrice: number;
+        };
+        MembersSummaryDto: {
+            header: components["schemas"]["ReportHeader"];
+            kpis: components["schemas"]["KpiDto"][];
+            membershipStates: components["schemas"]["CountRowDto"][];
+            byPlan: components["schemas"]["MembersByPlanDto"][];
+            byBranch: components["schemas"]["MembersByBranchDto"][];
+        };
         MemberTrainingPlanDto: {
             assignment: components["schemas"]["TrainingAssignmentDto"];
             goal: string | null;
@@ -3685,6 +4526,17 @@ export interface components {
             /** Format: int32 */
             estimatedMinutes: number | null;
             days: components["schemas"]["MemberPlanDayDto"][];
+        };
+        MemberVisitsDto: {
+            memberCode: string;
+            memberName: string;
+            branchName: string;
+            /** Format: int32 */
+            visits: number;
+            /** Format: int32 */
+            days: number;
+            /** Format: date-time */
+            lastVisit: string;
         };
         MeResponse: {
             /** Format: uuid */
@@ -3701,6 +4553,18 @@ export interface components {
             /** @default false */
             mustChangePassword: boolean;
         };
+        MethodRowDto: {
+            method: string;
+            /** Format: double */
+            amount: number;
+            /** Format: int32 */
+            count: number;
+            /** Format: double */
+            share: number | null;
+            /** Format: double */
+            previousAmount: number;
+            variation: components["schemas"]["Variation"];
+        };
         MetricChangeDto: {
             metric: string;
             unit: string;
@@ -3710,6 +4574,12 @@ export interface components {
             to: number | null;
             /** Format: double */
             delta: number | null;
+        };
+        MonthRangeDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
         };
         /** @enum {unknown} */
         MuscleGroup: "Chest" | "Back" | "Shoulders" | "Biceps" | "Triceps" | "Forearms" | "Core" | "Quadriceps" | "Hamstrings" | "Glutes" | "Calves" | "FullBody";
@@ -3824,11 +4694,26 @@ export interface components {
         };
         /** @enum {unknown} */
         NotificationType: "ReservationConfirmed" | "WaitlistJoined" | "WaitlistOffer" | "WaitlistOfferExpired" | "ReservationCancelledByGym" | "SessionCancelled" | "SessionRescheduled" | "ClassReminder";
+        NotRenewedDto: {
+            memberCode: string;
+            memberName: string;
+            branchName: string;
+            planName: string;
+            /** Format: date */
+            endDate: string;
+            /** Format: int32 */
+            daysSinceEnd: number;
+        };
         /**
          * @default null
          * @enum {unknown}
          */
         NullableOfAttendanceOutcome: "Attended" | "NoShow" | null;
+        /**
+         * @default null
+         * @enum {unknown|null}
+         */
+        NullableOfBalanceView: "Members" | "Obligations" | null;
         /** @enum {unknown|null} */
         NullableOfBodyFatMethod: "Caliper" | "Bioimpedance" | "Dexa" | "Other" | null;
         /**
@@ -3850,9 +4735,19 @@ export interface components {
         NullableOfGoalMetric: "WeightKg" | "WaistCm" | "HipCm" | "ChestCm" | "ArmCm" | "ThighCm" | "BodyFatPercent" | "SessionsPerWeek" | null;
         /**
          * @default null
+         * @enum {unknown|null}
+         */
+        NullableOfMembershipKind: "Any" | "New" | "Renewal" | "Reincorporation" | null;
+        /**
+         * @default null
          * @enum {unknown}
          */
         NullableOfMuscleGroup: "Chest" | "Back" | "Shoulders" | "Biceps" | "Triceps" | "Forearms" | "Core" | "Quadriceps" | "Hamstrings" | "Glutes" | "Calves" | "FullBody" | null;
+        /**
+         * @default null
+         * @enum {unknown|null}
+         */
+        NullableOfPaymentStatusFilter: "Confirmed" | "PendingVerification" | "Reversed" | "All" | null;
         /**
          * @default null
          * @enum {unknown}
@@ -4018,6 +4913,31 @@ export interface components {
             /** Format: double */
             percent: number | null;
         };
+        ObligationBalanceDto: {
+            /** Format: uuid */
+            obligationId: string;
+            reference: string;
+            concept: string;
+            memberCode: string;
+            memberName: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            planName: string | null;
+            /** Format: date */
+            issueDate: string;
+            /** Format: date */
+            dueDate: string;
+            /** Format: double */
+            payable: number;
+            /** Format: double */
+            paid: number;
+            /** Format: double */
+            balance: number;
+            /** Format: int32 */
+            daysOverdue: number;
+            status: string;
+        };
         ObligationDto: {
             /** Format: uuid */
             id: string;
@@ -4110,10 +5030,80 @@ export interface components {
             /** Format: uuid */
             createdBy: string | null;
         };
+        OccupancyGroupDto: {
+            key: string;
+            name: string;
+            /** Format: int32 */
+            sessions: number;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            confirmed: number;
+            /** Format: int32 */
+            waitlisted: number;
+            /** Format: double */
+            occupancyPercent: number | null;
+        };
+        OccupancySlotDto: {
+            weekday: string;
+            /** Format: int32 */
+            hour: number;
+            /** Format: int32 */
+            sessions: number;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            confirmed: number;
+            /** Format: double */
+            occupancyPercent: number | null;
+        };
         OpenCashRequest: {
             /** Format: double */
             openingAmount: number;
             notes: string | null;
+        };
+        OperationsComparisonDto: {
+            /** Format: int32 */
+            visits: number;
+            /** Format: int32 */
+            previousVisits: number;
+            visitsVariation: components["schemas"]["Variation"];
+            /** Format: int32 */
+            sessionsHeld: number;
+            /** Format: int32 */
+            sessionsCancelled: number;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            booked: number;
+            /** Format: double */
+            occupancyPercent: number | null;
+            /** Format: double */
+            previousOccupancyPercent: number | null;
+            occupancyVariation: components["schemas"]["Variation"];
+            /** Format: int32 */
+            reservationsCancelled: number;
+            /** Format: double */
+            cancellationRatePercent: number | null;
+        } | null;
+        OperationsDashboardDto: {
+            kpis: unknown[];
+            sessions: components["schemas"]["SessionBreakdownDto"];
+        } | null;
+        OutstandingReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            /** Format: double */
+            outstanding: number;
+            /** Format: double */
+            overdue: number;
+            /** Format: int32 */
+            openCount: number;
+            /** Format: int32 */
+            overdueCount: number;
+            aging: components["schemas"]["AgingRowDto"][];
+            byBranch: components["schemas"]["BalanceByBranchDto"][];
+            members: components["schemas"]["PagedResultOfMemberBalanceDto"];
+            obligations: components["schemas"]["PagedResultOfObligationBalanceDto"];
         };
         PagedResultOfAssessmentDto: {
             items: components["schemas"]["AssessmentDto"][];
@@ -4160,6 +5150,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfCancelledSessionDto: {
+            items: components["schemas"]["CancelledSessionDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfCashMovementDto: {
             items: components["schemas"]["CashMovementDto"][];
             /** Format: int32 */
@@ -4180,6 +5179,15 @@ export interface components {
         };
         PagedResultOfCashSessionDto: {
             items: components["schemas"]["CashSessionDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfCashSessionRowDto: {
+            items: components["schemas"]["CashSessionRowDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -4214,8 +5222,35 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfCollectionRowDto: {
+            items: components["schemas"]["CollectionRowDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfExerciseDto: {
             items: components["schemas"]["ExerciseDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfExpiringRowDto: {
+            items: components["schemas"]["ExpiringRowDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfExportDto: {
+            items: components["schemas"]["ExportDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -4241,6 +5276,24 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfLostMemberDto: {
+            items: components["schemas"]["LostMemberDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfMemberBalanceDto: {
+            items: components["schemas"]["MemberBalanceDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        } | null;
         PagedResultOfMemberDto: {
             items: components["schemas"]["MemberDto"][];
             /** Format: int32 */
@@ -4259,6 +5312,24 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfMembershipRowDto: {
+            items: components["schemas"]["MembershipRowDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfMemberVisitsDto: {
+            items: components["schemas"]["MemberVisitsDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        } | null;
         PagedResultOfMyAttendanceDto: {
             items: components["schemas"]["MyAttendanceDto"][];
             /** Format: int32 */
@@ -4304,6 +5375,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfNotRenewedDto: {
+            items: components["schemas"]["NotRenewedDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfNutritionPlanSummaryDto: {
             items: components["schemas"]["NutritionPlanSummaryDto"][];
             /** Format: int32 */
@@ -4313,6 +5393,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfObligationBalanceDto: {
+            items: components["schemas"]["ObligationBalanceDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        } | null;
         PagedResultOfObligationDto: {
             items: components["schemas"]["ObligationDto2"][];
             /** Format: int32 */
@@ -4367,6 +5456,24 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfReversalRowDto: {
+            items: components["schemas"]["ReversalRowDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfSessionOccupancyDto: {
+            items: components["schemas"]["SessionOccupancyDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfTenantDto: {
             items: components["schemas"]["TenantDto"][];
             /** Format: int32 */
@@ -4396,6 +5503,15 @@ export interface components {
         };
         PagedResultOfUserDto: {
             items: components["schemas"]["UserDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfVoidedObligationRowDto: {
+            items: components["schemas"]["VoidedObligationRowDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -4460,6 +5576,43 @@ export interface components {
         };
         /** @enum {unknown} */
         PaymentMethod: "Cash" | "BankTransfer" | "Card" | "Other";
+        PaymentMethodShareDto: {
+            method: string;
+            /** Format: double */
+            amount: number;
+            /** Format: int32 */
+            count: number;
+            /** Format: double */
+            share: number | null;
+        };
+        PaymentMethodsReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            /** Format: double */
+            total: number;
+            /** Format: double */
+            previousTotal: number;
+            methods: components["schemas"]["MethodRowDto"][];
+            otherDetails: string[];
+        };
+        PeriodDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: int32 */
+            days: number;
+            /** Format: date-time */
+            startUtc: string;
+            /** Format: date-time */
+            endUtcExclusive: string;
+        };
+        /** @enum {unknown} */
+        PeriodPreset: "Today" | "Last7Days" | "Last30Days" | "CurrentMonth" | "PreviousMonth" | "CurrentYear" | "Custom";
+        /**
+         * @default Last30Days
+         * @enum {unknown}
+         */
+        PeriodPreset2: "Today" | "Last7Days" | "Last30Days" | "CurrentMonth" | "PreviousMonth" | "CurrentYear" | "Custom";
         PermissionDto: {
             code: string;
             module: string;
@@ -4815,6 +5968,33 @@ export interface components {
         RefreshRequest: {
             refreshToken: string | null;
         } | null;
+        RenewalGroupDto: {
+            key: string;
+            name: string;
+            /** Format: int32 */
+            due: number;
+            /** Format: int32 */
+            renewed: number;
+            /** Format: double */
+            ratePercent: number | null;
+        };
+        RenewalsReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            /** Format: int32 */
+            due: number;
+            /** Format: int32 */
+            renewed: number;
+            /** Format: int32 */
+            notRenewed: number;
+            /** Format: double */
+            ratePercent: number | null;
+            /** Format: double */
+            previousRatePercent: number | null;
+            variation: components["schemas"]["Variation"];
+            byPlan: components["schemas"]["RenewalGroupDto"][];
+            byBranch: unknown[];
+            notRenewedMembers: components["schemas"]["PagedResultOfNotRenewedDto"];
+        };
         RenewRequest: {
             /** Format: uuid */
             planId: string | null;
@@ -4823,6 +6003,18 @@ export interface components {
             promotionCode: string | null;
             /** Format: date */
             dueDate: string | null;
+        };
+        ReportHeader: {
+            currency: string;
+            timeZone: string;
+            /** Format: date */
+            today: string;
+            /** Format: date-time */
+            generatedAt: string;
+            period: components["schemas"]["PeriodDto"];
+            comparable: components["schemas"]["PeriodDto"];
+            branchIds: string[];
+            basis: string;
         };
         ReservationDto: {
             /** Format: uuid */
@@ -4860,6 +6052,67 @@ export interface components {
             offeredAt: string | null;
             /** Format: date-time */
             offerExpiresAt: string | null;
+        };
+        RetentionGroupDto: {
+            key: string;
+            name: string;
+            /** Format: int32 */
+            cohort: number;
+            /** Format: int32 */
+            retained: number;
+            /** Format: double */
+            retentionPercent: number | null;
+        };
+        RetentionReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            /** Format: date */
+            cohortDate: string;
+            /** Format: date */
+            endDate: string;
+            /** Format: int32 */
+            cohort: number;
+            /** Format: int32 */
+            retained: number;
+            /** Format: int32 */
+            lost: number;
+            /** Format: double */
+            retentionPercent: number | null;
+            /** Format: double */
+            previousRetentionPercent: number | null;
+            variation: components["schemas"]["Variation"];
+            byBranch: components["schemas"]["RetentionGroupDto"][];
+            byPlan: unknown[];
+            lostMembers: components["schemas"]["PagedResultOfLostMemberDto"];
+        };
+        ReversalRowDto: {
+            /** Format: uuid */
+            paymentId: string;
+            receiptNumber: string;
+            /** Format: date-time */
+            paidAt: string;
+            /** Format: date-time */
+            reversedAt: string;
+            branchName: string;
+            memberCode: string;
+            memberName: string;
+            method: string;
+            /** Format: double */
+            amount: number;
+            reason: string | null;
+            reversedBy: string | null;
+        };
+        ReversalsReportDto: {
+            header: components["schemas"]["ReportHeader"];
+            /** Format: double */
+            reversedAmount: number;
+            /** Format: int32 */
+            reversedCount: number;
+            /** Format: double */
+            voidedAmount: number;
+            /** Format: int32 */
+            voidedCount: number;
+            reversals: components["schemas"]["PagedResultOfReversalRowDto"];
+            voidedObligations: components["schemas"]["PagedResultOfVoidedObligationRowDto"];
         };
         ReversePaymentRequest: {
             reason: string;
@@ -4923,6 +6176,19 @@ export interface components {
             /** Format: date-time */
             offerExpiresAt: string | null;
         };
+        SeriesDto: {
+            key: string;
+            name: string;
+            unit: components["schemas"]["KpiUnit"];
+            currency: string | null;
+            basis: string;
+            current: components["schemas"]["SeriesPeriodDto"];
+            previous: components["schemas"]["SeriesPeriodDto"];
+        };
+        SeriesPeriodDto: {
+            starts: string[];
+            values: number[];
+        };
         SeriesRunDto: {
             series: components["schemas"]["ClassSeriesDto"];
             /** Format: int32 */
@@ -4932,6 +6198,16 @@ export interface components {
             /** Format: int32 */
             pastDates: number;
             skipped: components["schemas"]["SkippedOccurrenceDto"][];
+        };
+        SessionBreakdownDto: {
+            /** Format: int32 */
+            held: number;
+            /** Format: int32 */
+            cancelled: number;
+            /** Format: int32 */
+            upcoming: number;
+            /** Format: int32 */
+            pendingClosure: number;
         };
         SessionComparisonDto: {
             a: components["schemas"]["WorkoutSessionDto"];
@@ -4963,6 +6239,31 @@ export interface components {
             completed: boolean;
             notes: string | null;
             sets: components["schemas"]["SetRequest"][] | null;
+        };
+        SessionOccupancyDto: {
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: date-time */
+            startsAt: string;
+            className: string;
+            activity: string;
+            instructorName: string;
+            /** Format: uuid */
+            branchId: string;
+            branchName: string;
+            status: string;
+            /** Format: int32 */
+            capacity: number;
+            /** Format: int32 */
+            confirmed: number;
+            /** Format: int32 */
+            waitlisted: number;
+            /** Format: int32 */
+            attended: number;
+            /** Format: int32 */
+            noShow: number;
+            /** Format: double */
+            occupancyPercent: number | null;
         };
         SetAvailabilityRequest: {
             slots: components["schemas"]["AvailabilitySlotRequest"][] | null;
@@ -5163,6 +6464,24 @@ export interface components {
             /** Format: double */
             percent: number | null;
         };
+        TrendRowDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: int32 */
+            newMembers: number;
+            /** Format: int32 */
+            newEnrollments: number;
+            /** Format: int32 */
+            renewals: number;
+            /** Format: int32 */
+            reincorporations: number;
+            /** Format: int32 */
+            gains: number;
+            /** Format: int32 */
+            losses: number;
+        };
         UnassignMemberRequest: {
             reason: string;
         };
@@ -5261,6 +6580,30 @@ export interface components {
             memberId: string | null;
             memberCode: string | null;
             qrToken: string | null;
+        };
+        Variation: {
+            state: components["schemas"]["VariationState"];
+            /** Format: double */
+            absolute: number | null;
+            /** Format: double */
+            percent: number | null;
+        };
+        /** @enum {unknown} */
+        VariationState: "Ok" | "NoBaseline" | "NoData" | "NotApplicable";
+        VoidedObligationRowDto: {
+            /** Format: uuid */
+            obligationId: string;
+            reference: string;
+            concept: string;
+            /** Format: date-time */
+            voidedAt: string;
+            branchName: string;
+            memberCode: string;
+            memberName: string;
+            /** Format: double */
+            payable: number;
+            reason: string | null;
+            voidedBy: string | null;
         };
         VoidObligationRequest: {
             reason: string;
@@ -10186,6 +11529,556 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["NotificationPreferenceDto"][];
                 };
+            };
+        };
+    };
+    GetAnalyticsContext: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalyticsContextDto"];
+                };
+            };
+        };
+    };
+    GetAnalyticsDashboard: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                expiringDays?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardDto"];
+                };
+            };
+        };
+    };
+    GetAnalyticsDashboardComparison: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardSeriesDto"];
+                };
+            };
+        };
+    };
+    GetCollectionsReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                status?: "Confirmed" | "PendingVerification" | "Reversed" | "All";
+                method?: string;
+                planId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionsReportDto"];
+                };
+            };
+        };
+    };
+    GetPaymentMethodsReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentMethodsReportDto"];
+                };
+            };
+        };
+    };
+    GetOutstandingBalancesReport: {
+        parameters: {
+            query?: {
+                branchId?: string[];
+                view?: "Members" | "Obligations";
+                overdueOnly?: boolean;
+                planId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutstandingReportDto"];
+                };
+            };
+        };
+    };
+    GetCashRegistersReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                onlyWithDifference?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashReportDto"];
+                };
+            };
+        };
+    };
+    GetReversalsReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReversalsReportDto"];
+                };
+            };
+        };
+    };
+    GetMembersSummaryReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                planId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembersSummaryDto"];
+                };
+            };
+        };
+    };
+    GetMemberAcquisitionsReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                planId?: string;
+                kind?: "Any" | "New" | "Renewal" | "Reincorporation";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcquisitionsReportDto"];
+                };
+            };
+        };
+    };
+    GetMemberRetentionReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                planId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetentionReportDto"];
+                };
+            };
+        };
+    };
+    GetMemberRenewalsReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                planId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RenewalsReportDto"];
+                };
+            };
+        };
+    };
+    GetMemberExpirationsReport: {
+        parameters: {
+            query?: {
+                branchId?: string[];
+                days?: number;
+                planId?: string;
+                hideRenewed?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpirationsReportDto"];
+                };
+            };
+        };
+    };
+    GetGymAttendanceReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                grouping?: "Auto" | "Day" | "Week" | "Month";
+                view?: "Summary" | "Members";
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceReportDto"];
+                };
+            };
+        };
+    };
+    GetClassOccupancyReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                activity?: string;
+                classId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassOccupancyReportDto"];
+                };
+            };
+        };
+    };
+    GetClassCancellationsReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassCancellationsReportDto"];
+                };
+            };
+        };
+    };
+    GetBranchComparisonReport: {
+        parameters: {
+            query?: {
+                preset?: components["schemas"]["PeriodPreset2"];
+                from?: string;
+                to?: string;
+                branchId?: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BranchComparisonReportDto"];
+                };
+            };
+        };
+    };
+    ListReportExports: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfExportDto"];
+                };
+            };
+        };
+    };
+    CreateReportExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportDto"];
+                };
+            };
+        };
+    };
+    GetReportExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportDto"];
+                };
+            };
+        };
+    };
+    DownloadReportExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

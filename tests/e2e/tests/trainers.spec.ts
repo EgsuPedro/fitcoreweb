@@ -115,7 +115,7 @@ test.describe.serial('entrenadores', () => {
     await trainerPage.context().close();
 
     // El propietario ve la ficha del alumno, pero no la sección de observaciones ni su contenido.
-    await nav(ownerPage).getByRole('link', { name: 'Alumnos' }).click();
+    await nav(ownerPage).getByRole('link', { name: 'Alumnos', exact: true }).click();
     await ownerPage.getByRole('link', { name: memberName }).first().click();
     await expect(ownerPage.getByRole('heading', { name: 'Entrenador del alumno' })).toBeVisible();
     await expect(ownerPage.getByRole('heading', { name: 'Observaciones del entrenador' })).toHaveCount(0);

@@ -16,6 +16,10 @@ function keysOf(tree: Tree, prefix = ''): string[] {
 
 // Códigos de error estables que la API puede devolver (FitCore.Platform.Application y FitCore.Api).
 const API_ERROR_CODES = [
+  'analytics.period_required', 'analytics.period_preset_with_dates', 'analytics.period_invalid', 'analytics.period_too_long',
+  'analytics.period_too_old', 'analytics.expiring_days_invalid', 'analytics.expiration_days_invalid', 'analytics.method_invalid',
+  'analytics.export_report_invalid', 'analytics.export_too_large', 'analytics.export_rate_limited', 'analytics.export_not_found',
+  'analytics.export_expired',
   'classes.not_found', 'classes.name_taken', 'classes.branch_required', 'classes.branch_immutable', 'classes.instructor_invalid',
   'classes.instructor_not_in_branch', 'classes.booking_window_incoherent', 'classes.waitlist_capacity_required',
   'classes.waitlist_disabled_with_capacity', 'classes.payment_policy_needs_membership', 'classes.session_not_found',

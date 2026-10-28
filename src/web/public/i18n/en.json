@@ -84,7 +84,14 @@
     "nutritionPlans": "Nutrition plans",
     "classes": "Classes",
     "schedule": "Schedule",
-    "classAttendance": "Class history"
+    "classAttendance": "Class history",
+    "analytics": "Analytics dashboard",
+    "reportsFinancial": "Financial reports",
+    "reportsMembers": "Member reports",
+    "reportsOperations": "Operations reports",
+    "reportsMyClasses": "My classes (analytics)",
+    "reportsBranches": "Compare branches",
+    "reportsExports": "My exports"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -582,6 +589,21 @@
       "notification_not_found": "Notice not found.",
       "notification_required": "That notice is required: it reports a change that affects you and cannot be turned off.",
       "notification_duplicate_types": "A notice type appears more than once."
+    },
+    "analytics": {
+      "period_required": "A custom range needs a start and an end date.",
+      "period_preset_with_dates": "Dates are only sent with the custom range.",
+      "period_invalid": "The start date cannot be after the end date.",
+      "period_too_long": "The range cannot exceed 366 days.",
+      "period_too_old": "The start date is too old.",
+      "expiring_days_invalid": "Days for upcoming expirations can be 7, 15 or 30.",
+      "expiration_days_invalid": "Days for upcoming expirations can be 7, 15, 30, 60 or 90.",
+      "method_invalid": "The payment method is not valid.",
+      "export_report_invalid": "The report to export is not valid.",
+      "export_too_large": "The export exceeds the maximum number of rows: narrow the period, branch or filters.",
+      "export_rate_limited": "The hourly export limit was reached: try again later.",
+      "export_not_found": "The export does not exist.",
+      "export_expired": "The export has expired: generate it again."
     }
   },
   "enums": {
@@ -1858,6 +1880,529 @@
       "agenda": "Agenda",
       "reservations": "My bookings",
       "history": "History"
+    }
+  },
+  "analytics": {
+    "empty": "No information in the period.",
+    "noBaseline": "No comparison base",
+    "noData": "No data",
+    "viewDetail": "View detail",
+    "tabs": {
+      "label": "Reports"
+    },
+    "filters": {
+      "title": "Report filters",
+      "period": "Period",
+      "branches": "Branches",
+      "branchesHint": "If none is checked, every branch you can view is included.",
+      "applied": "Applied period ({{ days }} days):",
+      "compared": "Compared with",
+      "timeZone": "Time zone",
+      "errors": {
+        "required": "Enter the start and end dates.",
+        "inverted": "The start date cannot be after the end date.",
+        "tooLong": "The range cannot exceed 366 days."
+      }
+    },
+    "presets": {
+      "Today": "Today",
+      "Last7Days": "Last 7 days",
+      "Last30Days": "Last 30 days",
+      "CurrentMonth": "Current month",
+      "PreviousMonth": "Previous month",
+      "CurrentYear": "Current year",
+      "Custom": "Custom range"
+    },
+    "areas": {
+      "financial": "Finance",
+      "members": "Members and memberships",
+      "operations": "Operations and classes",
+      "instructor": "My classes"
+    },
+    "methods": {
+      "Cash": "Cash",
+      "BankTransfer": "Bank transfer",
+      "Card": "Card",
+      "Other": "Other"
+    },
+    "weekdays": {
+      "Monday": "Monday",
+      "Tuesday": "Tuesday",
+      "Wednesday": "Wednesday",
+      "Thursday": "Thursday",
+      "Friday": "Friday",
+      "Saturday": "Saturday",
+      "Sunday": "Sunday"
+    },
+    "kpi": {
+      "help": "What this indicator measures",
+      "change": "Change versus the comparable period",
+      "previous": "Previous",
+      "snapshot": "Measure of today: not compared",
+      "collected": {
+        "name": "Total collected",
+        "definition": "Confirmed payments received in the period (each payment's amount, never counting installments or allocations twice). It is not profit: it does not deduct costs or expenses. Date used: payment date."
+      },
+      "collected_cash": {
+        "name": "Collected in cash",
+        "definition": "Part of the total collected that was received in cash. Date used: payment date."
+      },
+      "collected_other": {
+        "name": "Collected by other methods",
+        "definition": "Part of the total collected by bank transfer, card or other methods. Date used: payment date."
+      },
+      "pending_verification": {
+        "name": "Transfers pending verification",
+        "definition": "Registered payments not yet confirmed; they do not count as collected. Date used: payment date."
+      },
+      "issued": {
+        "name": "Obligations issued",
+        "definition": "Amount due on obligations issued in the period, excluding voided ones. It is what was billed to the member, not what was collected. Date used: issue date."
+      },
+      "outstanding": {
+        "name": "Outstanding balance",
+        "definition": "What members owe today: amount due minus collected on open obligations. It is a snapshot of today; the system does not store past balances."
+      },
+      "overdue": {
+        "name": "Overdue balance",
+        "definition": "Part of the outstanding balance whose due date has passed."
+      },
+      "reversed": {
+        "name": "Reversed payments",
+        "definition": "Amount of payments reversed in the period; not included in the total collected. Date used: reversal date."
+      },
+      "active_members": {
+        "name": "Active members",
+        "definition": "Members with an active record and a valid, paid membership on the last day of the period."
+      },
+      "new_members": {
+        "name": "New members",
+        "definition": "Member records created in the period. Date used: sign-up date."
+      },
+      "new_enrollments": {
+        "name": "New enrollments",
+        "definition": "Memberships sold in the period as a member's first contract. Date used: sale date."
+      },
+      "renewals": {
+        "name": "Renewed memberships",
+        "definition": "Memberships sold in the period as a renewal of another one. Date used: sale date."
+      },
+      "reincorporations": {
+        "name": "Re-enrollments",
+        "definition": "Memberships sold to members who had others before, not as a renewal."
+      },
+      "expired": {
+        "name": "Expired memberships",
+        "definition": "Active memberships whose end date fell in the period and has passed (cancelled ones excluded). Date used: end date."
+      },
+      "expiring_soon": {
+        "name": "Expiring soon",
+        "definition": "Active memberships ending within the chosen number of days. Snapshot of today."
+      },
+      "gym_visits": {
+        "name": "Gym attendance",
+        "definition": "Gym entries registered in the period. Date used: entry date and time."
+      },
+      "sessions_held": {
+        "name": "Classes held",
+        "definition": "Sessions closed as held. Past sessions nobody closed are reported separately as pending closure. Date used: session start."
+      },
+      "sessions_cancelled": {
+        "name": "Classes cancelled",
+        "definition": "Sessions cancelled whose start fell in the period."
+      },
+      "class_occupancy": {
+        "name": "Class occupancy",
+        "definition": "Confirmed bookings ÷ capacity of non-cancelled sessions (weighted). Waitlist, offered spots and cancelled bookings are not counted."
+      },
+      "reservations_confirmed": {
+        "name": "Confirmed bookings",
+        "definition": "Confirmed bookings of the period's non-cancelled sessions."
+      },
+      "reservations_cancelled": {
+        "name": "Cancelled bookings",
+        "definition": "Bookings cancelled by the member or staff (not those cancelled because the session was cancelled)."
+      },
+      "class_no_shows": {
+        "name": "Class no-shows",
+        "definition": "Confirmed bookings marked as \"did not attend\"."
+      },
+      "my_sessions_held": {
+        "name": "My classes held",
+        "definition": "Your sessions closed as held."
+      },
+      "my_sessions_cancelled": {
+        "name": "My classes cancelled",
+        "definition": "Your sessions cancelled whose start fell in the period."
+      },
+      "my_occupancy": {
+        "name": "Occupancy of my classes",
+        "definition": "Confirmed bookings ÷ capacity of your non-cancelled sessions."
+      },
+      "my_attended": {
+        "name": "Attendance at my classes",
+        "definition": "Participants who attended your classes."
+      },
+      "my_no_shows": {
+        "name": "No-shows in my classes",
+        "definition": "Confirmed participants who did not attend your classes."
+      },
+      "payments_count": {
+        "name": "Payments received",
+        "definition": "Number of confirmed payments in the period."
+      },
+      "average_payment": {
+        "name": "Average payment",
+        "definition": "Total collected ÷ payments received."
+      },
+      "partial_amount": {
+        "name": "Partial payments (installments)",
+        "definition": "Amount collected in allocations that cover only part of the obligation's amount due."
+      },
+      "partial_count": {
+        "name": "Payments that are installments",
+        "definition": "Payments with at least one allocation that does not settle the obligation's amount due."
+      },
+      "inactive_members": {
+        "name": "Inactive members",
+        "definition": "Members whose record is marked inactive. Snapshot of today."
+      },
+      "members_with_balance": {
+        "name": "Members with an outstanding balance",
+        "definition": "Members with an open obligation that is still owed. Snapshot of today."
+      },
+      "gains": {
+        "name": "Gains",
+        "definition": "New enrollments + re-enrollments."
+      },
+      "losses": {
+        "name": "Losses",
+        "definition": "Members active the day before the period who no longer have a valid membership at its end. A cancelled membership is not a loss if the member has another valid one."
+      },
+      "visits": {
+        "name": "Visits",
+        "definition": "Gym entries registered in the period."
+      },
+      "unique_visitors": {
+        "name": "Members who attended",
+        "definition": "Distinct members with at least one entry in the period."
+      },
+      "frequency": {
+        "name": "Attendance frequency",
+        "definition": "Visits ÷ distinct members who attended (average visits per attendee)."
+      },
+      "occupancy_reserved": {
+        "name": "Booked occupancy",
+        "definition": "Confirmed bookings ÷ capacity of non-cancelled sessions (weighted). Waitlist, offered spots and cancelled bookings are not counted."
+      },
+      "occupancy_attended": {
+        "name": "Attended occupancy",
+        "definition": "Attendees ÷ capacity of held sessions with attendance recorded. Without records there is no figure."
+      },
+      "waitlisted": {
+        "name": "Waitlist demand",
+        "definition": "People on the waitlist or holding an offered spot (they wanted in but there was no room). It is not occupancy."
+      },
+      "no_shows": {
+        "name": "No-shows",
+        "definition": "Confirmed bookings marked as \"did not attend\"."
+      },
+      "attendance_rate": {
+        "name": "Attendance rate",
+        "definition": "Attended ÷ (attended + no-show) among recorded results."
+      },
+      "late_cancellations": {
+        "name": "Late cancellations",
+        "definition": "Bookings cancelled after the class cancellation deadline."
+      },
+      "cancellation_rate": {
+        "name": "Booking cancellation rate",
+        "definition": "Cancelled ÷ (confirmed + cancelled) of non-cancelled sessions."
+      },
+      "offers_expired": {
+        "name": "Expired offers",
+        "definition": "Waitlist invitations that were not accepted in time."
+      }
+    },
+    "sessions": {
+      "held": "Held",
+      "cancelled": "Cancelled",
+      "upcoming": "Upcoming",
+      "pendingClosure": "Pending closure",
+      "pendingHint": "Past sessions nobody finished are not counted as held: they are shown separately.",
+      "status": {
+        "Scheduled": "Scheduled",
+        "Completed": "Held",
+        "Cancelled": "Cancelled",
+        "PendingClosure": "Pending closure"
+      }
+    },
+    "series": {
+      "collected": "Total collected",
+      "memberships_sold": "Memberships sold",
+      "gym_visits": "Gym attendance",
+      "reservations_confirmed": "Confirmed bookings"
+    },
+    "chart": {
+      "current": "Period",
+      "previous": "Comparable",
+      "date": "Date"
+    },
+    "export": {
+      "button": "Export CSV",
+      "working": "Exporting…",
+      "created": "Export ready ({{ rows }} rows)."
+    },
+    "dashboard": {
+      "title": "Analytics dashboard",
+      "subtitle": "Indicators calculated from the gym's real data, for the chosen period and branches.",
+      "noSections": "Your role has no indicators available on this dashboard.",
+      "financialNote": "Collected, issued and outstanding are different things: collected is money received; issued is what was billed; outstanding is what is still owed. None of this is profit.",
+      "methods": "Collected by payment method",
+      "expiringDays": "Expiring within (days)",
+      "instructorNote": "Only includes the sessions where you are the instructor.",
+      "evolution": "Evolution versus the comparable period",
+      "evolutionHint": "Each point is a block of {{ days }} day(s). The dashed line is the comparable period and the axis starts at zero."
+    },
+    "financial": {
+      "title": "Financial reports",
+      "subtitle": "Collections, payment methods, balances, cash registers and reversals using the payment system's own rules.",
+      "tabs": {
+        "collections": "Collections",
+        "methods": "Payment methods",
+        "balances": "Outstanding balances",
+        "cash": "Cash registers",
+        "reversals": "Reversals"
+      },
+      "status": "Payment status",
+      "statuses": {
+        "Confirmed": "Confirmed",
+        "PendingVerification": "Pending verification",
+        "Reversed": "Reversed (historical)",
+        "All": "All"
+      },
+      "method": "Method",
+      "historicalNote": "You are viewing a historical report: reversed or unconfirmed payments are listed here but are not part of the total collected above.",
+      "byBranch": "By branch",
+      "byPlan": "By plan",
+      "amount": "Amount",
+      "share": "Share",
+      "plan": "Plan",
+      "noPlan": "Collections without a plan",
+      "payments": "Payments",
+      "receipt": "Receipt",
+      "paidAt": "Payment date",
+      "member": "Member",
+      "partial": "Partial payment",
+      "paymentStatus": {
+        "Confirmed": "Confirmed",
+        "PendingVerification": "Pending verification",
+        "Reversed": "Reversed"
+      },
+      "totalCollected": "Total collected",
+      "otherDetails": "\"Other\" details",
+      "snapshotNote": "This is a snapshot of today: the chosen period does not apply and past balances are not stored.",
+      "view": "View by",
+      "views": {
+        "Members": "Member",
+        "Obligations": "Obligation"
+      },
+      "overdueOnly": "Overdue only",
+      "aging": "Age of overdue amounts",
+      "bucket": "Range",
+      "count": "Count",
+      "oldest": "Due since",
+      "openObligations": "Open obligations",
+      "reference": "Reference",
+      "dueDate": "Due date",
+      "payable": "Amount due",
+      "paid": "Paid",
+      "balance": "Balance",
+      "daysOverdue": "{{ n }} days overdue",
+      "obligationStatus": {
+        "Overdue": "Overdue",
+        "PartiallyPaid": "Partially paid",
+        "Pending": "Pending"
+      },
+      "onlyDifference": "Only shifts with a difference",
+      "cashNote": "Expected, counted and difference are the values saved when the shift was closed; an open shift does not have them yet. Negative = shortage, positive = surplus.",
+      "sessionsOpened": "Shifts opened in the period",
+      "stillOpen": "still open",
+      "closed": "closed",
+      "shortage": "Shortage",
+      "surplus": "Surplus",
+      "movements": "Cash movements",
+      "type": "Type",
+      "direction": "Direction",
+      "movementTypes": {
+        "CashPayment": "Cash payment",
+        "PaymentReversal": "Payment reversal",
+        "ManualIn": "Manual cash in",
+        "ManualOut": "Manual cash out"
+      },
+      "directions": {
+        "In": "In",
+        "Out": "Out"
+      },
+      "sessions": "Cash shifts",
+      "register": "Register",
+      "openedAt": "Opened",
+      "closedAt": "Closed",
+      "open": "Open",
+      "opening": "Opening float",
+      "expected": "Expected",
+      "counted": "Counted",
+      "difference": "Difference",
+      "voided": "Voided obligations",
+      "reversalsNote": "Historical report: payments are listed by the date they were reversed and obligations by the date they were voided. They are not part of the current indicators.",
+      "reversedPayments": "Reversed payments",
+      "reversedAt": "Reversal date",
+      "reason": "Reason",
+      "voidedObligations": "Voided obligations",
+      "voidedAt": "Void date"
+    },
+    "members": {
+      "title": "Member and membership reports",
+      "subtitle": "Active members, gains and losses, retention, renewal and expirations with documented definitions.",
+      "tabs": {
+        "summary": "Summary",
+        "acquisitions": "Gains and losses",
+        "retention": "Retention",
+        "renewals": "Renewals",
+        "expirations": "Expirations"
+      },
+      "snapshotNote": "Membership states, the split by plan and branch, and balances are a snapshot of today.",
+      "states": "Membership states (today)",
+      "byPlan": "By plan",
+      "byBranch": "By branch",
+      "active": "Active",
+      "inactive": "Inactive",
+      "membershipStates": {
+        "Active": "Active",
+        "Frozen": "Frozen",
+        "Expired": "Expired",
+        "Cancelled": "Cancelled",
+        "PendingPayment": "Pending payment"
+      },
+      "kind": "Sale type",
+      "kinds": {
+        "Any": "All",
+        "New": "New enrollment",
+        "Renewal": "Renewal",
+        "Reincorporation": "Re-enrollment"
+      },
+      "trend": "Monthly trend",
+      "month": "Month",
+      "history": "Memberships sold",
+      "soldAt": "Sale",
+      "validity": "Validity",
+      "price": "Agreed price",
+      "retentionFormula": "Retention = cohort members still active at the end ÷ cohort. The cohort is the members active the day before the period. A cancelled membership is not a loss if the member has another valid one.",
+      "retentionRate": "Retention",
+      "cohortSummary": "{{ retained }} of {{ cohort }} members active on {{ date }} are still active",
+      "lost": "Cohort members without a valid membership",
+      "lastPlan": "Last plan",
+      "lastEnd": "Last end date",
+      "renewalFormula": "Renewal rate = renewed memberships ÷ memberships that expired in the period. A later renewal counts once it exists, so a recent period may be understated.",
+      "renewalRate": "Renewal rate",
+      "renewalSummary": "{{ renewed }} renewed out of {{ due }} expired",
+      "notRenewed": "Expired memberships not renewed",
+      "ended": "Expired",
+      "daysSince": "{{ n }} days ago",
+      "within": "Expiring within",
+      "daysOption": "{{ n }} days",
+      "hideRenewed": "Hide those who already renewed",
+      "expiringTotal": "Memberships expiring",
+      "alreadyRenewed": "Already renewed",
+      "bucket": "In {{ range }} days",
+      "endsOn": "Ends",
+      "renewed": "Already renewed",
+      "daysLeft": "in {{ n }} days"
+    },
+    "operations": {
+      "title": "Operations reports",
+      "subtitle": "Gym attendance, class occupancy and demand, and cancellations.",
+      "myClasses": "My classes",
+      "myClassesSubtitle": "Occupancy and cancellations of the sessions where you are the instructor.",
+      "tabs": {
+        "attendance": "Attendance",
+        "occupancy": "Class occupancy",
+        "cancellations": "Cancellations"
+      },
+      "grouping": "Group by",
+      "groupings": {
+        "Auto": "Automatic",
+        "Day": "Day",
+        "Week": "Week",
+        "Month": "Month"
+      },
+      "byMember": "View by member",
+      "visitsOverTime": "Visits over time",
+      "byWeekday": "By day of the week",
+      "byHour": "By entry hour (local time)",
+      "byBranch": "By branch",
+      "frequency": "Attendance frequency",
+      "visitsRange": "Visits in the period",
+      "membersCount": "Members",
+      "days": "Days with a visit",
+      "lastVisit": "Last visit",
+      "activity": "Activity",
+      "instructorOnly": "Only the sessions where you are the instructor are included.",
+      "occupancyNote": "Only confirmed bookings count. The waitlist and offered spots are demand, not occupancy.",
+      "demand": "Demand by activity",
+      "confirmed": "Confirmed",
+      "waiting": "Waiting",
+      "topSlots": "Busiest time slots",
+      "slot": "Time slot",
+      "sessions": "Sessions",
+      "byClass": "By class",
+      "performance": "Performance by branch",
+      "sessionList": "Sessions",
+      "cancelByClass": "Cancellations by class",
+      "cancelledSessions": "Cancelled sessions",
+      "affected": "Bookings affected"
+    },
+    "branches": {
+      "title": "Compare branches",
+      "subtitle": "The same period and the same definitions for every branch you can view.",
+      "omitted": "Some areas are not shown because your role is not allowed to view them.",
+      "cancelRate": "Booking cancellation",
+      "total": "Total of the selected branches",
+      "noActivity": "No data",
+      "note": "The total occupancy is calculated on the sums, not by averaging percentages. Outstanding balance is a snapshot of today.",
+      "evolution": "Monthly evolution"
+    },
+    "exports": {
+      "title": "My exports",
+      "subtitle": "CSV files you generated. Only you can see and download them.",
+      "report": "Report",
+      "requestedAt": "Requested",
+      "rows": "Rows",
+      "expiresAt": "Available until",
+      "downloads": "Downloads",
+      "download": "Download",
+      "empty": "You have not exported any report yet.",
+      "policy": "Each file is kept for 24 hours and is downloaded with your session; there are no public links. Afterwards it stays in the history as \"Purged\" (who, when and what was exported is kept, not the content).",
+      "statuses": {
+        "Available": "Available",
+        "Expired": "Expired",
+        "Purged": "Purged"
+      },
+      "reports": {
+        "Collections": "Collections",
+        "PaymentMethods": "Payment methods",
+        "OutstandingBalances": "Outstanding balances",
+        "CashRegisters": "Cash registers",
+        "Reversals": "Reversals",
+        "MemberAcquisitions": "Memberships sold",
+        "MemberRetention": "Members without a valid membership",
+        "MemberRenewals": "Memberships not renewed",
+        "MemberExpirations": "Upcoming expirations",
+        "Attendance": "Attendance by member",
+        "ClassOccupancy": "Class occupancy",
+        "ClassCancellations": "Cancelled classes",
+        "BranchComparison": "Branch comparison"
+      }
     }
   }
 }

@@ -172,6 +172,48 @@ export const routes: Routes = [
         loadComponent: () => import('./features/tenants/tenants').then((m) => m.Tenants),
       },
       {
+        path: 'analytics',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.AnalyticsDashboardRead },
+        loadComponent: () => import('./features/analytics/dashboard').then((m) => m.AnalyticsDashboard),
+      },
+      {
+        path: 'analytics/financial',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ReportsFinancialRead },
+        loadComponent: () => import('./features/analytics/financial').then((m) => m.AnalyticsFinancial),
+      },
+      {
+        path: 'analytics/members',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ReportsMembersRead },
+        loadComponent: () => import('./features/analytics/members').then((m) => m.AnalyticsMembers),
+      },
+      {
+        path: 'analytics/operations',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ReportsOperationsRead },
+        loadComponent: () => import('./features/analytics/operations').then((m) => m.AnalyticsOperations),
+      },
+      {
+        path: 'analytics/my-classes',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ReportsInstructorRead, instructor: true },
+        loadComponent: () => import('./features/analytics/operations').then((m) => m.AnalyticsOperations),
+      },
+      {
+        path: 'analytics/branches',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ReportsCompare },
+        loadComponent: () => import('./features/analytics/branches').then((m) => m.AnalyticsBranches),
+      },
+      {
+        path: 'analytics/exports',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.ReportsExport },
+        loadComponent: () => import('./features/analytics/exports').then((m) => m.AnalyticsExports),
+      },
+      {
         path: 'classes',
         canActivate: [permissionGuard],
         data: { permission: Perm.GroupClassesRead },

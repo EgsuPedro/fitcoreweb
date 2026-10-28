@@ -212,7 +212,16 @@ Más comprobaciones (con Swagger o el script):
    - `POST /api/v1/reports/exports` · `GET /api/v1/reports/exports` · `GET /api/v1/reports/exports/{id}` · `GET /api/v1/reports/exports/{id}/download`
 5. Parámetros comunes: `preset` (Today, Last7Days, Last30Days, CurrentMonth, PreviousMonth, CurrentYear, Custom), `from`/`to` (solo con Custom), `branchId` (repetible). Cobros: `status` (Confirmed, PendingVerification, Reversed, All), `method` (Cash, BankTransfer, Card, Other), `planId`, `page`, `pageSize`.
 
+## 3.11 Pantallas (bloque 9)
+
+Con el gimnasio de práctica `analitica` en http://localhost:4200 (o `ng serve` en :4300):
+
+1. **Panel de analítica** (menú «Panel de analítica»): indicadores por área según el rol. Cada tarjeta trae el período, la variación frente al comparable (con "Sin base de comparación" si el anterior es 0) y, en «Qué mide este indicador», su definición. Cambie el período (Hoy, 7/30 días, mes actual/anterior, año, personalizado) y la sucursal; un rango invertido o de más de 366 días se rechaza en pantalla.
+2. **Reportes financieros / de alumnos / operativos**: cada pestaña usa los mismos filtros y debe cuadrar con el panel y con `scripts/analytics-check.ps1`. Los saldos y estados son una "foto de hoy" y lo dicen.
+3. **Comparar sucursales**: fila Total cuadra con la suma de las sucursales.
+4. **Exportar CSV** (botón en cada reporte) y **Mis exportaciones**: descarga el archivo y lo vuelve a descargar desde el historial; los archivos vencen a las 24 horas.
+5. **Roles**: un Entrenador ve solo «Mis clases (analítica)»; un rol sin permisos de reportes no ve el menú y la URL directa lo redirige.
+
 ## 5. Qué NO está todavía
-- **Pantallas**: llegan en el bloque 9 (hoy se valida por API/consola).
-- Pantallas de Angular (bloque 9), exportación a PDF (diferida: no hay biblioteca instalada) y medición de rendimiento con volumen (bloque 10).
+- Exportación a PDF (diferida: no hay biblioteca instalada) y medición de rendimiento con volumen (bloque 10).
 - Medición de rendimiento con volumen y revisión de planes de ejecución: bloque 10.

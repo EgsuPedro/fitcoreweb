@@ -15,7 +15,26 @@ import type {
   CreateSessionRequest,
   GroupClass,
   GroupClassRequest,
+  AcquisitionsReport,
+  AnalyticsContext,
+  AttendanceReport,
+  BranchComparison,
+  CashReport,
+  ClassCancellationsReport,
+  ClassOccupancyReport,
+  CollectionsReport,
+  Dashboard,
+  DashboardSeries,
+  ExpirationsReport,
+  ExportRequest,
   InboxNotification,
+  MembersSummaryReport,
+  OutstandingReport,
+  PaymentMethodsReport,
+  RenewalsReport,
+  ReportExport,
+  RetentionReport,
+  ReversalsReport,
   MyClassSession,
   NotificationPreference,
   NotificationSummary,
@@ -114,12 +133,18 @@ import type {
 
 export const API_BASE = '/api/v1';
 
-type Query = Record<string, string | number | boolean | null | undefined>;
+type Scalar = string | number | boolean | null | undefined;
+type Query = Record<string, Scalar | readonly string[]>;
 
 function toParams(query: Query): HttpParams {
   let params = new HttpParams();
   for (const [key, value] of Object.entries(query)) {
-    if (value !== null && value !== undefined && value !== '') {
+    if (Array.isArray(value)) {
+      // Las listas (por ejemplo las sucursales) se envían repitiendo el parámetro: branchId=a&branchId=b.
+      for (const item of value) {
+        params = params.append(key, String(item));
+      }
+    } else if (value !== null && value !== undefined && value !== '') {
       params = params.set(key, String(value));
     }
   }
@@ -696,6 +721,69 @@ export class ApiService {
   }
   myClassAttendance(query: Query = {}): Observable<Paged<ClassAttendance>> {
     return this.get('/me/class-attendance', query);
+  }
+
+  // Analítica: contexto, dashboard, reportes y exportaciones. El servidor calcula todo; aquí solo se pide y se muestra.
+  analyticsContext(query: Query = {}): Observable<AnalyticsContext> {
+    return this.get('/analytics/context', query);
+  }
+  dashboard(query: Query = {}): Observable<Dashboard> {
+    return this.get('/analytics/dashboard', query);
+  }
+  dashboardSeries(query: Query = {}): Observable<DashboardSeries> {
+    return this.get('/analytics/dashboard/comparison', query);
+  }
+  collectionsReport(query: Query = {}): Observable<CollectionsReport> {
+    return this.get('/reports/financial/collections', query);
+  }
+  paymentMethodsReport(query: Query = {}): Observable<PaymentMethodsReport> {
+    return this.get('/reports/financial/payment-methods', query);
+  }
+  outstandingReport(query: Query = {}): Observable<OutstandingReport> {
+    return this.get('/reports/financial/outstanding-balances', query);
+  }
+  cashReport(query: Query = {}): Observable<CashReport> {
+    return this.get('/reports/financial/cash-registers', query);
+  }
+  reversalsReport(query: Query = {}): Observable<ReversalsReport> {
+    return this.get('/reports/financial/reversals', query);
+  }
+  membersSummaryReport(query: Query = {}): Observable<MembersSummaryReport> {
+    return this.get('/reports/members/summary', query);
+  }
+  acquisitionsReport(query: Query = {}): Observable<AcquisitionsReport> {
+    return this.get('/reports/members/acquisitions', query);
+  }
+  retentionReport(query: Query = {}): Observable<RetentionReport> {
+    return this.get('/reports/members/retention', query);
+  }
+  renewalsReport(query: Query = {}): Observable<RenewalsReport> {
+    return this.get('/reports/members/renewals', query);
+  }
+  expirationsReport(query: Query = {}): Observable<ExpirationsReport> {
+    return this.get('/reports/members/expirations', query);
+  }
+  attendanceReport(query: Query = {}): Observable<AttendanceReport> {
+    return this.get('/reports/attendance', query);
+  }
+  classOccupancyReport(query: Query = {}): Observable<ClassOccupancyReport> {
+    return this.get('/reports/classes/occupancy', query);
+  }
+  classCancellationsReport(query: Query = {}): Observable<ClassCancellationsReport> {
+    return this.get('/reports/classes/cancellations', query);
+  }
+  branchComparison(query: Query = {}): Observable<BranchComparison> {
+    return this.get('/reports/branches/comparison', query);
+  }
+  createExport(body: ExportRequest): Observable<ReportExport> {
+    return this.http.post<ReportExport>(`${API_BASE}/reports/exports`, body);
+  }
+  exports(query: Query = {}): Observable<Paged<ReportExport>> {
+    return this.get('/reports/exports', query);
+  }
+  /** El archivo se baja con la sesión del usuario (no hay enlaces públicos): el navegador lo guarda desde un blob. */
+  downloadExport(id: string): Observable<Blob> {
+    return this.http.get(`${API_BASE}/reports/exports/${id}/download`, { responseType: 'blob' });
   }
 
   // Bandeja de avisos del propio usuario

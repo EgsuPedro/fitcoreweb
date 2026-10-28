@@ -77,7 +77,7 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
 
     await expect(page.getByRole('heading', { name: /^Hola,/ })).toBeVisible();
     await expect(nav(page).getByRole('link', { name: 'Gimnasios' })).toBeVisible();
-    await expect(nav(page).getByRole('link', { name: 'Sucursales' })).toHaveCount(0);
+    await expect(nav(page).getByRole('link', { name: 'Sucursales', exact: true })).toHaveCount(0);
     await expect(nav(page).getByRole('link', { name: 'Usuarios' })).toHaveCount(0);
 
     await nav(page).getByRole('link', { name: 'Gimnasios' }).click();
@@ -115,7 +115,7 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
     await signIn(page, slug, ownerEmail, ownerPassword);
 
     for (const name of ['Inicio', 'Sucursales', 'Usuarios', 'Roles y permisos', 'Auditoría']) {
-      await expect(nav(page).getByRole('link', { name })).toBeVisible();
+      await expect(nav(page).getByRole('link', { name, exact: true })).toBeVisible();
     }
     await expect(nav(page).getByRole('link', { name: 'Gimnasios' })).toHaveCount(0);
   });
@@ -124,7 +124,7 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
     await signIn(page, slug, ownerEmail, ownerPassword);
 
     // Sucursal
-    await nav(page).getByRole('link', { name: 'Sucursales' }).click();
+    await nav(page).getByRole('link', { name: 'Sucursales', exact: true }).click();
     await page.getByRole('button', { name: 'Nueva sucursal' }).click();
     let dialog = page.getByRole('dialog');
     await dialog.locator('[formControlName="code"]').fill('MATRIZ');
@@ -190,13 +190,13 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
   test('el personal solo ve lo que su rol permite y las rutas restringidas lo bloquean', async ({ page }) => {
     await signIn(page, slug, staffEmail, staffPassword);
 
-    await expect(nav(page).getByRole('link', { name: 'Sucursales' })).toBeVisible();
+    await expect(nav(page).getByRole('link', { name: 'Sucursales', exact: true })).toBeVisible();
     await expect(nav(page).getByRole('link', { name: 'Usuarios' })).toHaveCount(0);
     await expect(nav(page).getByRole('link', { name: 'Roles y permisos' })).toHaveCount(0);
     await expect(nav(page).getByRole('link', { name: 'Auditoría' })).toHaveCount(0);
 
     // Solo ve su sucursal y no puede crear ni editar
-    await nav(page).getByRole('link', { name: 'Sucursales' }).click();
+    await nav(page).getByRole('link', { name: 'Sucursales', exact: true }).click();
     await expect(page.getByRole('row', { name: /MATRIZ/ })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Nueva sucursal' })).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Editar' })).toHaveCount(0);
@@ -234,7 +234,7 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
     await expect(ownerPage.getByRole('row', { name: new RegExp(staffEmail) })).toContainText('Inactivo');
 
     // La siguiente llamada del personal recibe 401, el refresh también falla y vuelve al login.
-    await nav(staffPage).getByRole('link', { name: 'Sucursales' }).click();
+    await nav(staffPage).getByRole('link', { name: 'Sucursales', exact: true }).click();
     await expect(staffPage).toHaveURL(/\/login/);
     await expect(staffPage.getByText('Su sesión terminó')).toBeVisible();
 
@@ -244,16 +244,17 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
 
   test('el idioma se puede cambiar a inglés y se recuerda', async ({ page }) => {
     await signIn(page, slug, ownerEmail, ownerPassword);
+    await expect(nav(page)).toBeVisible();
 
     // Al cambiar de idioma también cambia el nombre accesible del menú ("Main menu").
     const menu = page.getByRole('navigation', { name: 'Main menu' });
 
     await page.getByRole('button', { name: 'EN' }).click();
-    await expect(menu.getByRole('link', { name: 'Branches' })).toBeVisible();
+    await expect(menu.getByRole('link', { name: 'Branches', exact: true })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
 
     await page.reload();
-    await expect(menu.getByRole('link', { name: 'Branches' })).toBeVisible();
+    await expect(menu.getByRole('link', { name: 'Branches', exact: true })).toBeVisible();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
 });

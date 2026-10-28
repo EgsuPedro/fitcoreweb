@@ -84,7 +84,14 @@
     "nutritionPlans": "Planes nutricionales",
     "classes": "Clases",
     "schedule": "Horario",
-    "classAttendance": "Historial de clases"
+    "classAttendance": "Historial de clases",
+    "analytics": "Panel de analítica",
+    "reportsFinancial": "Reportes financieros",
+    "reportsMembers": "Reportes de alumnos",
+    "reportsOperations": "Reportes operativos",
+    "reportsMyClasses": "Mis clases (analítica)",
+    "reportsBranches": "Comparar sucursales",
+    "reportsExports": "Mis exportaciones"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -582,6 +589,21 @@
       "notification_not_found": "Aviso no encontrado.",
       "notification_required": "Ese aviso es obligatorio: informa de un cambio que te afecta y no se puede desactivar.",
       "notification_duplicate_types": "Un tipo de aviso aparece más de una vez."
+    },
+    "analytics": {
+      "period_required": "Un rango personalizado necesita fecha inicial y final.",
+      "period_preset_with_dates": "Las fechas solo se envían con el rango personalizado.",
+      "period_invalid": "La fecha inicial no puede ser posterior a la final.",
+      "period_too_long": "El rango no puede superar 366 días.",
+      "period_too_old": "La fecha inicial es demasiado antigua.",
+      "expiring_days_invalid": "Los días para próximos vencimientos pueden ser 7, 15 o 30.",
+      "expiration_days_invalid": "Los días para próximos vencimientos pueden ser 7, 15, 30, 60 o 90.",
+      "method_invalid": "El medio de pago no es válido.",
+      "export_report_invalid": "El reporte a exportar no es válido.",
+      "export_too_large": "La exportación supera el máximo de filas: acote el período, la sucursal o los filtros.",
+      "export_rate_limited": "Se alcanzó el límite de exportaciones por hora: intente más tarde.",
+      "export_not_found": "La exportación no existe.",
+      "export_expired": "La exportación venció: vuelva a generarla."
     }
   },
   "enums": {
@@ -1858,6 +1880,529 @@
       "agenda": "Agenda",
       "reservations": "Mis reservas",
       "history": "Historial"
+    }
+  },
+  "analytics": {
+    "empty": "Sin información en el período.",
+    "noBaseline": "Sin base de comparación",
+    "noData": "Sin datos",
+    "viewDetail": "Ver detalle",
+    "tabs": {
+      "label": "Reportes"
+    },
+    "filters": {
+      "title": "Filtros del reporte",
+      "period": "Período",
+      "branches": "Sucursales",
+      "branchesHint": "Sin marcar ninguna se incluyen todas las que puede consultar.",
+      "applied": "Período aplicado ({{ days }} días):",
+      "compared": "Comparado con",
+      "timeZone": "Zona horaria",
+      "errors": {
+        "required": "Indique la fecha inicial y la final.",
+        "inverted": "La fecha inicial no puede ser posterior a la final.",
+        "tooLong": "El rango no puede superar 366 días."
+      }
+    },
+    "presets": {
+      "Today": "Hoy",
+      "Last7Days": "Últimos 7 días",
+      "Last30Days": "Últimos 30 días",
+      "CurrentMonth": "Mes actual",
+      "PreviousMonth": "Mes anterior",
+      "CurrentYear": "Año actual",
+      "Custom": "Rango personalizado"
+    },
+    "areas": {
+      "financial": "Finanzas",
+      "members": "Alumnos y membresías",
+      "operations": "Operación y clases",
+      "instructor": "Mis clases"
+    },
+    "methods": {
+      "Cash": "Efectivo",
+      "BankTransfer": "Transferencia",
+      "Card": "Tarjeta",
+      "Other": "Otro"
+    },
+    "weekdays": {
+      "Monday": "Lunes",
+      "Tuesday": "Martes",
+      "Wednesday": "Miércoles",
+      "Thursday": "Jueves",
+      "Friday": "Viernes",
+      "Saturday": "Sábado",
+      "Sunday": "Domingo"
+    },
+    "kpi": {
+      "help": "Qué mide este indicador",
+      "change": "Variación frente al período comparable",
+      "previous": "Anterior",
+      "snapshot": "Medida de hoy: no se compara",
+      "collected": {
+        "name": "Total cobrado",
+        "definition": "Pagos confirmados recibidos en el período (el importe de cada pago, sin contar dos veces abonos ni asignaciones). No es utilidad: no descuenta costos ni gastos. Fecha usada: fecha de pago."
+      },
+      "collected_cash": {
+        "name": "Cobrado en efectivo",
+        "definition": "Parte del total cobrado que se recibió en efectivo. Fecha usada: fecha de pago."
+      },
+      "collected_other": {
+        "name": "Cobrado por otros medios",
+        "definition": "Parte del total cobrado por transferencia, tarjeta u otros medios. Fecha usada: fecha de pago."
+      },
+      "pending_verification": {
+        "name": "Transferencias por verificar",
+        "definition": "Pagos registrados que aún no se confirman; no cuentan como cobrado. Fecha usada: fecha de pago."
+      },
+      "issued": {
+        "name": "Obligaciones generadas",
+        "definition": "Importe exigible de las obligaciones emitidas en el período, sin las anuladas. Es lo facturado al alumno, no lo cobrado. Fecha usada: fecha de emisión."
+      },
+      "outstanding": {
+        "name": "Saldo pendiente",
+        "definition": "Lo que los alumnos deben hoy: exigible menos cobrado de las obligaciones abiertas. Es una foto de hoy; el sistema no guarda el saldo de una fecha pasada."
+      },
+      "overdue": {
+        "name": "Saldo vencido",
+        "definition": "Parte del saldo pendiente cuya fecha de vencimiento ya pasó."
+      },
+      "reversed": {
+        "name": "Pagos revertidos",
+        "definition": "Importe de los pagos revertidos en el período; no está incluido en el total cobrado. Fecha usada: fecha de reversión."
+      },
+      "active_members": {
+        "name": "Alumnos activos",
+        "definition": "Alumnos con ficha activa y una membresía vigente y cobrada el último día del período."
+      },
+      "new_members": {
+        "name": "Alumnos nuevos",
+        "definition": "Fichas de alumno creadas en el período. Fecha usada: fecha de alta."
+      },
+      "new_enrollments": {
+        "name": "Nuevas inscripciones",
+        "definition": "Membresías vendidas en el período como primer contrato de un alumno. Fecha usada: fecha de venta."
+      },
+      "renewals": {
+        "name": "Membresías renovadas",
+        "definition": "Membresías vendidas en el período como renovación de otra. Fecha usada: fecha de venta."
+      },
+      "reincorporations": {
+        "name": "Reincorporaciones",
+        "definition": "Membresías vendidas a alumnos que ya tuvieron otras, sin ser renovación."
+      },
+      "expired": {
+        "name": "Membresías vencidas",
+        "definition": "Membresías activas cuyo fin cayó dentro del período y ya pasó (no incluye canceladas). Fecha usada: fecha de fin."
+      },
+      "expiring_soon": {
+        "name": "Próximas a vencer",
+        "definition": "Membresías activas que terminan en los próximos días elegidos. Foto de hoy."
+      },
+      "gym_visits": {
+        "name": "Asistencia al gimnasio",
+        "definition": "Entradas al gimnasio registradas en el período. Fecha usada: fecha y hora de entrada."
+      },
+      "sessions_held": {
+        "name": "Clases realizadas",
+        "definition": "Sesiones cerradas como realizadas. Las ya pasadas que nadie cerró se informan aparte como pendientes de cierre. Fecha usada: inicio de la sesión."
+      },
+      "sessions_cancelled": {
+        "name": "Clases canceladas",
+        "definition": "Sesiones canceladas cuyo inicio caía en el período."
+      },
+      "class_occupancy": {
+        "name": "Ocupación de clases",
+        "definition": "Reservas confirmadas ÷ capacidad de las sesiones no canceladas (ponderada). No cuenta lista de espera, cupos ofrecidos ni reservas canceladas."
+      },
+      "reservations_confirmed": {
+        "name": "Reservas confirmadas",
+        "definition": "Reservas confirmadas de las sesiones no canceladas del período."
+      },
+      "reservations_cancelled": {
+        "name": "Reservas canceladas",
+        "definition": "Reservas canceladas por el alumno o el personal (no las que se cancelaron al cancelar la sesión)."
+      },
+      "class_no_shows": {
+        "name": "Inasistencias a clases",
+        "definition": "Reservas confirmadas marcadas como «no asistió»."
+      },
+      "my_sessions_held": {
+        "name": "Mis clases realizadas",
+        "definition": "Sus sesiones cerradas como realizadas."
+      },
+      "my_sessions_cancelled": {
+        "name": "Mis clases canceladas",
+        "definition": "Sus sesiones canceladas cuyo inicio caía en el período."
+      },
+      "my_occupancy": {
+        "name": "Ocupación de mis clases",
+        "definition": "Reservas confirmadas ÷ capacidad de sus sesiones no canceladas."
+      },
+      "my_attended": {
+        "name": "Asistencias a mis clases",
+        "definition": "Participantes que asistieron a sus clases."
+      },
+      "my_no_shows": {
+        "name": "Inasistencias a mis clases",
+        "definition": "Participantes confirmados que no asistieron a sus clases."
+      },
+      "payments_count": {
+        "name": "Pagos recibidos",
+        "definition": "Cantidad de pagos confirmados en el período."
+      },
+      "average_payment": {
+        "name": "Pago promedio",
+        "definition": "Total cobrado ÷ pagos recibidos."
+      },
+      "partial_amount": {
+        "name": "Pagos parciales (abonos)",
+        "definition": "Parte cobrada en asignaciones que cubren solo una parte del importe exigible de la obligación."
+      },
+      "partial_count": {
+        "name": "Pagos que abonan",
+        "definition": "Pagos con al menos una asignación que no salda el exigible de su obligación."
+      },
+      "inactive_members": {
+        "name": "Alumnos inactivos",
+        "definition": "Alumnos con la ficha marcada como inactiva. Foto de hoy."
+      },
+      "members_with_balance": {
+        "name": "Alumnos con saldo pendiente",
+        "definition": "Alumnos con alguna obligación abierta que aún se debe. Foto de hoy."
+      },
+      "gains": {
+        "name": "Altas",
+        "definition": "Inscripciones nuevas + reincorporaciones."
+      },
+      "losses": {
+        "name": "Bajas",
+        "definition": "Alumnos activos el día anterior al período que ya no tienen membresía vigente al terminarlo. Una membresía cancelada no es una baja si el alumno tiene otra vigente."
+      },
+      "visits": {
+        "name": "Visitas",
+        "definition": "Entradas al gimnasio registradas en el período."
+      },
+      "unique_visitors": {
+        "name": "Alumnos que asistieron",
+        "definition": "Alumnos distintos con al menos una entrada en el período."
+      },
+      "frequency": {
+        "name": "Frecuencia de asistencia",
+        "definition": "Visitas ÷ alumnos distintos que asistieron (promedio de visitas por asistente)."
+      },
+      "occupancy_reserved": {
+        "name": "Ocupación reservada",
+        "definition": "Reservas confirmadas ÷ capacidad de las sesiones no canceladas (ponderada). No cuenta lista de espera, cupos ofrecidos ni reservas canceladas."
+      },
+      "occupancy_attended": {
+        "name": "Ocupación asistida",
+        "definition": "Asistentes ÷ capacidad de las sesiones realizadas con asistencia registrada. Sin registros no hay dato."
+      },
+      "waitlisted": {
+        "name": "Demanda en espera",
+        "definition": "Personas en lista de espera o con un cupo ofrecido (querían entrar y no había lugar). No es ocupación."
+      },
+      "no_shows": {
+        "name": "Inasistencias",
+        "definition": "Reservas confirmadas marcadas como «no asistió»."
+      },
+      "attendance_rate": {
+        "name": "Tasa de asistencia",
+        "definition": "Asistió ÷ (asistió + no asistió) entre lo registrado."
+      },
+      "late_cancellations": {
+        "name": "Cancelaciones fuera de plazo",
+        "definition": "Reservas canceladas después del plazo de cancelación de la clase."
+      },
+      "cancellation_rate": {
+        "name": "Tasa de cancelación de reservas",
+        "definition": "Canceladas ÷ (confirmadas + canceladas) de las sesiones no canceladas."
+      },
+      "offers_expired": {
+        "name": "Cupos ofrecidos que vencieron",
+        "definition": "Invitaciones de la lista de espera que no se aceptaron a tiempo."
+      }
+    },
+    "sessions": {
+      "held": "Realizadas",
+      "cancelled": "Canceladas",
+      "upcoming": "Por ocurrir",
+      "pendingClosure": "Pendientes de cierre",
+      "pendingHint": "Las sesiones ya pasadas que nadie finalizó no se cuentan como realizadas: se muestran aparte.",
+      "status": {
+        "Scheduled": "Programada",
+        "Completed": "Realizada",
+        "Cancelled": "Cancelada",
+        "PendingClosure": "Pendiente de cierre"
+      }
+    },
+    "series": {
+      "collected": "Total cobrado",
+      "memberships_sold": "Membresías vendidas",
+      "gym_visits": "Asistencia al gimnasio",
+      "reservations_confirmed": "Reservas confirmadas"
+    },
+    "chart": {
+      "current": "Período",
+      "previous": "Comparable",
+      "date": "Fecha"
+    },
+    "export": {
+      "button": "Exportar CSV",
+      "working": "Exportando…",
+      "created": "Exportación lista ({{ rows }} filas)."
+    },
+    "dashboard": {
+      "title": "Panel de analítica",
+      "subtitle": "Indicadores calculados con los datos reales del gimnasio, para el período y las sucursales elegidos.",
+      "noSections": "Su rol no tiene indicadores disponibles en este panel.",
+      "financialNote": "Cobrado, generado y pendiente son cosas distintas: el cobrado es dinero recibido; lo generado, lo facturado; el pendiente, lo que aún se debe. Nada de esto es utilidad.",
+      "methods": "Cobrado por medio de pago",
+      "expiringDays": "Próximas a vencer en (días)",
+      "instructorNote": "Solo incluye las sesiones donde usted es el instructor.",
+      "evolution": "Evolución frente al período comparable",
+      "evolutionHint": "Cada punto es un tramo de {{ days }} día(s). La línea punteada es el período comparable y el eje parte de cero."
+    },
+    "financial": {
+      "title": "Reportes financieros",
+      "subtitle": "Cobros, medios de pago, saldos, caja y reversiones con las mismas reglas del sistema de pagos.",
+      "tabs": {
+        "collections": "Cobros",
+        "methods": "Medios de pago",
+        "balances": "Saldos pendientes",
+        "cash": "Caja",
+        "reversals": "Reversiones"
+      },
+      "status": "Estado del pago",
+      "statuses": {
+        "Confirmed": "Confirmados",
+        "PendingVerification": "Por verificar",
+        "Reversed": "Revertidos (histórico)",
+        "All": "Todos"
+      },
+      "method": "Medio",
+      "historicalNote": "Está viendo un informe histórico: los pagos revertidos o sin confirmar se muestran aquí pero no forman parte del total cobrado de arriba.",
+      "byBranch": "Por sucursal",
+      "byPlan": "Por plan",
+      "amount": "Importe",
+      "share": "Participación",
+      "plan": "Plan",
+      "noPlan": "Cobros sin plan",
+      "payments": "Pagos",
+      "receipt": "Recibo",
+      "paidAt": "Fecha de pago",
+      "member": "Alumno",
+      "partial": "Pago parcial",
+      "paymentStatus": {
+        "Confirmed": "Confirmado",
+        "PendingVerification": "Por verificar",
+        "Reversed": "Revertido"
+      },
+      "totalCollected": "Total cobrado",
+      "otherDetails": "Detalle de «Otro»",
+      "snapshotNote": "Es una foto de hoy: el período elegido no se aplica y no existe el saldo de una fecha pasada.",
+      "view": "Ver por",
+      "views": {
+        "Members": "Alumno",
+        "Obligations": "Obligación"
+      },
+      "overdueOnly": "Solo vencidos",
+      "aging": "Antigüedad de lo vencido",
+      "bucket": "Tramo",
+      "count": "Cantidad",
+      "oldest": "Vence desde",
+      "openObligations": "Obligaciones abiertas",
+      "reference": "Referencia",
+      "dueDate": "Vencimiento",
+      "payable": "Exigible",
+      "paid": "Pagado",
+      "balance": "Saldo",
+      "daysOverdue": "{{ n }} días de atraso",
+      "obligationStatus": {
+        "Overdue": "Vencida",
+        "PartiallyPaid": "Con abonos",
+        "Pending": "Pendiente"
+      },
+      "onlyDifference": "Solo turnos con diferencia",
+      "cashNote": "El esperado, el contado y la diferencia son los que se guardaron al cerrar el turno; un turno abierto aún no los tiene. Negativo = faltante, positivo = sobrante.",
+      "sessionsOpened": "Turnos abiertos en el período",
+      "stillOpen": "siguen abiertos",
+      "closed": "cerrados",
+      "shortage": "Faltante",
+      "surplus": "Sobrante",
+      "movements": "Movimientos de caja",
+      "type": "Tipo",
+      "direction": "Dirección",
+      "movementTypes": {
+        "CashPayment": "Cobro en efectivo",
+        "PaymentReversal": "Reverso de cobro",
+        "ManualIn": "Ingreso manual",
+        "ManualOut": "Egreso manual"
+      },
+      "directions": {
+        "In": "Entrada",
+        "Out": "Salida"
+      },
+      "sessions": "Turnos de caja",
+      "register": "Caja",
+      "openedAt": "Apertura",
+      "closedAt": "Cierre",
+      "open": "Abierto",
+      "opening": "Fondo inicial",
+      "expected": "Esperado",
+      "counted": "Contado",
+      "difference": "Diferencia",
+      "voided": "Obligaciones anuladas",
+      "reversalsNote": "Informe histórico: los pagos se listan por la fecha en que se revirtieron y las obligaciones por la fecha en que se anularon. No forman parte de los indicadores vigentes.",
+      "reversedPayments": "Pagos revertidos",
+      "reversedAt": "Fecha de reversión",
+      "reason": "Motivo",
+      "voidedObligations": "Obligaciones anuladas",
+      "voidedAt": "Fecha de anulación"
+    },
+    "members": {
+      "title": "Reportes de alumnos y membresías",
+      "subtitle": "Activos, altas y bajas, retención, renovación y vencimientos con definiciones documentadas.",
+      "tabs": {
+        "summary": "Resumen",
+        "acquisitions": "Altas y bajas",
+        "retention": "Retención",
+        "renewals": "Renovaciones",
+        "expirations": "Vencimientos"
+      },
+      "snapshotNote": "Los estados de las membresías, la distribución por plan y por sucursal y los saldos son una foto de hoy.",
+      "states": "Estado de las membresías (hoy)",
+      "byPlan": "Por plan",
+      "byBranch": "Por sucursal",
+      "active": "Activos",
+      "inactive": "Inactivos",
+      "membershipStates": {
+        "Active": "Activas",
+        "Frozen": "Congeladas",
+        "Expired": "Vencidas",
+        "Cancelled": "Canceladas",
+        "PendingPayment": "Pendientes de pago"
+      },
+      "kind": "Tipo de venta",
+      "kinds": {
+        "Any": "Todas",
+        "New": "Inscripción nueva",
+        "Renewal": "Renovación",
+        "Reincorporation": "Reincorporación"
+      },
+      "trend": "Tendencia por mes",
+      "month": "Mes",
+      "history": "Historial de membresías vendidas",
+      "soldAt": "Venta",
+      "validity": "Vigencia",
+      "price": "Precio acordado",
+      "retentionFormula": "Retención = alumnos de la cohorte que siguen activos al cierre ÷ cohorte. La cohorte son los alumnos activos el día anterior al período. Una membresía cancelada no es una baja si el alumno tiene otra vigente.",
+      "retentionRate": "Retención",
+      "cohortSummary": "{{ retained }} de {{ cohort }} alumnos activos al {{ date }} siguen activos",
+      "lost": "Alumnos de la cohorte sin membresía vigente",
+      "lastPlan": "Último plan",
+      "lastEnd": "Último vencimiento",
+      "renewalFormula": "Tasa de renovación = membresías renovadas ÷ membresías que vencieron en el período. Una renovación posterior cuenta cuando exista: un período reciente puede subestimarla.",
+      "renewalRate": "Tasa de renovación",
+      "renewalSummary": "{{ renewed }} renovadas de {{ due }} vencidas",
+      "notRenewed": "Membresías vencidas sin renovar",
+      "ended": "Venció",
+      "daysSince": "hace {{ n }} días",
+      "within": "Vencen en los próximos",
+      "daysOption": "{{ n }} días",
+      "hideRenewed": "Ocultar a quienes ya renovaron",
+      "expiringTotal": "Membresías por vencer",
+      "alreadyRenewed": "Ya renovadas",
+      "bucket": "En {{ range }} días",
+      "endsOn": "Vence",
+      "renewed": "Ya renovó",
+      "daysLeft": "en {{ n }} días"
+    },
+    "operations": {
+      "title": "Reportes operativos",
+      "subtitle": "Asistencia al gimnasio, ocupación y demanda de clases, y cancelaciones.",
+      "myClasses": "Mis clases",
+      "myClassesSubtitle": "Ocupación y cancelaciones de las sesiones donde usted es el instructor.",
+      "tabs": {
+        "attendance": "Asistencia",
+        "occupancy": "Ocupación de clases",
+        "cancellations": "Cancelaciones"
+      },
+      "grouping": "Agrupar por",
+      "groupings": {
+        "Auto": "Automático",
+        "Day": "Día",
+        "Week": "Semana",
+        "Month": "Mes"
+      },
+      "byMember": "Ver por alumno",
+      "visitsOverTime": "Visitas en el tiempo",
+      "byWeekday": "Por día de la semana",
+      "byHour": "Por hora de entrada (hora local)",
+      "byBranch": "Por sucursal",
+      "frequency": "Frecuencia de asistencia",
+      "visitsRange": "Visitas en el período",
+      "membersCount": "Alumnos",
+      "days": "Días con visita",
+      "lastVisit": "Última visita",
+      "activity": "Actividad",
+      "instructorOnly": "Solo se incluyen las sesiones donde usted es el instructor.",
+      "occupancyNote": "Solo cuentan las reservas confirmadas. La lista de espera y los cupos ofrecidos son demanda, no ocupación.",
+      "demand": "Demanda por actividad",
+      "confirmed": "Confirmados",
+      "waiting": "En espera",
+      "topSlots": "Horarios más ocupados",
+      "slot": "Horario",
+      "sessions": "Sesiones",
+      "byClass": "Por clase",
+      "performance": "Rendimiento por sucursal",
+      "sessionList": "Sesiones",
+      "cancelByClass": "Cancelaciones por clase",
+      "cancelledSessions": "Sesiones canceladas",
+      "affected": "Reservas afectadas"
+    },
+    "branches": {
+      "title": "Comparar sucursales",
+      "subtitle": "El mismo período y las mismas definiciones para todas las sucursales que puede consultar.",
+      "omitted": "Algunas áreas no se muestran porque su rol no tiene permiso para verlas.",
+      "cancelRate": "Cancelación de reservas",
+      "total": "Total de las sucursales seleccionadas",
+      "noActivity": "Sin datos",
+      "note": "La ocupación del total se calcula sobre las sumas, no promediando porcentajes. El saldo pendiente es una foto de hoy.",
+      "evolution": "Evolución mensual"
+    },
+    "exports": {
+      "title": "Mis exportaciones",
+      "subtitle": "Archivos CSV que usted generó. Solo usted puede verlos y descargarlos.",
+      "report": "Reporte",
+      "requestedAt": "Solicitada",
+      "rows": "Filas",
+      "expiresAt": "Disponible hasta",
+      "downloads": "Descargas",
+      "download": "Descargar",
+      "empty": "Todavía no ha exportado ningún reporte.",
+      "policy": "Cada archivo se conserva 24 horas y se descarga con su sesión; no hay enlaces públicos. Después queda en el historial como «Purgado» (se conserva quién, cuándo y qué se exportó, no el contenido).",
+      "statuses": {
+        "Available": "Disponible",
+        "Expired": "Vencida",
+        "Purged": "Purgada"
+      },
+      "reports": {
+        "Collections": "Cobros",
+        "PaymentMethods": "Medios de pago",
+        "OutstandingBalances": "Saldos pendientes",
+        "CashRegisters": "Caja",
+        "Reversals": "Reversiones",
+        "MemberAcquisitions": "Membresías vendidas",
+        "MemberRetention": "Alumnos sin membresía vigente",
+        "MemberRenewals": "Membresías sin renovar",
+        "MemberExpirations": "Próximos vencimientos",
+        "Attendance": "Asistencia por alumno",
+        "ClassOccupancy": "Ocupación de clases",
+        "ClassCancellations": "Clases canceladas",
+        "BranchComparison": "Comparación de sucursales"
+      }
     }
   }
 }

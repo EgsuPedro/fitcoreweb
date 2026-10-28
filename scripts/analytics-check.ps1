@@ -135,4 +135,20 @@ if ($context.sections.operations -or $context.sections.instructor) {
     }
 }
 
+if ($context.sections.compare) {
+    $cmp = Get-Api "/reports/branches/comparison?$query" $token
+    if (-not $cmp.__error) {
+        Write-Host "`n== REPORTE · Comparación de sucursales (mismo período y definiciones para todas)" -ForegroundColor Cyan
+        foreach ($b in @($cmp.branches) + @($cmp.total)) {
+            $line = '  {0,-34}' -f $b.branchName
+            if ($b.financial) { $line += (' cobrado {0,9:N2} ({1}) · pendiente {2,8:N2}' -f $b.financial.collected, $(if ($b.financial.collectedShare -ne $null) { "$($b.financial.collectedShare) %" } else { '—' }), $b.financial.outstanding) }
+            if ($b.members) { $line += (' · activos {0,3} · inscripciones {1,3} · renovaciones {2,2}' -f $b.members.activeMembers, $b.members.newEnrollments, $b.members.renewals) }
+            if ($b.operations) { $line += (' · visitas {0,4} · ocupación {1}' -f $b.operations.visits, $(if ($b.operations.occupancyPercent -ne $null) { "$($b.operations.occupancyPercent) %" } else { 'Sin datos' })) }
+            if (-not $b.hasActivity) { $line += '  [Sin datos]' }
+            Write-Host $line
+        }
+        if ($cmp.omittedSections.Count -gt 0) { Write-Host ('  Áreas no incluidas por permisos: ' + ($cmp.omittedSections -join ', ')) -ForegroundColor DarkYellow }
+        Write-Host ('  Meses de la evolución: ' + (($cmp.months | ForEach-Object { '{0}→{1}' -f $_.from, $_.to }) -join ' · '))
+    }
+}
 Write-Host ''

@@ -1,4 +1,5 @@
 using FitCore.Analytics.Application.Reports;
+using FitCore.Analytics.Application.Reports.Branches;
 using FitCore.Analytics.Application.Reports.Financial;
 using FitCore.Analytics.Application.Reports.Members;
 using FitCore.Analytics.Application.Reports.Operations;
@@ -115,5 +116,12 @@ internal static class ReportsEndpoints
             .RequirePermission(Permissions.AnalyticsDashboardRead)
             .Produces<ClassCancellationsReportDto>()
             .WithName("GetClassCancellationsReport");
+
+        // Comparación de sucursales: exige el permiso de comparar; cada bloque de indicadores solo viaja si el usuario tiene el permiso de su área.
+        group.MapGet("/branches/comparison", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null, Guid[]? branchId = null) =>
+                (await dispatcher.QueryAsync(new BranchComparisonQuery(new ReportFilter(preset, from, to, branchId ?? [])), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ReportsCompare)
+            .Produces<BranchComparisonReportDto>()
+            .WithName("GetBranchComparisonReport");
     }
 }

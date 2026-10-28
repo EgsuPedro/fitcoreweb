@@ -1,6 +1,6 @@
-# Guía de validación manual — Fase 6 (analítica): bloques 2 a 6
+# Guía de validación manual — Fase 6 (analítica): bloques 2 a 7
 
-Hasta el bloque 6 la fase entrega **API** (contexto, dashboard, reportes financieros, de alumnos y membresías, y operativos y de clases); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
+Hasta el bloque 7 la fase entrega **API** (contexto, dashboard, reportes financieros, de alumnos y membresías, operativos y de clases, y comparación de sucursales); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
 
 ## 0. Preparación
 
@@ -154,6 +154,25 @@ Compruebe además:
 4. **Agrupación**: `attendance?grouping=Week` agrupa por semana (el tramo empieza el lunes); `Month` por mes; `Auto` elige según el largo del rango.
 5. **Permisos**: `entrenador.uio` recibe los reportes de clases (marcados «solo sus sesiones») pero **403** en `/reports/attendance` y en lo financiero; `recepcion.uio` ve asistencia y clases de Quito; `cajero.gye` y `contador` reciben **403** en los reportes de clases.
 
+### 3.9 Comparación de sucursales (bloque 7)
+`GET /reports/branches/comparison` exige el permiso de comparar (propietario, administrador de sucursal y contador). Compara las sucursales elegidas (`branchId` repetible; sin indicar, todas las que el usuario puede consultar) con **el mismo período, la misma zona horaria y las mismas definiciones** para todas. El script la imprime al final como «Comparación de sucursales».
+
+Con `Last30Days` y los datos de `analitica` (después del historial) debe verse:
+
+| Sucursal | Cobrado | Pendiente (hoy) | Activos | Inscripciones | Renovaciones | Visitas | Ocupación |
+|---|---|---|---|---|---|---|---|
+| Quito Norte | 391,67 (100 %) | 218,33 | 9 | 7 | 1 | 6 | 66,7 % |
+| Guayaquil Centro | 0,00 (0 %) | 170,00 | 0 | 4 | 0 | 0 | **Sin datos** |
+| **Total** | 391,67 | 388,33 | 9 | 11 | 1 | 6 | 66,7 % |
+
+Compruebe:
+1. **El total cuadra**: cobrado 391,67 = el del dashboard y el de «Cobros»; pendiente 388,33 = el de la cartera; inscripciones 7 + 4 = 11.
+2. **Guayaquil no desaparece**: aparece en cero (sin visitas, ocupación «Sin datos» porque no tiene clases) y, si no tuviera ninguna actividad, marcada `hasActivity: false` («Sin datos»).
+3. **La ocupación del total se calcula sobre las sumas** (Σ ocupados ÷ Σ capacidad), no promediando los porcentajes de cada sucursal.
+4. **Evolución mensual**: `months` parte el período por mes calendario y `evolution` trae, por sucursal y alineados con esos meses, el cobrado, las inscripciones nuevas y las visitas. La suma de los meses es igual al total del período.
+5. **Subconjunto**: `?branchId=<Quito>&branchId=<Guayaquil>` o solo una; el total solo suma las elegidas. Una sucursal fuera de su alcance o de otro gimnasio → **403**.
+6. **Permisos por área**: `contador` ve cobros y alumnos pero **no** operación (las secciones de visitas y ocupación no viajan y `omittedSections` dice `operations`); `admin.uio` solo se compara con Quito; `cajero.gye`, `recepcion.uio` y `entrenador.uio` reciben **403**.
+
 ## 4. Usar Swagger en lugar del script
 1. Abra http://localhost:8080/swagger.
 2. `POST /api/v1/auth/login` con `{"tenantSlug":"analitica","email":"propietario@analitica.fitcore.test","password":"DemoFit2026x"}` y copie `accessToken`.
@@ -163,9 +182,10 @@ Compruebe además:
    - `GET /api/v1/analytics/dashboard` y `GET /api/v1/analytics/dashboard/comparison`
    - `GET /api/v1/reports/financial/collections` · `…/payment-methods` · `…/outstanding-balances` · `…/cash-registers` · `…/reversals`
    - `GET /api/v1/reports/members/summary` · `…/acquisitions` · `…/retention` · `…/renewals` · `…/expirations`
+   - `GET /api/v1/reports/attendance` · `…/reports/classes/occupancy` · `…/reports/classes/cancellations` · `…/reports/branches/comparison`
 5. Parámetros comunes: `preset` (Today, Last7Days, Last30Days, CurrentMonth, PreviousMonth, CurrentYear, Custom), `from`/`to` (solo con Custom), `branchId` (repetible). Cobros: `status` (Confirmed, PendingVerification, Reversed, All), `method` (Cash, BankTransfer, Card, Other), `planId`, `page`, `pageSize`.
 
 ## 5. Qué NO está todavía
 - **Pantallas**: llegan en el bloque 9 (hoy se valida por API/consola).
-- Comparación de sucursales y exportaciones CSV: bloques 7 y 8.
+- Exportaciones CSV: bloque 8.
 - Medición de rendimiento con volumen y revisión de planes de ejecución: bloque 10.

@@ -30,3 +30,13 @@ export class FcDateTime implements PipeTransform {
     return value ? this.format.dateTime(value) : '—';
   }
 }
+
+/** Número con el separador decimal del idioma activo (peso, medidas, IMC). */
+@Pipe({ name: 'fcNumber', pure: false })
+export class FcNumber implements PipeTransform {
+  private readonly format = inject(Formatter);
+
+  transform(value: number | null | undefined, maxDecimals = 2): string {
+    return value === null || value === undefined ? '—' : this.format.number(value, maxDecimals);
+  }
+}

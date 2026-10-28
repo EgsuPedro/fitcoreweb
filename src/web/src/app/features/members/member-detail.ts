@@ -18,12 +18,13 @@ import { PaymentDialog } from '../billing/payment-dialog';
 import { ReceiptView } from '../billing/receipt-view';
 import { EnrollDialog } from '../memberships/enroll-dialog';
 import { MemberTrainerPanel } from '../trainers/member-trainer-panel';
+import { MemberWellness } from '../wellness/member-wellness';
 import { MemberForm } from './member-form';
 
 /** Ficha del alumno: datos, membresías, obligaciones, pagos, visitas y código QR. */
 @Component({
   selector: 'fc-member-detail',
-  imports: [RouterLink, TranslocoPipe, Badge, Modal, Confirm, FcDate, FcDateTime, FcMoney, MemberForm, EnrollDialog, PaymentDialog, ReceiptView, MemberTrainerPanel],
+  imports: [RouterLink, TranslocoPipe, Badge, Modal, Confirm, FcDate, FcDateTime, FcMoney, MemberForm, EnrollDialog, PaymentDialog, ReceiptView, MemberTrainerPanel, MemberWellness],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (error()) {
@@ -144,7 +145,9 @@ import { MemberForm } from './member-form';
       }
 
       <fc-member-trainer-panel [memberId]="m.id" />
+      <fc-member-wellness [memberId]="m.id" />
 
+      @if (can(perm.MembershipsRead)) {
       <section class="section">
         <h2>{{ 'members.memberships' | transloco }}</h2>
         <div class="card table-card">
@@ -178,7 +181,9 @@ import { MemberForm } from './member-form';
           </table>
         </div>
       </section>
+      }
 
+      @if (can(perm.ObligationsRead)) {
       <section class="section">
         <h2>{{ 'members.obligations' | transloco }}</h2>
         <div class="card table-card">
@@ -218,7 +223,9 @@ import { MemberForm } from './member-form';
           </table>
         </div>
       </section>
+      }
 
+      @if (can(perm.PaymentsRead)) {
       <section class="section">
         <h2>{{ 'members.payments' | transloco }}</h2>
         <div class="card table-card">
@@ -250,6 +257,7 @@ import { MemberForm } from './member-form';
           </table>
         </div>
       </section>
+      }
 
       @if (can(perm.AttendanceRead)) {
         <section class="section">
@@ -597,9 +605,16 @@ export class MemberDetail implements OnInit {
   }
 
   private loadRelated(id: string): void {
-    this.api.memberships({ memberId: id, pageSize: 50 }).subscribe((page) => this.memberships.set(page.items));
-    this.api.obligations({ memberId: id, pageSize: 50 }).subscribe((page) => this.obligations.set(page.items));
-    this.api.payments({ memberId: id, pageSize: 20 }).subscribe((page) => this.payments.set(page.items));
+    // Cada bloque se pide solo con su permiso: un rol que solo ve alumnos (la nutricionista) no dispara llamadas que el servidor rechaza.
+    if (this.can(Perm.MembershipsRead)) {
+      this.api.memberships({ memberId: id, pageSize: 50 }).subscribe((page) => this.memberships.set(page.items));
+    }
+    if (this.can(Perm.ObligationsRead)) {
+      this.api.obligations({ memberId: id, pageSize: 50 }).subscribe((page) => this.obligations.set(page.items));
+    }
+    if (this.can(Perm.PaymentsRead)) {
+      this.api.payments({ memberId: id, pageSize: 20 }).subscribe((page) => this.payments.set(page.items));
+    }
     if (this.hasAttendance()) {
       this.api.attendance({ memberId: id, pageSize: 10 }).subscribe((page) => this.visits.set(page.items));
     }

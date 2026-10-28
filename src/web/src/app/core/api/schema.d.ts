@@ -180,6 +180,454 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/training-assignments/{id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EndTrainingAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/training-plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMemberTrainingPlan"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/training-assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMemberTrainingAssignments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workout-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CreateWorkoutSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workout-sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetWorkoutSession"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workout-sessions/{id}/trainer-comment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AddWorkoutSessionTrainerComment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/workout-sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMemberWorkoutSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/workout-sessions/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CompareWorkoutSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/exercise-progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetExerciseProgress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nutrition-assignments/{id}/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EndNutritionAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/nutrition-plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMemberNutritionPlan"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/nutrition-assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMemberNutritionAssignments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/dietary-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetDietaryProfile"];
+        put?: never;
+        post: operations["SaveDietaryProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meal-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["LogMeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/meal-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMealLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/assessments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListAssessments"];
+        put?: never;
+        post: operations["CreateAssessment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/assessments/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CompareAssessments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/assessments/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetAssessmentProgress"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/goals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListGoals"];
+        put?: never;
+        post: operations["CreateGoal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/goals/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CloseGoal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/training-adherence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTrainingAdherence"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/nutrition-adherence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetNutritionAdherence"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/photo-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetPhotoConsent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/photo-consent/grant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["GrantPhotoConsent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/photo-consent/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RevokePhotoConsent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/members/{id}/progress-photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListProgressPhotos"];
+        put?: never;
+        post: operations["UploadProgressPhoto"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/progress-photos/{id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetProgressPhotoContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/progress-photos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: operations["DeleteProgressPhoto"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -1316,6 +1764,198 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/training-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListTrainingPlans"];
+        put?: never;
+        post: operations["CreateTrainingPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/training-plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTrainingPlan"];
+        put: operations["UpdateTrainingPlan"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/training-plans/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListTrainingPlanVersions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/training-plans/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DuplicateTrainingPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/training-plans/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetTrainingPlanStatus"];
+        trace?: never;
+    };
+    "/api/v1/training-plans/{id}/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AssignTrainingPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nutrition-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListNutritionPlans"];
+        put?: never;
+        post: operations["CreateNutritionPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nutrition-plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetNutritionPlan"];
+        put: operations["UpdateNutritionPlan"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nutrition-plans/{id}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListNutritionPlanVersions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nutrition-plans/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DuplicateNutritionPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/nutrition-plans/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetNutritionPlanStatus"];
+        trace?: never;
+    };
+    "/api/v1/nutrition-plans/{id}/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AssignNutritionPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/exercises": {
         parameters: {
             query?: never;
@@ -1403,6 +2043,98 @@ export interface components {
             /** Format: double */
             amount: number;
         };
+        AssessmentComparisonDto: {
+            a: components["schemas"]["AssessmentDto"];
+            b: components["schemas"]["AssessmentDto"];
+            /** Format: int32 */
+            daysBetween: number;
+            changes: components["schemas"]["MetricChangeDto"][];
+        };
+        AssessmentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            /** Format: date */
+            assessedOn: string;
+            /** Format: double */
+            weightKg: number | null;
+            /** Format: double */
+            heightCm: number | null;
+            /** Format: double */
+            waistCm: number | null;
+            /** Format: double */
+            hipCm: number | null;
+            /** Format: double */
+            chestCm: number | null;
+            /** Format: double */
+            armCm: number | null;
+            /** Format: double */
+            thighCm: number | null;
+            /** Format: double */
+            bodyFatPercent: number | null;
+            bodyFatMethod: string | null;
+            source: string;
+            notes: string | null;
+            /** Format: uuid */
+            correctsId: string | null;
+            isCorrected: boolean;
+            /** Format: double */
+            bmi: number | null;
+            heightCarried: boolean;
+            bmiReferenceRange: string | null;
+            /** Format: double */
+            waistHipRatio: number | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AssessmentPointDto: {
+            /** Format: uuid */
+            assessmentId: string;
+            /** Format: date */
+            date: string;
+            /** Format: double */
+            weightKg: number | null;
+            /** Format: double */
+            bmi: number | null;
+            /** Format: double */
+            waistCm: number | null;
+            /** Format: double */
+            hipCm: number | null;
+            /** Format: double */
+            chestCm: number | null;
+            /** Format: double */
+            armCm: number | null;
+            /** Format: double */
+            thighCm: number | null;
+            /** Format: double */
+            bodyFatPercent: number | null;
+        };
+        AssessmentRequest: {
+            /** Format: date */
+            assessedOn: string | null;
+            /** Format: double */
+            weightKg: number | null;
+            /** Format: double */
+            heightCm: number | null;
+            /** Format: double */
+            waistCm: number | null;
+            /** Format: double */
+            hipCm: number | null;
+            /** Format: double */
+            chestCm: number | null;
+            /** Format: double */
+            armCm: number | null;
+            /** Format: double */
+            thighCm: number | null;
+            /** Format: double */
+            bodyFatPercent: number | null;
+            bodyFatMethod: components["schemas"]["NullableOfBodyFatMethod"];
+            source: components["schemas"]["MeasurementSource"];
+            notes: string | null;
+            /** Format: uuid */
+            correctsId: string | null;
+        };
         AssignMemberRequest: {
             /** Format: uuid */
             memberId: string;
@@ -1426,6 +2158,22 @@ export interface components {
             endedOn: string | null;
             endReason: string | null;
             isActive: boolean;
+        };
+        AssignNutritionPlanRequest: {
+            /** Format: uuid */
+            memberId: string;
+            /** Format: date */
+            startDate: string | null;
+            /** Format: date */
+            endDate: string | null;
+        };
+        AssignPlanRequest: {
+            /** Format: uuid */
+            memberId: string;
+            /** Format: date */
+            startDate: string | null;
+            /** Format: date */
+            endDate: string | null;
         };
         AttendanceDto: {
             /** Format: uuid */
@@ -1609,6 +2357,10 @@ export interface components {
             countedAmount: number;
             notes: string | null;
         };
+        CloseGoalRequest: {
+            status: components["schemas"]["GoalStatus"];
+            note: string | null;
+        };
         CommercialSettingsDto: {
             accessPolicy: string;
             /** Format: int32 */
@@ -1715,6 +2467,32 @@ export interface components {
             roleIds: string[] | null;
             branchIds: string[] | null;
         };
+        CreateWorkoutSessionRequest: {
+            /** Format: uuid */
+            memberId: string | null;
+            /** Format: uuid */
+            dayId: string;
+            /** Format: date */
+            performedOn: string | null;
+            /** Format: int32 */
+            durationMinutes: number | null;
+            notes: string | null;
+            exercises: components["schemas"]["SessionExerciseRequest"][] | null;
+        };
+        DayAdherenceDto: {
+            /** Format: date */
+            date: string;
+            /** Format: int32 */
+            plannedMeals: number;
+            /** Format: int32 */
+            completed: number;
+            /** Format: int32 */
+            partial: number;
+            /** Format: int32 */
+            skipped: number;
+            /** Format: int32 */
+            notLogged: number;
+        };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
         DebtorDto: {
@@ -1732,12 +2510,52 @@ export interface components {
             /** Format: int32 */
             openObligations: number;
         };
+        DietaryProfileDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            allergies: string[];
+            intolerances: string[];
+            restrictions: string[];
+            notes: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+            /** Format: uuid */
+            recordedBy: string;
+        } | null;
+        DietaryProfileDto2: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            allergies: string[];
+            intolerances: string[];
+            restrictions: string[];
+            notes: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+            /** Format: uuid */
+            recordedBy: string;
+        };
+        DietaryProfileRequest: {
+            allergies: string[] | null;
+            intolerances: string[] | null;
+            restrictions: string[] | null;
+            notes: string | null;
+        };
         /** @enum {unknown} */
         Difficulty: "Beginner" | "Intermediate" | "Advanced";
         /** @enum {unknown} */
         DiscountType: "Percentage" | "FixedAmount";
         /** @enum {unknown} */
         DurationUnit: "Day" | "Week" | "Month" | "Year";
+        EndAssignmentRequest: {
+            reason: string;
+        };
+        EndNutritionAssignmentRequest: {
+            reason: string;
+        };
         EnrollRequest: {
             /** Format: uuid */
             memberId: string;
@@ -1753,6 +2571,22 @@ export interface components {
         };
         /** @enum {unknown} */
         Equipment: "BodyWeight" | "Barbell" | "Dumbbell" | "Kettlebell" | "Machine" | "Cable" | "Band" | "Bench" | "PullUpBar" | "CardioMachine" | "Other";
+        ExerciseComparisonDto: {
+            /** Format: uuid */
+            exerciseId: string;
+            exerciseName: string;
+            trackingMode: string;
+            a: components["schemas"]["ExerciseTotalsDto"];
+            b: components["schemas"]["ExerciseTotalsDto"];
+            /** Format: double */
+            volumeDeltaKg: number;
+            /** Format: double */
+            maxLoadDeltaKg: number | null;
+            /** Format: int32 */
+            repsDelta: number;
+            /** Format: int32 */
+            durationDeltaSeconds: number;
+        };
         ExerciseDto: {
             /** Format: uuid */
             id: string;
@@ -1775,6 +2609,25 @@ export interface components {
             /** Format: date-time */
             updatedAt: string | null;
         };
+        ExerciseGuideDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            description: string | null;
+            primaryMuscle: string;
+            equipment: string;
+            instructions: string[];
+            commonMistakes: string[];
+            warnings: string | null;
+            videoUrl: string | null;
+        } | null;
+        ExerciseProgressDto: {
+            /** Format: uuid */
+            exerciseId: string;
+            exerciseName: string;
+            trackingMode: string;
+            points: components["schemas"]["ProgressPointDto"][];
+        };
         ExerciseRequest: {
             name: string;
             description: string | null;
@@ -1789,10 +2642,74 @@ export interface components {
             warnings: string | null;
             videoUrl: string | null;
         };
+        ExerciseTotalsDto: {
+            /** Format: int32 */
+            sets: number;
+            /** Format: int32 */
+            totalReps: number;
+            /** Format: int32 */
+            totalDurationSeconds: number;
+            /** Format: double */
+            maxLoadKg: number | null;
+            /** Format: double */
+            volumeKg: number;
+        } | null;
         /** @enum {unknown} */
         ExerciseType: "Strength" | "Cardio" | "Mobility" | "Flexibility" | "Balance" | "Plyometric";
         FreezeRequest: {
             reason: string | null;
+        };
+        /** @enum {unknown} */
+        GoalCategory: "BodyMetric" | "SessionsPerWeek" | "Custom";
+        GoalDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            title: string;
+            description: string | null;
+            category: string;
+            metric: string | null;
+            unit: string | null;
+            /** Format: double */
+            targetValue: number | null;
+            /** Format: double */
+            baselineValue: number | null;
+            /** Format: double */
+            currentValue: number | null;
+            /** Format: date */
+            currentAsOf: string | null;
+            /** Format: double */
+            progressPercent: number | null;
+            reached: boolean | null;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            targetDate: string | null;
+            overdue: boolean;
+            status: string;
+            /** Format: date */
+            closedOn: string | null;
+            closeNote: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        GoalRequest: {
+            title: string;
+            description: string | null;
+            category: components["schemas"]["GoalCategory"];
+            metric: components["schemas"]["NullableOfGoalMetric"];
+            /** Format: double */
+            targetValue: number | null;
+            /** Format: double */
+            baselineValue: number | null;
+            /** Format: date */
+            targetDate: string | null;
+        };
+        /** @enum {unknown} */
+        GoalStatus: "Active" | "Achieved" | "Abandoned";
+        GrantPhotoConsentRequest: {
+            guardianName: string | null;
         };
         /** @enum {unknown} */
         IdentificationType: "Cedula" | "Ruc" | "Passport" | "Other";
@@ -1803,6 +2720,91 @@ export interface components {
             /** @default false */
             useCookie: boolean;
         };
+        LogMealRequest: {
+            /** Format: uuid */
+            memberId: string | null;
+            /** Format: uuid */
+            mealId: string;
+            /** Format: date */
+            date: string | null;
+            status: components["schemas"]["MealLogStatus"];
+            notes: string | null;
+        };
+        MealDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            position: number;
+            name: string;
+            /** Format: time */
+            suggestedTime: string | null;
+            notes: string | null;
+            /** Format: int32 */
+            estimatedCalories: number | null;
+            items: components["schemas"]["MealItemDto"][];
+        };
+        MealItemDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            position: number;
+            foodName: string;
+            /** Format: double */
+            quantity: number;
+            unit: string;
+            /** Format: int32 */
+            calories: number | null;
+            /** Format: double */
+            proteinG: number | null;
+            /** Format: double */
+            carbsG: number | null;
+            /** Format: double */
+            fatG: number | null;
+            notes: string | null;
+        };
+        MealItemRequest: {
+            foodName: string;
+            /** Format: double */
+            quantity: number;
+            unit: string;
+            /** Format: int32 */
+            calories: number | null;
+            /** Format: double */
+            proteinG: number | null;
+            /** Format: double */
+            carbsG: number | null;
+            /** Format: double */
+            fatG: number | null;
+            notes: string | null;
+        };
+        MealLogDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            /** Format: uuid */
+            mealId: string;
+            mealName: string;
+            /** Format: date */
+            date: string;
+            status: string;
+            notes: string | null;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        /** @enum {unknown} */
+        MealLogStatus: "Completed" | "Partial" | "Skipped";
+        MealRequest: {
+            name: string;
+            /** Format: time */
+            suggestedTime: string | null;
+            notes: string | null;
+            items: components["schemas"]["MealItemRequest"][] | null;
+        };
+        /** @enum {unknown} */
+        MeasurementSource: "Manual" | "Scale" | "Tape" | "Caliper" | "Bioimpedance" | "Other";
         MemberAccessDto: {
             /** Format: uuid */
             memberId: string;
@@ -1847,6 +2849,24 @@ export interface components {
             /** Format: date-time */
             whatsAppConsentAt: string | null;
             hasAccount: boolean;
+        };
+        MemberNutritionPlanDto: {
+            assignment: components["schemas"]["NutritionAssignmentDto"];
+            plan: components["schemas"]["NutritionPlanDetailDto"];
+            profile: components["schemas"]["DietaryProfileDto"];
+        };
+        MemberPlanDayDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            position: number;
+            name: string;
+            notes: string | null;
+            exercises: components["schemas"]["MemberPlanExerciseDto"][];
+        };
+        MemberPlanExerciseDto: {
+            prescription: components["schemas"]["PlanExerciseDto"];
+            guide: components["schemas"]["ExerciseGuideDto"];
         };
         MembershipDto: {
             /** Format: uuid */
@@ -1917,6 +2937,15 @@ export interface components {
             actorId: string | null;
             details: string | null;
         };
+        MemberTrainingPlanDto: {
+            assignment: components["schemas"]["TrainingAssignmentDto"];
+            goal: string | null;
+            description: string | null;
+            level: string;
+            /** Format: int32 */
+            estimatedMinutes: number | null;
+            days: components["schemas"]["MemberPlanDayDto"][];
+        };
         MeResponse: {
             /** Format: uuid */
             userId: string;
@@ -1931,6 +2960,16 @@ export interface components {
             allBranches: boolean;
             /** @default false */
             mustChangePassword: boolean;
+        };
+        MetricChangeDto: {
+            metric: string;
+            unit: string;
+            /** Format: double */
+            from: number | null;
+            /** Format: double */
+            to: number | null;
+            /** Format: double */
+            delta: number | null;
         };
         /** @enum {unknown} */
         MuscleGroup: "Chest" | "Back" | "Shoulders" | "Biceps" | "Triceps" | "Forearms" | "Core" | "Quadriceps" | "Hamstrings" | "Glutes" | "Calves" | "FullBody";
@@ -2025,6 +3064,8 @@ export interface components {
             /** Format: date-time */
             updatedAt: string | null;
         };
+        /** @enum {unknown|null} */
+        NullableOfBodyFatMethod: "Caliper" | "Bioimpedance" | "Dexa" | "Other" | null;
         /**
          * @default null
          * @enum {unknown}
@@ -2040,11 +3081,173 @@ export interface components {
          * @enum {unknown}
          */
         NullableOfExerciseType: "Strength" | "Cardio" | "Mobility" | "Flexibility" | "Balance" | "Plyometric" | null;
+        /** @enum {unknown|null} */
+        NullableOfGoalMetric: "WeightKg" | "WaistCm" | "HipCm" | "ChestCm" | "ArmCm" | "ThighCm" | "BodyFatPercent" | "SessionsPerWeek" | null;
         /**
          * @default null
          * @enum {unknown}
          */
         NullableOfMuscleGroup: "Chest" | "Back" | "Shoulders" | "Biceps" | "Triceps" | "Forearms" | "Core" | "Quadriceps" | "Hamstrings" | "Glutes" | "Calves" | "FullBody" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfPlanStatus: "Active" | "Archived" | null;
+        NutritionAdherenceDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: int32 */
+            planned: number;
+            /** Format: int32 */
+            completed: number;
+            /** Format: int32 */
+            partial: number;
+            /** Format: int32 */
+            skipped: number;
+            /** Format: int32 */
+            notLogged: number;
+            /** Format: double */
+            percent: number | null;
+            weeks: components["schemas"]["NutritionWeekDto"][];
+        };
+        NutritionAssignmentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            planId: string;
+            /** Format: uuid */
+            planVersionId: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: uuid */
+            memberId: string;
+            memberName: string;
+            memberCode: string;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string | null;
+            /** Format: date */
+            endedOn: string | null;
+            endReason: string | null;
+            status: string;
+        };
+        NutritionLogsDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            days: components["schemas"]["DayAdherenceDto"][];
+            logs: components["schemas"]["MealLogDto"][];
+        };
+        NutritionPlanDetailDto: {
+            /** Format: uuid */
+            id: string;
+            status: string;
+            /** Format: int32 */
+            version: number;
+            /** Format: uuid */
+            versionId: string;
+            isCurrentVersion: boolean;
+            name: string;
+            goal: string | null;
+            description: string | null;
+            /** Format: int32 */
+            targetCalories: number | null;
+            /** Format: int32 */
+            targetProteinG: number | null;
+            /** Format: int32 */
+            targetCarbsG: number | null;
+            /** Format: int32 */
+            targetFatG: number | null;
+            recommendations: string | null;
+            /** Format: date */
+            validFrom: string | null;
+            /** Format: date */
+            validUntil: string | null;
+            changeNote: string | null;
+            meals: components["schemas"]["MealDto"][];
+            /** Format: date-time */
+            versionCreatedAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        NutritionPlanRequest: {
+            name: string;
+            goal: string | null;
+            description: string | null;
+            /** Format: int32 */
+            targetCalories: number | null;
+            /** Format: int32 */
+            targetProteinG: number | null;
+            /** Format: int32 */
+            targetCarbsG: number | null;
+            /** Format: int32 */
+            targetFatG: number | null;
+            recommendations: string | null;
+            /** Format: date */
+            validFrom: string | null;
+            /** Format: date */
+            validUntil: string | null;
+            changeNote: string | null;
+            meals: components["schemas"]["MealRequest"][] | null;
+        };
+        NutritionPlanSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            goal: string | null;
+            /** Format: int32 */
+            targetCalories: number | null;
+            status: string;
+            /** Format: int32 */
+            version: number;
+            /** Format: date */
+            validFrom: string | null;
+            /** Format: date */
+            validUntil: string | null;
+            /** Format: int32 */
+            mealCount: number;
+            /** Format: int32 */
+            activeAssignments: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        NutritionVersionDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            number: number;
+            name: string;
+            changeNote: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdBy: string | null;
+        };
+        NutritionWeekDto: {
+            /** Format: date */
+            weekStart: string;
+            /** Format: int32 */
+            planned: number;
+            /** Format: int32 */
+            completed: number;
+            /** Format: int32 */
+            partial: number;
+            /** Format: int32 */
+            skipped: number;
+            /** Format: int32 */
+            notLogged: number;
+            /** Format: double */
+            percent: number | null;
+        };
         ObligationDto: {
             /** Format: uuid */
             id: string;
@@ -2141,6 +3344,15 @@ export interface components {
             /** Format: double */
             openingAmount: number;
             notes: string | null;
+        };
+        PagedResultOfAssessmentDto: {
+            items: components["schemas"]["AssessmentDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
         };
         PagedResultOfAssignmentDto: {
             items: components["schemas"]["AssignmentDto"][];
@@ -2268,6 +3480,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfNutritionPlanSummaryDto: {
+            items: components["schemas"]["NutritionPlanSummaryDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfObligationDto: {
             items: components["schemas"]["ObligationDto2"][];
             /** Format: int32 */
@@ -2288,6 +3509,15 @@ export interface components {
         };
         PagedResultOfPlanDto: {
             items: components["schemas"]["PlanDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfPlanSummaryDto: {
+            items: components["schemas"]["PlanSummaryDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -2333,6 +3563,15 @@ export interface components {
         };
         PagedResultOfUserDto: {
             items: components["schemas"]["UserDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfWorkoutSessionDto: {
+            items: components["schemas"]["WorkoutSessionDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -2393,6 +3632,73 @@ export interface components {
             module: string;
             description: string;
         };
+        PhotoConsentDto: {
+            status: string;
+            /** Format: date-time */
+            since: string | null;
+            source: string | null;
+            /** Format: int32 */
+            noticeVersion: number | null;
+            guardianName: string | null;
+            /** Format: int32 */
+            currentNoticeVersion: number;
+            /** Format: int32 */
+            photoCount: number;
+            history: components["schemas"]["PhotoConsentEventDto"][];
+        };
+        PhotoConsentEventDto: {
+            /** Format: uuid */
+            id: string;
+            action: string;
+            source: string;
+            /** Format: int32 */
+            noticeVersion: number;
+            guardianName: string | null;
+            /** Format: date-time */
+            recordedAt: string;
+        };
+        PlanDayDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            position: number;
+            name: string;
+            notes: string | null;
+            exercises: components["schemas"]["PlanExerciseDto"][];
+        };
+        PlanDayRequest: {
+            name: string;
+            notes: string | null;
+            exercises: components["schemas"]["PlanExerciseRequest"][] | null;
+        };
+        PlanDetailDto: {
+            /** Format: uuid */
+            id: string;
+            status: string;
+            /** Format: int32 */
+            version: number;
+            /** Format: uuid */
+            versionId: string;
+            isCurrentVersion: boolean;
+            name: string;
+            goal: string | null;
+            description: string | null;
+            level: string;
+            /** Format: int32 */
+            estimatedMinutes: number | null;
+            /** Format: date */
+            validFrom: string | null;
+            /** Format: date */
+            validUntil: string | null;
+            changeNote: string | null;
+            days: components["schemas"]["PlanDayDto"][];
+            /** Format: date-time */
+            versionCreatedAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
         PlanDto: {
             /** Format: uuid */
             id: string;
@@ -2432,6 +3738,42 @@ export interface components {
             /** Format: uuid */
             updatedBy: string | null;
         };
+        PlanExerciseDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            exerciseId: string;
+            /** Format: int32 */
+            position: number;
+            exerciseName: string;
+            trackingMode: string;
+            /** Format: int32 */
+            sets: number;
+            /** Format: int32 */
+            reps: number | null;
+            /** Format: int32 */
+            durationSeconds: number | null;
+            /** Format: int32 */
+            restSeconds: number;
+            /** Format: double */
+            recommendedLoadKg: number | null;
+            notes: string | null;
+        };
+        PlanExerciseRequest: {
+            /** Format: uuid */
+            exerciseId: string;
+            /** Format: int32 */
+            sets: number;
+            /** Format: int32 */
+            reps: number | null;
+            /** Format: int32 */
+            durationSeconds: number | null;
+            /** Format: int32 */
+            restSeconds: number;
+            /** Format: double */
+            recommendedLoadKg: number | null;
+            notes: string | null;
+        };
         PlanRequest: {
             name: string;
             description: string | null;
@@ -2453,6 +3795,72 @@ export interface components {
             /** Format: int32 */
             maxFreezeDays: number;
             branchIds: string[] | null;
+        };
+        PlanSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            goal: string | null;
+            level: string;
+            /** Format: int32 */
+            estimatedMinutes: number | null;
+            status: string;
+            /** Format: int32 */
+            version: number;
+            /** Format: date */
+            validFrom: string | null;
+            /** Format: date */
+            validUntil: string | null;
+            /** Format: int32 */
+            dayCount: number;
+            /** Format: int32 */
+            exerciseCount: number;
+            /** Format: int32 */
+            activeAssignments: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
+        PlanVersionDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: int32 */
+            number: number;
+            name: string;
+            changeNote: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdBy: string | null;
+        };
+        ProgressPhotoDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            /** Format: date */
+            takenOn: string;
+            angle: string;
+            contentType: string;
+            /** Format: int64 */
+            sizeBytes: number;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        ProgressPointDto: {
+            /** Format: uuid */
+            sessionId: string;
+            /** Format: date */
+            date: string;
+            /** Format: double */
+            maxLoadKg: number | null;
+            /** Format: double */
+            volumeKg: number;
+            /** Format: int32 */
+            totalReps: number;
+            /** Format: int32 */
+            totalDurationSeconds: number;
         };
         PromotionDto: {
             /** Format: uuid */
@@ -2579,6 +3987,11 @@ export interface components {
         ReversePaymentRequest: {
             reason: string;
         };
+        RevokePhotoConsentResult: {
+            /** Format: int32 */
+            deletedPhotos: number;
+            consent: components["schemas"]["PhotoConsentDto"];
+        };
         RoleDto: {
             /** Format: uuid */
             id: string;
@@ -2588,8 +4001,49 @@ export interface components {
             grantsAllBranches: boolean;
             permissions: string[];
         };
+        SessionComparisonDto: {
+            a: components["schemas"]["WorkoutSessionDto"];
+            b: components["schemas"]["WorkoutSessionDto"];
+            exercises: components["schemas"]["ExerciseComparisonDto"][];
+        };
+        SessionExerciseDto: {
+            /** Format: uuid */
+            planExerciseId: string;
+            /** Format: uuid */
+            exerciseId: string;
+            exerciseName: string;
+            trackingMode: string;
+            completed: boolean;
+            notes: string | null;
+            /** Format: int32 */
+            plannedSets: number;
+            /** Format: int32 */
+            plannedReps: number | null;
+            /** Format: int32 */
+            plannedDurationSeconds: number | null;
+            /** Format: double */
+            plannedLoadKg: number | null;
+            sets: components["schemas"]["SetDto"][];
+        };
+        SessionExerciseRequest: {
+            /** Format: uuid */
+            planExerciseId: string;
+            completed: boolean;
+            notes: string | null;
+            sets: components["schemas"]["SetRequest"][] | null;
+        };
         SetAvailabilityRequest: {
             slots: components["schemas"]["AvailabilitySlotRequest"][] | null;
+        };
+        SetDto: {
+            /** Format: int32 */
+            setNumber: number;
+            /** Format: int32 */
+            reps: number | null;
+            /** Format: int32 */
+            durationSeconds: number | null;
+            /** Format: double */
+            loadKg: number | null;
         };
         SetExerciseStatusRequest: {
             isActive: boolean;
@@ -2599,6 +4053,20 @@ export interface components {
         };
         SetMemberStatusRequest: {
             isActive: boolean;
+        };
+        SetNutritionPlanStatusRequest: {
+            active: boolean;
+        };
+        SetPlanStatusRequest: {
+            active: boolean;
+        };
+        SetRequest: {
+            /** Format: int32 */
+            reps: number | null;
+            /** Format: int32 */
+            durationSeconds: number | null;
+            /** Format: double */
+            loadKg: number | null;
         };
         SetTrainerStatusRequest: {
             isActive: boolean;
@@ -2657,6 +4125,9 @@ export interface components {
         };
         /** @enum {unknown} */
         TrackingMode: "RepsAndLoad" | "Reps" | "Duration";
+        TrainerCommentRequest: {
+            comment: string;
+        };
         TrainerDto: {
             /** Format: uuid */
             id: string;
@@ -2689,6 +4160,68 @@ export interface components {
             text: string;
             /** Format: date-time */
             createdAt: string;
+        };
+        TrainingAdherenceDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            /** Format: int32 */
+            expected: number;
+            /** Format: int32 */
+            sessions: number;
+            /** Format: double */
+            percent: number | null;
+            weeks: components["schemas"]["TrainingWeekDto"][];
+        };
+        TrainingAssignmentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            planId: string;
+            /** Format: uuid */
+            planVersionId: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: uuid */
+            memberId: string;
+            memberName: string;
+            memberCode: string;
+            /** Format: date */
+            startDate: string;
+            /** Format: date */
+            endDate: string | null;
+            /** Format: date */
+            endedOn: string | null;
+            endReason: string | null;
+            status: string;
+        };
+        TrainingPlanRequest: {
+            name: string;
+            goal: string | null;
+            description: string | null;
+            level: components["schemas"]["Difficulty"];
+            /** Format: int32 */
+            estimatedMinutes: number | null;
+            /** Format: date */
+            validFrom: string | null;
+            /** Format: date */
+            validUntil: string | null;
+            changeNote: string | null;
+            days: components["schemas"]["PlanDayRequest"][] | null;
+        };
+        TrainingWeekDto: {
+            /** Format: date */
+            weekStart: string;
+            /** Format: int32 */
+            daysCovered: number;
+            /** Format: int32 */
+            expected: number;
+            /** Format: int32 */
+            completed: number;
+            /** Format: double */
+            percent: number | null;
         };
         UnassignMemberRequest: {
             reason: string;
@@ -2778,6 +4311,37 @@ export interface components {
         };
         VoidObligationRequest: {
             reason: string;
+        };
+        WorkoutSessionDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            memberId: string;
+            /** Format: date */
+            performedOn: string;
+            /** Format: uuid */
+            dayId: string;
+            dayName: string;
+            /** Format: uuid */
+            planId: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: int32 */
+            durationMinutes: number | null;
+            memberNotes: string | null;
+            trainerComment: string | null;
+            /** Format: date-time */
+            trainerCommentAt: string | null;
+            /** Format: int32 */
+            completedExercises: number;
+            /** Format: int32 */
+            totalExercises: number;
+            /** Format: int32 */
+            totalSets: number;
+            /** Format: double */
+            volumeKg: number;
+            exercises: components["schemas"]["SessionExerciseDto"][];
         };
     };
     responses: never;
@@ -3126,6 +4690,779 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MemberDto"];
                 };
+            };
+        };
+    };
+    EndTrainingAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EndAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainingAssignmentDto"];
+                };
+            };
+        };
+    };
+    GetMemberTrainingPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberTrainingPlanDto"];
+                };
+            };
+        };
+    };
+    ListMemberTrainingAssignments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainingAssignmentDto"][];
+                };
+            };
+        };
+    };
+    CreateWorkoutSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkoutSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutSessionDto"];
+                };
+            };
+        };
+    };
+    GetWorkoutSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutSessionDto"];
+                };
+            };
+        };
+    };
+    AddWorkoutSessionTrainerComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainerCommentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkoutSessionDto"];
+                };
+            };
+        };
+    };
+    ListMemberWorkoutSessions: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfWorkoutSessionDto"];
+                };
+            };
+        };
+    };
+    CompareWorkoutSessions: {
+        parameters: {
+            query: {
+                sessionA: string;
+                sessionB: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionComparisonDto"];
+                };
+            };
+        };
+    };
+    GetExerciseProgress: {
+        parameters: {
+            query: {
+                exerciseId: string;
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExerciseProgressDto"];
+                };
+            };
+        };
+    };
+    EndNutritionAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EndNutritionAssignmentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionAssignmentDto"];
+                };
+            };
+        };
+    };
+    GetMemberNutritionPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MemberNutritionPlanDto"];
+                };
+            };
+        };
+    };
+    ListMemberNutritionAssignments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionAssignmentDto"][];
+                };
+            };
+        };
+    };
+    GetDietaryProfile: {
+        parameters: {
+            query?: {
+                history?: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DietaryProfileDto2"][];
+                };
+            };
+        };
+    };
+    SaveDietaryProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DietaryProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DietaryProfileDto2"];
+                };
+            };
+        };
+    };
+    LogMeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogMealRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MealLogDto"];
+                };
+            };
+        };
+    };
+    ListMealLogs: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionLogsDto"];
+                };
+            };
+        };
+    };
+    ListAssessments: {
+        parameters: {
+            query?: {
+                includeCorrected?: boolean;
+                from?: string;
+                to?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfAssessmentDto"];
+                };
+            };
+        };
+    };
+    CreateAssessment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssessmentRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentDto"];
+                };
+            };
+        };
+    };
+    CompareAssessments: {
+        parameters: {
+            query: {
+                a: string;
+                b: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentComparisonDto"];
+                };
+            };
+        };
+    };
+    GetAssessmentProgress: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssessmentPointDto"][];
+                };
+            };
+        };
+    };
+    ListGoals: {
+        parameters: {
+            query?: {
+                status?: "Active" | "Achieved" | "Abandoned" | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalDto"][];
+                };
+            };
+        };
+    };
+    CreateGoal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GoalRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalDto"];
+                };
+            };
+        };
+    };
+    CloseGoal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CloseGoalRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GoalDto"];
+                };
+            };
+        };
+    };
+    GetTrainingAdherence: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainingAdherenceDto"];
+                };
+            };
+        };
+    };
+    GetNutritionAdherence: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionAdherenceDto"];
+                };
+            };
+        };
+    };
+    GetPhotoConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoConsentDto"];
+                };
+            };
+        };
+    };
+    GrantPhotoConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantPhotoConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoConsentDto"];
+                };
+            };
+        };
+    };
+    RevokePhotoConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevokePhotoConsentResult"];
+                };
+            };
+        };
+    };
+    ListProgressPhotos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProgressPhotoDto"][];
+                };
+            };
+        };
+    };
+    UploadProgressPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProgressPhotoDto"];
+                };
+            };
+        };
+    };
+    GetProgressPhotoContent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DeleteProgressPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -5468,6 +7805,397 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExerciseDto"];
+                };
+            };
+        };
+    };
+    ListTrainingPlans: {
+        parameters: {
+            query?: {
+                search?: string;
+                status?: components["schemas"]["NullableOfPlanStatus"];
+                level?: components["schemas"]["NullableOfDifficulty"];
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfPlanSummaryDto"];
+                };
+            };
+        };
+    };
+    CreateTrainingPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainingPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDetailDto"];
+                };
+            };
+        };
+    };
+    GetTrainingPlan: {
+        parameters: {
+            query?: {
+                version?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDetailDto"];
+                };
+            };
+        };
+    };
+    UpdateTrainingPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TrainingPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDetailDto"];
+                };
+            };
+        };
+    };
+    ListTrainingPlanVersions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanVersionDto"][];
+                };
+            };
+        };
+    };
+    DuplicateTrainingPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDetailDto"];
+                };
+            };
+        };
+    };
+    SetTrainingPlanStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPlanStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanSummaryDto"];
+                };
+            };
+        };
+    };
+    AssignTrainingPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrainingAssignmentDto"];
+                };
+            };
+        };
+    };
+    ListNutritionPlans: {
+        parameters: {
+            query?: {
+                search?: string;
+                status?: components["schemas"]["NullableOfPlanStatus"];
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfNutritionPlanSummaryDto"];
+                };
+            };
+        };
+    };
+    CreateNutritionPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NutritionPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionPlanDetailDto"];
+                };
+            };
+        };
+    };
+    GetNutritionPlan: {
+        parameters: {
+            query?: {
+                version?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionPlanDetailDto"];
+                };
+            };
+        };
+    };
+    UpdateNutritionPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NutritionPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionPlanDetailDto"];
+                };
+            };
+        };
+    };
+    ListNutritionPlanVersions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionVersionDto"][];
+                };
+            };
+        };
+    };
+    DuplicateNutritionPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionPlanDetailDto"];
+                };
+            };
+        };
+    };
+    SetNutritionPlanStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetNutritionPlanStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionPlanSummaryDto"];
+                };
+            };
+        };
+    };
+    AssignNutritionPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignNutritionPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NutritionAssignmentDto"];
                 };
             };
         };

@@ -3,7 +3,39 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type {
   AccessDecision,
+  Assessment,
+  AssessmentComparison,
+  AssessmentPoint,
+  AssessmentRequest,
   Attendance,
+  CloseGoalRequest,
+  CreateWorkoutSessionRequest,
+  DietaryProfile,
+  DietaryProfileRequest,
+  ExerciseProgress,
+  Goal,
+  GoalRequest,
+  LogMealRequest,
+  MealLog,
+  MemberNutritionPlan,
+  MemberTrainingPlan,
+  NutritionAdherence,
+  NutritionAssignment,
+  NutritionLogs,
+  NutritionPlanDetail,
+  NutritionPlanRequest,
+  NutritionPlanSummary,
+  NutritionPlanVersion,
+  PhotoConsent,
+  ProgressPhoto,
+  RevokePhotoConsentResult,
+  TrainingAdherence,
+  TrainingAssignment,
+  TrainingPlanDetail,
+  TrainingPlanRequest,
+  TrainingPlanSummary,
+  TrainingPlanVersion,
+  WorkoutSession,
   AvailabilitySlotRequest,
   AuditLog,
   Branch,
@@ -403,5 +435,152 @@ export class ApiService {
   }
   checkOut(body: { memberId?: string | null; memberCode?: string | null; qrToken?: string | null }): Observable<Attendance> {
     return this.http.post<Attendance>(`${API_BASE}/attendance/check-out`, body);
+  }
+
+  // Rutinas
+  trainingPlans(query: Query = {}): Observable<Paged<TrainingPlanSummary>> {
+    return this.get('/training-plans', query);
+  }
+  trainingPlan(id: string, version?: number): Observable<TrainingPlanDetail> {
+    return this.get(`/training-plans/${id}`, { version });
+  }
+  trainingPlanVersions(id: string): Observable<TrainingPlanVersion[]> {
+    return this.get(`/training-plans/${id}/versions`);
+  }
+  createTrainingPlan(body: TrainingPlanRequest): Observable<TrainingPlanDetail> {
+    return this.http.post<TrainingPlanDetail>(`${API_BASE}/training-plans`, body);
+  }
+  updateTrainingPlan(id: string, body: TrainingPlanRequest): Observable<TrainingPlanDetail> {
+    return this.http.put<TrainingPlanDetail>(`${API_BASE}/training-plans/${id}`, body);
+  }
+  duplicateTrainingPlan(id: string): Observable<TrainingPlanDetail> {
+    return this.http.post<TrainingPlanDetail>(`${API_BASE}/training-plans/${id}/duplicate`, {});
+  }
+  setTrainingPlanStatus(id: string, active: boolean): Observable<TrainingPlanSummary> {
+    return this.http.patch<TrainingPlanSummary>(`${API_BASE}/training-plans/${id}/status`, { active });
+  }
+  assignTrainingPlan(planId: string, body: { memberId: string; startDate?: string | null; endDate?: string | null }): Observable<TrainingAssignment> {
+    return this.http.post<TrainingAssignment>(`${API_BASE}/training-plans/${planId}/assignments`, body);
+  }
+  endTrainingAssignment(id: string, reason: string): Observable<TrainingAssignment> {
+    return this.http.post<TrainingAssignment>(`${API_BASE}/training-assignments/${id}/end`, { reason });
+  }
+  memberTrainingPlan(memberId: string): Observable<MemberTrainingPlan> {
+    return this.get(`/members/${memberId}/training-plan`);
+  }
+  memberTrainingAssignments(memberId: string): Observable<TrainingAssignment[]> {
+    return this.get(`/members/${memberId}/training-assignments`);
+  }
+  createWorkoutSession(body: CreateWorkoutSessionRequest): Observable<WorkoutSession> {
+    return this.http.post<WorkoutSession>(`${API_BASE}/workout-sessions`, body);
+  }
+  workoutSessions(memberId: string, query: Query = {}): Observable<Paged<WorkoutSession>> {
+    return this.get(`/members/${memberId}/workout-sessions`, query);
+  }
+  addTrainerComment(sessionId: string, comment: string): Observable<WorkoutSession> {
+    return this.http.post<WorkoutSession>(`${API_BASE}/workout-sessions/${sessionId}/trainer-comment`, { comment });
+  }
+  exerciseProgress(memberId: string, exerciseId: string): Observable<ExerciseProgress> {
+    return this.get(`/members/${memberId}/exercise-progress`, { exerciseId });
+  }
+  trainingAdherence(memberId: string, query: Query = {}): Observable<TrainingAdherence> {
+    return this.get(`/members/${memberId}/training-adherence`, query);
+  }
+
+  // Nutrición
+  nutritionPlans(query: Query = {}): Observable<Paged<NutritionPlanSummary>> {
+    return this.get('/nutrition-plans', query);
+  }
+  nutritionPlan(id: string, version?: number): Observable<NutritionPlanDetail> {
+    return this.get(`/nutrition-plans/${id}`, { version });
+  }
+  nutritionPlanVersions(id: string): Observable<NutritionPlanVersion[]> {
+    return this.get(`/nutrition-plans/${id}/versions`);
+  }
+  createNutritionPlan(body: NutritionPlanRequest): Observable<NutritionPlanDetail> {
+    return this.http.post<NutritionPlanDetail>(`${API_BASE}/nutrition-plans`, body);
+  }
+  updateNutritionPlan(id: string, body: NutritionPlanRequest): Observable<NutritionPlanDetail> {
+    return this.http.put<NutritionPlanDetail>(`${API_BASE}/nutrition-plans/${id}`, body);
+  }
+  duplicateNutritionPlan(id: string): Observable<NutritionPlanDetail> {
+    return this.http.post<NutritionPlanDetail>(`${API_BASE}/nutrition-plans/${id}/duplicate`, {});
+  }
+  setNutritionPlanStatus(id: string, active: boolean): Observable<NutritionPlanSummary> {
+    return this.http.patch<NutritionPlanSummary>(`${API_BASE}/nutrition-plans/${id}/status`, { active });
+  }
+  assignNutritionPlan(planId: string, body: { memberId: string; startDate?: string | null; endDate?: string | null }): Observable<NutritionAssignment> {
+    return this.http.post<NutritionAssignment>(`${API_BASE}/nutrition-plans/${planId}/assignments`, body);
+  }
+  endNutritionAssignment(id: string, reason: string): Observable<NutritionAssignment> {
+    return this.http.post<NutritionAssignment>(`${API_BASE}/nutrition-assignments/${id}/end`, { reason });
+  }
+  memberNutritionPlan(memberId: string): Observable<MemberNutritionPlan> {
+    return this.get(`/members/${memberId}/nutrition-plan`);
+  }
+  dietaryProfile(memberId: string, history = false): Observable<DietaryProfile[]> {
+    return this.get(`/members/${memberId}/dietary-profile`, { history });
+  }
+  saveDietaryProfile(memberId: string, body: DietaryProfileRequest): Observable<DietaryProfile> {
+    return this.http.post<DietaryProfile>(`${API_BASE}/members/${memberId}/dietary-profile`, body);
+  }
+  logMeal(body: LogMealRequest): Observable<MealLog> {
+    return this.http.post<MealLog>(`${API_BASE}/meal-logs`, body);
+  }
+  mealLogs(memberId: string, query: Query = {}): Observable<NutritionLogs> {
+    return this.get(`/members/${memberId}/meal-logs`, query);
+  }
+  nutritionAdherence(memberId: string, query: Query = {}): Observable<NutritionAdherence> {
+    return this.get(`/members/${memberId}/nutrition-adherence`, query);
+  }
+
+  // Evaluaciones físicas y objetivos
+  assessments(memberId: string, query: Query = {}): Observable<Paged<Assessment>> {
+    return this.get(`/members/${memberId}/assessments`, query);
+  }
+  createAssessment(memberId: string, body: AssessmentRequest): Observable<Assessment> {
+    return this.http.post<Assessment>(`${API_BASE}/members/${memberId}/assessments`, body);
+  }
+  assessmentProgress(memberId: string): Observable<AssessmentPoint[]> {
+    return this.get(`/members/${memberId}/assessments/progress`);
+  }
+  compareAssessments(memberId: string, a: string, b: string): Observable<AssessmentComparison> {
+    return this.get(`/members/${memberId}/assessments/compare`, { a, b });
+  }
+  goals(memberId: string, status?: string): Observable<Goal[]> {
+    return this.get(`/members/${memberId}/goals`, { status });
+  }
+  createGoal(memberId: string, body: GoalRequest): Observable<Goal> {
+    return this.http.post<Goal>(`${API_BASE}/members/${memberId}/goals`, body);
+  }
+  closeGoal(id: string, body: CloseGoalRequest): Observable<Goal> {
+    return this.http.post<Goal>(`${API_BASE}/goals/${id}/close`, body);
+  }
+
+  // Fotos de progreso (privadas: el archivo solo sale por la API con el token de la sesión)
+  photoConsent(memberId: string): Observable<PhotoConsent> {
+    return this.get(`/members/${memberId}/photo-consent`);
+  }
+  grantPhotoConsent(memberId: string, guardianName: string | null): Observable<PhotoConsent> {
+    return this.http.post<PhotoConsent>(`${API_BASE}/members/${memberId}/photo-consent/grant`, { guardianName });
+  }
+  revokePhotoConsent(memberId: string): Observable<RevokePhotoConsentResult> {
+    return this.http.post<RevokePhotoConsentResult>(`${API_BASE}/members/${memberId}/photo-consent/revoke`, {});
+  }
+  progressPhotos(memberId: string): Observable<ProgressPhoto[]> {
+    return this.get(`/members/${memberId}/progress-photos`);
+  }
+  uploadProgressPhoto(memberId: string, file: File, takenOn: string, angle: string): Observable<ProgressPhoto> {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('takenOn', takenOn);
+    form.append('angle', angle);
+    return this.http.post<ProgressPhoto>(`${API_BASE}/members/${memberId}/progress-photos`, form);
+  }
+  progressPhotoContent(id: string): Observable<Blob> {
+    return this.http.get(`${API_BASE}/progress-photos/${id}/content`, { responseType: 'blob' });
+  }
+  deleteProgressPhoto(id: string): Observable<void> {
+    return this.http.delete<void>(`${API_BASE}/progress-photos/${id}`);
   }
 }

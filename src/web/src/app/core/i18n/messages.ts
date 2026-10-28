@@ -63,6 +63,11 @@ export class Formatter {
     return new Intl.NumberFormat(this.locale, { style: 'currency', currency: 'USD' }).format(amount);
   }
 
+  /** Número con el separador decimal del idioma activo (29,4 en español, 29.4 en inglés). */
+  number(value: number, maxDecimals = 2): string {
+    return new Intl.NumberFormat(this.locale, { maximumFractionDigits: maxDecimals }).format(value);
+  }
+
   /** Fecha sin hora (`2026-11-26`) tal cual, sin el corrimiento de zona horaria que sufre `new Date('2026-11-26')`. */
   dateOnly(value: string): string {
     const [year, month, day] = value.slice(0, 10).split('-').map(Number);

@@ -12,6 +12,8 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.home', path: '/', icon: '⌂' },
   { labelKey: 'nav.members', path: '/members', icon: '☻', permission: Perm.MembersRead },
   { labelKey: 'nav.exercises', path: '/exercises', icon: '♜', permission: Perm.ExercisesRead },
+  { labelKey: 'nav.trainingPlans', path: '/training-plans', icon: '☰', permission: Perm.TrainingPlansRead },
+  { labelKey: 'nav.nutritionPlans', path: '/nutrition-plans', icon: '❦', permission: Perm.NutritionPlansRead },
   { labelKey: 'nav.trainers', path: '/trainers', icon: '♞', permission: Perm.TrainersRead },
   { labelKey: 'nav.attendance', path: '/attendance', icon: '✔', permission: Perm.AttendanceRead },
   { labelKey: 'nav.memberships', path: '/memberships', icon: '❖', permission: Perm.MembershipsRead },

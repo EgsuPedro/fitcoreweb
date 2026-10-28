@@ -98,6 +98,17 @@
 - **API:** `GET /members/{id}/photo-consent`, `POST /members/{id}/photo-consent/grant` y `/revoke`, `GET|POST /members/{id}/progress-photos` (POST multipart: `file`, `takenOn` yyyy-MM-dd y `angle` Front/Side/Back/Other), `GET /progress-photos/{id}/content` y `DELETE /progress-photos/{id}`.
 - **Limitaciones conocidas:** (1) el almacén en disco local sirve para una sola instancia de la API; con varias hace falta un almacén compartido (la razón de ser del puerto). (2) El volumen `fitcore_files` debe incluirse en las copias de seguridad y cifrarse en reposo a nivel de disco o volumen; la aplicación no cifra los archivos. (3) Si el borrado de un archivo falla tras confirmar el retiro, el archivo queda huérfano (inaccesible, porque su registro ya no existe) hasta limpiarlo a mano. (4) La interfaz Angular (galería, comparación lado a lado, consentimiento) se entrega en el bloque 9.
 
+## Implementación del bloque 9 (Angular)
+- **Un solo componente para ambos lados:** `fc-member-wellness` (`src/web/src/app/features/wellness/`) agrupa las pestañas Entrenamiento, Nutrición, Evaluaciones, Objetivos y Fotos de un alumno. Se usa en la **ficha del alumno** (personal) y en el **portal del propio alumno** (`[self]="true"`): la API aplica las mismas reglas de acceso en ambos casos y la interfaz solo muestra las pestañas para las que hay permiso. Como el entrenador no tiene `members.read` (mínimo privilegio) y no puede abrir la ficha, llega al seguimiento de su alumno desde su pantalla de entrenador (`Seguimiento` → `/members/:id/wellness`).
+- **Pantallas de personal:** `/training-plans` y `/nutrition-plans` (listado, filtros, duplicar, archivar y constructor de días/ejercicios o comidas/alimentos con subir/bajar; editar crea una versión nueva y se avisa que las asignaciones en curso conservan la suya). Los ejercicios se eligen de la biblioteca por nombre.
+- **Panel del alumno:** su rutina vigente con la guía de cada ejercicio, **registro de sesión** (series según se registre el ejercicio: repeticiones con carga, repeticiones o tiempo), evolución por ejercicio, plan nutricional con alergias destacadas y **registro de cada comida del día**, evaluaciones con gráfico y comparación, objetivos con barra de avance y fotos con su consentimiento. Todo en solo lectura salvo lo que el alumno puede registrar por sí mismo.
+- **Gráficos:** SVG propio (`fc-line-chart`), sin librerías, con tabla equivalente para lectores de pantalla y los valores/fechas en el idioma activo. Son una ayuda visual: no interpretan ni diagnostican. El IMC lleva siempre su nota de que es un indicador general.
+- **Fotos privadas en la interfaz:** el navegador no envía el token en una etiqueta `<img>`, así que `fc-auth-image` pide el archivo a la API con la sesión y lo muestra desde un blob local que se libera al cambiar de foto o destruir el componente. Retirar el consentimiento pide confirmación e informa cuántas fotos se borrarán; un menor solo puede consentir con su representante, registrado por el personal.
+- **Hallazgo corregido:** la ficha del alumno pedía membresías, cobros y obligaciones aunque el rol no tuviera esos permisos (la nutricionista solo ve alumnos) y fallaba con 403 sin manejar; ahora cada bloque y su llamada dependen de su permiso.
+- **i18n:** todas las pantallas y los ~90 códigos de error nuevos (`training.*`, `nutrition.*`, `assessment.*`, `goal.*`, `adherence.*`, `photos.*`) en español e inglés; los decimales siguen el idioma (29,4 / 29.4).
+- **Pruebas:** vitest (formato de números, geometría del gráfico) y e2e `wellness.spec.ts` con 4 escenarios contra API y PostgreSQL reales: el entrenador arma y asigna una rutina y registra evaluación y objetivo; el alumno registra su sesión, ve su evolución y gestiona consentimiento y foto (se comprueba que se muestra desde un blob y que retirar el consentimiento la borra); la nutricionista arma y asigna un plan y el alumno registra su comida; y el propietario no ve nutrición, evaluaciones, objetivos ni fotos.
+- **Pendiente (no incluido):** pantalla para comparar sesiones lado a lado (la API ya la expone), edición del perfil de un alumno por la propia persona, y recordatorios de entrenamiento.
+
 ## Principios del dominio (de las reglas del prompt)
 - **Versiones inmutables:** una rutina o un plan nutricional se versiona; modificarlo crea una versión nueva y las sesiones y registros ya hechos conservan la versión con la que se hicieron.
 - **Mediciones, no diagnósticos:** cada medición guarda unidad, fecha, fuente y método; lo estimado se marca como derivado. El IMC se muestra como indicador general (peso / estatura²) solo con estatura > 0; no se calcula grasa corporal sin método y datos válidos. El sistema no diagnostica ni sustituye una valoración clínica, y las estimaciones calóricas no se presentan como exactas.
@@ -116,10 +127,10 @@ App móvil Flutter, facturación electrónica, nómina y contabilidad.
 | 2a | Acceso del alumno: vínculo alumno–usuario, clave temporal con cambio obligatorio, endpoints «de mí», permisos sensibles | Hecho |
 | 2b | Módulo `Wellness`: entrenadores, disponibilidad, asignaciones con historial y observaciones | Hecho |
 | 3 | Biblioteca de ejercicios (globales y del gimnasio, catálogo base) | Hecho |
-| 4 | Rutinas, asignaciones y sesiones (versionado) | Hecho (backend; UI en bloque 9) |
-| 5 | Nutrición (planes versionados, asignaciones, registro de cumplimiento) | Hecho (backend; UI en bloque 9) |
-| 6 | Evaluaciones físicas (IMC, historial, comparación) | Hecho (backend; UI en bloque 9) |
-| 7 | Objetivos, seguimiento y adherencia | Hecho (backend; UI en bloque 9) |
-| 8 | Fotografías y privacidad (`IFileStore`, consentimiento) | Hecho (backend; UI en bloque 9) |
-| 9 | Integración Angular (panel del entrenador, panel del alumno, gráficos) | Pendiente |
+| 4 | Rutinas, asignaciones y sesiones (versionado) | Hecho |
+| 5 | Nutrición (planes versionados, asignaciones, registro de cumplimiento) | Hecho |
+| 6 | Evaluaciones físicas (IMC, historial, comparación) | Hecho |
+| 7 | Objetivos, seguimiento y adherencia | Hecho |
+| 8 | Fotografías y privacidad (`IFileStore`, consentimiento) | Hecho |
+| 9 | Integración Angular (panel del entrenador, panel del alumno, gráficos) | Hecho |
 | 10 | Pruebas, regresión y documentación | Pendiente |

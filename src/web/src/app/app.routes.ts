@@ -28,6 +28,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/members/members').then((m) => m.Members),
       },
       {
+        path: 'members/:id/wellness',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.TrainingMemberRead },
+        loadComponent: () => import('./features/wellness/member-wellness-page').then((m) => m.MemberWellnessPage),
+      },
+      {
         path: 'members/:id',
         canActivate: [permissionGuard],
         data: { permission: Perm.MembersRead },
@@ -116,6 +122,18 @@ export const routes: Routes = [
         canActivate: [permissionGuard],
         data: { permission: Perm.ExercisesRead },
         loadComponent: () => import('./features/exercises/exercises').then((m) => m.Exercises),
+      },
+      {
+        path: 'training-plans',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.TrainingPlansRead },
+        loadComponent: () => import('./features/wellness/training-plans').then((m) => m.TrainingPlans),
+      },
+      {
+        path: 'nutrition-plans',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.NutritionPlansRead },
+        loadComponent: () => import('./features/wellness/nutrition-plans').then((m) => m.NutritionPlans),
       },
       {
         path: 'platform/exercises',

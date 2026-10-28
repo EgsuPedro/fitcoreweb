@@ -6,14 +6,15 @@ import type { MyAttendance, MyMember, MyMembership, MyPayment } from '../../core
 import { ErrorMessages } from '../../core/i18n/messages';
 import { Badge, membershipTone } from '../../shared/badge';
 import { FcDate, FcDateTime, FcMoney } from '../../shared/format.pipes';
+import { MemberWellness } from '../wellness/member-wellness';
 
 /**
  * Resumen del alumno: su membresía, pagos y visitas. Todo viene de los endpoints «de mí», que resuelven al alumno desde su sesión.
- * Rutinas, nutrición y progreso se suman aquí cuando existan esos módulos.
+ * Rutinas, nutrición, progreso y fotos vienen del componente de bienestar (mismas reglas de acceso que la API).
  */
 @Component({
   selector: 'fc-my-portal',
-  imports: [TranslocoPipe, Badge, FcDate, FcDateTime, FcMoney],
+  imports: [TranslocoPipe, Badge, FcDate, FcDateTime, FcMoney, MemberWellness],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (error()) {
@@ -25,6 +26,8 @@ import { FcDate, FcDateTime, FcMoney } from '../../shared/format.pipes';
           <p class="muted">{{ m.code }} · {{ m.branchName }}</p>
         </div>
       </header>
+
+      <fc-member-wellness [memberId]="m.id" [self]="true" />
 
       <section class="section">
         <h2>{{ 'portal.memberships' | transloco }}</h2>

@@ -179,6 +179,9 @@ const DAYS: Day[] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sa
                       }
                     </td>
                     <td class="actions">
+                      @if (a.isActive && canFollow()) {
+                        <a class="btn" [routerLink]="['/members', a.memberId, 'wellness']" [queryParams]="{ name: a.memberName }">{{ 'wellness.follow' | transloco }}</a>
+                      }
                       @if (a.isActive && canNotes() && isSelf()) {
                         <button type="button" class="btn" (click)="openNotes(a)">{{ 'trainers.notes' | transloco }}</button>
                       }
@@ -314,6 +317,7 @@ export class TrainerDetail implements OnInit {
 
   protected readonly canManage = computed(() => this.session.has(Perm.TrainersManage));
   protected readonly canNotes = computed(() => this.session.has(Perm.TrainersNotes));
+  protected readonly canFollow = computed(() => this.session.has(Perm.TrainingMemberRead) || this.session.has(Perm.AssessmentsRead));
   protected readonly notesTarget = signal<TrainerAssignment | null>(null);
   protected readonly isSelf = computed(() => this.trainer()?.userId === this.session.user()?.userId);
   protected readonly canEditAvailability = computed(() => this.canManage() || this.isSelf());

@@ -18,7 +18,10 @@ jobs:
       - name: Build (warnings as errors)
         run: dotnet build FitCore.sln --no-restore -c Release
       - name: Test (las pruebas de integración levantan PostgreSQL con Testcontainers)
-        run: dotnet test FitCore.sln --no-build -c Release
+        run: dotnet test FitCore.sln --no-build -c Release --logger "trx;LogFilePrefix=results" --results-directory TestResults
+      - name: Pruebas fallidas (anotaciones)
+        if: always()
+        run: node scripts/ci-annotate-trx.mjs TestResults
       - name: Vulnerable packages
         run: |
           dotnet list FitCore.sln package --vulnerable --include-transitive 2>&1 | tee vuln.txt

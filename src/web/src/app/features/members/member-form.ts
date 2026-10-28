@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, effect, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api/api.service';
@@ -148,6 +148,17 @@ export class MemberForm implements OnInit {
       ],
     },
   );
+
+  constructor() {
+    // Las sucursales se cargan de forma asíncrona: si llegan después de abrir el formulario, el alta toma la primera (sin pisar lo elegido).
+    effect(() => {
+      const branches = this.branches();
+      const control = this.form.controls.branchId;
+      if (!this.member() && !control.value && branches.length > 0) {
+        control.setValue(branches[0].id);
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.catalog.ensure();

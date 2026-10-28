@@ -11,10 +11,12 @@ import { MyPortal } from '../portal/my-portal';
   imports: [RouterLink, TranslocoPipe, MyPortal],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <header class="page-header">
-      <h1>{{ 'home.welcome' | transloco: { name: session.user()?.fullName } }}</h1>
-      <p class="muted">{{ 'home.tenant' | transloco: { tenant: session.user()?.tenantSlug } }}</p>
-    </header>
+    @if (!isStudent()) {
+      <header class="page-header">
+        <h1>{{ 'home.welcome' | transloco: { name: session.user()?.fullName } }}</h1>
+        <p class="muted">{{ 'home.tenant' | transloco: { tenant: session.user()?.tenantSlug } }}</p>
+      </header>
+    }
 
     @if (isStudent()) {
       <fc-my-portal />

@@ -92,6 +92,9 @@ public static class Permissions
     public const string TrainersNotes = "trainers.notes";
     public const string WellnessMembersAll = "wellness.members.all";
 
+    public const string GroupClassesRead = "group-classes.read";
+    public const string GroupClassesManage = "group-classes.manage";
+
     public const string MembersAccess = "members.access";
     public const string MeRead = "me.read";
 
@@ -164,6 +167,8 @@ public static class Permissions
         new(TrainersNotes, "trainers", "Escribir y leer observaciones profesionales de los alumnos asignados", Sensitive: true),
         new(WellnessMembersAll, "trainers", "Ver el seguimiento de todos los alumnos de sus sucursales, no solo de los asignados"),
         new(MembersAccess, "members", "Dar, restablecer y quitar el acceso de un alumno a su portal"),
+        new(GroupClassesRead, "classes", "Ver las clases grupales y su configuración"),
+        new(GroupClassesManage, "classes", "Crear, editar, activar y desactivar clases grupales"),
         new(MeRead, "me", "Consultar los propios datos de alumno (portal del alumno)")
     ];
 

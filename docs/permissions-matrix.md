@@ -89,6 +89,7 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `trainers.read` / `trainers.manage` | Ver perfiles de entrenadores y listar los propios alumnos / habilitar entrenadores, editar perfiles, asignar y quitar alumnos, ver el historial de entrenadores de un alumno |
 | `trainers.notes` (**sensible**) | Escribir y leer observaciones profesionales, solo del alumno que el entrenador tiene asignado hoy. No lo reciben Propietario ni AdministradorSucursal por defecto; quien administra roles puede concederlo a un rol |
 | `wellness.members.all` | Ver el seguimiento de todos los alumnos de sus sucursales y no solo los asignados (se usa desde las rutinas, nutrición y evaluaciones) |
+| `group-classes.read` / `group-classes.manage` | Ver las clases grupales y su configuración / crear, editar, activar y desactivar clases (solo de las sucursales a las que el usuario tiene acceso; las demás responden 404). Administradores de sucursal y propietario: ambos; recepción y entrenador: lectura |
 | `members.access` | Dar, restablecer, suspender y reactivar el acceso de un alumno a su portal (administrador de sucursal; recepción no lo tiene) |
 | `me.read` | Solo del rol `Alumno`: ver sus propios datos en el portal (`/me/*`) |
 | `platform.taxes.manage` | Solo plataforma: registrar tarifas de IVA por decreto |

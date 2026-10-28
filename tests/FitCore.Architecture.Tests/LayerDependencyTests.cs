@@ -1,5 +1,6 @@
 using System.Reflection;
 using FitCore.Application.Core;
+using FitCore.Classes;
 using FitCore.Commercial;
 using FitCore.Infrastructure.Core;
 using FitCore.Platform;
@@ -18,6 +19,7 @@ public class LayerDependencyTests
     private static readonly Assembly Platform = typeof(PlatformModule).Assembly;
     private static readonly Assembly Commercial = typeof(CommercialModule).Assembly;
     private static readonly Assembly Wellness = typeof(WellnessModule).Assembly;
+    private static readonly Assembly Classes = typeof(ClassesModule).Assembly;
     private static readonly Assembly Api = typeof(Program).Assembly;
 
     [Fact]
@@ -25,7 +27,7 @@ public class LayerDependencyTests
     {
         AssertNoDependency(
             AllTypes(SharedKernel),
-            "FitCore.Application", "FitCore.Infrastructure", "FitCore.Platform", "FitCore.Commercial", "FitCore.Wellness", "FitCore.Api",
+            "FitCore.Application", "FitCore.Infrastructure", "FitCore.Platform", "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Api",
             "Microsoft.EntityFrameworkCore", "Npgsql", "Microsoft.AspNetCore");
     }
 
@@ -97,7 +99,7 @@ public class LayerDependencyTests
     public void Platform_no_depende_de_los_modulos_de_negocio()
     {
         // La dependencia es de un solo sentido: Commercial usa Platform (acceso, auditoría), nunca al revés.
-        AssertNoDependency(AllTypes(Platform), "FitCore.Commercial", "FitCore.Wellness");
+        AssertNoDependency(AllTypes(Platform), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes");
     }
 
     [Fact]
@@ -141,8 +143,9 @@ public class LayerDependencyTests
     public void Los_modulos_de_negocio_no_dependen_entre_si()
     {
         // Los datos de otro módulo se leen con vistas de solo lectura propias, nunca referenciando sus tipos.
-        AssertNoDependency(AllTypes(Wellness), "FitCore.Commercial");
-        AssertNoDependency(AllTypes(Commercial), "FitCore.Wellness");
+        AssertNoDependency(AllTypes(Wellness), "FitCore.Commercial", "FitCore.Classes");
+        AssertNoDependency(AllTypes(Commercial), "FitCore.Wellness", "FitCore.Classes");
+        AssertNoDependency(AllTypes(Classes), "FitCore.Commercial", "FitCore.Wellness");
     }
 
     [Fact]
@@ -159,6 +162,35 @@ public class LayerDependencyTests
     {
         var handlers = Types.InAssembly(Wellness)
             .That().HaveNameEndingWith("Handler").And().AreClasses().And().ResideInNamespaceStartingWith("FitCore.Wellness.Application")
+            .GetTypes()
+            .ToList();
+
+        Assert.NotEmpty(handlers);
+        Assert.All(handlers, t => Assert.False(t.IsPublic, $"{t.Name} debe ser internal: la API solo usa el despachador."));
+    }
+
+    [Fact]
+    public void Classes_no_depende_de_la_api_ni_de_ASP_NET_Core_web()
+    {
+        AssertNoDependency(
+            AllTypes(Classes),
+            "FitCore.Api", "Microsoft.AspNetCore.Http", "Microsoft.AspNetCore.Mvc", "Microsoft.AspNetCore.Routing");
+    }
+
+    [Fact]
+    public void Dominio_de_Classes_es_puro()
+    {
+        AssertNoDependency(
+            Types.InAssembly(Classes).That().ResideInNamespace("FitCore.Classes.Domain"),
+            "Microsoft.EntityFrameworkCore", "Microsoft.AspNetCore", "FitCore.Classes.Persistence",
+            "FitCore.Classes.Application", "FitCore.Platform");
+    }
+
+    [Fact]
+    public void Los_handlers_de_Classes_son_internos()
+    {
+        var handlers = Types.InAssembly(Classes)
+            .That().HaveNameEndingWith("Handler").And().AreClasses().And().ResideInNamespaceStartingWith("FitCore.Classes.Application")
             .GetTypes()
             .ToList();
 

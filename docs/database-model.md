@@ -103,3 +103,9 @@ Migraciones propias, con su historial en `members.__ef_migrations_history`. Mism
 | billing | `tax_rates` | Tarifas de IVA globales con vigencia. Una sola abierta por tipo; sembradas: General 15 %, 0 %, no objeto y exento |
 
 Restricciones en la base además de las de la aplicación: precio > 0, duración ≥ 1, vigencias coherentes, descuento > 0 (≤ 100 si es porcentaje), usos ≤ máximo, rangos de las políticas, nombre de plan único sin distinguir mayúsculas.
+## Módulo de clases grupales (Fase 5, `ClassesDbContext`)
+Migraciones propias, con su historial en `classes.__ef_migrations_history`. Mismo aislamiento que los demás módulos (RLS forzado por `tenant_id`, claves compuestas). Se migra después de Wellness porque apunta a `training.trainer_profiles`.
+
+| Esquema | Tabla | Contenido |
+|---|---|---|
+| classes | `group_classes` | Definición de la clase: actividad, instructor (FK compuesta a `training.trainer_profiles`), sucursal (FK compuesta, inmutable), duración, capacidad, nivel, ventana de reserva, plazo de cancelación, lista de espera y elegibilidad. Único `(tenant_id, branch_id, lower(btrim(name)))`. CHECKs de rangos y coherencia. Trigger: gimnasio, sucursal y origen no cambian. Sin `DELETE` para el rol de la aplicación |

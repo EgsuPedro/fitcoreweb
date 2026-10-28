@@ -71,7 +71,9 @@ public static class RoleTemplates
                 Permissions.TrainingMembersManage,
                 Permissions.TrainingMemberRead,
                 Permissions.GroupClassesRead,
-                Permissions.GroupClassesManage
+                Permissions.GroupClassesManage,
+                Permissions.ClassSessionsRead,
+                Permissions.ClassSessionsManage
             ]),
         new(
             "Recepcion",
@@ -92,7 +94,8 @@ public static class RoleTemplates
                 Permissions.PaymentsCreate,
                 Permissions.AttendanceRead,
                 Permissions.AttendanceRegister,
-                Permissions.GroupClassesRead
+                Permissions.GroupClassesRead,
+                Permissions.ClassSessionsRead
             ]),
         new(
             "Cajero",
@@ -111,7 +114,7 @@ public static class RoleTemplates
             ]),
         // Mínimo privilegio: el entrenador trabaja solo con sus alumnos asignados (lo resuelve el módulo de bienestar), no con todo el listado
         // de alumnos ni la asistencia del gimnasio.
-        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.GroupClassesRead, Permissions.ExercisesRead, Permissions.ExercisesManage,
+        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.GroupClassesRead, Permissions.ClassSessionsRead, Permissions.ExercisesRead, Permissions.ExercisesManage,
             Permissions.TrainingPlansRead, Permissions.TrainingPlansManage, Permissions.TrainingMembersManage, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog,
             Permissions.AssessmentsRead, Permissions.AssessmentsManage, Permissions.GoalsRead, Permissions.GoalsManage,
             Permissions.PhotosRead, Permissions.PhotosManage]),

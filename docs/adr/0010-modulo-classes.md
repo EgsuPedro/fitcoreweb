@@ -41,12 +41,24 @@
 - **API:** `GET/POST /group-classes`, `GET/PUT /group-classes/{id}`, `PATCH /group-classes/{id}/status` (filtros: texto, actividad, nivel, sucursal, instructor, estado; paginado).
 - **Pruebas:** 11 de dominio y 15 de integración (alta/lectura/edición, filtros y paginación, validaciones, coherencia, instructor, nombre único, sucursal inmutable, permisos por rol y sucursal, aislamiento entre gimnasios con el rol de la aplicación, CHECKs/trigger/único/clave foránea directamente en PostgreSQL, `DELETE` revocado y auditoría).
 
+## Implementación del bloque 3 (sesiones y recurrencias)
+- **Sesión (`ClassSession`) = una fecha y hora concretas.** Hereda sucursal y duración de la clase; instructor y capacidad por defecto son los de la clase y se pueden cambiar en la sesión. Estados `Scheduled`, `Cancelled` y `Completed` (este último lo fijará la asistencia del bloque 6). Nunca se borra y el rol de la aplicación no tiene `DELETE`.
+- **Serie (`ClassSeries`) genera sesiones concretas**, no se calcula al vuelo: cada fecha es una fila que se reserva, mueve o cancela sin afectar a las demás. Recurrencia semanal por días elegidos, entre dos fechas (máximo 366 días y 200 fechas), a una **hora local de la sucursal** (se convierte con su zona horaria, así que el horario de verano no la desplaza; una hora inexistente ese día se informa como `invalid_time`).
+- **Idempotencia:** cada sesión de una serie guarda el instante que le tocaba (`original_starts_at`) y el índice único `(serie, instante original)` impide duplicarla. Regenerar solo completa lo que falta; una sesión **movida o cancelada no reaparece**, porque su hueco sigue ocupado. Dos regeneraciones simultáneas chocan con ese índice, la segunda reintenta y encuentra todo creado.
+- **Instructor sin dobles:** el dominio lo comprueba primero para dar un error claro (`classes.instructor_overlap`, 409) y la base lo garantiza con `EXCLUDE USING gist` sobre `(gimnasio, instructor, rango de tiempo)` para sesiones no canceladas, en cualquier sucursal. El rango es `[inicio, fin)`: una sesión puede empezar cuando termina la anterior. Una cancelada libera el horario. Si dos solicitudes simultáneas pretenden el mismo horario, la base deja pasar una; la otra responde 409.
+- **Disponibilidad del instructor** (franjas semanales de Wellness leídas por vista de solo lectura): sin franjas no hay restricción; con franjas la sesión debe caber entera, en hora local, en una de ese día y de esa sucursal (o de cualquiera). Fuera de ellas se rechaza (`classes.instructor_unavailable`) salvo **excepción explícita** con motivo (≥ 5 caracteres) en una sesión suelta: queda en la sesión y en la auditoría. En una serie nada se hace en silencio: las fechas que chocan con el instructor o con su disponibilidad se omiten y se **informan con su motivo**; si ninguna se puede programar, la serie no se crea (`classes.series_no_sessions`).
+- **Reglas de modificación:** solo se programa a futuro; una sesión empezada, cancelada o completada no se edita (`classes.session_not_modifiable`). Reprogramar vuelve a validar solapes y disponibilidad. Cancelar exige motivo y es idempotente. Cancelar una serie cancela las sesiones futuras aún programadas y conserva las pasadas. La serie solo se extiende, nunca se acorta (se cancelan las sobrantes).
+- **Clase desactivada:** no admite sesiones ni series nuevas ni regenerar (`classes.class_inactive`). Sus sesiones ya programadas **no se tocan solas** (pueden tener reservas): se cancelan explícitamente, una a una o con la serie.
+- **Concurrencia:** `xmin` como token de versión; editar o cancelar a la vez la misma sesión responde `classes.session_changed` (409). Las altas de series y las regeneraciones reintentan cuando pierden una carrera contra la restricción única o de exclusión, o por un interbloqueo.
+- **Permisos nuevos:** `class-sessions.read` y `class-sessions.manage` (mismos roles que las clases). **API:** `GET/POST /class-sessions`, `GET/PATCH /class-sessions/{id}`, `POST /class-sessions/{id}/cancel`, `GET/POST /class-sessions/recurrences`, `GET /class-sessions/recurrences/{id}`, `POST /class-sessions/recurrences/{id}/generate` y `/cancel`.
+- **Pendiente para el bloque 4:** al reservar habrá que impedir bajar la capacidad por debajo de lo reservado y decidir qué pasa con las reservas al cancelar o mover una sesión (cancelarlas y avisar).
+
 ## Bloques
 | Bloque | Contenido | Estado |
 |---|---|---|
 | 1 | Diagnóstico y decisiones (este documento) | Hecho |
 | 2 | Módulo `Classes`: actividades y clases (CRUD, estado, validaciones, permisos, migraciones, RLS) | Hecho |
-| 3 | Sesiones: individuales, recurrencias idempotentes, superposición y disponibilidad del instructor, cancelación | Pendiente |
+| 3 | Sesiones: individuales, recurrencias idempotentes, superposición y disponibilidad del instructor, cancelación | Hecho |
 | 4 | Reservas: elegibilidad, capacidad, plazos, cancelación, idempotencia, concurrencia | Pendiente |
 | 5 | Lista de espera: invitaciones con plazo, vencimiento y promoción (Worker) | Pendiente |
 | 6 | Asistencia a clase (participantes, asistió/no asistió, historial) | Pendiente |

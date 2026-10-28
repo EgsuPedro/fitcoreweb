@@ -13,6 +13,15 @@ internal sealed class TrainerRefConfiguration : IEntityTypeConfiguration<Trainer
     }
 }
 
+internal sealed class TrainerAvailabilityRefConfiguration : IEntityTypeConfiguration<TrainerAvailabilityRef>
+{
+    public void Configure(EntityTypeBuilder<TrainerAvailabilityRef> b)
+    {
+        b.ToTable("trainer_availability", "training", t => t.ExcludeFromMigrations());
+        b.HasKey(x => x.Id);
+    }
+}
+
 internal sealed class UserRefConfiguration : IEntityTypeConfiguration<UserRef>
 {
     public void Configure(EntityTypeBuilder<UserRef> b)

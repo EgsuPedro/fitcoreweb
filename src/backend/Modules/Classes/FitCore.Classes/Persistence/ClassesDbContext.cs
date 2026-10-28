@@ -16,9 +16,12 @@ public sealed class ClassesDbContext(DbContextOptions<ClassesDbContext> options,
     public const string Schema = "classes";
 
     public DbSet<GroupClass> GroupClasses => Set<GroupClass>();
+    public DbSet<ClassSeries> ClassSeries => Set<ClassSeries>();
+    public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<TrainerRef> TrainerRefs => Set<TrainerRef>();
+    internal DbSet<TrainerAvailabilityRef> TrainerAvailabilityRefs => Set<TrainerAvailabilityRef>();
     internal DbSet<UserRef> UserRefs => Set<UserRef>();
     internal DbSet<UserBranchRef> UserBranchRefs => Set<UserBranchRef>();
     internal DbSet<BranchRef> BranchRefs => Set<BranchRef>();
@@ -83,6 +86,18 @@ internal sealed class TrainerRef : ITenantOwned
     public string Status { get; init; } = string.Empty;
 
     public bool IsActive => Status == "Active";
+}
+
+/// <summary>Vista mínima de <c>training.trainer_availability</c>: franjas semanales en las que el entrenador atiende.</summary>
+internal sealed class TrainerAvailabilityRef : ITenantOwned
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid TrainerId { get; init; }
+    public int Day { get; init; }
+    public TimeOnly StartTime { get; init; }
+    public TimeOnly EndTime { get; init; }
+    public Guid? BranchId { get; init; }
 }
 
 /// <summary>Vista mínima de <c>identity.app_users</c>.</summary>

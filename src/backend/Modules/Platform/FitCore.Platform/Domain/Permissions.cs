@@ -94,6 +94,8 @@ public static class Permissions
 
     public const string GroupClassesRead = "group-classes.read";
     public const string GroupClassesManage = "group-classes.manage";
+    public const string ClassSessionsRead = "class-sessions.read";
+    public const string ClassSessionsManage = "class-sessions.manage";
 
     public const string MembersAccess = "members.access";
     public const string MeRead = "me.read";
@@ -169,6 +171,8 @@ public static class Permissions
         new(MembersAccess, "members", "Dar, restablecer y quitar el acceso de un alumno a su portal"),
         new(GroupClassesRead, "classes", "Ver las clases grupales y su configuración"),
         new(GroupClassesManage, "classes", "Crear, editar, activar y desactivar clases grupales"),
+        new(ClassSessionsRead, "classes", "Ver el horario de las clases grupales (sesiones y series)"),
+        new(ClassSessionsManage, "classes", "Programar, reprogramar y cancelar sesiones y series de clases grupales"),
         new(MeRead, "me", "Consultar los propios datos de alumno (portal del alumno)")
     ];
 

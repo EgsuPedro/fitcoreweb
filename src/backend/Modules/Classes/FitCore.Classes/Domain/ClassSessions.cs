@@ -110,6 +110,14 @@ public sealed class ClassSession : Entity<Guid>, ITenantOwned, IAuditable
         UpdatedBy = by;
     }
 
+    /// <summary>Cierra la sesión una vez dada: ya no se reprograma ni se cancela, y su asistencia queda registrada.</summary>
+    public void Complete(Guid? by, DateTimeOffset now)
+    {
+        Status = SessionStatus.Completed;
+        UpdatedAt = now;
+        UpdatedBy = by;
+    }
+
     public void Cancel(string reason, Guid? by, DateTimeOffset now)
     {
         Status = SessionStatus.Cancelled;

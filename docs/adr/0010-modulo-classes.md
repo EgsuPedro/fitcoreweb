@@ -74,6 +74,14 @@
 - **En la base**: columnas `offered_at`/`offer_expires_at` con su coherencia (una invitación exige plazo posterior a la oferta); el disparador de capacidad ahora también impide esperar en una clase sin lista (`FC004`) o con la fila llena (`FC005`); el de transiciones impide pasar de la fila a confirmada sin invitación, volver una invitación a la fila o tocar una confirmada que no sea cancelarla.
 - **Límites**: el aviso al alumno de que recibió una invitación (o que venció) llega con las notificaciones del bloque 7; hasta entonces la ve en su portal o por el personal. Si quien espera nunca vuelve a ser elegible, conserva su lugar hasta que la sesión empiece. Quien perdió una invitación por plazo puede volver a hacer fila, al final.
 
+## Implementación del bloque 6 (asistencia a clase)
+- **Relación reserva ↔ asistencia**: la reserva dice que el alumno tenía cupo; la asistencia (`ClassAttendance`) dice qué pasó. Es un registro aparte, **uno por reserva** (único en la base): registrar dos veces no duplica y enviar otro resultado lo **corrige** (queda en la auditoría; repetir lo mismo no la ensucia). Solo las reservas **confirmadas** de una sesión que **ya empezó** y no está cancelada tienen asistencia; en espera, ofrecidas o canceladas, no. Una reserva con asistencia registrada ya no se cancela (la base lo impide).
+- **No se toca la asistencia al gimnasio** (`access.attendance`, módulo comercial): solo se lee. Al registrar «asistió» se enlaza, a título informativo, la entrada del mismo alumno en la misma sucursal que coincide con la sesión (`hasGymEntry`), para contrastar lo que dice el instructor con lo que pasó en la puerta. «No asistió» la desvincula. No se exige entrada previa (el instructor decide). No hay asistencia sin reserva (los invitados sin reserva quedan fuera de la fase).
+- **Endpoints**: `GET /class-sessions/{id}/roster` (confirmados con su resultado, invitaciones pendientes con su plazo y fila de espera con su posición, más los conteos), `PUT /class-sessions/{id}/attendance` (lote de hasta 200, todo o nada), `POST /class-sessions/{id}/complete`, `GET /class-attendance` (historial con filtros por sesión, alumno, sucursal, resultado y fechas) y `GET /me/class-attendance` (el del alumno).
+- **Completar la sesión** (`Completed`): desde que empieza, cierra la fila de espera y las invitaciones pendientes (`Expired`) y, si se pide, marca «no asistió» a los confirmados sin resultado; sin esa opción quedan sin resultado (no se castiga por omisión). Completar dos veces devuelve lo mismo. Una sesión completada ya no se reprograma ni se cancela, pero su asistencia se puede corregir. No se completan solas: lo hace el instructor o el personal.
+- **Quién registra**: `class-attendance.manage`. Recepción, administración y propietario, en cualquier sesión de sus sucursales; el **entrenador solo en las sesiones donde es el instructor** (en las demás responde 404). Leer (`class-attendance.read`) sigue el alcance por sucursal.
+- **Pendiente**: avisar al alumno de su «no asistió» y las estadísticas de asistencia por alumno llegan con las pantallas (bloques 8 y 9).
+
 ## Bloques
 | Bloque | Contenido | Estado |
 |---|---|---|
@@ -82,7 +90,7 @@
 | 3 | Sesiones: individuales, recurrencias idempotentes, superposición y disponibilidad del instructor, cancelación | Hecho |
 | 4 | Reservas: elegibilidad, capacidad, plazos, cancelación, idempotencia, concurrencia | Hecho |
 | 5 | Lista de espera: invitaciones con plazo, vencimiento y promoción (Worker) | Hecho |
-| 6 | Asistencia a clase (participantes, asistió/no asistió, historial) | Pendiente |
+| 6 | Asistencia a clase (participantes, asistió/no asistió, historial) | Hecho |
 | 7 | Notificaciones internas: eventos, entrega, preferencias, reintentos, recordatorios | Pendiente |
 | 8 | Angular del personal: clases, calendario, series, detalle de sesión, reservas, espera, asistencia | Pendiente |
 | 9 | Portal del alumno: agenda, reservar, cancelar, espera, historial, notificaciones | Pendiente |

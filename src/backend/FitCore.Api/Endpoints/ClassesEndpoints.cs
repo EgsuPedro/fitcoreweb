@@ -1,5 +1,6 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
+using FitCore.Classes.Application.Attendance;
 using FitCore.Classes.Application.GroupClasses;
 using FitCore.Classes.Application.Reservations;
 using FitCore.Classes.Application.Sessions;
@@ -17,7 +18,48 @@ internal static class ClassesEndpoints
         MapSessions(routes.MapGroup("/class-sessions").WithTags("Class sessions"));
         MapReservations(routes.MapGroup("/class-reservations").WithTags("Class reservations"));
         MapMyReservations(routes.MapGroup("/me/class-reservations").WithTags("Member portal"));
+        MapAttendance(routes);
         return routes;
+    }
+
+    private static void MapAttendance(IEndpointRouteBuilder routes)
+    {
+        var sessions = routes.MapGroup("/class-sessions").WithTags("Class attendance");
+
+        // Quién tiene cupo, quién tiene una invitación y quién espera, con la asistencia ya registrada.
+        sessions.MapGet("/{id:guid}/roster", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetRosterQuery(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassAttendanceRead)
+            .Produces<RosterDto>()
+            .WithName("GetClassRoster");
+
+        // Registrar es idempotente: una asistencia por reserva; repetir lo mismo no duplica y enviar otro resultado lo corrige (queda auditado).
+        sessions.MapPut("/{id:guid}/attendance", async (Guid id, RecordAttendanceRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new RecordAttendanceCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassAttendanceManage)
+            .WithValidation<RecordAttendanceRequest>()
+            .Produces<RosterDto>()
+            .WithName("RecordClassAttendance");
+
+        sessions.MapPost("/{id:guid}/complete", async (Guid id, CompleteSessionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CompleteSessionCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassAttendanceManage)
+            .Produces<RosterDto>()
+            .WithName("CompleteClassSession");
+
+        routes.MapGroup("/class-attendance").WithTags("Class attendance")
+            .MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, Guid? sessionId = null, Guid? memberId = null, Guid? branchId = null, AttendanceOutcome? outcome = null, DateTimeOffset? from = null, DateTimeOffset? to = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListClassAttendanceQuery(new PageRequest(page, pageSize), sessionId, memberId, branchId, outcome, from, to), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ClassAttendanceRead)
+            .Produces<PagedResult<ClassAttendanceDto>>()
+            .WithName("ListClassAttendance");
+
+        routes.MapGroup("/me/class-attendance").WithTags("Member portal")
+            .MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, AttendanceOutcome? outcome = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMyClassAttendanceQuery(new PageRequest(page, pageSize), outcome), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.MeRead)
+            .Produces<PagedResult<ClassAttendanceDto>>()
+            .WithName("ListMyClassAttendance");
     }
 
     private static void MapReservations(RouteGroupBuilder group)

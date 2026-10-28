@@ -98,6 +98,8 @@ public static class Permissions
     public const string ClassSessionsManage = "class-sessions.manage";
     public const string ClassReservationsRead = "class-reservations.read";
     public const string ClassReservationsManage = "class-reservations.manage";
+    public const string ClassAttendanceRead = "class-attendance.read";
+    public const string ClassAttendanceManage = "class-attendance.manage";
 
     public const string MembersAccess = "members.access";
     public const string MeRead = "me.read";
@@ -176,6 +178,8 @@ public static class Permissions
         new(ClassSessionsRead, "classes", "Ver el horario de las clases grupales (sesiones y series)"),
         new(ClassReservationsRead, "classes", "Ver las reservas de las clases grupales y quién asiste a cada sesión"),
         new(ClassReservationsManage, "classes", "Reservar y cancelar clases en nombre de los alumnos (la cancelación fuera de plazo exige motivo y queda auditada)"),
+        new(ClassAttendanceRead, "classes", "Ver la lista de participantes de cada sesión y el historial de asistencia a clases"),
+        new(ClassAttendanceManage, "classes", "Registrar y corregir la asistencia a clases y cerrar las sesiones (el instructor, solo en las suyas)"),
         new(ClassSessionsManage, "classes", "Programar, reprogramar y cancelar sesiones y series de clases grupales"),
         new(MeRead, "me", "Consultar los propios datos de alumno (portal del alumno)")
     ];

@@ -75,7 +75,9 @@ public static class RoleTemplates
                 Permissions.ClassSessionsRead,
                 Permissions.ClassSessionsManage,
                 Permissions.ClassReservationsRead,
-                Permissions.ClassReservationsManage
+                Permissions.ClassReservationsManage,
+                Permissions.ClassAttendanceRead,
+                Permissions.ClassAttendanceManage
             ]),
         new(
             "Recepcion",
@@ -99,7 +101,9 @@ public static class RoleTemplates
                 Permissions.GroupClassesRead,
                 Permissions.ClassSessionsRead,
                 Permissions.ClassReservationsRead,
-                Permissions.ClassReservationsManage
+                Permissions.ClassReservationsManage,
+                Permissions.ClassAttendanceRead,
+                Permissions.ClassAttendanceManage
             ]),
         new(
             "Cajero",
@@ -118,7 +122,7 @@ public static class RoleTemplates
             ]),
         // Mínimo privilegio: el entrenador trabaja solo con sus alumnos asignados (lo resuelve el módulo de bienestar), no con todo el listado
         // de alumnos ni la asistencia del gimnasio.
-        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.GroupClassesRead, Permissions.ClassSessionsRead, Permissions.ClassReservationsRead, Permissions.ExercisesRead, Permissions.ExercisesManage,
+        new("Entrenador", "Entrenamiento de alumnos asignados", false, [.. BasicRead, Permissions.TrainersRead, Permissions.TrainersNotes, Permissions.GroupClassesRead, Permissions.ClassSessionsRead, Permissions.ClassReservationsRead, Permissions.ClassAttendanceRead, Permissions.ClassAttendanceManage, Permissions.ExercisesRead, Permissions.ExercisesManage,
             Permissions.TrainingPlansRead, Permissions.TrainingPlansManage, Permissions.TrainingMembersManage, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog,
             Permissions.AssessmentsRead, Permissions.AssessmentsManage, Permissions.GoalsRead, Permissions.GoalsManage,
             Permissions.PhotosRead, Permissions.PhotosManage]),

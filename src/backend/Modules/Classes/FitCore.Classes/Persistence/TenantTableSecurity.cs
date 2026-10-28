@@ -79,7 +79,8 @@ internal static class TenantTableSecurity
                   ('classes.group_classes', 'DELETE'),
                   ('classes.class_series', 'DELETE'),
                   ('classes.class_sessions', 'DELETE'),
-                  ('classes.class_reservations', 'DELETE')
+                  ('classes.class_reservations', 'DELETE'),
+                  ('classes.class_attendance', 'DELETE')
                 ) AS t(tbl, privs) LOOP
                   IF to_regclass(r.tbl) IS NOT NULL THEN
                     EXECUTE format('REVOKE %s ON %s FROM fitcore_app', r.privs, r.tbl);

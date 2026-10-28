@@ -20,11 +20,13 @@ public sealed class ClassesDbContext(DbContextOptions<ClassesDbContext> options,
     public DbSet<ClassSession> ClassSessions => Set<ClassSession>();
     public DbSet<ClassReservation> Reservations => Set<ClassReservation>();
     public DbSet<IdempotencyKey> IdempotencyKeys => Set<IdempotencyKey>();
+    public DbSet<ClassAttendance> ClassAttendances => Set<ClassAttendance>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<TrainerRef> TrainerRefs => Set<TrainerRef>();
     internal DbSet<TrainerAvailabilityRef> TrainerAvailabilityRefs => Set<TrainerAvailabilityRef>();
     internal DbSet<MemberRef> MemberRefs => Set<MemberRef>();
+    internal DbSet<GymEntryRef> GymEntryRefs => Set<GymEntryRef>();
     internal DbSet<MembershipRef> MembershipRefs => Set<MembershipRef>();
     internal DbSet<PlanBranchRef> PlanBranchRefs => Set<PlanBranchRef>();
     internal DbSet<ObligationRef> ObligationRefs => Set<ObligationRef>();
@@ -125,6 +127,17 @@ internal sealed class MemberRef : ITenantOwned
     public string FullName => $"{FirstName} {LastName}";
 
     public bool IsActive => Status == "Active";
+}
+
+/// <summary>Vista mínima de <c>access.attendance</c> (entradas al gimnasio): solo para contrastar la asistencia a una clase, nunca se escribe.</summary>
+internal sealed class GymEntryRef : ITenantOwned
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid BranchId { get; init; }
+    public Guid MemberId { get; init; }
+    public DateTimeOffset CheckInAt { get; init; }
+    public DateTimeOffset? CheckOutAt { get; init; }
 }
 
 /// <summary>Vista mínima de <c>members.memberships</c>.</summary>

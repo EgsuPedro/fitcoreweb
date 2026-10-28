@@ -33,6 +33,15 @@ internal sealed class MemberRefConfiguration : IEntityTypeConfiguration<MemberRe
     }
 }
 
+internal sealed class GymEntryRefConfiguration : IEntityTypeConfiguration<GymEntryRef>
+{
+    public void Configure(EntityTypeBuilder<GymEntryRef> b)
+    {
+        b.ToTable("attendance", "access", t => t.ExcludeFromMigrations());
+        b.HasKey(x => x.Id);
+    }
+}
+
 internal sealed class MembershipRefConfiguration : IEntityTypeConfiguration<MembershipRef>
 {
     public void Configure(EntityTypeBuilder<MembershipRef> b)

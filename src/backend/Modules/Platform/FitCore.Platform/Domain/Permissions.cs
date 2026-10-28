@@ -67,6 +67,12 @@ public static class Permissions
     public const string ExercisesRead = "exercises.read";
     public const string ExercisesManage = "exercises.manage";
 
+    public const string TrainingPlansRead = "training.plans.read";
+    public const string TrainingPlansManage = "training.plans.manage";
+    public const string TrainingMembersManage = "training.members.manage";
+    public const string TrainingMemberRead = "training.member.read";
+    public const string TrainingSessionsLog = "training.sessions.log";
+
     public const string TrainersRead = "trainers.read";
     public const string TrainersManage = "trainers.manage";
     public const string TrainersNotes = "trainers.notes";
@@ -122,6 +128,11 @@ public static class Permissions
         new(NotificationsRead, "notifications", "Consultar los avisos de WhatsApp enviados"),
         new(ExercisesRead, "exercises", "Ver la biblioteca de ejercicios"),
         new(ExercisesManage, "exercises", "Crear, editar, duplicar y desactivar los ejercicios del gimnasio"),
+        new(TrainingPlansRead, "training", "Ver las rutinas de entrenamiento y sus versiones"),
+        new(TrainingPlansManage, "training", "Crear, modificar, duplicar y archivar rutinas"),
+        new(TrainingMembersManage, "training", "Asignar rutinas a alumnos, cerrar asignaciones y comentar sus sesiones"),
+        new(TrainingMemberRead, "training", "Ver la rutina vigente y el historial de entrenamiento de un alumno (el alumno solo ve el suyo)"),
+        new(TrainingSessionsLog, "training", "Registrar sesiones de entrenamiento (el alumno solo las suyas)"),
         new(TrainersRead, "trainers", "Ver los perfiles de los entrenadores"),
         new(TrainersManage, "trainers", "Habilitar entrenadores, editar sus perfiles y asignarles alumnos"),
         new(TrainersNotes, "trainers", "Escribir y leer observaciones profesionales de los alumnos asignados", Sensitive: true),

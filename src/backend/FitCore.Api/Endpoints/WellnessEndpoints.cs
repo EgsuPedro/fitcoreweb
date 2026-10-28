@@ -3,6 +3,7 @@ using FitCore.Application.Core;
 using FitCore.Platform.Domain;
 using FitCore.Wellness.Application.Exercises;
 using FitCore.Wellness.Application.Trainers;
+using FitCore.Wellness.Application.Training;
 using FitCore.Wellness.Domain;
 
 namespace FitCore.Api.Endpoints;
@@ -14,6 +15,8 @@ internal static class WellnessEndpoints
         MapTrainers(routes.MapGroup("/trainers").WithTags("Trainers"));
         MapMemberTrainerData(routes.MapGroup("/members").WithTags("Trainers"));
         MapExercises(routes.MapGroup("/exercises").WithTags("Exercises"));
+        MapTrainingPlans(routes.MapGroup("/training-plans").WithTags("Training plans"));
+        MapTraining(routes);
         MapPlatformExercises(routes.MapGroup("/platform/exercises").WithTags("Exercises (platform)"));
         return routes;
     }
@@ -93,6 +96,131 @@ internal static class WellnessEndpoints
             .WithValidation<UnassignMemberRequest>()
             .Produces<AssignmentDto>()
             .WithName("UnassignMemberFromTrainer");
+    }
+
+    private static void MapTrainingPlans(RouteGroupBuilder group)
+    {
+        group.MapGet("/", async (IDispatcher dispatcher, CancellationToken ct, string? search = null, PlanStatus? status = null, Difficulty? level = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListPlansQuery(new PageRequest(page, pageSize), search, status, level), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.TrainingPlansRead)
+            .Produces<PagedResult<PlanSummaryDto>>()
+            .WithName("ListTrainingPlans");
+
+        group.MapGet("/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct, int? version = null) =>
+                (await dispatcher.QueryAsync(new GetPlanQuery(id, version), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.TrainingPlansRead)
+            .Produces<PlanDetailDto>()
+            .WithName("GetTrainingPlan");
+
+        group.MapGet("/{id:guid}/versions", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListPlanVersionsQuery(id), ct)).ToHttp(v => Results.Ok(v)))
+            .RequirePermission(Permissions.TrainingPlansRead)
+            .Produces<IReadOnlyList<PlanVersionDto>>()
+            .WithName("ListTrainingPlanVersions");
+
+        group.MapPost("/", async (TrainingPlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreatePlanCommand(request), ct)).ToHttp(p => Results.Created($"/api/v1/training-plans/{p.Id}", p)))
+            .RequirePermission(Permissions.TrainingPlansManage)
+            .WithValidation<TrainingPlanRequest>()
+            .Produces<PlanDetailDto>(StatusCodes.Status201Created)
+            .WithName("CreateTrainingPlan");
+
+        // Modificar una rutina crea una versión nueva: lo ya asignado y entrenado conserva la suya.
+        group.MapPut("/{id:guid}", async (Guid id, TrainingPlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new UpdatePlanCommand(id, request), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.TrainingPlansManage)
+            .WithValidation<TrainingPlanRequest>()
+            .Produces<PlanDetailDto>()
+            .WithName("UpdateTrainingPlan");
+
+        group.MapPost("/{id:guid}/duplicate", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DuplicatePlanCommand(id), ct)).ToHttp(p => Results.Created($"/api/v1/training-plans/{p.Id}", p)))
+            .RequirePermission(Permissions.TrainingPlansManage)
+            .Produces<PlanDetailDto>(StatusCodes.Status201Created)
+            .WithName("DuplicateTrainingPlan");
+
+        group.MapPatch("/{id:guid}/status", async (Guid id, SetPlanStatusRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SetPlanStatusCommand(id, request), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.TrainingPlansManage)
+            .Produces<PlanSummaryDto>()
+            .WithName("SetTrainingPlanStatus");
+
+        group.MapPost("/{id:guid}/assignments", async (Guid id, AssignPlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new AssignPlanCommand(id, request), ct)).ToHttp(a => Results.Created($"/api/v1/members/{a.MemberId}/training-plan", a)))
+            .RequirePermission(Permissions.TrainingMembersManage)
+            .WithValidation<AssignPlanRequest>()
+            .Produces<TrainingAssignmentDto>(StatusCodes.Status201Created)
+            .WithName("AssignTrainingPlan");
+    }
+
+    // Rutina, sesiones y progreso de un alumno. Quién accede a qué alumno lo resuelve el caso de uso desde la sesión del usuario.
+    private static void MapTraining(IEndpointRouteBuilder routes)
+    {
+        routes.MapPost("/training-assignments/{id:guid}/end", async (Guid id, EndAssignmentRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new EndAssignmentCommand(id, request), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.TrainingMembersManage)
+            .WithValidation<EndAssignmentRequest>()
+            .Produces<TrainingAssignmentDto>()
+            .WithTags("Training plans")
+            .WithName("EndTrainingAssignment");
+
+        routes.MapGet("/members/{id:guid}/training-plan", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetMemberPlanQuery(id), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.TrainingMemberRead)
+            .Produces<MemberTrainingPlanDto>()
+            .WithTags("Workout sessions")
+            .WithName("GetMemberTrainingPlan");
+
+        routes.MapGet("/members/{id:guid}/training-assignments", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListMemberTrainingAssignmentsQuery(id), ct)).ToHttp(a => Results.Ok(a)))
+            .RequirePermission(Permissions.TrainingMemberRead)
+            .Produces<IReadOnlyList<TrainingAssignmentDto>>()
+            .WithTags("Workout sessions")
+            .WithName("ListMemberTrainingAssignments");
+
+        routes.MapPost("/workout-sessions", async (CreateWorkoutSessionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CreateWorkoutSessionCommand(request), ct)).ToHttp(s => Results.Created($"/api/v1/workout-sessions/{s.Id}", s)))
+            .RequirePermission(Permissions.TrainingSessionsLog)
+            .WithValidation<CreateWorkoutSessionRequest>()
+            .Produces<WorkoutSessionDto>(StatusCodes.Status201Created)
+            .WithTags("Workout sessions")
+            .WithName("CreateWorkoutSession");
+
+        routes.MapGet("/workout-sessions/{id:guid}", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetWorkoutSessionQuery(id), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.TrainingMemberRead)
+            .Produces<WorkoutSessionDto>()
+            .WithTags("Workout sessions")
+            .WithName("GetWorkoutSession");
+
+        routes.MapPost("/workout-sessions/{id:guid}/trainer-comment", async (Guid id, TrainerCommentRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new AddTrainerCommentCommand(id, request), ct)).ToHttp(s => Results.Ok(s)))
+            .RequirePermission(Permissions.TrainingMembersManage)
+            .WithValidation<TrainerCommentRequest>()
+            .Produces<WorkoutSessionDto>()
+            .WithTags("Workout sessions")
+            .WithName("AddWorkoutSessionTrainerComment");
+
+        routes.MapGet("/members/{id:guid}/workout-sessions", async (Guid id, IDispatcher dispatcher, CancellationToken ct, DateOnly? from = null, DateOnly? to = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListMemberSessionsQuery(id, from, to, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.TrainingMemberRead)
+            .Produces<PagedResult<WorkoutSessionDto>>()
+            .WithTags("Workout sessions")
+            .WithName("ListMemberWorkoutSessions");
+
+        routes.MapGet("/members/{id:guid}/workout-sessions/compare", async (Guid id, Guid sessionA, Guid sessionB, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new CompareSessionsQuery(id, sessionA, sessionB), ct)).ToHttp(c => Results.Ok(c)))
+            .RequirePermission(Permissions.TrainingMemberRead)
+            .Produces<SessionComparisonDto>()
+            .WithTags("Workout sessions")
+            .WithName("CompareWorkoutSessions");
+
+        routes.MapGet("/members/{id:guid}/exercise-progress", async (Guid id, Guid exerciseId, IDispatcher dispatcher, CancellationToken ct, DateOnly? from = null, DateOnly? to = null) =>
+                (await dispatcher.QueryAsync(new ExerciseProgressQuery(id, exerciseId, from, to), ct)).ToHttp(p => Results.Ok(p)))
+            .RequirePermission(Permissions.TrainingMemberRead)
+            .Produces<ExerciseProgressDto>()
+            .WithTags("Workout sessions")
+            .WithName("GetExerciseProgress");
     }
 
     private static void MapExercises(RouteGroupBuilder group)

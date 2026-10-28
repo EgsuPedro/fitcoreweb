@@ -70,6 +70,10 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `attendance.read` / `attendance.register` / `attendance.override` | Consultar la asistencia / registrar entradas y salidas y validar accesos (manual o por QR) / autorizar un acceso por excepción con motivo |
 | `notifications.read` | Consultar la configuración y el historial de avisos de WhatsApp (cambiarla exige `commercial.settings.manage` y acceso a todas las sucursales; el consentimiento del alumno exige `members.update`) |
 | `exercises.read` / `exercises.manage` | Ver la biblioteca (catálogo base y propios) / crear, editar, duplicar y desactivar los ejercicios del gimnasio. Propietario, administrador de sucursal y entrenador los reciben |
+| `training.plans.read` / `training.plans.manage` | Ver / crear, modificar (versión nueva), duplicar y archivar rutinas. Propietario, administrador de sucursal y entrenador |
+| `training.members.manage` | Asignar una rutina a un alumno y cerrar asignaciones (solo a alumnos a su alcance: entrenador asignado o `wellness.members.all`) |
+| `training.member.read` | Ver la rutina vigente, el historial y las sesiones de un alumno (el alumno, solo las suyas) |
+| `training.sessions.log` | Registrar sesiones de entrenamiento. Entrenador y alumno (no el administrador); comentar sesiones es del entrenador con `training.members.manage` |
 | `platform.exercises.manage` | Solo plataforma: crear y editar el catálogo base de ejercicios (visible para todos los gimnasios, de solo lectura para ellos) |
 | `trainers.read` / `trainers.manage` | Ver perfiles de entrenadores y listar los propios alumnos / habilitar entrenadores, editar perfiles, asignar y quitar alumnos, ver el historial de entrenadores de un alumno |
 | `trainers.notes` (**sensible**) | Escribir y leer observaciones profesionales, solo del alumno que el entrenador tiene asignado hoy. No lo reciben Propietario ni AdministradorSucursal por defecto; quien administra roles puede concederlo a un rol |

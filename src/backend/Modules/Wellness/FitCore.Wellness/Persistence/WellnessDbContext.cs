@@ -20,6 +20,14 @@ public sealed class WellnessDbContext(DbContextOptions<WellnessDbContext> option
     public DbSet<TrainerAssignment> TrainerAssignments => Set<TrainerAssignment>();
     public DbSet<TrainerNote> TrainerNotes => Set<TrainerNote>();
     public DbSet<Exercise> Exercises => Set<Exercise>();
+    public DbSet<TrainingPlan> Plans => Set<TrainingPlan>();
+    public DbSet<TrainingPlanVersion> PlanVersions => Set<TrainingPlanVersion>();
+    public DbSet<TrainingPlanDay> PlanDays => Set<TrainingPlanDay>();
+    public DbSet<TrainingPlanExercise> PlanExercises => Set<TrainingPlanExercise>();
+    public DbSet<TrainingAssignment> TrainingAssignments => Set<TrainingAssignment>();
+    public DbSet<WorkoutSession> WorkoutSessions => Set<WorkoutSession>();
+    public DbSet<WorkoutSessionExercise> WorkoutSessionExercises => Set<WorkoutSessionExercise>();
+    public DbSet<WorkoutSet> WorkoutSets => Set<WorkoutSet>();
 
     // Vistas de solo lectura de datos que pertenecen a otros módulos (no generan migraciones aquí).
     internal DbSet<MemberRef> MemberRefs => Set<MemberRef>();

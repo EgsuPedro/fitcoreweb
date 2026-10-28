@@ -1,6 +1,6 @@
-# Guía de validación manual — Fase 6 (analítica): bloques 2 a 5
+# Guía de validación manual — Fase 6 (analítica): bloques 2 a 6
 
-Hasta el bloque 5 la fase entrega **API** (contexto, dashboard, reportes financieros y reportes de alumnos y membresías); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
+Hasta el bloque 6 la fase entrega **API** (contexto, dashboard, reportes financieros, de alumnos y membresías, y operativos y de clases); las pantallas de Angular llegan en el bloque 9. Esta guía permite validar todo lo hecho **sin pantallas**, con datos reales y con los usuarios de cada rol. Se irá ampliando con cada bloque.
 
 ## 0. Preparación
 
@@ -32,6 +32,8 @@ Hasta el bloque 5 la fase entrega **API** (contexto, dashboard, reportes financi
 Períodos: `Today`, `Last7Days`, `Last30Days`, `CurrentMonth`, `PreviousMonth`, `CurrentYear`. El script solo lee; imprime contexto, dashboard, evolución y los cinco reportes financieros.
 
 ## 2. Valores esperados (propietario, `CurrentYear` o `Last30Days`, cargados el 28/10/2026)
+
+> Estas cifras son las del lote **antes** de ejecutar el historial de membresías (paso 0.3). Después del historial cambian solo: saldo pendiente 388,33 en 11 obligaciones (la renovación suma una cuota de 30,00 sin pagar), alumnos activos 9 y nuevas inscripciones 11 en `Last30Days` (5 membresías quedan fuera de los últimos 30 días). El resto no cambia.
 
 | Qué mirar | Debe dar |
 |---|---|
@@ -120,6 +122,38 @@ Compruebe además:
 5. **Historial de membresías**: `acquisitions?kind=Renewal|New|Reincorporation` filtra el listado paginado por tipo.
 6. **Permisos**: `cajero.gye`, `recepcion.uio` y `entrenador.uio` reciben **403** en `/reports/members/*`; `contador` y `admin.uio` sí.
 
+### 3.8 Operación y clases (bloque 6)
+La asistencia al gimnasio exige `reports.operations.read` (propietario, administrador de sucursal y recepción). Los reportes de clases los ven quienes tienen operación (todas las clases de sus sucursales) **o** el permiso de instructor: el entrenador ve **solo sus propias sesiones** (el servidor lo filtra). Para incluir las clases de los próximos días (el lote crea sesiones de mañana en adelante) use un rango:
+
+```powershell
+./scripts/analytics-check.ps1 -DemoPassword 'DemoFit2026x' -Slug analitica -Domain analitica.fitcore.test -Desde 2026-09-28 -Hasta 2026-11-04
+./scripts/analytics-check.ps1 -DemoPassword 'DemoFit2026x' -Slug analitica -Domain analitica.fitcore.test -Usuario entrenador.uio -Desde 2026-09-28 -Hasta 2026-11-04
+```
+
+| Reporte | Qué comprobar | Debe dar (rango 28/09–04/11, datos de `analitica`) |
+|---|---|---|
+| `/reports/attendance` | Visitas / alumnos distintos / frecuencia | 6 / 6 / 1,0 (un alumno por visita) |
+| | Por sucursal | Quito Norte 6 · Guayaquil Centro **0** (la sucursal sin visitas aparece en cero, no se omite) |
+| | Frecuencia | 6 alumnos vinieron 1 vez |
+| | Días y horas | `byWeekday` de lunes a domingo y `byHour` de 0 a 23 (hora local de Quito, no UTC) |
+| | `view=Members` | Alumnos con sus visitas: solo código y nombre |
+| `/reports/classes/occupancy` | Sesiones | 1 realizada · 1 cancelada · 2 por ocurrir · 0 pendientes de cierre |
+| | Ocupación reservada | 66,7 % = (2 + 1 + 3) / (3 + 3 + 3); la sesión **cancelada** no cuenta |
+| | Ocupación asistida | 33,3 % = 1 asistente de los 3 cupos de la sesión realizada |
+| | Demanda en espera | 2 personas esperando cupo: se informan como **demanda**, nunca como ocupación |
+| | Tasa de asistencia | 50 % (1 asistió, 1 no asistió) |
+| | Horarios más ocupados | El jueves 08:00 al 100 % (sesión llena) arriba de la lista |
+| `/reports/classes/cancellations` | Sesiones / reservas canceladas | 1 / 1 (la reserva cancelada al cancelar la sesión **no** se cuenta como cancelación del alumno) |
+| | Tasa de cancelación | 14,3 % = 1 / (6 confirmadas + 1 cancelada) |
+| | Lista de sesiones canceladas | Con el motivo («Mantenimiento de la sala») y las reservas afectadas |
+
+Compruebe además:
+1. **Una sesión ya pasada que nadie cerró** aparece como *pendiente de cierre* y no como realizada.
+2. **Sin sesiones** (rango sin clases): la ocupación es «Sin datos», nunca 0 %.
+3. **Filtros**: `classes/occupancy?activity=Yoga` y `?classId=<id>` acotan las sesiones y los porcentajes.
+4. **Agrupación**: `attendance?grouping=Week` agrupa por semana (el tramo empieza el lunes); `Month` por mes; `Auto` elige según el largo del rango.
+5. **Permisos**: `entrenador.uio` recibe los reportes de clases (marcados «solo sus sesiones») pero **403** en `/reports/attendance` y en lo financiero; `recepcion.uio` ve asistencia y clases de Quito; `cajero.gye` y `contador` reciben **403** en los reportes de clases.
+
 ## 4. Usar Swagger en lugar del script
 1. Abra http://localhost:8080/swagger.
 2. `POST /api/v1/auth/login` con `{"tenantSlug":"analitica","email":"propietario@analitica.fitcore.test","password":"DemoFit2026x"}` y copie `accessToken`.
@@ -133,5 +167,5 @@ Compruebe además:
 
 ## 5. Qué NO está todavía
 - **Pantallas**: llegan en el bloque 9 (hoy se valida por API/consola).
-- Reportes operativos (asistencia por día, ocupación por sesión, demanda), comparación de sucursales y exportaciones CSV: bloques 6 a 8.
+- Comparación de sucursales y exportaciones CSV: bloques 7 y 8.
 - Medición de rendimiento con volumen y revisión de planes de ejecución: bloque 10.

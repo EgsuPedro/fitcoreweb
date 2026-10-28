@@ -100,7 +100,7 @@ Proyección de las columnas necesarias, agregaciones en PostgreSQL, sin N+1, fil
 | 3 | Dashboard ejecutivo (`/analytics/dashboard`, `/analytics/dashboard/comparison`) y por perfil | Hecho |
 | 4 | Reportes financieros (cobros, medios de pago, saldos, caja, reversiones) | Hecho |
 | 5 | Reportes de alumnos y membresías (resumen, altas y bajas, retención, renovación, vencimientos) | Hecho |
-| 6 | Reportes operativos y de clases | Pendiente |
+| 6 | Reportes operativos y de clases (asistencia al gimnasio, ocupación, demanda, cancelaciones) | Hecho |
 | 7 | Comparación entre sucursales | Pendiente |
 | 8 | Exportaciones CSV (migración `report_exports`, vencimiento, descarga protegida) | Pendiente |
 | 9 | Angular: dashboard, reportes, comparación, exportaciones | Pendiente |

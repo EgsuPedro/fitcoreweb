@@ -27,6 +27,7 @@ public sealed class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> opti
     internal DbSet<ReservationRef> Reservations => Set<ReservationRef>();
     internal DbSet<ClassAttendanceRef> ClassAttendances => Set<ClassAttendanceRef>();
     internal DbSet<UserRef> Users => Set<UserRef>();
+    internal DbSet<GroupClassRef> GroupClasses => Set<GroupClassRef>();
     internal DbSet<CashRegisterRef> CashRegisters => Set<CashRegisterRef>();
     internal DbSet<CashSessionRef> CashSessions => Set<CashSessionRef>();
     internal DbSet<CashMovementRef> CashMovements => Set<CashMovementRef>();
@@ -56,6 +57,7 @@ public sealed class AnalyticsDbContext(DbContextOptions<AnalyticsDbContext> opti
         View<ReservationRef>(modelBuilder, "class_reservations", "classes");
         View<ClassAttendanceRef>(modelBuilder, "class_attendance", "classes");
         View<UserRef>(modelBuilder, "app_users", "identity");
+        View<GroupClassRef>(modelBuilder, "group_classes", "classes");
         View<CashRegisterRef>(modelBuilder, "cash_registers", "cash");
         View<CashSessionRef>(modelBuilder, "cash_sessions", "cash");
         View<CashMovementRef>(modelBuilder, "cash_movements", "cash");
@@ -223,6 +225,8 @@ internal sealed class ClassSessionRef : ITenantRow
     public DateTimeOffset EndsAt { get; init; }
     public int Capacity { get; init; }
     public string Status { get; init; } = string.Empty;
+    public string? CancelReason { get; init; }
+    public DateTimeOffset? CancelledAt { get; init; }
 }
 
 internal sealed class ReservationRef : ITenantRow
@@ -234,6 +238,7 @@ internal sealed class ReservationRef : ITenantRow
     public Guid MemberId { get; init; }
     public string Status { get; init; } = string.Empty;
     public bool LateCancellation { get; init; }
+    public DateTimeOffset? CancelledAt { get; init; }
 }
 
 internal sealed class ClassAttendanceRef : ITenantRow
@@ -289,4 +294,13 @@ internal sealed class CashMovementRef : ITenantRow
     public string Direction { get; init; } = string.Empty;
     public decimal Amount { get; init; }
     public DateTimeOffset CreatedAt { get; init; }
+}
+
+internal sealed class GroupClassRef : ITenantRow
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid BranchId { get; init; }
+    public string Name { get; init; } = string.Empty;
+    public string Activity { get; init; } = string.Empty;
 }

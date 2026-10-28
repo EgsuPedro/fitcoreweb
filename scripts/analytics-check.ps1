@@ -14,7 +14,10 @@ param(
     [string] $Slug = 'demo',
     [string] $Domain = 'demo.fitcore.test',
     [string] $Usuario = 'propietario',
-    [ValidateSet('Today', 'Last7Days', 'Last30Days', 'CurrentMonth', 'PreviousMonth', 'CurrentYear')] [string] $Periodo = 'Last30Days'
+    [ValidateSet('Today', 'Last7Days', 'Last30Days', 'CurrentMonth', 'PreviousMonth', 'CurrentYear')] [string] $Periodo = 'Last30Days',
+    # Rango personalizado (AAAA-MM-DD); si se indican ambas fechas reemplaza a -Periodo. Útil para incluir las clases de los próximos días.
+    [string] $Desde = '',
+    [string] $Hasta = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -50,7 +53,7 @@ function Show-Kpis([string] $Title, $Kpis) {
     }
 }
 
-$query = "preset=$Periodo"
+$query = if ($Desde -and $Hasta) { "preset=Custom&from=$Desde&to=$Hasta" } else { "preset=$Periodo" }
 $context = Get-Api "/analytics/context?$query" $token
 if ($context.__error) { Write-Host "Sin acceso a analítica (HTTP $($context.__error)) con el usuario '$Usuario'." -ForegroundColor Yellow; return }
 Write-Host ("Usuario: {0}@{1} · Gimnasio: {2} · Zona horaria: {3} · Hoy: {4}" -f $Usuario, $Domain, $Slug, $context.timeZone, $context.today)
@@ -106,4 +109,30 @@ if ($context.sections.financial) {
 else {
     Write-Host "`n(Este usuario no tiene reportes financieros: es lo esperado según su rol.)" -ForegroundColor DarkYellow
 }
+if ($context.sections.operations) {
+    $a = Get-Api "/reports/attendance?$query&view=Members&pageSize=3" $token
+    Show-Kpis 'REPORTE · Asistencia al gimnasio' $a.summary
+    Write-Host ('  Por sucursal: ' + (($a.byBranch | ForEach-Object { '{0} {1}' -f $_.branchName, $_.visits }) -join ' · '))
+    Write-Host ('  Por día de la semana: ' + (($a.byWeekday | ForEach-Object { '{0} {1}' -f $_.key.Substring(0, 3), $_.visits }) -join ' · '))
+    Write-Host ('  Frecuencia (alumnos por número de visitas): ' + (($a.frequency | ForEach-Object { '{0}: {1}' -f $_.label, $_.members }) -join ' · '))
+    foreach ($m in $a.members.items) { Write-Host ('    {0} {1,-20} {2} visitas en {3} días' -f $m.memberCode, $m.memberName, $m.visits, $m.days) }
+}
+if ($context.sections.operations -or $context.sections.instructor) {
+    $c = Get-Api "/reports/classes/occupancy?$query&pageSize=5" $token
+    if ($c.__error) { Write-Host "  (reporte de clases: HTTP $($c.__error))" }
+    else {
+        $suffix = if ($c.instructorOnly) { ' (solo sus sesiones)' } else { '' }
+        Show-Kpis ('REPORTE · Ocupación de clases' + $suffix) $c.summary
+        Write-Host ('  Sesiones: {0} realizadas · {1} canceladas · {2} por ocurrir · {3} pendientes de cierre' -f $c.sessions.held, $c.sessions.cancelled, $c.sessions.upcoming, $c.sessions.pendingClosure)
+        Write-Host ('  Demanda por actividad: ' + (($c.byActivity | ForEach-Object { '{0}: {1} confirmados + {2} en espera ({3} %)' -f $_.name, $_.confirmed, $_.waitlisted, $_.occupancyPercent }) -join ' · '))
+        Write-Host ('  Horarios más ocupados: ' + (($c.topSlots | Select-Object -First 3 | ForEach-Object { '{0} {1}:00 {2} %' -f $_.weekday.Substring(0, 3), $_.hour, $_.occupancyPercent }) -join ' · '))
+        foreach ($s in $c.sessionList.items) { Write-Host ('    {0:yyyy-MM-dd HH:mm} {1,-26} {2,-14} {3}/{4} (espera {5})' -f $s.startsAt, $s.className, $s.status, $s.confirmed, $s.capacity, $s.waitlisted) }
+    }
+    $x = Get-Api "/reports/classes/cancellations?$query" $token
+    if (-not $x.__error) {
+        Show-Kpis 'REPORTE · Cancelaciones de clases' $x.summary
+        foreach ($s in $x.cancelledSessions.items) { Write-Host ('    {0:yyyy-MM-dd HH:mm} {1,-26} "{2}" ({3} reservas afectadas)' -f $s.startsAt, $s.className, $s.reason, $s.reservationsAffected) }
+    }
+}
+
 Write-Host ''

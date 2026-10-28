@@ -1,6 +1,7 @@
 using FitCore.Analytics.Application.Reports;
 using FitCore.Analytics.Application.Reports.Financial;
 using FitCore.Analytics.Application.Reports.Members;
+using FitCore.Analytics.Application.Reports.Operations;
 using FitCore.Analytics.Domain;
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
@@ -15,6 +16,7 @@ internal static class ReportsEndpoints
     {
         MapFinancial(routes.MapGroup("/reports/financial").WithTags("Reports: financial"));
         MapMembers(routes.MapGroup("/reports/members").WithTags("Reports: members"));
+        MapOperations(routes.MapGroup("/reports").WithTags("Reports: operations"));
         return routes;
     }
 
@@ -88,5 +90,30 @@ internal static class ReportsEndpoints
             .RequirePermission(Permissions.ReportsMembersRead)
             .Produces<ExpirationsReportDto>()
             .WithName("GetMemberExpirationsReport");
+    }
+
+    private static void MapOperations(RouteGroupBuilder group)
+    {
+        group.MapGet("/attendance", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null, Guid[]? branchId = null,
+                    AttendanceGrouping grouping = AttendanceGrouping.Auto, AttendanceView view = AttendanceView.Summary, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new AttendanceQuery(new ReportFilter(preset, from, to, branchId ?? []), grouping, view, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.ReportsOperationsRead)
+            .Produces<AttendanceReportDto>()
+            .WithName("GetGymAttendanceReport");
+
+        // Reportes de clases: el permiso de operación ve todo; el de instructor (entrenador) solo sus sesiones. Lo decide el caso de uso.
+        group.MapGet("/classes/occupancy", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null, Guid[]? branchId = null,
+                    string? activity = null, Guid? classId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ClassOccupancyQuery(new ReportFilter(preset, from, to, branchId ?? []), activity, classId, new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.AnalyticsDashboardRead)
+            .Produces<ClassOccupancyReportDto>()
+            .WithName("GetClassOccupancyReport");
+
+        group.MapGet("/classes/cancellations", async (IDispatcher dispatcher, CancellationToken ct, PeriodPreset preset = PeriodPreset.Last30Days, DateOnly? from = null, DateOnly? to = null, Guid[]? branchId = null,
+                    int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ClassCancellationsQuery(new ReportFilter(preset, from, to, branchId ?? []), new PageRequest(page, pageSize)), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.AnalyticsDashboardRead)
+            .Produces<ClassCancellationsReportDto>()
+            .WithName("GetClassCancellationsReport");
     }
 }

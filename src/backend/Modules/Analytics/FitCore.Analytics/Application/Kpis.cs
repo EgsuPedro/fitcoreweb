@@ -6,7 +6,10 @@ public enum KpiUnit
 {
     Count = 1,
     Currency = 2,
-    Percent = 3
+    Percent = 3,
+
+    /// <summary>Promedio sin unidad (visitas por alumno, por ejemplo).</summary>
+    Average = 4
 }
 
 /// <summary>
@@ -46,6 +49,10 @@ internal static class Kpi
     /// <summary>Razón en porcentaje (ocupación, retención). Sin datos (nulo) no se muestra 0 %.</summary>
     public static KpiDto Ratio(string key, string name, string definition, string basis, decimal? current, decimal? previous, string? report = null) =>
         Build(key, name, definition, basis, KpiUnit.Percent, null, current, previous, Variation.OfRatio(current, previous), report);
+
+    /// <summary>Promedio con decimales (visitas por alumno asistente). Sin datos (nulo) no se muestra 0.</summary>
+    public static KpiDto Average(string key, string name, string definition, string basis, decimal? current, decimal? previous, string? report = null) =>
+        Build(key, name, definition, basis, KpiUnit.Average, null, current, previous, Variation.Of(current, previous), report);
 
     /// <summary>Medida de un instante (hoy): no tiene valor comparable.</summary>
     public static KpiDto SnapshotCount(string key, string name, string definition, string basis, int current, string? report = null) =>

@@ -30,7 +30,10 @@ public sealed record CreateTenantRequest(
     string Locale,
     string OwnerEmail,
     string OwnerFullName,
-    string OwnerPassword);
+    string OwnerPassword,
+    // Plan comercial del gimnasio (código del catálogo). Sin código recibe el plan por defecto de la plataforma.
+    string? PlanCode = null,
+    bool StartTrial = false);
 
 public sealed record CreateTenantCommand(CreateTenantRequest Request) : ICommand<TenantDto>;
 
@@ -155,10 +158,41 @@ public sealed class TenantProvisioningService(
     }
 }
 
-internal sealed class CreateTenantHandler(TenantProvisioningService provisioning) : ICommandHandler<CreateTenantCommand, TenantDto>
+internal sealed class CreateTenantHandler(TenantProvisioningService provisioning, IEnumerable<ITenantProvisioningHook> hooks)
+    : ICommandHandler<CreateTenantCommand, TenantDto>
 {
-    public Task<Result<TenantDto>> HandleAsync(CreateTenantCommand command, CancellationToken cancellationToken) =>
-        provisioning.ProvisionAsync(command.Request, isPlatformTenant: false, cancellationToken);
+    public async Task<Result<TenantDto>> HandleAsync(CreateTenantCommand command, CancellationToken cancellationToken)
+    {
+        var selection = new TenantPlanSelection(command.Request.PlanCode, command.Request.StartTrial);
+
+        // Se valida la elección del plan antes de crear nada: un plan inexistente o inactivo no deja un gimnasio a medias.
+        var hookList = hooks.ToList();
+        foreach (var hook in hookList)
+        {
+            var valid = await hook.ValidateAsync(selection, cancellationToken);
+            if (valid.IsFailure)
+            {
+                return valid.Error;
+            }
+        }
+
+        var created = await provisioning.ProvisionAsync(command.Request, isPlatformTenant: false, cancellationToken);
+        if (created.IsFailure)
+        {
+            return created;
+        }
+
+        foreach (var hook in hookList)
+        {
+            var applied = await hook.OnProvisionedAsync(created.Value.Id, selection, cancellationToken);
+            if (applied.IsFailure)
+            {
+                return applied.Error;
+            }
+        }
+
+        return created;
+    }
 }
 
 internal sealed class ListTenantsHandler(PlatformDbContext db) : IQueryHandler<ListTenantsQuery, PagedResult<TenantDto>>

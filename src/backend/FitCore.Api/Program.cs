@@ -207,6 +207,7 @@ v1.MapClassesEndpoints();
 v1.MapAnalyticsEndpoints();
 v1.MapReportsEndpoints();
 v1.MapPlansEndpoints();
+v1.MapSubscriptionsEndpoints();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 

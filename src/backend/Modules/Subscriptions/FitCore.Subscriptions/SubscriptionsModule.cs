@@ -2,6 +2,7 @@ using FitCore.Application.Core;
 using FitCore.Infrastructure.Core;
 using FitCore.Platform.Persistence;
 using FitCore.Subscriptions.Application.Plans;
+using FitCore.Subscriptions.Application.Subscriptions;
 using FitCore.Subscriptions.Persistence;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +33,8 @@ public static class SubscriptionsModule
     public static IServiceCollection AddSubscriptionsModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSubscriptionsPersistence(configuration);
+        services.Configure<SubscriptionOptions>(configuration.GetSection(SubscriptionOptions.SectionName));
+        services.AddScoped<ITenantProvisioningHook, SubscriptionProvisioningHook>();
         services.AddSingleton<IModuleInitializer, SubscriptionsInitializer>();
         services.AddValidatorsFromAssemblyContaining<CreatePlanRequestValidator>(includeInternalTypes: true);
         services.AddHandlersFromAssembly(typeof(SubscriptionsModule).Assembly);

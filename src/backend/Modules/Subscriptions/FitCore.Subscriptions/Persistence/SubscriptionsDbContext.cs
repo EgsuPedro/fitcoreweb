@@ -19,6 +19,11 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
     internal DbSet<PlanVersion> PlanVersions => Set<PlanVersion>();
     internal DbSet<PlanFeature> PlanFeatures => Set<PlanFeature>();
     internal DbSet<PlanLimit> PlanLimits => Set<PlanLimit>();
+    internal DbSet<Subscription> Subscriptions => Set<Subscription>();
+    internal DbSet<SubscriptionEvent> SubscriptionEvents => Set<SubscriptionEvent>();
+
+    /// <summary>Gimnasios (solo lectura, sin filtro: el equipo de plataforma los consulta a todos; el aislamiento de las suscripciones lo da RLS).</summary>
+    internal DbSet<TenantRef> Tenants => Set<TenantRef>();
 
     // Guid.Empty nunca coincide con un tenant real: sin tenant activo no se ve ninguna fila de gimnasio.
     internal Guid CurrentTenantId => tenantContext.TenantId ?? Guid.Empty;
@@ -30,6 +35,18 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
         modelBuilder.ApplyConfiguration(new PlanVersionConfiguration());
         modelBuilder.ApplyConfiguration(new PlanFeatureConfiguration());
         modelBuilder.ApplyConfiguration(new PlanLimitConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionEventConfiguration());
+        // Filtro por gimnasio del contexto actual; las operaciones de plataforma (entre gimnasios) usan IgnoreQueryFilters() y la base
+        // (RLS) decide: solo el gimnasio «platform» ve y escribe las suscripciones de todos.
+        modelBuilder.Entity<Subscription>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        modelBuilder.Entity<SubscriptionEvent>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<TenantRef>(b =>
+        {
+            b.ToTable("tenants", "organizations", t => t.ExcludeFromMigrations());
+            b.HasKey(x => x.Id);
+        });
 
         // La auditoría y la outbox pertenecen a Platform: aquí solo se mapean para que el interceptor compartido escriba en ellas
         // dentro de la misma transacción. Nunca generan migraciones de este módulo.
@@ -109,5 +126,60 @@ internal sealed class PlanLimitConfiguration : IEntityTypeConfiguration<PlanLimi
         b.ToTable("plan_limits", SubscriptionsDbContext.Schema);
         b.HasKey(x => new { x.PlanVersionId, x.Code });
         b.Property(x => x.Code).HasMaxLength(40).IsRequired();
+    }
+}
+
+/// <summary>Vista mínima de <c>organizations.tenants</c> (solo lectura): nombre, identificador, zona horaria y estado administrativo.</summary>
+internal sealed class TenantRef
+{
+    public Guid Id { get; init; }
+    public string Slug { get; init; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
+    public string TimeZone { get; init; } = string.Empty;
+    public string Status { get; init; } = string.Empty;
+    public DateTimeOffset CreatedAt { get; init; }
+}
+
+internal sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
+{
+    public void Configure(EntityTypeBuilder<Subscription> b)
+    {
+        b.ToTable("subscriptions", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.PlanCode).HasMaxLength(40).IsRequired();
+        b.Property(x => x.PlanName).HasMaxLength(120).IsRequired();
+        b.Property(x => x.Price).HasPrecision(12, 2);
+        b.Property(x => x.Currency).HasMaxLength(3).IsRequired();
+        b.Property(x => x.Period).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.StatusBeforeSuspension).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.CancelReason).HasMaxLength(500);
+        b.Property(x => x.SuspensionReason).HasMaxLength(500);
+        b.HasIndex(x => new { x.TenantId, x.CreatedAt });
+        b.HasIndex(x => new { x.Status, x.NextDueOn });
+        b.HasIndex(x => x.PlanVersionId);
+        // Una sola suscripción vigente (no cancelada) por gimnasio: dos altas simultáneas no pueden duplicarla.
+        b.HasIndex(x => x.TenantId).IsUnique().HasFilter("status <> 'Cancelled'").HasDatabaseName("ux_subscriptions_current");
+        b.HasMany(x => x.Events).WithOne().HasForeignKey(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
+
+        // Control de concurrencia (xmin): dos cambios de estado simultáneos no se pisan, el segundo recibe 409.
+        b.Property<uint>("Version").IsRowVersion();
+    }
+}
+
+internal sealed class SubscriptionEventConfiguration : IEntityTypeConfiguration<SubscriptionEvent>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionEvent> b)
+    {
+        b.ToTable("subscription_events", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Type).HasConversion<string>().HasMaxLength(30);
+        b.Property(x => x.FromStatus).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.ToStatus).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Detail).HasMaxLength(500);
+        b.HasIndex(x => new { x.SubscriptionId, x.OccurredAt });
+        b.HasIndex(x => new { x.TenantId, x.OccurredAt });
     }
 }

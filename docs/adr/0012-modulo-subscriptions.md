@@ -56,10 +56,18 @@ Prefijos de código, rutas y permisos: `subscriptions.*`, `/platform/plans`, `/m
 - **`platform_notes`** — notas administrativas no sensibles por gimnasio.
 - **`settings`** — valores de plataforma (días de gracia por defecto, anticipo de avisos).
 
-Seguridad de datos: las tablas con `tenant_id` llevan RLS forzada, clave compuesta y sin `DELETE` para el rol de la aplicación; el equipo de plataforma opera entre gimnasios por una ruta explícita y acotada (nunca por un `tenantId` recibido del cliente, y sin tocar datos operativos de alumnos).
+Seguridad de datos: las tablas con `tenant_id` llevan RLS forzada y sin `DELETE` para el rol de la aplicación. Política de `subscriptions` y `subscription_events`: **leer** = el propio gimnasio **o** el gimnasio `platform` (función `subscriptions.is_platform_context()`); **escribir** = solo el contexto de plataforma. Un gimnasio no puede modificar ni crear su propia suscripción ni siquiera con una inyección SQL. Las operaciones de plataforma usan `IgnoreQueryFilters()` y el `tenantId` sale de la ruta, nunca del cuerpo; no tocan datos de alumnos.
+
+### Bloque 3 — lo implementado
+- **Dominio** `Subscription` (estado actual + copia de plan, versión, precio, moneda y periodicidad) y `SubscriptionEvent` (historial inmutable). Períodos en fechas **locales del gimnasio**, con fin exclusivo (el siguiente empieza el día en que termina el anterior; mes calendario con tope al último día). Una suscripción vigente (no cancelada) por gimnasio: único parcial `ux_subscriptions_current`.
+- **Endpoints de plataforma:** `GET/POST /platform/tenants/{id}/subscription`, `GET …/subscription/history`, `POST …/subscription/activate|suspend|reactivate`, `GET /platform/subscriptions?status&planCode&search&dueWithinDays`. Los `POST /platform/tenants/{id}/suspend` y `/activate` existentes siguen siendo la **suspensión administrativa/de seguridad** (cierra el acceso); la comercial es `…/subscription/suspend` y **no** cierra la sesión.
+- **Alta de gimnasios:** `POST /platform/tenants` acepta `planCode` y `startTrial`. Se valida el plan **antes** de crear nada (plan inexistente, inactivo o sin prueba → 422 y no queda un gimnasio a medias) y luego se abre la suscripción; sin plan, el gimnasio recibe el plan por defecto (`Subscriptions:DefaultPlanCode`, `legacy`). El punto de extensión es `ITenantProvisioningHook` (BuildingBlocks), para que Platform no conozca Subscriptions.
+- **Plan `legacy`** (migración `SeedLegacyPlan`): precio 0, anual, todas las funciones, sin límites, inactivo (no se vende). Cada gimnasio existente (menos `platform`) recibe una suscripción `Active` en él. Un plan de precio 0 no genera cobros: su período se renueva solo (lo hará el proceso de vencimientos del bloque 5).
+- **Reactivación:** vuelve al estado previo si el período sigue vigente; si ya terminó, queda `PastDue` con `GraceEndsOn = hoy + gracia` (la del plan o `Subscriptions:GraceDays`, 7).
+- **Pendiente para el bloque 5:** renovar, cambiar de plan, cancelar (inmediata o al fin del período), prórroga y el proceso automático que pasa a mora y vence.
 
 ## Estados y transiciones
-`Trialing → Active | Expired | Cancelled | Suspended` · `Active → PastDue | Cancelled | Suspended | Expired` · `PastDue → Active | Suspended | Expired | Cancelled` · `Suspended → Active (reactivar) | Cancelled` · `Expired → Active (renovar/reactivar) | Cancelled` · `Cancelled` es terminal para esa suscripción (se contrata una nueva). Cualquier otra transición se rechaza con 409. Cada transición ocurre en una transacción que actualiza la suscripción, los derechos vigentes (`tenant_entitlements`), el historial y la auditoría, con control de concurrencia (`xmin`).
+`Trialing → Active | Expired | Cancelled | Suspended` · `Active → PastDue | Cancelled | Suspended | Expired` · `PastDue → Active | Suspended | Expired | Cancelled` · `Suspended → Active | Trialing | PastDue | Cancelled` (reactivar devuelve a la situación previa a la suspensión; si el período ya terminó, queda en `PastDue` con una gracia nueva) · `Expired → Active (renovar) | Cancelled` · `Cancelled` es terminal para esa suscripción (se contrata una nueva). La misma tabla vive en el dominio (`SubscriptionTransitions`) y en un disparador de PostgreSQL. Cualquier otra transición se rechaza con 409. Cada transición ocurre en una transacción que actualiza la suscripción, los derechos vigentes (`tenant_entitlements`), el historial y la auditoría, con control de concurrencia (`xmin`).
 
 ## Reglas de períodos y renovación (explícitas)
 - Período siguiente = `period_end` anterior (sin huecos ni solapes) + una periodicidad; **no hay prorrateo implícito**. Mensual = +1 mes calendario (con tope al último día), trimestral = +3, anual = +12.
@@ -91,7 +99,7 @@ Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago conf
 |---|---|---|
 | 1 | Diagnóstico y ADR 0012 | Hecho |
 | 2 | Módulo, catálogo de planes con versiones, funciones y límites; `/platform/plans` | Hecho |
-| 3 | Suscripciones, transiciones, historial, concurrencia y migración de los gimnasios existentes | Pendiente |
+| 3 | Suscripciones, transiciones, historial, concurrencia y migración de los gimnasios existentes | Hecho |
 | 4 | Servicio de capacidades, derechos vigentes, disparadores de límites y modo de acceso | Pendiente |
 | 5 | Renovaciones, cambios de plan, cancelaciones, prórrogas y vencimientos (`SubscriptionWorker`) | Pendiente |
 | 6 | Cobros comerciales: facturas internas, pagos, intentos, reversiones; separación de pagos de alumnos | Pendiente |

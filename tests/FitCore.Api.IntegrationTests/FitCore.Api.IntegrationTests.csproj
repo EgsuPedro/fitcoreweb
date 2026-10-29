@@ -4,6 +4,7 @@
     <ProjectReference Include="..\..\src\backend\Modules\Platform\FitCore.Platform\FitCore.Platform.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.22" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />
     <PackageReference Include="Npgsql" Version="10.0.3" />

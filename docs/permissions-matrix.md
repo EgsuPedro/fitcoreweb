@@ -100,7 +100,8 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `reports.operations.read` | Asistencia al gimnasio y ocupación de clases de las sucursales del usuario. Propietario, administrador de sucursal, recepción |
 | `reports.instructor.read` | Ocupación y asistencia de las propias sesiones como instructor, sin ingresos ni reportes de otros. Entrenador |
 | `reports.compare` | Comparar sucursales entre sí, solo las que el usuario puede consultar. Propietario, administrador de sucursal, contador |
-| `reports.export` | Exportar reportes a CSV y descargar las propias exportaciones; exige además el permiso del reporte exportado. Propietario, administrador de sucursal, contador |
+| `reports.export` | Exportar reportes a Excel (por defecto) o CSV y descargar las propias exportaciones; exige además el permiso del reporte exportado. Propietario, administrador de sucursal, contador |
+| `branding.manage` | Cambiar o quitar el **logo del gimnasio** que aparece en el menú y en los libros de Excel de los reportes (`PUT|DELETE /tenant/branding/logo`). Propietario. Ver el logo y la marca (`GET /tenant/branding[/logo]`) exige `organization.read` (ver datos del gimnasio). La plataforma carga el logo de un gimnasio con `platform.tenants.manage` (`PUT /platform/tenants/{id}/logo`) |
 | `members.access` | Dar, restablecer, suspender y reactivar el acceso de un alumno a su portal (administrador de sucursal; recepción no lo tiene) |
 | `me.read` | Solo del rol `Alumno`: ver sus propios datos en el portal (`/me/*`) |
 | `platform.taxes.manage` | Solo plataforma: registrar tarifas de IVA por decreto |

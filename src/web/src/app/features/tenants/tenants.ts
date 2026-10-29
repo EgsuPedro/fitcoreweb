@@ -6,6 +6,7 @@ import { ApiService } from '../../core/api/api.service';
 import type { CommercialPlanSummary, Tenant } from '../../core/api/models';
 import { ErrorMessages, Formatter } from '../../core/i18n/messages';
 import { Confirm } from '../../shared/confirm';
+import { LogoPicker } from '../../shared/logo-picker';
 import { Modal } from '../../shared/modal';
 import { Pager } from '../../shared/pager';
 import { TIME_ZONES } from '../branches/branches';
@@ -14,7 +15,7 @@ const LOCALES = ['es-EC', 'es', 'en'] as const;
 
 @Component({
   selector: 'fc-tenants',
-  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, Modal, Pager, Confirm],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, LogoPicker, Modal, Pager, Confirm],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="page-header">
@@ -115,6 +116,11 @@ const LOCALES = ['es-EC', 'es', 'en'] as const;
             <input type="checkbox" formControlName="startTrial" />
             <span>{{ 'tenants.startTrial' | transloco }}</span>
           </label>
+          <div class="field">
+            <span>{{ 'tenants.logo' | transloco }}</span>
+            <fc-logo-picker [disabled]="saving()" (fileChange)="logoFile.set($event)" />
+            <small class="muted">{{ 'tenants.logoHint' | transloco }}</small>
+          </div>
           <h3>{{ 'tenants.owner' | transloco }}</h3>
           <label class="field">
             <span>{{ 'users.name' | transloco }}</span>
@@ -171,6 +177,7 @@ export class Tenants implements OnInit {
   protected readonly formError = signal<string | null>(null);
   protected readonly statusTarget = signal<Tenant | null>(null);
   protected readonly plans = signal<CommercialPlanSummary[]>([]);
+  protected readonly logoFile = signal<File | null>(null);
 
   protected readonly form = this.fb.nonNullable.group({
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/)]],
@@ -206,6 +213,7 @@ export class Tenants implements OnInit {
       startTrial: false,
     });
     this.formError.set(null);
+    this.logoFile.set(null);
     this.creating.set(true);
     // Planes que se pueden asignar a un gimnasio nuevo (solo los activos).
     this.api.commercialPlans({ isActive: true, pageSize: 100 }).subscribe({ next: (r) => this.plans.set(r.items), error: () => this.plans.set([]) });
@@ -232,16 +240,35 @@ export class Tenants implements OnInit {
         startTrial: value.startTrial && value.planCode !== '',
       })
       .subscribe({
-        next: () => {
-          this.saving.set(false);
-          this.creating.set(false);
-          this.load();
-        },
+        next: (created) => this.uploadLogoThenClose(created.id),
         error: (err: unknown) => {
           this.saving.set(false);
           this.formError.set(this.errors.message(err));
         },
       });
+  }
+
+  /** El gimnasio ya existe. Si eligieron logo se sube ahora; si falla, el gimnasio no se pierde: se avisa y puede cargarse luego. */
+  private uploadLogoThenClose(tenantId: string): void {
+    const finish = () => {
+      this.saving.set(false);
+      this.creating.set(false);
+      this.logoFile.set(null);
+      this.load();
+    };
+    const logo = this.logoFile();
+    if (!logo) {
+      finish();
+      return;
+    }
+
+    this.api.uploadTenantLogo(tenantId, logo).subscribe({
+      next: () => finish(),
+      error: (err: unknown) => {
+        finish();
+        this.error.set(this.transloco.translate('tenants.logoFailed', { reason: this.errors.message(err) }));
+      },
+    });
   }
 
   protected changeStatus(tenant: Tenant): void {

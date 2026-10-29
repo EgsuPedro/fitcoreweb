@@ -37,6 +37,7 @@ public partial class AnalyticsExportTests(ApiFixture api)
         var dictionary = new Dictionary<string, object?>
         {
             ["report"] = report,
+            ["format"] = "Csv", // estas pruebas verifican el CSV; el Excel tiene sus propias pruebas
             ["preset"] = "Custom",
             ["from"] = Today.AddDays(-9).ToString("yyyy-MM-dd"),
             ["to"] = Today.ToString("yyyy-MM-dd")

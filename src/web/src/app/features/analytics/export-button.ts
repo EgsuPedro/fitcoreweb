@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angu
 import { TranslocoPipe } from '@jsverse/transloco';
 import { switchMap, tap } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
-import type { ExportReportKey, ExportRequest, PeriodPresetKey } from '../../core/api/models';
+import type { ExportFormatKey, ExportReportKey, ExportRequest, PeriodPresetKey } from '../../core/api/models';
 import { Perm } from '../../core/auth/permissions';
 import { SessionService } from '../../core/auth/session.service';
 import { ErrorMessages } from '../../core/i18n/messages';
@@ -20,7 +20,7 @@ export function saveBlob(blob: Blob, fileName: string): void {
 }
 
 /**
- * «Exportar CSV» de un reporte: pide la exportación con los mismos filtros que se ven en pantalla y descarga el archivo. Solo aparece a quien tiene el
+ * «Exportar a Excel» (o CSV) de un reporte: pide la exportación con los mismos filtros que se ven en pantalla y descarga el archivo. Solo aparece a quien tiene el
  * permiso de exportar; el servidor vuelve a comprobarlo (y el del reporte) al pedir y al descargar.
  */
 @Component({
@@ -30,8 +30,11 @@ export function saveBlob(blob: Blob, fileName: string): void {
   template: `
     @if (allowed()) {
       <span class="export-box">
-        <button type="button" class="btn" [disabled]="busy() || !filters.query()" (click)="run()">
+        <button type="button" class="btn" [disabled]="busy() || !filters.query()" (click)="run('Xlsx')">
           {{ (busy() ? 'analytics.export.working' : 'analytics.export.button') | transloco }}
+        </button>
+        <button type="button" class="btn btn-ghost" [disabled]="busy() || !filters.query()" [title]="'analytics.export.csvHint' | transloco" (click)="run('Csv')">
+          {{ 'analytics.export.csv' | transloco }}
         </button>
         @if (error()) {
           <span class="alert alert-danger" role="alert">{{ error() }}</span>
@@ -58,7 +61,7 @@ export class ExportButton {
     return this.session.has(Perm.ReportsExport);
   }
 
-  protected run(): void {
+  protected run(format: ExportFormatKey): void {
     const query = this.filters.query();
     if (!query) {
       return;
@@ -67,6 +70,7 @@ export class ExportButton {
     this.error.set(null);
     const body = {
       report: this.report(),
+      format,
       preset: this.filters.preset() as PeriodPresetKey,
       from: this.filters.preset() === 'Custom' ? this.filters.from() : null,
       to: this.filters.preset() === 'Custom' ? this.filters.to() : null,

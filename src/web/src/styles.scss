@@ -19,10 +19,11 @@
   --accent-contrast: #ffffff;
   --accent-soft: #e2f4f1;
   --accent-soft-strong: #c9ebe6;
-  --cta: #f97316;
-  --cta-hover: #ea6a0a;
-  --cta-active: #c2570a;
-  --cta-contrast: #1c1208;
+  --cta: #fdba74;
+  --cta-border: #fb923c;
+  --cta-hover: #fb923c;
+  --cta-active: #f97316;
+  --cta-contrast: #431407;
   --cta-soft: #ffedd5;
   --sidebar-bg: #0f766e;
   --sidebar-bg-end: #0b5e57;
@@ -53,10 +54,11 @@
     --accent-contrast: #062925;
     --accent-soft: #123a37;
     --accent-soft-strong: #1a504b;
-    --cta: #fb923c;
-    --cta-hover: #f97316;
-    --cta-active: #ea580c;
-    --cta-contrast: #1c1208;
+    --cta: #f5a45a;
+    --cta-border: #fb923c;
+    --cta-hover: #fdba74;
+    --cta-active: #fb923c;
+    --cta-contrast: #2a1304;
     --cta-soft: #3a2410;
     --sidebar-bg: #0d3b37;
     --sidebar-bg-end: #0a2d2a;
@@ -176,23 +178,20 @@ pre {
 
   &.btn-primary {
     background: var(--cta);
-    border-color: var(--cta);
+    border-color: var(--cta-border);
     color: var(--cta-contrast);
     font-weight: 600;
-    box-shadow: 0 1px 2px rgb(194 87 10 / 30%);
 
     &:hover:not(:disabled) {
       background: var(--cta-hover);
       border-color: var(--cta-hover);
       color: var(--cta-contrast);
-      box-shadow: 0 2px 6px rgb(194 87 10 / 35%);
     }
 
     &:active:not(:disabled) {
       background: var(--cta-active);
       border-color: var(--cta-active);
-      color: #ffffff;
-      box-shadow: none;
+      color: var(--cta-contrast);
     }
 
     &:focus-visible {
@@ -607,7 +606,7 @@ select.ng-touched.ng-invalid {
 
   &.active {
     background: var(--sidebar-active);
-    border-left-color: var(--cta);
+    border-left-color: var(--cta-border);
     color: #ffffff;
     font-weight: 600;
   }
@@ -1352,4 +1351,120 @@ fieldset.field {
       color: var(--muted);
     }
   }
+}
+
+// ---------- Inicio: contenido + banner lateral ----------
+// El inicio aprovecha todo el ancho: en pantallas anchas el banner de Fiti ocupa la columna de la derecha.
+.content:has(.home-grid) {
+  max-width: none;
+}
+
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 1.25rem;
+  align-items: start;
+
+  @media (width <= 80rem) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.home-aside {
+  position: sticky;
+  top: 1rem;
+
+  .mascot-card {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    border-left-width: 1px;
+    border-top: 5px solid var(--accent);
+    padding: 1.5rem 1.25rem 1rem;
+    margin-bottom: 0;
+
+    .mascot-figure {
+      order: -1;
+      height: 15rem;
+    }
+
+    .mascot-text {
+      margin-inline: auto;
+    }
+  }
+
+  @media (width <= 80rem) {
+    position: static;
+
+    .mascot-card {
+      grid-template-columns: 1fr auto;
+      text-align: left;
+      justify-items: start;
+      border-top-width: 1px;
+      border-left-width: 5px;
+
+      .mascot-figure {
+        order: 0;
+        height: 11rem;
+      }
+    }
+  }
+}
+
+// ---------- Logo del gimnasio ----------
+.logo-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0 1rem;
+
+  .logo-preview {
+    display: grid;
+    place-items: center;
+    width: 12rem;
+    height: 7rem;
+    padding: 0.5rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    background: #ffffff;
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .logo-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    max-width: 22rem;
+  }
+
+  label.btn.disabled {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  label.btn:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+.tenant-logo {
+  height: 2.1rem;
+  width: auto;
+  max-width: 9rem;
+  margin-right: 0.5rem;
+  object-fit: contain;
+}
+
+.field-error {
+  display: block;
+  color: var(--danger);
+  font-weight: 500;
 }

@@ -111,3 +111,9 @@ Proyección de las columnas necesarias, agregaciones en PostgreSQL, sin N+1, fil
 - **Saldos históricos:** el sistema no guarda el saldo de una fecha pasada; los saldos son «de hoy».
 - **Sesiones de clase no cerradas** se informan como «pendientes de cierre».
 - Sin costos ni gastos no existe utilidad: solo cobrado, generado y pendiente.
+
+## Excel con la marca del gimnasio (agregado el 2026-10-29)
+- **Formato por defecto: Excel (`.xlsx`)**; CSV queda como opción para otros sistemas (`format: Xlsx|Csv` en la solicitud de exportación). Motivo: un CSV con comas se abre en una sola columna en un Excel con configuración regional en español (el separador de lista es `;`), y no admite logo ni formato.
+- **Contenido del libro:** logo del gimnasio (si lo cargó) y su nombre, título del reporte, período y fecha de generación en la zona del gimnasio; tabla con encabezado de la marca, filtros, primera fila fija, anchos legibles, números y fechas con su tipo real (se ordenan, filtran y suman) y orientación horizontal con encabezado repetido al imprimir.
+- **Seguridad:** los textos escritos por usuarios se guardan como **texto**, nunca como fórmula (ninguna celda del libro lo es; hay una prueba). Las exportaciones siguen sujetas a los mismos permisos, alcance de sucursales, vencimiento de 24 h, tope de filas y límite por hora; el libro solo lleva el logo y el nombre **del gimnasio solicitante** (contrato `ITenantBranding`).
+- **Biblioteca:** ClosedXML 0.105.1 (MIT) con DocumentFormat.OpenXml 3.1.1 (MIT) y SixLabors.Fonts 1.0.0 (Apache-2.0: la licencia dividida de Six Labors empieza en la versión 2). No se miden fuentes del sistema: los anchos se calculan por el largo del contenido.

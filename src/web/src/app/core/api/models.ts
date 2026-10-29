@@ -210,3 +210,7 @@ export type NewSubscriptionRequest = Schemas['NewSubscriptionRequest'];
 // Proveedor de pagos (Fase 7): estado de la integración y eventos recibidos por webhook.
 export type PaymentProviderStatus = Schemas['ProviderStatusDto'];
 export type ProviderEvent = Schemas['ProviderEventDto'];
+
+// Marca del gimnasio (logo) y formato de las exportaciones.
+export type Branding = Schemas['BrandingDto'];
+export type ExportFormatKey = Schemas['ExportFormat'];

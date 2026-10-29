@@ -212,6 +212,7 @@ v1.MapPlansEndpoints();
 v1.MapSubscriptionsEndpoints();
 v1.MapBillingEndpoints();
 v1.MapWebhookEndpoints();
+v1.MapBrandingEndpoints();
 v1.MapOrganizationsEndpoints();
 v1.MapMySubscriptionEndpoints();
 

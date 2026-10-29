@@ -24,6 +24,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
 
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<TenantLogo> TenantLogos => Set<TenantLogo>();
     public DbSet<PermissionEntity> PermissionCatalog => Set<PermissionEntity>();
     public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
     public DbSet<UserBranch> UserBranches => Set<UserBranch>();
@@ -95,6 +96,16 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
 
     private static void ConfigureOrganizations(ModelBuilder builder)
     {
+        builder.Entity<TenantLogo>(b =>
+        {
+            b.ToTable("tenant_logos", OrganizationsSchema);
+            b.HasKey(x => x.TenantId);
+            b.Property(x => x.TenantId).ValueGeneratedNever();
+            b.Property(x => x.StorageKey).HasMaxLength(120).IsRequired();
+            b.Property(x => x.ContentType).HasMaxLength(20).IsRequired();
+            b.Property(x => x.Sha256).HasMaxLength(64).IsRequired();
+        });
+
         builder.Entity<Tenant>(b =>
         {
             b.ToTable("tenants", OrganizationsSchema);

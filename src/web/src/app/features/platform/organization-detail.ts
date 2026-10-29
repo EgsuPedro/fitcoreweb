@@ -9,6 +9,7 @@ import { ErrorMessages } from '../../core/i18n/messages';
 import { Badge } from '../../shared/badge';
 import { FcDate, FcDateTime, FcMoney } from '../../shared/format.pipes';
 import { AttemptKey } from '../../shared/idempotency';
+import { LogoPicker } from '../../shared/logo-picker';
 import { Modal } from '../../shared/modal';
 import { ReasonDialog } from '../../shared/reason-dialog';
 import { ToastService } from '../../shared/toast';
@@ -27,7 +28,7 @@ const NEEDS_REASON: readonly Action[] = ['suspend', 'cancel', 'extend'];
  */
 @Component({
   selector: 'fc-platform-organization',
-  imports: [RouterLink, TranslocoPipe, Badge, FcDate, FcDateTime, FcMoney, Modal, ReasonDialog],
+  imports: [RouterLink, TranslocoPipe, Badge, FcDate, FcDateTime, FcMoney, LogoPicker, Modal, ReasonDialog],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (error()) { <p class="alert alert-danger" role="alert">{{ error() }}</p> }
@@ -139,6 +140,17 @@ const NEEDS_REASON: readonly Action[] = ['suspend', 'cancel', 'extend'];
         </table>
         <p class="muted">{{ 'platform.billing.notice' | transloco }}</p>
       </section>
+
+      @if (canLogo()) {
+        <section class="card" aria-labelledby="logo-title">
+          <h2 id="logo-title">{{ 'platform.detail.logo' | transloco }}</h2>
+          <p class="muted">{{ 'platform.detail.logoHint' | transloco }}</p>
+          <fc-logo-picker [disabled]="busy()" (fileChange)="logoFile.set($event)" />
+          <div class="row-actions">
+            <button type="button" class="btn btn-primary" [disabled]="busy() || !logoFile()" (click)="saveLogo(o.id)">{{ 'branding.save' | transloco }}</button>
+          </div>
+        </section>
+      }
 
       <section class="card" aria-labelledby="notes-title">
         <h2 id="notes-title">{{ 'platform.detail.notes' | transloco }} ({{ o.notesCount }})</h2>
@@ -288,6 +300,8 @@ export class PlatformOrganization implements OnInit {
   protected readonly plans = signal<CommercialPlanSummary[]>([]);
   protected readonly error = signal<string | null>(null);
   protected readonly busy = signal(false);
+  protected readonly logoFile = signal<File | null>(null);
+  protected readonly canLogo = computed(() => this.session.has(Perm.PlatformTenantsManage));
 
   protected readonly action = signal<Action | null>(null);
   protected readonly actionError = signal<string | null>(null);
@@ -318,6 +332,26 @@ export class PlatformOrganization implements OnInit {
 
   ngOnInit(): void {
     this.load();
+  }
+
+  protected saveLogo(tenantId: string): void {
+    const file = this.logoFile();
+    if (!file) {
+      return;
+    }
+
+    this.busy.set(true);
+    this.api.uploadTenantLogo(tenantId, file).subscribe({
+      next: () => {
+        this.busy.set(false);
+        this.logoFile.set(null);
+        this.toast.success('platform.detail.logoSaved');
+      },
+      error: (err: unknown) => {
+        this.busy.set(false);
+        this.error.set(this.errors.message(err));
+      },
+    });
   }
 
   protected tone(status: string) {

@@ -99,7 +99,8 @@
     "platformPlans": "Planes comerciales",
     "platformBilling": "Cobros comerciales",
     "mySubscription": "Mi suscripción",
-    "platformRequests": "Solicitudes de gimnasios"
+    "platformRequests": "Solicitudes de gimnasios",
+    "branding": "Logo del gimnasio"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -234,7 +235,10 @@
     "plan": "Plan comercial",
     "planDefault": "Plan por defecto (heredado, sin límites ni cobro)",
     "planHint": "El plan fija precio, límites y funciones del gimnasio. Sin elegir uno se asigna el plan heredado.",
-    "startTrial": "Empezar con la prueba gratuita del plan"
+    "startTrial": "Empezar con la prueba gratuita del plan",
+    "logo": "Logo del gimnasio (opcional)",
+    "logoHint": "Se usará en sus reportes y comprobantes. Puede cargarlo o cambiarlo después.",
+    "logoFailed": "El gimnasio se creó, pero no se pudo cargar el logo: {{ reason }} Puede subirlo desde su ficha de organización."
   },
   "errors": {
     "generic": "Ocurrió un error inesperado. Intente de nuevo.",
@@ -708,6 +712,13 @@
     },
     "subscription_notices": {
       "not_found": "El aviso no existe."
+    },
+    "branding": {
+      "logo_required": "Elija el archivo del logo.",
+      "logo_too_large": "El logo no puede pesar más de 1 MB.",
+      "logo_invalid_type": "El logo debe ser una imagen PNG o JPG válida.",
+      "logo_invalid_size": "El logo debe medir entre 32 y 2000 píxeles por lado.",
+      "logo_not_found": "El gimnasio no tiene logo."
     }
   },
   "enums": {
@@ -2253,9 +2264,11 @@
       "date": "Fecha"
     },
     "export": {
-      "button": "Exportar CSV",
+      "button": "Exportar a Excel",
       "working": "Exportando…",
-      "created": "Exportación lista ({{ rows }} filas)."
+      "created": "Exportación lista ({{ rows }} filas).",
+      "csv": "CSV",
+      "csvHint": "Archivo de texto para otros sistemas (sin logo ni formato)"
     },
     "dashboard": {
       "title": "Panel de analítica",
@@ -2744,7 +2757,10 @@
       "activityHint": "Lo que hizo el equipo de plataforma sobre esta organización (auditado).",
       "noActivity": "Sin acciones registradas.",
       "usageRefreshed": "Consumo medido.",
-      "noteAdded": "Nota agregada."
+      "noteAdded": "Nota agregada.",
+      "logo": "Logo del gimnasio",
+      "logoHint": "Carga o reemplaza el logo que usará este gimnasio en sus reportes y comprobantes.",
+      "logoSaved": "Logo guardado."
     },
     "action": {
       "assign": "Asignar plan",
@@ -3063,6 +3079,28 @@
         "title": "Reembolso registrado",
         "body": "Registramos un reembolso del pago {{ ref }}."
       }
+    }
+  },
+  "branding": {
+    "title": "Logo del gimnasio",
+    "subtitle": "Su logo aparece en el menú y en los libros de Excel de sus reportes (y, más adelante, en sus comprobantes).",
+    "choose": "Elegir logo",
+    "change": "Cambiar imagen",
+    "discard": "Descartar",
+    "save": "Guardar logo",
+    "remove": "Quitar logo",
+    "removeConfirm": "¿Quitar el logo? Los reportes nuevos saldrán solo con el nombre del gimnasio.",
+    "saved": "Logo guardado.",
+    "removed": "Logo eliminado.",
+    "noLogo": "Sin logo",
+    "previewAlt": "Vista previa del logo",
+    "rules": "PNG o JPG, hasta 1 MB, de 32 a 2000 píxeles por lado. Se le quitan los datos ocultos de la imagen (ubicación, equipo).",
+    "usedIn": "Úselo con fondo transparente o claro: se imprime sobre papel blanco.",
+    "problem": {
+      "type": "Solo se admiten imágenes PNG o JPG.",
+      "size": "La imagen pesa más de 1 MB.",
+      "dimensions": "La imagen debe medir entre 32 y 2000 píxeles por lado.",
+      "unreadable": "No se pudo leer la imagen."
     }
   }
 }

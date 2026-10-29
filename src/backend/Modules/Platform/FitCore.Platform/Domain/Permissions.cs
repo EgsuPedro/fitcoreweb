@@ -20,6 +20,7 @@ public static class Permissions
     public const string PlatformMetricsRead = "platform.metrics.read";
 
     public const string OrganizationRead = "organization.read";
+    public const string BrandingManage = "branding.manage";
     public const string OrganizationUpdate = "organization.update";
 
     public const string BranchesRead = "branches.read";
@@ -139,6 +140,7 @@ public static class Permissions
         new(PlatformSubscriptionsManage, "platform", "Asignar planes, activar, suspender y reactivar suscripciones comerciales de los gimnasios (solo equipo de plataforma)"),
         new(PlatformPlansManage, "platform", "Crear y modificar planes comerciales, sus precios, límites y funcionalidades (solo equipo de plataforma)"),
         new(OrganizationRead, "organization", "Ver datos del gimnasio"),
+        new(BrandingManage, "organization", "Cambiar o quitar el logo del gimnasio que aparece en reportes, exportaciones y comprobantes"),
         new(OrganizationUpdate, "organization", "Editar datos del gimnasio"),
         new(BranchesRead, "branches", "Ver sucursales"),
         new(BranchesCreate, "branches", "Crear sucursales"),

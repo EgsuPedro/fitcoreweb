@@ -23,7 +23,41 @@ internal static class ExportSupport
     public static string FileKey(Guid tenantId, Guid exportId) => $"analytics-exports/{tenantId:N}/{exportId:N}";
 
     /// <summary>Nombre seguro y genérico: ni nombres de alumnos ni nada escrito por usuarios.</summary>
-    public static string FileName(string slug, DateTimeOffset requestedAt, Guid id) => $"reporte-{slug}-{requestedAt:yyyyMMdd}-{id.ToString("N")[..8]}.csv";
+    public static string FileName(string slug, DateTimeOffset requestedAt, Guid id, string format) => $"reporte-{slug}-{requestedAt:yyyyMMdd}-{id.ToString("N")[..8]}.{Extension(format)}";
+
+    public static string Extension(string format) => format == "xlsx" ? "xlsx" : "csv";
+
+    public static string ContentType(string format) =>
+        format == "xlsx" ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" : "text/csv; charset=utf-8";
+
+    /// <summary>Título legible del reporte para el encabezado del libro de Excel.</summary>
+    public static string Title(ExportReport report) => report switch
+    {
+        ExportReport.Collections => "Cobros",
+        ExportReport.PaymentMethods => "Cobros por medio de pago",
+        ExportReport.OutstandingBalances => "Saldos pendientes",
+        ExportReport.CashRegisters => "Cajas",
+        ExportReport.Reversals => "Reversiones",
+        ExportReport.MemberAcquisitions => "Membresías vendidas",
+        ExportReport.MemberRetention => "Alumnos sin membresía vigente",
+        ExportReport.MemberRenewals => "Membresías sin renovar",
+        ExportReport.MemberExpirations => "Próximos vencimientos",
+        ExportReport.Attendance => "Asistencia",
+        ExportReport.ClassOccupancy => "Ocupación de clases",
+        ExportReport.ClassCancellations => "Clases canceladas",
+        _ => "Comparación de sucursales"
+    };
+
+    public static string PeriodText(ExportRequest request) => request.Preset switch
+    {
+        PeriodPreset.Today => "Hoy",
+        PeriodPreset.Last7Days => "Últimos 7 días",
+        PeriodPreset.Last30Days => "Últimos 30 días",
+        PeriodPreset.CurrentMonth => "Mes actual",
+        PeriodPreset.PreviousMonth => "Mes anterior",
+        PeriodPreset.CurrentYear => "Año actual",
+        _ => request.From is { } from && request.To is { } to ? $"{from:yyyy-MM-dd} a {to:yyyy-MM-dd}" : "Personalizado"
+    };
 
     public static string Slug(ExportReport report) => report switch
     {
@@ -47,7 +81,7 @@ internal static class ExportSupport
         var report = Enum.TryParse<ExportReport>(e.Report, out var parsed) ? parsed : ExportReport.Collections;
         var status = e.FileKey is null ? "Purged" : e.IsExpired(now) ? "Expired" : "Available";
         return new ExportDto(
-            e.Id, e.Report, e.Format, e.RequestedAt, e.RowCount, e.FileSize, e.ExpiresAt, status, e.DownloadCount, FileName(Slug(report), e.RequestedAt, e.Id),
+            e.Id, e.Report, e.Format, e.RequestedAt, e.RowCount, e.FileSize, e.ExpiresAt, status, e.DownloadCount, FileName(Slug(report), e.RequestedAt, e.Id, e.Format),
             $"/api/v1/reports/exports/{e.Id}/download", e.Filters);
     }
 
@@ -70,7 +104,9 @@ internal static class ExportSupport
     }
 }
 
-internal sealed class CreateExportHandler(AnalyticsDbContext db, IAccessContext access, IDispatcher dispatcher, IFileStore store, IClock clock, IConfiguration configuration, ILogger<CreateExportHandler> logger)
+internal sealed class CreateExportHandler(
+    AnalyticsDbContext db, IAccessContext access, IDispatcher dispatcher, IFileStore store, IClock clock, IConfiguration configuration, ITenantBranding branding,
+    ILogger<CreateExportHandler> logger)
     : ICommandHandler<CreateExportCommand, ExportDto>
 {
     public async Task<Result<ExportDto>> HandleAsync(CreateExportCommand command, CancellationToken cancellationToken)
@@ -82,7 +118,7 @@ internal sealed class CreateExportHandler(AnalyticsDbContext db, IAccessContext 
         }
 
         var request = command.Request;
-        if (!Enum.IsDefined(request.Report))
+        if (!Enum.IsDefined(request.Report) || !Enum.IsDefined(request.Format))
         {
             return ExportErrors.ReportInvalid;
         }
@@ -111,7 +147,19 @@ internal sealed class CreateExportHandler(AnalyticsDbContext db, IAccessContext 
             return table.Error;
         }
 
-        var bytes = CsvWriter.Build(table.Value.Headers, table.Value.Rows);
+        var format = request.Format == ExportFormat.Csv ? "csv" : "xlsx";
+        byte[] bytes;
+        if (request.Format == ExportFormat.Csv)
+        {
+            bytes = CsvWriter.Build(table.Value.Headers, table.Value.Rows);
+        }
+        else
+        {
+            // Excel lleva la marca del gimnasio: su nombre y, si lo cargó, su logo. Sin logo el libro sale igual, solo con el nombre.
+            var brand = await branding.GetAsync(cancellationToken);
+            bytes = XlsxExporter.Build(table.Value, brand, ExportSupport.Title(request.Report), ExportSupport.PeriodText(request), now);
+        }
+
         var id = Guid.CreateVersion7();
         var key = ExportSupport.FileKey(actor.Value.TenantId, id);
         await using (var content = new MemoryStream(bytes))
@@ -126,7 +174,7 @@ internal sealed class CreateExportHandler(AnalyticsDbContext db, IAccessContext 
             RequestedBy = actor.Value.UserId,
             RequestedAt = now,
             Report = request.Report.ToString(),
-            Format = "csv",
+            Format = format,
             Filters = ExportSupport.FiltersJson(request),
             RowCount = table.Value.Rows.Count,
             FileSize = bytes.Length,
@@ -225,6 +273,6 @@ internal sealed class DownloadExportHandler(AnalyticsDbContext db, IAccessContex
 
         await db.Exports.Where(e => e.Id == export.Id)
             .ExecuteUpdateAsync(s => s.SetProperty(e => e.DownloadCount, e => e.DownloadCount + 1).SetProperty(e => e.LastDownloadedAt, now), cancellationToken);
-        return new ExportFile(stream, ExportSupport.FileName(ExportSupport.Slug(report), export.RequestedAt, export.Id), export.FileSize);
+        return new ExportFile(stream, ExportSupport.FileName(ExportSupport.Slug(report), export.RequestedAt, export.Id, export.Format), export.FileSize, ExportSupport.ContentType(export.Format));
     }
 }

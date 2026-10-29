@@ -16,3 +16,8 @@ Estilos en `src/web/src/styles.scss` (variables CSS propias; el proyecto **no us
 - **Mascota «Fiti»:** componente `fc-mascot-card` (`shared/mascot-card.ts`), usado en el inicio del personal. Hoy es una imagen estática; el espacio queda listo para una animación Lottie/GIF.
 - **Modo oscuro:** hay una variante de todos los tokens.
 - **Pendiente de decidir:** el nombre visible del producto. El logo dice «FIT360» y el sistema todavía dice «FitCore 360» (título de la página, inicio de sesión y correos).
+
+## Logo del gimnasio y banner (2026-10-29)
+- **Naranja suave:** el color de la acción principal es un durazno (`--cta: #fdba74`, borde `#fb923c`, texto marrón oscuro `#431407`); más intenso al pasar el ratón y al hacer clic. Ya no es el naranja saturado.
+- **Banner de Fiti** en la columna derecha del inicio (en pantallas angostas pasa debajo).
+- **Logo del gimnasio:** se carga al dar de alta el gimnasio (plataforma) y se cambia en «Logo del gimnasio» (propietario) o desde la ficha de la organización (plataforma). PNG o JPG, hasta 1 MB, de 32 a 2000 px por lado; el servidor le quita los metadatos (ubicación, equipo). Aparece en el menú superior y en los libros de Excel; los comprobantes futuros lo usarán por el mismo contrato (`ITenantBranding`).

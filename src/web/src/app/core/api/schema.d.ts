@@ -692,6 +692,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/tenants/{id}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SetPlatformTenantLogo"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/metrics": {
         parameters: {
             query?: never;
@@ -3268,6 +3284,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tenant/branding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTenantBranding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tenant/branding/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTenantLogo"];
+        put: operations["SetTenantLogo"];
+        post?: never;
+        delete: operations["RemoveTenantLogo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -3964,6 +4012,18 @@ export interface components {
             name: string;
             timeZone: string;
             isActive: boolean;
+        };
+        BrandingDto: {
+            tenantName: string;
+            hasLogo: boolean;
+            contentType: string | null;
+            /** Format: int32 */
+            width: number | null;
+            /** Format: int32 */
+            height: number | null;
+            version: string | null;
+            /** Format: date-time */
+            updatedAt: string | null;
         };
         CancellationByClassDto: {
             className: string;
@@ -4804,6 +4864,11 @@ export interface components {
             downloadPath: string;
             filters: string;
         };
+        /**
+         * @default Xlsx
+         * @enum {unknown}
+         */
+        ExportFormat: "Xlsx" | "Csv";
         /** @enum {unknown} */
         ExportReport: "Collections" | "PaymentMethods" | "OutstandingBalances" | "CashRegisters" | "Reversals" | "MemberAcquisitions" | "MemberRetention" | "MemberRenewals" | "MemberExpirations" | "Attendance" | "ClassOccupancy" | "ClassCancellations" | "BranchComparison";
         ExportRequest: {
@@ -4849,6 +4914,7 @@ export interface components {
              * @default null
              */
             classId: string | null;
+            format?: components["schemas"]["ExportFormat"];
         };
         ExtendSubscriptionRequest: {
             /** Format: int32 */
@@ -9560,6 +9626,28 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["WebhookReceiptDto"];
+                };
+            };
+        };
+    };
+    SetPlatformTenantLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandingDto"];
                 };
             };
         };
@@ -14580,6 +14668,84 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PagedResultOfProviderEventDto"];
+                };
+            };
+        };
+    };
+    GetTenantBranding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandingDto"];
+                };
+            };
+        };
+    };
+    GetTenantLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SetTenantLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandingDto"];
+                };
+            };
+        };
+    };
+    RemoveTenantLogo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandingDto"];
                 };
             };
         };

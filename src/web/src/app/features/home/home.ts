@@ -4,67 +4,72 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { SessionService } from '../../core/auth/session.service';
 import { NAV_ITEMS, visibleNavItems } from '../../layout/nav';
 import { Perm } from '../../core/auth/permissions';
-import { MyPortal } from '../portal/my-portal';
 import { MascotCard } from '../../shared/mascot-card';
+import { MyPortal } from '../portal/my-portal';
 
 @Component({
   selector: 'fc-home',
   imports: [RouterLink, TranslocoPipe, MyPortal, MascotCard],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    @if (!isStudent()) {
-      <header class="page-header">
-        <h1>{{ 'home.welcome' | transloco: { name: session.user()?.fullName } }}</h1>
-        <p class="muted">{{ 'home.tenant' | transloco: { tenant: session.user()?.tenantSlug } }}</p>
-      </header>
-
-      <fc-mascot-card
-        [title]="'home.mascot.title' | transloco: { name: firstName() }"
-        [text]="'home.mascot.text' | transloco"
-        [actionLabel]="mascotLink() ? ('home.mascot.action' | transloco) : null"
-        (action)="goToMascotLink()"
-      />
-    }
-
     @if (isStudent()) {
       <fc-my-portal />
     } @else {
-    <section class="card">
-      <h2>{{ 'home.access' | transloco }}</h2>
-      <dl class="summary">
-        <dt>{{ 'home.roles' | transloco }}</dt>
-        <dd>
-          @for (role of session.user()?.roles; track role) {
-            <span class="badge">{{ role }}</span>
-          } @empty {
-            <span class="muted">—</span>
-          }
-        </dd>
-        <dt>{{ 'home.branches' | transloco }}</dt>
-        <dd>
-          @if (session.allBranches()) {
-            {{ 'home.allBranches' | transloco }}
-          } @else {
-            {{ session.user()?.branchIds?.length ?? 0 }}
-          }
-        </dd>
-        <dt>{{ 'home.permissions' | transloco }}</dt>
-        <dd>{{ session.permissions().size }}</dd>
-      </dl>
-    </section>
+      <div class="home-grid">
+        <div class="home-main">
+          <header class="page-header">
+            <h1>{{ 'home.welcome' | transloco: { name: session.user()?.fullName } }}</h1>
+            <p class="muted">{{ 'home.tenant' | transloco: { tenant: session.user()?.tenantSlug } }}</p>
+          </header>
 
-    @if (links().length > 0) {
-      <section class="card">
-        <h2>{{ 'home.shortcuts' | transloco }}</h2>
-        <div class="shortcuts">
-          @for (item of links(); track item.path) {
-            <a class="btn" [routerLink]="item.path">{{ item.labelKey | transloco }}</a>
+          <section class="card">
+            <h2>{{ 'home.access' | transloco }}</h2>
+            <dl class="summary">
+              <dt>{{ 'home.roles' | transloco }}</dt>
+              <dd>
+                @for (role of session.user()?.roles; track role) {
+                  <span class="badge">{{ role }}</span>
+                } @empty {
+                  <span class="muted">—</span>
+                }
+              </dd>
+              <dt>{{ 'home.branches' | transloco }}</dt>
+              <dd>
+                @if (session.allBranches()) {
+                  {{ 'home.allBranches' | transloco }}
+                } @else {
+                  {{ session.user()?.branchIds?.length ?? 0 }}
+                }
+              </dd>
+              <dt>{{ 'home.permissions' | transloco }}</dt>
+              <dd>{{ session.permissions().size }}</dd>
+            </dl>
+          </section>
+
+          @if (links().length > 0) {
+            <section class="card">
+              <h2>{{ 'home.shortcuts' | transloco }}</h2>
+              <div class="shortcuts">
+                @for (item of links(); track item.path) {
+                  <a class="btn" [routerLink]="item.path">{{ item.labelKey | transloco }}</a>
+                }
+              </div>
+            </section>
+          } @else {
+            <p class="alert alert-warning">{{ 'home.noAccess' | transloco }}</p>
           }
         </div>
-      </section>
-    } @else {
-      <p class="alert alert-warning">{{ 'home.noAccess' | transloco }}</p>
-    }
+
+        <!-- El banner ocupa el espacio libre de la derecha; en pantallas angostas pasa debajo. -->
+        <aside class="home-aside">
+          <fc-mascot-card
+            [title]="'home.mascot.title' | transloco: { name: firstName() }"
+            [text]="'home.mascot.text' | transloco"
+            [actionLabel]="mascotLink() ? ('home.mascot.action' | transloco) : null"
+            (action)="goToMascotLink()"
+          />
+        </aside>
+      </div>
     }
   `,
 })

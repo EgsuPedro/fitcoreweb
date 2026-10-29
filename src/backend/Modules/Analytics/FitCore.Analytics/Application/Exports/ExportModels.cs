@@ -26,7 +26,8 @@ public sealed record ExportRequest(
     bool? HideRenewed = null,
     bool? OnlyWithDifference = null,
     string? Activity = null,
-    Guid? ClassId = null);
+    Guid? ClassId = null,
+    ExportFormat Format = ExportFormat.Xlsx);
 
 /// <param name="Status">Available (se puede descargar), Expired (venció el plazo) o Purged (el archivo ya se borró).</param>
 /// <param name="DownloadPath">Ruta de descarga (requiere sesión y permisos; no es un enlace público).</param>
@@ -44,7 +45,7 @@ public sealed record ExportDto(
     string DownloadPath,
     string Filters);
 
-public sealed record ExportFile(Stream Content, string FileName, long Length);
+public sealed record ExportFile(Stream Content, string FileName, long Length, string ContentType);
 
 public sealed record CreateExportCommand(ExportRequest Request) : ICommand<ExportDto>;
 

@@ -40,6 +40,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.users', path: '/users', icon: '☺', permission: Perm.UsersRead },
   { labelKey: 'nav.roles', path: '/roles', icon: '⚿', permission: Perm.RolesRead },
   { labelKey: 'nav.audit', path: '/audit', icon: '☰', permission: Perm.AuditRead },
+  { labelKey: 'nav.branding', path: '/branding', icon: '◈', permission: Perm.BrandingManage },
   { labelKey: 'nav.mySubscription', path: '/my/subscription', icon: '★', permission: Perm.SubscriptionRead },
   { labelKey: 'nav.taxRates', path: '/platform/tax-rates', icon: '‰', permission: Perm.PlatformTaxesManage },
   { labelKey: 'nav.globalExercises', path: '/platform/exercises', icon: '♜', permission: Perm.PlatformExercisesManage },

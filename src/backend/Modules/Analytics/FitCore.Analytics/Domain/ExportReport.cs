@@ -17,3 +17,10 @@ public enum ExportReport
     ClassCancellations = 12,
     BranchComparison = 13
 }
+
+/// <summary>Formato del archivo: Excel (por defecto, con el logo y la marca del gimnasio) o CSV para otros sistemas.</summary>
+public enum ExportFormat
+{
+    Xlsx = 1,
+    Csv = 2
+}

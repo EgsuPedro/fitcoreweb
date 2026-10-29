@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { BrandingService } from '../core/branding.service';
 import { SessionService } from '../core/auth/session.service';
 import { Lang, SUPPORTED_LANGS, setLang } from '../core/i18n/transloco';
 import { InboxBell } from '../features/inbox/inbox-bell';
@@ -52,6 +53,10 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
           </button>
           <span class="topbar-spacer"></span>
 
+          @if (brand.logoUrl(); as logo) {
+            <img class="tenant-logo" [src]="logo" [alt]="brand.branding()?.tenantName ?? ''" />
+          }
+
           <fc-inbox-bell />
 
           <span class="lang-switch">
@@ -79,8 +84,9 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
     </div>
   `,
 })
-export class Shell {
+export class Shell implements OnInit {
   protected readonly session = inject(SessionService);
+  protected readonly brand = inject(BrandingService);
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
 
@@ -89,12 +95,19 @@ export class Shell {
   protected readonly activeLang = signal<string>(this.transloco.getActiveLang());
   protected readonly items = computed(() => visibleNavItems(NAV_ITEMS, (permission) => this.session.has(permission)));
 
+  ngOnInit(): void {
+    this.brand.refresh();
+  }
+
   protected changeLang(lang: Lang): void {
     setLang(this.transloco, lang);
     this.activeLang.set(lang);
   }
 
   protected logout(): void {
-    this.session.logout().subscribe(() => void this.router.navigate(['/login']));
+    this.session.logout().subscribe(() => {
+      this.brand.clear();
+      void this.router.navigate(['/login']);
+    });
   }
 }

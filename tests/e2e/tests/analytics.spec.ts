@@ -3,7 +3,7 @@ import { nav, platformCredentials, signIn } from './support';
 
 /**
  * Analítica contra API + PostgreSQL reales: el propietario ve el panel con indicadores calculados por el backend, cambia el período y las
- * pestañas de los reportes, exporta un CSV y lo descarga desde su historial; un rol sin permisos de reportes no ve el menú ni entra por URL.
+ * pestañas de los reportes, exporta a Excel y lo descarga desde su historial; un rol sin permisos de reportes no ve el menú ni entra por URL.
  */
 const run = Date.now().toString(36);
 const slug = `ana-${run}`;
@@ -99,13 +99,13 @@ test.describe.serial('analítica', () => {
     await expect(ownerPage.getByRole('row', { name: /Quito Centro Sin datos/ })).toBeVisible();
   });
 
-  test('exporta un CSV y lo descarga desde el historial', async () => {
+  test('exporta a Excel y lo descarga desde el historial', async () => {
     await nav(ownerPage).getByRole('link', { name: 'Reportes de alumnos', exact: true }).click();
     await ownerPage.getByRole('tab', { name: 'Altas y bajas' }).click();
 
     const download = ownerPage.waitForEvent('download');
-    await ownerPage.getByRole('button', { name: 'Exportar CSV' }).click();
-    expect((await download).suggestedFilename()).toMatch(/\.csv$/);
+    await ownerPage.getByRole('button', { name: 'Exportar a Excel' }).click();
+    expect((await download).suggestedFilename()).toMatch(/\.xlsx$/);
 
     await nav(ownerPage).getByRole('link', { name: 'Mis exportaciones', exact: true }).click();
     const row = ownerPage.getByRole('row', { name: /Membresías vendidas/ }).first();
@@ -113,7 +113,7 @@ test.describe.serial('analítica', () => {
 
     const again = ownerPage.waitForEvent('download');
     await row.getByRole('button', { name: 'Descargar' }).click();
-    expect((await again).suggestedFilename()).toMatch(/\.csv$/);
+    expect((await again).suggestedFilename()).toMatch(/\.xlsx$/);
   });
 
   test('un rol sin permisos de reportes no ve el menú ni entra por URL', async ({ browser, baseURL }) => {

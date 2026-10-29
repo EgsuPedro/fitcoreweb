@@ -68,6 +68,8 @@ public static class PlatformModule
         services.AddScoped<IAccessContext, AccessContext>();
         services.AddScoped<SessionService>();
         services.AddScoped<SecurityAudit>();
+        services.AddScoped<FitCore.Platform.Application.Branding.TenantBrandingService>();
+        services.AddScoped<FitCore.Application.Core.ITenantBranding, FitCore.Platform.Application.Branding.TenantBrandingProvider>();
         services.AddScoped<UserAdministration>();
         services.AddScoped<IMemberAccountService, MemberAccountService>();
         services.AddScoped<RoleAdministration>();

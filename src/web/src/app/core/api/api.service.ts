@@ -13,6 +13,7 @@ import type {
   OrganizationActivity,
   OrganizationDetail,
   AvailablePlan,
+  Branding,
   MySubscription,
   NewSubscriptionRequest,
   PlatformRequest,
@@ -162,6 +163,12 @@ export const API_BASE = '/api/v1';
 
 type Scalar = string | number | boolean | null | undefined;
 type Query = Record<string, Scalar | readonly string[]>;
+
+function logoForm(file: File): FormData {
+  const form = new FormData();
+  form.append('file', file, file.name);
+  return form;
+}
 
 function toParams(query: Query): HttpParams {
   let params = new HttpParams();
@@ -399,6 +406,23 @@ export class ApiService {
   }
   createTenant(body: CreateTenantRequest): Observable<Tenant> {
     return this.http.post<Tenant>(`${API_BASE}/platform/tenants`, body);
+  }
+  // Marca del gimnasio (logo)
+  branding(): Observable<Branding> {
+    return this.get('/tenant/branding');
+  }
+  brandingLogo(): Observable<Blob> {
+    return this.http.get(`${API_BASE}/tenant/branding/logo`, { responseType: 'blob' });
+  }
+  uploadLogo(file: File): Observable<Branding> {
+    return this.http.put<Branding>(`${API_BASE}/tenant/branding/logo`, logoForm(file));
+  }
+  removeLogo(): Observable<Branding> {
+    return this.http.delete<Branding>(`${API_BASE}/tenant/branding/logo`);
+  }
+  /** Desde la plataforma: carga el logo de un gimnasio (al darlo de alta o por soporte). */
+  uploadTenantLogo(tenantId: string, file: File): Observable<Branding> {
+    return this.http.put<Branding>(`${API_BASE}/platform/tenants/${tenantId}/logo`, logoForm(file));
   }
   setTenantStatus(id: string, active: boolean): Observable<Tenant> {
     return this.http.post<Tenant>(`${API_BASE}/platform/tenants/${id}/${active ? 'activate' : 'suspend'}`, {});

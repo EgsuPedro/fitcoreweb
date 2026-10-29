@@ -13,6 +13,7 @@ export const Perm = {
   PlatformOrganizationsManage: 'platform.organizations.manage',
   PlatformMetricsRead: 'platform.metrics.read',
   OrganizationRead: 'organization.read',
+  BrandingManage: 'branding.manage',
   OrganizationUpdate: 'organization.update',
   BranchesRead: 'branches.read',
   BranchesCreate: 'branches.create',

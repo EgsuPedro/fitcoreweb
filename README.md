@@ -107,6 +107,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 
 **Fase 7** (completa) (módulo `FitCore.Subscriptions`, [ADR 0012](docs/adr/0012-modulo-subscriptions.md)): planes comerciales con versiones, funciones y límites; suscripciones con prueba, gracia, renovación, cambio de plan, cancelación y prórroga; límites de sucursales, usuarios y alumnos hechos cumplir en PostgreSQL; modo restringido que conserva el cobro a los alumnos; facturas y pagos comerciales internos; panel global de plataforma con métricas (MRR contratado, no cobrado); portal «Mi suscripción» con solicitudes y avisos internos; y la abstracción del proveedor de pagos con webhooks firmados e idempotentes. **No hay cobro automático, ni proveedor de pagos real, ni facturación tributaria, ni avisos por correo/SMS/WhatsApp.** El dominio comercial SaaS está separado de los pagos y membresías de los alumnos. Resumen en [docs/informe-fase-7.md](docs/informe-fase-7.md); validación manual en [docs/guia-pruebas-fase-7.md](docs/guia-pruebas-fase-7.md).
 
+**Marca del gimnasio** ([identidad visual](docs/identidad-visual.md)): paleta FIT360 (teal y naranja suave), tipografía Inter, mascota Fiti; cada gimnasio carga su **logo** (PNG o JPG ≤ 1 MB, sin metadatos) que aparece en el menú y en los **libros de Excel** de los reportes (formato por defecto de las exportaciones; CSV sigue disponible). El mismo contrato servirá para los comprobantes.
+
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
 - [Arquitectura](docs/architecture.md): estructura, auditoría, primer administrador, configuración y ambientes

@@ -8,6 +8,7 @@ PostgreSQL 17. Un solo `DbContext` (`PlatformDbContext`) para el módulo Platfor
 |---|---|---|---|---|
 | organizations | `tenants` | Gimnasio: nombre, slug único, estado, zona horaria, idioma, contacto | (es la raíz) | No |
 | organizations | `branches` | Sucursal: código único por tenant, código de establecimiento SRI, ubicación, estado | Sí | Sí |
+| organizations | `tenant_logos` | Constancia del logo de cada gimnasio (uno por gimnasio): clave del archivo en el almacén privado, tipo (`image/png` o `image/jpeg`), peso (≤ 1 MB), SHA-256 (versión), medidas (32–2000 px) y quién lo cambió. El archivo no está en la base. RLS forzada por gimnasio; CHECK de tipo, peso, medidas y hash; FK al gimnasio. | Sí | Sí |
 | identity | `app_users` | Usuarios (Identity). Correo único **por tenant**, bloqueo, estado activo | Sí | Sí |
 | identity | `app_roles` | Roles por tenant, indicador "todas las sucursales" | Sí | Sí |
 | identity | `user_roles` | Usuario ↔ rol (FK compuestas con tenant) | Sí | Sí |
@@ -146,4 +147,4 @@ Casi todo lo que lee son **vistas de solo lectura** de las tablas de otros módu
 
 | Esquema | Tabla | Contenido |
 |---|---|---|
-| analytics | `report_exports` | Quién pidió una exportación a CSV, cuándo, qué reporte, con qué filtros (`jsonb`, sin contenido), cuántas filas y bytes, la clave del archivo en el almacén privado, cuándo vence (24 h), cuántas descargas lleva y cuándo se purgó. RLS forzado por gimnasio, FK compuesta `(tenant_id, requested_by)` al usuario. CHECK: formato `csv`, reporte conocido, 0–20.000 filas, vencimiento posterior a la solicitud, y «sin clave ⇔ purgado». Disparador: la solicitud no se modifica; solo avanzan el contador de descargas y la purga del archivo (y un archivo purgado no se recupera). El rol de la aplicación puede leer, insertar y actualizar, **no borrar**. |
+| analytics | `report_exports` | Quién pidió una exportación (Excel o CSV), cuándo, qué reporte, con qué filtros (`jsonb`, sin contenido), cuántas filas y bytes, la clave del archivo en el almacén privado, cuándo vence (24 h), cuántas descargas lleva y cuándo se purgó. RLS forzado por gimnasio, FK compuesta `(tenant_id, requested_by)` al usuario. CHECK: formato `csv` o `xlsx`, reporte conocido, 0–20.000 filas, vencimiento posterior a la solicitud, y «sin clave ⇔ purgado». Disparador: la solicitud no se modifica; solo avanzan el contador de descargas y la purga del archivo (y un archivo purgado no se recupera). El rol de la aplicación puede leer, insertar y actualizar, **no borrar**. |

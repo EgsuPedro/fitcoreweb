@@ -99,7 +99,8 @@
     "platformPlans": "Commercial plans",
     "platformBilling": "Commercial billing",
     "mySubscription": "My subscription",
-    "platformRequests": "Gym requests"
+    "platformRequests": "Gym requests",
+    "branding": "Gym logo"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -234,7 +235,10 @@
     "plan": "Commercial plan",
     "planDefault": "Default plan (legacy, no limits or charge)",
     "planHint": "The plan sets the gym's price, limits and features. Without one, the legacy plan is assigned.",
-    "startTrial": "Start with the plan's free trial"
+    "startTrial": "Start with the plan's free trial",
+    "logo": "Gym logo (optional)",
+    "logoHint": "It will be used in its reports and receipts. It can be uploaded or changed later.",
+    "logoFailed": "The gym was created, but the logo could not be uploaded: {{ reason }} You can upload it from its organization page."
   },
   "errors": {
     "generic": "An unexpected error occurred. Please try again.",
@@ -708,6 +712,13 @@
     },
     "subscription_notices": {
       "not_found": "The notice does not exist."
+    },
+    "branding": {
+      "logo_required": "Choose the logo file.",
+      "logo_too_large": "The logo cannot be larger than 1 MB.",
+      "logo_invalid_type": "The logo must be a valid PNG or JPG image.",
+      "logo_invalid_size": "The logo must be 32 to 2000 pixels per side.",
+      "logo_not_found": "The gym has no logo."
     }
   },
   "enums": {
@@ -2253,9 +2264,11 @@
       "date": "Date"
     },
     "export": {
-      "button": "Export CSV",
+      "button": "Export to Excel",
       "working": "Exporting…",
-      "created": "Export ready ({{ rows }} rows)."
+      "created": "Export ready ({{ rows }} rows).",
+      "csv": "CSV",
+      "csvHint": "Text file for other systems (no logo or formatting)"
     },
     "dashboard": {
       "title": "Analytics dashboard",
@@ -2744,7 +2757,10 @@
       "activityHint": "What the platform team did on this organization (audited).",
       "noActivity": "No actions recorded.",
       "usageRefreshed": "Usage measured.",
-      "noteAdded": "Note added."
+      "noteAdded": "Note added.",
+      "logo": "Gym logo",
+      "logoHint": "Upload or replace the logo this gym will use in its reports and receipts.",
+      "logoSaved": "Logo saved."
     },
     "action": {
       "assign": "Assign plan",
@@ -3063,6 +3079,28 @@
         "title": "Refund recorded",
         "body": "We recorded a refund of payment {{ ref }}."
       }
+    }
+  },
+  "branding": {
+    "title": "Gym logo",
+    "subtitle": "Your logo appears in the menu and in the Excel workbooks of your reports (and, later, on your receipts).",
+    "choose": "Choose logo",
+    "change": "Change image",
+    "discard": "Discard",
+    "save": "Save logo",
+    "remove": "Remove logo",
+    "removeConfirm": "Remove the logo? New reports will only carry the gym name.",
+    "saved": "Logo saved.",
+    "removed": "Logo removed.",
+    "noLogo": "No logo",
+    "previewAlt": "Logo preview",
+    "rules": "PNG or JPG, up to 1 MB, 32 to 2000 pixels per side. Hidden image data (location, device) is removed.",
+    "usedIn": "Use a transparent or light background: it is printed on white paper.",
+    "problem": {
+      "type": "Only PNG or JPG images are accepted.",
+      "size": "The image is larger than 1 MB.",
+      "dimensions": "The image must be 32 to 2000 pixels per side.",
+      "unreadable": "The image could not be read."
     }
   }
 }

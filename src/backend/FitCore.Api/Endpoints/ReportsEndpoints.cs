@@ -159,10 +159,10 @@ internal static class ReportsEndpoints
                 {
                     http.Response.Headers.CacheControl = "private, no-store";
                     http.Response.Headers.XContentTypeOptions = "nosniff";
-                    return Results.File(file.Content, "text/csv; charset=utf-8", file.FileName);
+                    return Results.File(file.Content, file.ContentType, file.FileName);
                 }))
             .RequirePermission(Permissions.ReportsExport)
-            .Produces(StatusCodes.Status200OK, contentType: "text/csv")
+            .Produces(StatusCodes.Status200OK, contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
             .WithName("DownloadReportExport");
     }
 }

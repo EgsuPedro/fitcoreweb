@@ -43,8 +43,8 @@ Prefijos de código, rutas y permisos: `subscriptions.*`, `/platform/plans`, `/m
 | Facturación tributaria | No existe; el SRI es una fase aparte | Los documentos internos se rotulan «Comprobante interno, no es un comprobante tributario» |
 
 ## Modelo (esquema `subscriptions`)
-- **`plans`** — `code` único, nombre, descripción, `is_active`, `currency`, `billing_period` (Monthly, Quarterly, Yearly), `price` `numeric(12,2)`, `trial_days`, `grace_days` (nulo = valor de plataforma), `is_sellable`. Un plan **usado nunca se borra**: se desactiva.
-- **`plan_versions`** — cada cambio de precio, periodicidad, prueba, límites o funciones crea una **versión inmutable** (número consecutivo). Una suscripción apunta a la versión que contrató: **un cambio de precio no altera retroactivamente** a nadie. `plans.current_version_id` apunta a la vigente.
+- **`plans`** — `code` único, nombre, descripción, reglas de uso, `is_active`. Un plan **nunca se borra**: se desactiva (un plan inactivo no se asigna a suscripciones nuevas; las existentes siguen con él). *Ajuste del bloque 2:* no hay `is_sellable` (basta `is_active`; el plan `legacy` del bloque 3 nace inactivo) ni `current_version_id` (la vigente es la de mayor número; evita una referencia circular).
+- **`plan_versions`** — `currency`, `period` (Monthly, Quarterly, Yearly), `price` `numeric(12,2)`, `trial_days`, `grace_days` (nulo = valor de plataforma). Cada cambio de precio, periodicidad, prueba, gracia, límites o funciones crea una **versión inmutable** (número consecutivo, bloqueo de la fila del plan para que ediciones simultáneas se atiendan en orden). Una suscripción apunta a la versión que contrató: **un cambio de precio no altera retroactivamente** a nadie.
 - **`plan_limits`** (versión, código de límite, valor; nulo = ilimitado) y **`plan_features`** (versión, código de función). Códigos estables en el catálogo de código (`Capabilities`): límites `branches`, `internal_users`, `members`, `storage_mb`; funciones `members`, `branches`, `cash_payments`, `attendance`, `training`, `nutrition`, `classes`, `advanced_reports`, `exports`, `advanced_permissions`. Agregar un código **no** exige tocar la autorización.
 - **`subscriptions`** — una **vigente** por gimnasio (único parcial), estado, versión del plan contratada, `price`, `currency`, `billing_period` (**copiados** al contratar), `started_at`, `current_period_start/end`, `trial_ends_at`, `next_due_at`, `grace_ends_at`, `cancel_at_period_end`, `cancelled_at`, `suspension_reason`, `pending_plan_version_id` (cambio programado), `xmin` como control de concurrencia.
 - **`subscription_events`** — historial de lo ocurrido (creación, prueba, activación, cambio de plan, renovación, cancelación, suspensión, reactivación, prórroga). **El estado actual vive en `subscriptions`**; los eventos son el historial, no la fuente.
@@ -90,7 +90,7 @@ Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago conf
 | # | Bloque | Estado |
 |---|---|---|
 | 1 | Diagnóstico y ADR 0012 | Hecho |
-| 2 | Módulo, catálogo de planes con versiones, funciones y límites; `/platform/plans` | Pendiente |
+| 2 | Módulo, catálogo de planes con versiones, funciones y límites; `/platform/plans` | Hecho |
 | 3 | Suscripciones, transiciones, historial, concurrencia y migración de los gimnasios existentes | Pendiente |
 | 4 | Servicio de capacidades, derechos vigentes, disparadores de límites y modo de acceso | Pendiente |
 | 5 | Renovaciones, cambios de plan, cancelaciones, prórrogas y vencimientos (`SubscriptionWorker`) | Pendiente |

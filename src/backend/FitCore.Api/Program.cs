@@ -8,6 +8,7 @@ using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Commercial;
 using FitCore.Analytics;
+using FitCore.Subscriptions;
 using FitCore.Classes;
 using FitCore.Wellness;
 using FitCore.Infrastructure.Core;
@@ -80,6 +81,7 @@ builder.Services.AddCommercialModule(builder.Configuration);
 builder.Services.AddWellnessModule(builder.Configuration);
 builder.Services.AddClassesModule(builder.Configuration);
 builder.Services.AddAnalyticsModule(builder.Configuration);
+builder.Services.AddSubscriptionsModule(builder.Configuration);
 
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
@@ -204,6 +206,7 @@ v1.MapWellnessEndpoints();
 v1.MapClassesEndpoints();
 v1.MapAnalyticsEndpoints();
 v1.MapReportsEndpoints();
+v1.MapPlansEndpoints();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 

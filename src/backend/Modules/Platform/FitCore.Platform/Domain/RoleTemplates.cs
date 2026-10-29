@@ -162,7 +162,7 @@ public static class RoleTemplates
 
     public static readonly RoleTemplate ForPlatform = new(
         PlatformAdmin,
-        "Equipo de FitCore que administra los gimnasios",
+        "Equipo de FitCore que administra los gimnasios (recibe todos los permisos platform.*, incluidos los futuros)",
         true,
-        [Permissions.PlatformTenantsManage, Permissions.PlatformTaxesManage, Permissions.PlatformExercisesManage, Permissions.OrganizationRead]);
+        [.. Permissions.All.Where(p => Permissions.IsPlatform(p.Code)).Select(p => p.Code), Permissions.OrganizationRead]);
 }

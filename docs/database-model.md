@@ -117,6 +117,16 @@ Migraciones propias, con su historial en `classes.__ef_migrations_history`. Mism
 | classes | `notification_preferences` | Preferencia por usuario y tipo de aviso (sin fila = activado) |
 | classes | `idempotency_keys` | Respuesta guardada de cada solicitud con `Idempotency-Key` (clave por gimnasio): repetirla devuelve la misma reserva |
 
+## Módulo de suscripciones SaaS (Fase 7, `SubscriptionsDbContext`, esquema `subscriptions`)
+Lo que **FitCore 360 le vende a un gimnasio**; no tiene relación con las membresías ni los pagos de alumnos (`members`, `billing`). Historial de migraciones en `subscriptions.__ef_migrations_history` (`InitialSubscriptions` → `AddSubscriptionsSecurity`). Los planes son **globales** (sin `tenant_id`); lo que dependa de un gimnasio llevará `tenant_id` y RLS forzada.
+
+| Esquema | Tabla | Contenido |
+|---|---|---|
+| subscriptions | `plans` | Plan comercial: código único (formato estable), nombre, descripción, reglas de uso, activo. Un plan **nunca se borra** (trigger y sin `DELETE` para el rol de la aplicación) y su código/origen no cambia. Control de concurrencia por `xmin`. |
+| subscriptions | `plan_versions` | Condiciones **inmutables** de un plan: moneda, periodicidad (Monthly/Quarterly/Yearly), `price numeric(12,2)` (0 a 1.000.000), días de prueba (0–365), días de gracia (nulo = valor de plataforma; 0–90). Únicas `(plan, número)` y numeración consecutiva por disparador. Una suscripción apuntará a una versión: un cambio de precio crea otra versión y no altera a nadie. |
+| subscriptions | `plan_features` | Funcionalidades habilitadas por versión (código del catálogo `Capabilities.Features`). |
+| subscriptions | `plan_limits` | Límite cuantitativo por versión y código (`Capabilities.Limits`); `NULL` = sin límite. Todos los límites del catálogo se indican siempre: uno olvidado no es «ilimitado». |
+
 ## Módulo de analítica (Fase 6, `AnalyticsDbContext`)
 Casi todo lo que lee son **vistas de solo lectura** de las tablas de otros módulos (`ExcludeFromMigrations`): no crea ni modifica datos de negocio. Su única tabla propia es el registro de exportaciones. Migraciones propias, con su historial en `analytics.__ef_migrations_history` (`InitialAnalytics` → `AddAnalyticsSecurity`).
 

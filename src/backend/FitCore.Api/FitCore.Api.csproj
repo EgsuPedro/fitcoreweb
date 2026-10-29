@@ -8,6 +8,7 @@
     <ProjectReference Include="..\Modules\Wellness\FitCore.Wellness\FitCore.Wellness.csproj" />
     <ProjectReference Include="..\Modules\Classes\FitCore.Classes\FitCore.Classes.csproj" />
     <ProjectReference Include="..\Modules\Analytics\FitCore.Analytics\FitCore.Analytics.csproj" />
+    <ProjectReference Include="..\Modules\Subscriptions\FitCore.Subscriptions\FitCore.Subscriptions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />

@@ -7,6 +7,7 @@ using FitCore.Infrastructure.Core;
 using FitCore.Platform;
 using FitCore.Wellness;
 using FitCore.SharedKernel;
+using FitCore.Subscriptions;
 using NetArchTest.Rules;
 
 namespace FitCore.Architecture.Tests;
@@ -22,6 +23,7 @@ public class LayerDependencyTests
     private static readonly Assembly Wellness = typeof(WellnessModule).Assembly;
     private static readonly Assembly Classes = typeof(ClassesModule).Assembly;
     private static readonly Assembly Analytics = typeof(AnalyticsModule).Assembly;
+    private static readonly Assembly Subscriptions = typeof(SubscriptionsModule).Assembly;
     private static readonly Assembly Api = typeof(Program).Assembly;
 
     [Fact]
@@ -29,7 +31,7 @@ public class LayerDependencyTests
     {
         AssertNoDependency(
             AllTypes(SharedKernel),
-            "FitCore.Application", "FitCore.Infrastructure", "FitCore.Platform", "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics", "FitCore.Api",
+            "FitCore.Application", "FitCore.Infrastructure", "FitCore.Platform", "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics", "FitCore.Subscriptions", "FitCore.Api",
             "Microsoft.EntityFrameworkCore", "Npgsql", "Microsoft.AspNetCore");
     }
 
@@ -101,7 +103,7 @@ public class LayerDependencyTests
     public void Platform_no_depende_de_los_modulos_de_negocio()
     {
         // La dependencia es de un solo sentido: Commercial usa Platform (acceso, auditoría), nunca al revés.
-        AssertNoDependency(AllTypes(Platform), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics");
+        AssertNoDependency(AllTypes(Platform), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics", "FitCore.Subscriptions");
     }
 
     [Fact]
@@ -145,11 +147,13 @@ public class LayerDependencyTests
     public void Los_modulos_de_negocio_no_dependen_entre_si()
     {
         // Los datos de otro módulo se leen con vistas de solo lectura propias, nunca referenciando sus tipos.
-        AssertNoDependency(AllTypes(Wellness), "FitCore.Commercial", "FitCore.Classes", "FitCore.Analytics");
-        AssertNoDependency(AllTypes(Commercial), "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics");
-        AssertNoDependency(AllTypes(Classes), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Analytics");
+        AssertNoDependency(AllTypes(Wellness), "FitCore.Commercial", "FitCore.Classes", "FitCore.Analytics", "FitCore.Subscriptions");
+        AssertNoDependency(AllTypes(Commercial), "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics", "FitCore.Subscriptions");
+        AssertNoDependency(AllTypes(Classes), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Analytics", "FitCore.Subscriptions");
         // Analytics lee los datos de los demás con vistas propias de solo lectura: no referencia sus tipos.
-        AssertNoDependency(AllTypes(Analytics), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes");
+        AssertNoDependency(AllTypes(Analytics), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Subscriptions");
+        // Las suscripciones SaaS (lo que FitCore le vende a un gimnasio) no conocen las membresías ni los pagos de los alumnos, y viceversa.
+        AssertNoDependency(AllTypes(Subscriptions), "FitCore.Commercial", "FitCore.Wellness", "FitCore.Classes", "FitCore.Analytics");
     }
 
     [Fact]
@@ -224,6 +228,35 @@ public class LayerDependencyTests
     {
         var handlers = Types.InAssembly(Analytics)
             .That().HaveNameEndingWith("Handler").And().AreClasses().And().ResideInNamespaceStartingWith("FitCore.Analytics.Application")
+            .GetTypes()
+            .ToList();
+
+        Assert.NotEmpty(handlers);
+        Assert.All(handlers, t => Assert.False(t.IsPublic, $"{t.Name} debe ser internal: la API solo usa el despachador."));
+    }
+
+    [Fact]
+    public void Subscriptions_no_depende_de_la_api_ni_de_ASP_NET_Core_web()
+    {
+        AssertNoDependency(
+            AllTypes(Subscriptions),
+            "FitCore.Api", "Microsoft.AspNetCore.Http", "Microsoft.AspNetCore.Mvc", "Microsoft.AspNetCore.Routing");
+    }
+
+    [Fact]
+    public void Dominio_de_Subscriptions_es_puro()
+    {
+        AssertNoDependency(
+            Types.InAssembly(Subscriptions).That().ResideInNamespace("FitCore.Subscriptions.Domain"),
+            "Microsoft.EntityFrameworkCore", "Microsoft.AspNetCore", "FitCore.Subscriptions.Persistence",
+            "FitCore.Subscriptions.Application", "FitCore.Platform");
+    }
+
+    [Fact]
+    public void Los_handlers_de_Subscriptions_son_internos()
+    {
+        var handlers = Types.InAssembly(Subscriptions)
+            .That().HaveNameEndingWith("Handler").And().AreClasses().And().ResideInNamespaceStartingWith("FitCore.Subscriptions.Application")
             .GetTypes()
             .ToList();
 

@@ -27,7 +27,12 @@ public enum SubscriptionEventType
     Renewed = 11,
     PlanChanged = 12,
     PlanChangeScheduled = 13,
-    Extended = 14
+    Extended = 14,
+    InvoiceIssued = 15,
+    PaymentConfirmed = 16,
+    PaymentFailed = 17,
+    InvoiceVoided = 18,
+    PaymentRefunded = 19
 }
 
 /// <summary>
@@ -547,6 +552,9 @@ public sealed class Subscription : IAuditable
     public static PlanChangeKind Classify(decimal currentMonthly, decimal targetMonthly) =>
         targetMonthly > currentMonthly ? PlanChangeKind.Upgrade : targetMonthly < currentMonthly ? PlanChangeKind.Downgrade : PlanChangeKind.Lateral;
 
+    /// <summary>Las condiciones que tiene hoy contratadas, como se copiarían de un plan (sin prueba ni gracia: no aplican a una suscripción en curso).</summary>
+    public PlanSnapshot ToSnapshot() => new(PlanId, PlanVersionId, PlanVersionNumber, PlanCode, PlanName, Currency, Period, Price, 0, null);
+
     /// <summary>Fin exclusivo de un período que empieza en <paramref name="start"/> (meses calendario, con tope al último día del mes).</summary>
     public static DateOnly AddPeriod(DateOnly start, BillingPeriod period) => start.AddMonths(BillingPeriods.Months(period));
 
@@ -567,6 +575,9 @@ public sealed class Subscription : IAuditable
         UpdatedAt = now;
         UpdatedBy = actor;
     }
+
+    /// <summary>Deja en el historial de la suscripción un hecho de cobro (factura emitida, pago confirmado o fallido, anulación, reembolso).</summary>
+    public void RecordBilling(SubscriptionEventType type, Guid? actor, DateTimeOffset now, string? detail) => Record(type, actor, now, Status, Status, detail);
 
     private void Record(SubscriptionEventType type, Guid? actor, DateTimeOffset now, SubscriptionStatus? from, SubscriptionStatus? to, string? detail) =>
         Events.Add(new SubscriptionEvent

@@ -1,5 +1,6 @@
 using FitCore.Application.Core;
 using FitCore.SharedKernel;
+using FitCore.Subscriptions.Application.Billing;
 using FitCore.Subscriptions.Domain;
 using FitCore.Subscriptions.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -56,7 +57,14 @@ internal sealed class ChangeSubscriptionPlanHandler(SubscriptionsDbContext db, I
             }
 
             var change = s.ChangePlan(SubscriptionStore.Snapshot(plan), SubscriptionStore.Today(clock, t.TimeZone), currentUser.UserId, clock.UtcNow, command.Request.Note);
-            return change.IsFailure ? Result.Failure(change.Error) : Result.Success();
+            if (change.IsFailure)
+            {
+                return Result.Failure(change.Error);
+            }
+
+            // La factura abierta tenía el importe del plan anterior: se anula y se emite de nuevo con el precio que corresponde.
+            await BillingStore.VoidOpenAsync(Db, s, "Cambio de plan: la factura debe emitirse de nuevo con las condiciones nuevas", currentUser.UserId, clock.UtcNow, cancellationToken);
+            return Result.Success();
         }, cancellationToken);
 }
 
@@ -64,9 +72,19 @@ internal sealed class CancelSubscriptionHandler(SubscriptionsDbContext db, ICloc
     : SubscriptionTransitionHandler(db), ICommandHandler<CancelSubscriptionCommand, SubscriptionDto>
 {
     public Task<Result<SubscriptionDto>> HandleAsync(CancelSubscriptionCommand command, CancellationToken cancellationToken) =>
-        ApplyAsync(command.TenantId, (s, _) => Task.FromResult(command.Request.AtPeriodEnd
-            ? s.ScheduleCancellation(command.Request.Reason, currentUser.UserId, clock.UtcNow)
-            : s.Cancel(command.Request.Reason, currentUser.UserId, clock.UtcNow)), cancellationToken);
+        ApplyAsync(command.TenantId, async (s, _) =>
+        {
+            var result = command.Request.AtPeriodEnd
+                ? s.ScheduleCancellation(command.Request.Reason, currentUser.UserId, clock.UtcNow)
+                : s.Cancel(command.Request.Reason, currentUser.UserId, clock.UtcNow);
+            if (result.IsSuccess)
+            {
+                // Una suscripción que se va a cancelar no se cobra: las facturas abiertas se anulan.
+                await BillingStore.VoidOpenAsync(Db, s, "Cancelación de la suscripción", currentUser.UserId, clock.UtcNow, cancellationToken);
+            }
+
+            return result;
+        }, cancellationToken);
 }
 
 internal sealed class ResumeSubscriptionHandler(SubscriptionsDbContext db, IClock clock, ICurrentUser currentUser)
@@ -123,9 +141,10 @@ public sealed class SubscriptionLifecycleRunner(
 
             // Cota amplia (un día de margen sobre el día UTC): la decisión final usa el día local de cada gimnasio.
             var limit = DateOnly.FromDateTime(clock.UtcNow.UtcDateTime).AddDays(1);
+            var lead = Math.Max(0, options.Value.InvoiceLeadDays);
             candidates = await db.Subscriptions.IgnoreQueryFilters().AsNoTracking()
-                .Where(s => ((s.Status == SubscriptionStatus.Trialing || s.Status == SubscriptionStatus.Active) && s.CurrentPeriodEnd <= limit)
-                            || (s.Status == SubscriptionStatus.PastDue && s.GraceEndsOn != null && s.GraceEndsOn <= limit))
+                .Where(s => ((s.Status == SubscriptionStatus.Trialing || s.Status == SubscriptionStatus.Active) && s.CurrentPeriodEnd <= limit.AddDays(lead))
+                            || (s.Status == SubscriptionStatus.PastDue && s.Price > 0))
                 .OrderBy(s => s.CurrentPeriodEnd)
                 .Select(s => s.Id)
                 .ToListAsync(cancellationToken);
@@ -136,9 +155,10 @@ public sealed class SubscriptionLifecycleRunner(
         {
             try
             {
-                var action = await ProcessAsync(platformId, id, cancellationToken);
+                var (action, invoiced) = await ProcessAsync(platformId, id, cancellationToken);
                 summary = summary with
                 {
+                    InvoicesIssued = summary.InvoicesIssued + (invoiced ? 1 : 0),
                     TrialsExpired = summary.TrialsExpired + (action == LifecycleAction.ExpireTrial ? 1 : 0),
                     FreeRenewed = summary.FreeRenewed + (action == LifecycleAction.RenewFree ? 1 : 0),
                     Cancelled = summary.Cancelled + (action == LifecycleAction.CancelAtPeriodEnd ? 1 : 0),
@@ -156,7 +176,7 @@ public sealed class SubscriptionLifecycleRunner(
         return summary;
     }
 
-    private async Task<LifecycleAction> ProcessAsync(Guid platformId, Guid subscriptionId, CancellationToken cancellationToken)
+    private async Task<(LifecycleAction Action, bool Invoiced)> ProcessAsync(Guid platformId, Guid subscriptionId, CancellationToken cancellationToken)
     {
         await using var scope = scopes.CreateAsyncScope();
         scope.ServiceProvider.GetRequiredService<ITenantContext>().Set(platformId);
@@ -169,14 +189,14 @@ public sealed class SubscriptionLifecycleRunner(
             .ToListAsync(cancellationToken);
         if (locked.Count == 0)
         {
-            return LifecycleAction.None;
+            return (LifecycleAction.None, false);
         }
 
         var subscription = await db.Subscriptions.IgnoreQueryFilters().Include(s => s.PlanChanges).FirstAsync(s => s.Id == subscriptionId, cancellationToken);
         var tenant = await SubscriptionStore.TenantAsync(db, subscription.TenantId, cancellationToken);
         if (tenant is null)
         {
-            return LifecycleAction.None;
+            return (LifecycleAction.None, false);
         }
 
         var today = SubscriptionStore.Today(clock, tenant.TimeZone);
@@ -195,11 +215,38 @@ public sealed class SubscriptionLifecycleRunner(
         if (result.IsFailure)
         {
             logger.LogWarning("Suscripción {SubscriptionId}: {Action} no se pudo aplicar ({Code})", subscriptionId, action, result.Error.Code);
-            return LifecycleAction.None;
+            return (LifecycleAction.None, false);
         }
 
-        await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-        return action;
+        // Facturación anticipada: una suscripción de pago que se acerca a su vencimiento (o ya está en mora) recibe su factura para poder pagarla.
+        // Si quedó cancelada, vencida o no es de pago, no se emite nada. Una sola abierta por suscripción (lo garantiza un índice único).
+        var invoiced = false;
+        var lead = Math.Max(0, options.Value.InvoiceLeadDays);
+        var billable = subscription.Price > 0m && !subscription.CancelAtPeriodEnd
+            && (subscription.Status == SubscriptionStatus.PastDue
+                || (subscription.Status is SubscriptionStatus.Active or SubscriptionStatus.Trialing && subscription.CurrentPeriodEnd <= today.AddDays(lead)));
+        if (billable)
+        {
+            var issued = await BillingStore.IssueAsync(db, subscription, today, null, now, cancellationToken);
+            invoiced = issued.IsSuccess;
+        }
+
+        if (action == LifecycleAction.None && !invoiced)
+        {
+            return (LifecycleAction.None, false);
+        }
+
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is Npgsql.PostgresException { SqlState: Npgsql.PostgresErrorCodes.UniqueViolation })
+        {
+            // Otra solicitud emitió la misma factura a la vez: no hay nada más que hacer.
+            return (LifecycleAction.None, false);
+        }
+
+        return (action, invoiced);
     }
 }

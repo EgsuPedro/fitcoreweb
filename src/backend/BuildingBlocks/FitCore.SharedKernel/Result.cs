@@ -44,6 +44,9 @@ public class Result
     public static Result Failure(Error error) => new(false, error);
     public static Result<T> Success<T>(T value) => new(value, true, Error.None);
     public static Result<T> Failure<T>(Error error) => new(default, false, error);
+
+    /// <summary>Permite devolver un <see cref="Error"/> directamente desde un método que retorna <see cref="Result"/>.</summary>
+    public static implicit operator Result(Error error) => Failure(error);
 }
 
 public sealed class Result<T> : Result

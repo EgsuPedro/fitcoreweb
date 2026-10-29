@@ -13,6 +13,8 @@ public static class Permissions
     public const string PlatformPlansManage = "platform.plans.manage";
     public const string PlatformSubscriptionsRead = "platform.subscriptions.read";
     public const string PlatformSubscriptionsManage = "platform.subscriptions.manage";
+    public const string PlatformBillingRead = "platform.billing.read";
+    public const string PlatformBillingManage = "platform.billing.manage";
 
     public const string OrganizationRead = "organization.read";
     public const string OrganizationUpdate = "organization.update";
@@ -125,6 +127,8 @@ public static class Permissions
         new(PlatformTaxesManage, "platform", "Administrar las tarifas de IVA (solo equipo de plataforma)"),
         new(PlatformExercisesManage, "platform", "Administrar el catálogo base de ejercicios (solo equipo de plataforma)"),
         new(PlatformPlansRead, "platform", "Consultar el catálogo de planes comerciales de FitCore 360 (solo equipo de plataforma)"),
+        new(PlatformBillingRead, "platform", "Consultar las facturas internas, los pagos y el resumen de cobros comerciales de FitCore 360 (solo equipo de plataforma)"),
+        new(PlatformBillingManage, "platform", "Emitir y anular facturas internas, registrar pagos, intentos fallidos y reembolsos de cobros comerciales (solo equipo de plataforma)"),
         new(PlatformSubscriptionsRead, "platform", "Consultar las suscripciones comerciales de los gimnasios, su estado y su historial (solo equipo de plataforma)"),
         new(PlatformSubscriptionsManage, "platform", "Asignar planes, activar, suspender y reactivar suscripciones comerciales de los gimnasios (solo equipo de plataforma)"),
         new(PlatformPlansManage, "platform", "Crear y modificar planes comerciales, sus precios, límites y funcionalidades (solo equipo de plataforma)"),

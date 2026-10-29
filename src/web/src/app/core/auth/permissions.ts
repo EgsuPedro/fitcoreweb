@@ -7,6 +7,8 @@ export const Perm = {
   PlatformPlansManage: 'platform.plans.manage',
   PlatformSubscriptionsRead: 'platform.subscriptions.read',
   PlatformSubscriptionsManage: 'platform.subscriptions.manage',
+  PlatformBillingRead: 'platform.billing.read',
+  PlatformBillingManage: 'platform.billing.manage',
   OrganizationRead: 'organization.read',
   OrganizationUpdate: 'organization.update',
   BranchesRead: 'branches.read',

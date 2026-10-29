@@ -22,6 +22,10 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
     internal DbSet<Subscription> Subscriptions => Set<Subscription>();
     internal DbSet<SubscriptionEvent> SubscriptionEvents => Set<SubscriptionEvent>();
     internal DbSet<SubscriptionPlanChange> PlanChanges => Set<SubscriptionPlanChange>();
+    internal DbSet<SubscriptionInvoice> Invoices => Set<SubscriptionInvoice>();
+    internal DbSet<SubscriptionPayment> Payments => Set<SubscriptionPayment>();
+    internal DbSet<SubscriptionPaymentAttempt> PaymentAttempts => Set<SubscriptionPaymentAttempt>();
+    internal DbSet<SubscriptionPaymentRefund> PaymentRefunds => Set<SubscriptionPaymentRefund>();
     internal DbSet<TenantEntitlement> Entitlements => Set<TenantEntitlement>();
 
     // Vistas de solo lectura de otros módulos, para medir el consumo de los límites (RLS y filtro limitan a un solo gimnasio).
@@ -45,6 +49,14 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
         modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionEventConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionPlanChangeConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionInvoiceConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionPaymentConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionPaymentAttemptConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionPaymentRefundConfiguration());
+        modelBuilder.Entity<SubscriptionInvoice>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        modelBuilder.Entity<SubscriptionPayment>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        modelBuilder.Entity<SubscriptionPaymentAttempt>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        modelBuilder.Entity<SubscriptionPaymentRefund>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
         modelBuilder.Entity<SubscriptionPlanChange>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
         modelBuilder.ApplyConfiguration(new TenantEntitlementConfiguration());
         modelBuilder.Entity<TenantEntitlement>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
@@ -228,5 +240,85 @@ internal sealed class SubscriptionPlanChangeConfiguration : IEntityTypeConfigura
         b.Property(x => x.Note).HasMaxLength(500);
         b.HasIndex(x => new { x.SubscriptionId, x.RequestedAt });
         b.HasIndex(x => new { x.TenantId, x.Status });
+    }
+}
+
+internal sealed class SubscriptionInvoiceConfiguration : IEntityTypeConfiguration<SubscriptionInvoice>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionInvoice> b)
+    {
+        b.ToTable("invoices", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Number).HasMaxLength(30).IsRequired();
+        b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Amount).HasPrecision(12, 2);
+        b.Property(x => x.RefundedAmount).HasPrecision(12, 2);
+        b.Property(x => x.Currency).HasMaxLength(3).IsRequired();
+        b.Property(x => x.PlanCode).HasMaxLength(40).IsRequired();
+        b.Property(x => x.PlanName).HasMaxLength(120).IsRequired();
+        b.Property(x => x.VoidReason).HasMaxLength(500);
+        b.HasIndex(x => x.Number).IsUnique();
+        b.HasIndex(x => new { x.TenantId, x.IssuedAt });
+        b.HasIndex(x => new { x.Status, x.DueOn });
+        // Una sola factura abierta (pendiente o fallida) por suscripción: dos solicitudes simultáneas no la duplican.
+        b.HasIndex(x => x.SubscriptionId).IsUnique().HasFilter("status IN ('Pending', 'Failed')").HasDatabaseName("ux_invoices_open");
+        b.HasIndex(x => x.SubscriptionId);
+        b.Property<uint>("Version").IsRowVersion();
+    }
+}
+
+internal sealed class SubscriptionPaymentConfiguration : IEntityTypeConfiguration<SubscriptionPayment>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionPayment> b)
+    {
+        b.ToTable("payments", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Amount).HasPrecision(12, 2);
+        b.Property(x => x.RefundedAmount).HasPrecision(12, 2);
+        b.Property(x => x.Currency).HasMaxLength(3).IsRequired();
+        b.Property(x => x.Method).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Reference).HasMaxLength(100);
+        b.Property(x => x.Provider).HasMaxLength(30);
+        b.Property(x => x.ProviderReference).HasMaxLength(100);
+        b.Property(x => x.IdempotencyKey).HasMaxLength(100).IsRequired();
+        b.Property(x => x.Notes).HasMaxLength(500);
+        // Un pago confirmado por factura; la clave de idempotencia y la referencia externa no se repiten.
+        b.HasIndex(x => x.InvoiceId).IsUnique();
+        b.HasIndex(x => x.IdempotencyKey).IsUnique();
+        b.HasIndex(x => new { x.Provider, x.ProviderReference }).IsUnique().HasFilter("provider_reference IS NOT NULL");
+        b.HasIndex(x => new { x.TenantId, x.PaidAt });
+        b.Property<uint>("Version").IsRowVersion();
+    }
+}
+
+internal sealed class SubscriptionPaymentAttemptConfiguration : IEntityTypeConfiguration<SubscriptionPaymentAttempt>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionPaymentAttempt> b)
+    {
+        b.ToTable("payment_attempts", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Method).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Reference).HasMaxLength(100);
+        b.Property(x => x.Reason).HasMaxLength(500).IsRequired();
+        b.HasIndex(x => new { x.InvoiceId, x.AttemptedAt });
+    }
+}
+
+internal sealed class SubscriptionPaymentRefundConfiguration : IEntityTypeConfiguration<SubscriptionPaymentRefund>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionPaymentRefund> b)
+    {
+        b.ToTable("payment_refunds", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Amount).HasPrecision(12, 2);
+        b.Property(x => x.Reason).HasMaxLength(500).IsRequired();
+        b.Property(x => x.IdempotencyKey).HasMaxLength(100).IsRequired();
+        b.HasIndex(x => x.IdempotencyKey).IsUnique();
+        b.HasIndex(x => x.PaymentId);
     }
 }

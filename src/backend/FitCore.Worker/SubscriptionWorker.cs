@@ -22,8 +22,8 @@ internal sealed class SubscriptionWorker(SubscriptionLifecycleRunner runner, IOp
                 if (summary.Examined > 0)
                 {
                     logger.LogInformation(
-                        "Suscripciones: {Examined} revisadas, {Trials} pruebas vencidas, {Free} renovaciones gratuitas, {Cancelled} canceladas, {PastDue} en mora, {Grace} con la gracia terminada, {Failed} con error",
-                        summary.Examined, summary.TrialsExpired, summary.FreeRenewed, summary.Cancelled, summary.MarkedPastDue, summary.GraceExpired, summary.Failed);
+                        "Suscripciones: {Examined} revisadas, {Trials} pruebas vencidas, {Free} renovaciones gratuitas, {Cancelled} canceladas, {PastDue} en mora, {Grace} con la gracia terminada, {Failed} con error, {Invoices} facturas emitidas",
+                        summary.Examined, summary.TrialsExpired, summary.FreeRenewed, summary.Cancelled, summary.MarkedPastDue, summary.GraceExpired, summary.Failed, summary.InvoicesIssued);
                 }
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

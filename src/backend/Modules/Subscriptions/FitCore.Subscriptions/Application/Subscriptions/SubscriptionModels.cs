@@ -21,6 +21,9 @@ public sealed class SubscriptionOptions
 
     /// <summary>Cada cuántos minutos el Worker revisa vencimientos, moras y renovaciones de planes gratuitos.</summary>
     public int LifecycleIntervalMinutes { get; set; } = 15;
+
+    /// <summary>Con cuántos días de anticipación se emite la factura del período siguiente de una suscripción de pago.</summary>
+    public int InvoiceLeadDays { get; set; } = 10;
 }
 
 public sealed record SubscriptionEventDto(
@@ -82,7 +85,7 @@ public sealed record ResumeSubscriptionRequest(string? Note);
 public sealed record ExtendSubscriptionRequest(int Days, string Reason);
 
 /// <summary>Resultado de una pasada del proceso de vencimientos.</summary>
-public sealed record LifecycleRunSummary(int Examined, int TrialsExpired, int FreeRenewed, int Cancelled, int MarkedPastDue, int GraceExpired, int Failed)
+public sealed record LifecycleRunSummary(int Examined, int TrialsExpired, int FreeRenewed, int Cancelled, int MarkedPastDue, int GraceExpired, int Failed, int InvoicesIssued = 0)
 {
     public static readonly LifecycleRunSummary Empty = new(0, 0, 0, 0, 0, 0, 0);
 }

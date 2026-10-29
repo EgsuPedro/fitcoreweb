@@ -218,6 +218,13 @@ v1.MapMySubscriptionEndpoints();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 
+// Despliegue: «--migrate-only» aplica las migraciones y los catálogos y termina, sin abrir el puerto. Es el paso controlado que corre antes de
+// arrancar la API de producción (con las credenciales del propietario de la base); la API en ejecución no necesita esas credenciales.
+if (args.Contains("--migrate-only", StringComparer.Ordinal))
+{
+    return;
+}
+
 await app.RunAsync();
 
 static void AddPerIpPolicy(Microsoft.AspNetCore.RateLimiting.RateLimiterOptions options, string name, int permitPerMinute) =>

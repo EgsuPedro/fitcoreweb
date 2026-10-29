@@ -123,6 +123,7 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 - [Guía de pruebas de la Fase 6](docs/guia-pruebas-fase-6.md): validación manual con datos de práctica
 - [Informe de la Fase 7](docs/informe-fase-7.md): suscripciones SaaS, límites, cobros comerciales, panel, portal, proveedor de pagos, pruebas, seguridad y pendientes
 - [Guía de pruebas de la Fase 7](docs/guia-pruebas-fase-7.md): validación manual con datos
+- [Despliegue](docs/despliegue.md): subir una demo pública (máquina gratuita, HTTPS, actualización desde git, copias de seguridad)
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación
 

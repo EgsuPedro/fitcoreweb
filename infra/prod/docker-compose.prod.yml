@@ -1,0 +1,170 @@
+# FIT360 — producción / demo pública en una sola máquina (por ejemplo, la máquina gratuita de Oracle Cloud).
+# Guía completa: docs/despliegue.md. Uso, desde la raíz del repositorio:
+#   cp infra/prod/.env.prod.example infra/prod/.env.prod     # y complete TODOS los valores (el archivo no se sube a git)
+#   docker compose -f infra/prod/docker-compose.prod.yml --env-file infra/prod/.env.prod up -d --build
+#
+# Diferencias con el entorno de desarrollo:
+#   - Solo Caddy publica puertos (80 y 443, con HTTPS automático). La base, la API y la web NO son accesibles desde internet.
+#   - Las migraciones corren en un paso aparte («migrate»), con las credenciales del propietario de la base. La API y el Worker en ejecución
+#     solo conocen el rol limitado «fitcore_app» (sujeto a Row-Level Security) y no pueden alterar el esquema.
+#   - ASPNETCORE_ENVIRONMENT=Production: sin Swagger ni OpenAPI, cookie de sesión «Secure», registros en JSON.
+#   - Copias de seguridad diarias de la base y de los archivos privados (servicio «backup»).
+name: fit360-prod
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-db-app: &db-app
+  Host=postgres;Port=5432;Database=${POSTGRES_DB:-fitcore};Username=fitcore_app;Password=${APP_DB_PASSWORD:?Defina APP_DB_PASSWORD en infra/prod/.env.prod}
+
+x-db-owner: &db-owner
+  Host=postgres;Port=5432;Database=${POSTGRES_DB:-fitcore};Username=${POSTGRES_USER:-fitcore};Password=${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en infra/prod/.env.prod}
+
+# Hosts que la API acepta (el dominio público y las llamadas internas de salud). Cualquier otro encabezado Host se rechaza.
+x-allowed-hosts: &allowed-hosts "${DOMAIN:?Defina DOMAIN en infra/prod/.env.prod};localhost;127.0.0.1"
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fitcore}
+      POSTGRES_USER: ${POSTGRES_USER:-fitcore}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD en infra/prod/.env.prod}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fitcore} -d ${POSTGRES_DB:-fitcore}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Paso único por despliegue: crea el rol limitado, aplica las migraciones, sincroniza permisos y crea el administrador de plataforma si no existe.
+  # Termina y no se reinicia. La API y el Worker esperan a que termine bien.
+  migrate:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Api.Dockerfile
+    restart: "no"
+    logging: *logging
+    command: ["dotnet", "FitCore.Api.dll", "--migrate-only"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Default: *db-app
+      ConnectionStrings__Migrations: *db-owner
+      Database__AutoMigrate: "true"
+      Database__AppRolePassword: ${APP_DB_PASSWORD}
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?Defina JWT_SIGNING_KEY (mínimo 32 caracteres) en infra/prod/.env.prod}
+      Platform__AdminEmail: ${PLATFORM_ADMIN_EMAIL:?Defina PLATFORM_ADMIN_EMAIL en infra/prod/.env.prod}
+      Platform__AdminPassword: ${PLATFORM_ADMIN_PASSWORD:?Defina PLATFORM_ADMIN_PASSWORD en infra/prod/.env.prod}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Api.Dockerfile
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      AllowedHosts: *allowed-hosts
+      ConnectionStrings__Default: *db-app
+      Database__AutoMigrate: "false"
+      Jwt__SigningKey: ${JWT_SIGNING_KEY}
+      Subscriptions__Payments__ProviderCode: ${PAYMENT_PROVIDER_CODE:-webhook}
+      Subscriptions__Payments__WebhookSecret: ${PAYMENT_WEBHOOK_SECRET:-}
+      RateLimiting__LoginPermitPerMinute: ${LOGIN_RATE_LIMIT:-20}
+      # Solo se confía en X-Forwarded-For / X-Forwarded-Proto cuando vienen de las redes privadas de Docker (ahí está Caddy).
+      Network__TrustedProxies__0: 10.0.0.0/8
+      Network__TrustedProxies__1: 172.16.0.0/12
+      Network__TrustedProxies__2: 192.168.0.0/16
+    volumes:
+      # Archivos privados (fotos de progreso, logos, exportaciones). Entra en las copias de seguridad.
+      - fitcore_files:/var/lib/fitcore/files
+    healthcheck:
+      # La imagen de ASP.NET no trae curl: se consulta el puerto con bash.
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8080 && printf \"GET /health/live HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n\" >&3 && head -n1 <&3 | grep -q 200'"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Worker.Dockerfile
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__Default: *db-app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  # Solo archivos estáticos de Angular (nginx). El enrutamiento de /api lo hace Caddy.
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Web.Dockerfile
+    restart: unless-stopped
+    logging: *logging
+
+  # Único servicio expuesto a internet: HTTPS automático (Let's Encrypt) y enrutamiento. Con DOMAIN=localhost genera un certificado local de prueba.
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      DOMAIN: ${DOMAIN}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+      - web
+
+  # Copia diaria de la base (formato custom, restaurable con pg_restore) y de los archivos privados. Guarda los últimos BACKUP_KEEP_DAYS días.
+  backup:
+    image: postgres:17
+    restart: unless-stopped
+    logging: *logging
+    entrypoint: ["/bin/sh", "/backup.sh"]
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-fitcore}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB:-fitcore}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      BACKUP_HOUR_UTC: ${BACKUP_HOUR_UTC:-7}
+    volumes:
+      - ./backup.sh:/backup.sh:ro
+      - backups:/backups
+      - fitcore_files:/files:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # Espera a que el esquema exista: una copia anterior a la migración saldría vacía.
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
+  fitcore_files:
+  caddy_data:
+  caddy_config:
+  backups:

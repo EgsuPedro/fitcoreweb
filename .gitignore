@@ -16,3 +16,7 @@ build/
 appsettings.*.local.json
 test-results/
 playwright-report/
+
+# Despliegue: secretos del servidor y marca de la versión desplegada
+infra/prod/.env.prod
+infra/prod/.deployed

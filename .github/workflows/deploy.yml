@@ -1,0 +1,49 @@
+name: Deploy
+
+# Despliega la rama main en el servidor cuando el CI termina bien. También se puede lanzar a mano (con otra versión, por ejemplo para volver atrás).
+# Está INACTIVO hasta que se configure: defina la variable del repositorio DEPLOY_ENABLED=true y los secretos de abajo (docs/despliegue.md).
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, etiqueta o rama a desplegar (vacío = la última de main)
+        required: false
+        default: ''
+
+# Un solo despliegue a la vez: si llegan dos seguidos, el segundo espera.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ vars.DEPLOY_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success') }}
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+    steps:
+      - name: Desplegar por SSH
+        env:
+          SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+          SSH_USER: ${{ secrets.DEPLOY_USER }}
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+          REF: ${{ github.event_name == 'workflow_dispatch' && inputs.ref || github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # La huella del servidor se fija de antemano (secreto): no se acepta una máquina desconocida.
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          # El valor de REF solo puede ser un commit, etiqueta o rama: se valida antes de enviarlo al servidor.
+          if [ -n "$REF" ] && ! printf '%s' "$REF" | grep -Eq '^[A-Za-z0-9._/-]{1,100}$'; then
+            echo "Referencia no válida" >&2
+            exit 1
+          fi
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$SSH_USER@$SSH_HOST" "cd ~/fit360 && ./infra/prod/deploy.sh ${REF:-origin/main}"

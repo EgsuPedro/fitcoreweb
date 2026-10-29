@@ -1,0 +1,26 @@
+# HTTPS automático y enrutamiento. Variable (viene de .env.prod por el compose): DOMAIN.
+# Los certificados de Let's Encrypt se piden y renuevan solos; no hace falta un correo de contacto.
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	header {
+		# HTTPS obligatorio para este dominio. Un máximo de 1 semana mientras es una demo: se sube cuando el dominio sea el definitivo.
+		Strict-Transport-Security "max-age=604800"
+		-Server
+	}
+
+	# La API: solo /api/*. Las rutas de salud, de documentación y cualquier otra NO se exponen al exterior.
+	handle /api/* {
+		# Tope de cuerpo: la foto de progreso más grande admite 8 MB; el resto de peticiones es mucho menor.
+		request_body {
+			max_size 12MB
+		}
+		reverse_proxy api:8080
+	}
+
+	# El resto es la aplicación Angular (archivos estáticos con sus propias cabeceras de seguridad).
+	handle {
+		reverse_proxy web:80
+	}
+}

@@ -1366,7 +1366,7 @@ fieldset.field {
   align-items: start;
 
   @media (width <= 80rem) {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -1494,5 +1494,146 @@ fieldset.field {
   .mascot-card .mascot-figure.animated {
     border-radius: 0;
     box-shadow: none;
+  }
+}
+
+// ---------- Celular: barra superior y menú ----------
+// En una pantalla angosta la barra superior solo lleva lo esencial (menú, marca, avisos, idioma); la cuenta (contraseña y cerrar sesión)
+// pasa al pie del menú lateral. Así ningún botón queda cortado y la página no tiene desplazamiento horizontal.
+.sidebar-account,
+.topbar-brand {
+  display: none;
+}
+
+.lang-switch {
+  display: inline-flex;
+  flex-wrap: nowrap;
+
+  .btn {
+    white-space: nowrap;
+    padding: 0.3rem 0.55rem;
+  }
+}
+
+.content {
+  min-width: 0;
+}
+
+@media (max-width: 52rem) {
+  .topbar {
+    padding: 0.45rem 0.6rem;
+    gap: 0.35rem;
+
+    .topbar-account,
+    .user-chip {
+      display: none;
+    }
+  }
+
+  .topbar-brand {
+    display: block;
+    height: 2rem;
+    width: auto;
+  }
+
+  .tenant-logo {
+    height: 1.9rem;
+    max-width: 6rem;
+    margin-right: 0;
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .sidebar-account {
+    display: block;
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgb(255 255 255 / 22%);
+
+    .sidebar-user {
+      display: flex;
+      flex-direction: column;
+      margin: 0 0 0.5rem;
+      padding: 0 0.75rem;
+      font-size: 0.85rem;
+      color: var(--sidebar-text);
+
+      strong {
+        color: #ffffff;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    .nav-button {
+      width: 100%;
+      border-top: 0;
+      border-right: 0;
+      border-bottom: 0;
+      background: none;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+  }
+
+  .content {
+    padding: 1rem 0.75rem 2.5rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+    overflow-wrap: anywhere;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 52rem) {
+  // Cualquier tabla ancha se desplaza dentro de su espacio (con el dedo) en lugar de ensanchar toda la página.
+  .table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+// Los textos solo para lectores de pantalla (subtítulos de tablas) son de posición absoluta: si el contenedor con desplazamiento no es su referencia,
+// escapan de él y ensanchan toda la página.
+.table,
+.table-card {
+  position: relative;
+}
+
+// Banner de Fiti en celular: una sola columna, la imagen arriba y centrada.
+@media (width <= 40rem) {
+  .home-aside .mascot-card {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    border-left-width: 1px;
+    border-top: 5px solid var(--accent);
+
+    picture {
+      order: -1;
+    }
+
+    .mascot-figure,
+    .mascot-figure.animated {
+      height: 10rem;
+      width: auto;
+      max-width: 100%;
+    }
+
+    .mascot-text {
+      margin-inline: auto;
+    }
   }
 }

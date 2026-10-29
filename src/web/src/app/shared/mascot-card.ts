@@ -17,10 +17,10 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
           <button type="button" class="btn btn-primary" (click)="action.emit()">{{ actionLabel() }}</button>
         }
       </div>
-      <!-- Animación de Fiti (GIF); con «reducir movimiento» activado en el sistema se muestra la imagen fija. -->
+      <!-- Animación de Fiti (GIF); con «reducir movimiento» o en pantallas angostas (celular: no se descargan 7 MB por datos móviles) se muestra la imagen fija. -->
       <picture>
-        <source media="(prefers-reduced-motion: reduce)" srcset="brand/fiti.png" />
-        <img class="mascot-figure animated" src="brand/fiti-animado.gif" alt="" width="388" height="692" loading="lazy" decoding="async" />
+        <source media="(prefers-reduced-motion: reduce), (max-width: 80rem)" srcset="brand/fiti.png" />
+        <img class="mascot-figure animated" src="brand/fiti-animado.gif" alt="" width="720" height="1280" loading="lazy" decoding="async" />
       </picture>
     </section>
   `,

@@ -34,6 +34,16 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
             </a>
           }
         </nav>
+
+        <!-- En celular la cuenta vive aquí (la barra superior no tiene espacio para tantos botones). -->
+        <div class="sidebar-account">
+          <p class="sidebar-user">
+            <strong>{{ session.user()?.fullName }}</strong>
+            <span>{{ session.user()?.tenantSlug }}</span>
+          </p>
+          <a class="nav-link" routerLink="/change-password" (click)="navOpen.set(false)">{{ 'account.changePasswordShort' | transloco }}</a>
+          <button type="button" class="nav-link nav-button" (click)="logout()">{{ 'nav.logout' | transloco }}</button>
+        </div>
       </aside>
 
       @if (navOpen()) {
@@ -51,11 +61,12 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
           >
             ☰
           </button>
-          <span class="topbar-spacer"></span>
-
           @if (brand.logoUrl(); as logo) {
             <img class="tenant-logo" [src]="logo" [alt]="brand.branding()?.tenantName ?? ''" />
+          } @else {
+            <img class="topbar-brand" src="brand/logo.png" alt="" width="381" height="328" />
           }
+          <span class="topbar-spacer"></span>
 
           <fc-inbox-bell />
 
@@ -71,8 +82,8 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
             <span class="user-name">{{ session.user()?.fullName }}</span>
             <span class="muted user-tenant">{{ session.user()?.tenantSlug }}</span>
           </span>
-          <a class="btn btn-ghost" routerLink="/change-password">{{ 'account.changePasswordShort' | transloco }}</a>
-          <button type="button" class="btn" (click)="logout()">{{ 'nav.logout' | transloco }}</button>
+          <a class="btn btn-ghost topbar-account" routerLink="/change-password">{{ 'account.changePasswordShort' | transloco }}</a>
+          <button type="button" class="btn topbar-account" (click)="logout()">{{ 'nav.logout' | transloco }}</button>
         </header>
 
         <main class="content" id="content">

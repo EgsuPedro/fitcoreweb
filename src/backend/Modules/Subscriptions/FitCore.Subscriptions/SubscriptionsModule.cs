@@ -27,6 +27,9 @@ public static class SubscriptionsModule
                     provider.GetRequiredService<TenantConnectionInterceptor>(),
                     provider.GetRequiredService<AuditSaveChangesInterceptor>()));
 
+        // Compartido con el Worker: el proceso de vencimientos y sus valores de configuración.
+        services.Configure<SubscriptionOptions>(configuration.GetSection(SubscriptionOptions.SectionName));
+        services.AddSingleton<SubscriptionLifecycleRunner>();
         return services;
     }
 
@@ -34,7 +37,6 @@ public static class SubscriptionsModule
     public static IServiceCollection AddSubscriptionsModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSubscriptionsPersistence(configuration);
-        services.Configure<SubscriptionOptions>(configuration.GetSection(SubscriptionOptions.SectionName));
         services.AddScoped<ITenantProvisioningHook, SubscriptionProvisioningHook>();
         services.AddScoped<ICapabilityEvaluator, CapabilityEvaluator>();
         services.AddSingleton<IModuleInitializer, SubscriptionsInitializer>();

@@ -100,6 +100,15 @@ Las métricas del panel global son **agregados**: no exponen datos personales, c
 - **Funciones declarativas (sin punto de control propio todavía):** `members` y `branches` se exigen en el alta; no hay rutas que dependan solo de ellas.
 - **Pasar a un plan menor** no borra nada: lo ya creado queda y las altas se bloquean hasta bajar del límite.
 
+### Bloque 5 — lo implementado
+Endpoints de plataforma (`platform.subscriptions.manage`): `POST /platform/tenants/{id}/subscription/renew|change-plan|cancel|resume-cancellation|extend` y `POST /platform/subscriptions/run-lifecycle`. Las solicitudes del propio cliente (cambio, cancelación) llegan en el bloque 8; el cobro que confirma una renovación, en el 6.
+- **Renovar** (desde Active, PastDue o Expired): el período nuevo **empieza donde terminó el anterior** (sin huecos ni solapes); si ya había vencido, o el período resultante ya pasó entero, **empieza hoy** (no se cobra por días sin servicio). Fin = inicio + la periodicidad en meses calendario (con tope al último día del mes; sin anclaje al día original, así que 31-ene + 1 mes = 28-feb y el siguiente empieza el 28). Una activa solo se renueva dentro de `Subscriptions:RenewalWindowDays` (30) antes de vencer. Con una cancelación programada no se renueva hasta retirarla.
+- **Cambio de plan, sin prorrateo:** se compara el **precio por mes** (precio ÷ meses de la periodicidad). **Mejora o lateral → inmediato**: cambian precio, versión, funciones y límites (los derechos vigentes se actualizan en la misma transacción), el período y la fecha de vencimiento **no cambian** y no hay cobro ni crédito de la diferencia. **Baja → programada** para el fin del período (el cliente usa lo que ya pagó) y entra en vigor al renovar, que ya cobra el precio nuevo. En **prueba** siempre es inmediato. Un cambio programado nuevo reemplaza al anterior; una mejora posterior lo cancela. Se registra en `subscription_plan_changes` (de qué versión a cuál, tipo, estado Applied/Scheduled/Superseded, quién y cuándo).
+- **Cancelar:** inmediata (→ Cancelled, modo restringido, los datos se conservan) o **al final del período** (sigue vigente con todo su acceso; el proceso la ejecuta ese día con el motivo dado; se puede retirar con `resume-cancellation`). La programada solo existe desde Trialing o Active.
+- **Prórroga administrativa** (1 a 90 días, motivo obligatorio, auditada y en el historial): en prueba alarga la prueba; activa, alarga el período vigente y el próximo vencimiento; en mora, alarga la gracia.
+- **Proceso de vencimientos** (`SubscriptionLifecycleRunner`; lo ejecuta el `SubscriptionWorker` cada `Subscriptions:LifecycleIntervalMinutes`, 15, y también `run-lifecycle`): idempotente, día local de cada gimnasio, una transacción por suscripción con `FOR UPDATE SKIP LOCKED` (dos instancias a la vez no duplican nada; un fallo no frena a las demás). Prueba terminada sin pago → Expired · período terminado con cancelación programada → Cancelled · período terminado de un **plan gratuito (precio 0) → se renueva solo** (aplicando una baja programada) · período terminado de un plan de pago → PastDue con la gracia del plan (o `Subscriptions:GraceDays`, 7) · gracia terminada → Expired. No toca suspendidas, vencidas ni canceladas.
+- **No hay cobro automático:** sin proveedor de pagos, un plan de pago no se renueva solo; queda en mora hasta que se registre el pago (bloque 6) o se renueve a mano.
+
 ## Notificaciones comerciales
 Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago confirmado, pago fallido, mora, cambio de plan, cancelación, suspensión, reactivación. `subscriptions.notices` con único anti-duplicado y entrega interna (portal). El `SubscriptionWorker` genera los avisos de calendario (anticipos configurables) de forma idempotente y reintenta los canales externos, que hoy no existen.
 
@@ -110,7 +119,7 @@ Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago conf
 | 2 | Módulo, catálogo de planes con versiones, funciones y límites; `/platform/plans` | Hecho |
 | 3 | Suscripciones, transiciones, historial, concurrencia y migración de los gimnasios existentes | Hecho |
 | 4 | Servicio de capacidades, derechos vigentes, disparadores de límites y modo de acceso | Hecho |
-| 5 | Renovaciones, cambios de plan, cancelaciones, prórrogas y vencimientos (`SubscriptionWorker`) | Pendiente |
+| 5 | Renovaciones, cambios de plan, cancelaciones, prórrogas y vencimientos (`SubscriptionWorker`) | Hecho |
 | 6 | Cobros comerciales: facturas internas, pagos, intentos, reversiones; separación de pagos de alumnos | Pendiente |
 | 7 | Panel global de plataforma: organizaciones, métricas, notas, auditoría | Pendiente |
 | 8 | Portal del cliente («Mi suscripción») en Angular y avisos comerciales | Pendiente |

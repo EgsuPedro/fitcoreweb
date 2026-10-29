@@ -6,6 +6,7 @@
     <ProjectReference Include="..\Modules\Platform\FitCore.Platform\FitCore.Platform.csproj" />
     <ProjectReference Include="..\Modules\Commercial\FitCore.Commercial\FitCore.Commercial.csproj" />
     <ProjectReference Include="..\Modules\Classes\FitCore.Classes\FitCore.Classes.csproj" />
+    <ProjectReference Include="..\Modules\Subscriptions\FitCore.Subscriptions\FitCore.Subscriptions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.14" />

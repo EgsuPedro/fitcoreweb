@@ -20,7 +20,9 @@ internal static class SubscriptionStore
 
     /// <summary>La suscripción vigente (no cancelada) del gimnasio, con seguimiento para modificarla.</summary>
     public static Task<Subscription?> CurrentAsync(SubscriptionsDbContext db, Guid tenantId, CancellationToken cancellationToken) =>
-        db.Subscriptions.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.TenantId == tenantId && s.Status != SubscriptionStatus.Cancelled, cancellationToken);
+        db.Subscriptions.IgnoreQueryFilters()
+            .Include(s => s.PlanChanges.Where(c => c.Status == PlanChangeStatus.Scheduled)) // los programados pueden aplicarse o reemplazarse
+            .FirstOrDefaultAsync(s => s.TenantId == tenantId && s.Status != SubscriptionStatus.Cancelled, cancellationToken);
 
     /// <summary>Hoy en la zona horaria del gimnasio: los períodos de una suscripción son fechas locales.</summary>
     public static DateOnly Today(IClock clock, string timeZone) =>

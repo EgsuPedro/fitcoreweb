@@ -341,6 +341,14 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .HasColumnType("date")
                         .HasColumnName("next_due_on");
 
+                    b.Property<Guid?>("PendingPlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pending_plan_id");
+
+                    b.Property<Guid?>("PendingPlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pending_plan_version_id");
+
                     b.Property<string>("Period")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -375,6 +383,11 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .HasPrecision(12, 2)
                         .HasColumnType("numeric(12,2)")
                         .HasColumnName("price");
+
+                    b.Property<string>("ScheduledCancelReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("scheduled_cancel_reason");
 
                     b.Property<DateTimeOffset>("StartedAt")
                         .HasColumnType("timestamp with time zone")
@@ -495,6 +508,77 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .HasDatabaseName("ix_subscription_events_tenant_id_occurred_at");
 
                     b.ToTable("subscription_events", "subscriptions");
+                });
+
+            modelBuilder.Entity("FitCore.Subscriptions.Domain.SubscriptionPlanChange", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("AppliedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("applied_at");
+
+                    b.Property<DateOnly>("EffectiveOn")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_on");
+
+                    b.Property<Guid>("FromPlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("from_plan_version_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("note");
+
+                    b.Property<DateTimeOffset>("RequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requested_at");
+
+                    b.Property<Guid?>("RequestedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requested_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subscription_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("ToPlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_plan_id");
+
+                    b.Property<Guid>("ToPlanVersionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("to_plan_version_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_subscription_plan_changes");
+
+                    b.HasIndex("SubscriptionId", "RequestedAt")
+                        .HasDatabaseName("ix_subscription_plan_changes_subscription_id_requested_at");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_subscription_plan_changes_tenant_id_status");
+
+                    b.ToTable("subscription_plan_changes", "subscriptions");
                 });
 
             modelBuilder.Entity("FitCore.Subscriptions.Persistence.BranchRef", b =>
@@ -711,6 +795,16 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .HasConstraintName("fk_subscription_events_subscriptions_subscription_id");
                 });
 
+            modelBuilder.Entity("FitCore.Subscriptions.Domain.SubscriptionPlanChange", b =>
+                {
+                    b.HasOne("FitCore.Subscriptions.Domain.Subscription", null)
+                        .WithMany("PlanChanges")
+                        .HasForeignKey("SubscriptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_subscription_plan_changes_subscriptions_subscription_id");
+                });
+
             modelBuilder.Entity("FitCore.Subscriptions.Domain.Plan", b =>
                 {
                     b.Navigation("Versions");
@@ -726,6 +820,8 @@ namespace FitCore.Subscriptions.Persistence.Migrations
             modelBuilder.Entity("FitCore.Subscriptions.Domain.Subscription", b =>
                 {
                     b.Navigation("Events");
+
+                    b.Navigation("PlanChanges");
                 });
 #pragma warning restore 612, 618
         }

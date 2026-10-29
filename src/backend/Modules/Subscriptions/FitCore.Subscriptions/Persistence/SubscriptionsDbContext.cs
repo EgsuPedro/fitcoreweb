@@ -21,6 +21,7 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
     internal DbSet<PlanLimit> PlanLimits => Set<PlanLimit>();
     internal DbSet<Subscription> Subscriptions => Set<Subscription>();
     internal DbSet<SubscriptionEvent> SubscriptionEvents => Set<SubscriptionEvent>();
+    internal DbSet<SubscriptionPlanChange> PlanChanges => Set<SubscriptionPlanChange>();
     internal DbSet<TenantEntitlement> Entitlements => Set<TenantEntitlement>();
 
     // Vistas de solo lectura de otros módulos, para medir el consumo de los límites (RLS y filtro limitan a un solo gimnasio).
@@ -43,6 +44,8 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
         modelBuilder.ApplyConfiguration(new PlanLimitConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionEventConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionPlanChangeConfiguration());
+        modelBuilder.Entity<SubscriptionPlanChange>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
         modelBuilder.ApplyConfiguration(new TenantEntitlementConfiguration());
         modelBuilder.Entity<TenantEntitlement>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
 
@@ -183,12 +186,14 @@ internal sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Subsc
         b.Property(x => x.StatusBeforeSuspension).HasConversion<string>().HasMaxLength(20);
         b.Property(x => x.CancelReason).HasMaxLength(500);
         b.Property(x => x.SuspensionReason).HasMaxLength(500);
+        b.Property(x => x.ScheduledCancelReason).HasMaxLength(500);
         b.HasIndex(x => new { x.TenantId, x.CreatedAt });
         b.HasIndex(x => new { x.Status, x.NextDueOn });
         b.HasIndex(x => x.PlanVersionId);
         // Una sola suscripción vigente (no cancelada) por gimnasio: dos altas simultáneas no pueden duplicarla.
         b.HasIndex(x => x.TenantId).IsUnique().HasFilter("status <> 'Cancelled'").HasDatabaseName("ux_subscriptions_current");
         b.HasMany(x => x.Events).WithOne().HasForeignKey(e => e.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
+        b.HasMany(x => x.PlanChanges).WithOne().HasForeignKey(c => c.SubscriptionId).OnDelete(DeleteBehavior.Restrict);
 
         // Control de concurrencia (xmin): dos cambios de estado simultáneos no se pisan, el segundo recibe 409.
         b.Property<uint>("Version").IsRowVersion();
@@ -208,5 +213,20 @@ internal sealed class SubscriptionEventConfiguration : IEntityTypeConfiguration<
         b.Property(x => x.Detail).HasMaxLength(500);
         b.HasIndex(x => new { x.SubscriptionId, x.OccurredAt });
         b.HasIndex(x => new { x.TenantId, x.OccurredAt });
+    }
+}
+
+internal sealed class SubscriptionPlanChangeConfiguration : IEntityTypeConfiguration<SubscriptionPlanChange>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionPlanChange> b)
+    {
+        b.ToTable("subscription_plan_changes", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        b.Property(x => x.Note).HasMaxLength(500);
+        b.HasIndex(x => new { x.SubscriptionId, x.RequestedAt });
+        b.HasIndex(x => new { x.TenantId, x.Status });
     }
 }

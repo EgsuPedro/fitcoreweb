@@ -56,6 +56,48 @@ internal static class SubscriptionsEndpoints
             .Produces<SubscriptionDto>()
             .WithName("ReactivateTenantSubscription");
 
+        tenant.MapPost("/renew", async (Guid id, RenewSubscriptionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new RenewSubscriptionCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformSubscriptionsManage)
+            .WithValidation<RenewSubscriptionRequest>()
+            .Produces<SubscriptionDto>()
+            .WithName("RenewTenantSubscription");
+
+        tenant.MapPost("/change-plan", async (Guid id, ChangeSubscriptionPlanRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ChangeSubscriptionPlanCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformSubscriptionsManage)
+            .WithValidation<ChangeSubscriptionPlanRequest>()
+            .Produces<SubscriptionDto>()
+            .WithName("ChangeTenantSubscriptionPlan");
+
+        tenant.MapPost("/cancel", async (Guid id, CancelSubscriptionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new CancelSubscriptionCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformSubscriptionsManage)
+            .WithValidation<CancelSubscriptionRequest>()
+            .Produces<SubscriptionDto>()
+            .WithName("CancelTenantSubscription");
+
+        tenant.MapPost("/resume-cancellation", async (Guid id, ResumeSubscriptionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ResumeSubscriptionCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformSubscriptionsManage)
+            .WithValidation<ResumeSubscriptionRequest>()
+            .Produces<SubscriptionDto>()
+            .WithName("ResumeTenantSubscriptionCancellation");
+
+        tenant.MapPost("/extend", async (Guid id, ExtendSubscriptionRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ExtendSubscriptionCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformSubscriptionsManage)
+            .WithValidation<ExtendSubscriptionRequest>()
+            .Produces<SubscriptionDto>()
+            .WithName("ExtendTenantSubscription");
+
+        routes.MapPost("/platform/subscriptions/run-lifecycle", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new RunLifecycleCommand(), ct)).ToHttp(r => Results.Ok(r)))
+            .WithTags("Platform · Suscripciones")
+            .RequirePermission(Permissions.PlatformSubscriptionsManage)
+            .Produces<LifecycleRunSummary>()
+            .WithName("RunSubscriptionLifecycle");
+
         routes.MapGet("/platform/subscriptions", async (
                 IDispatcher dispatcher, CancellationToken ct, string? status = null, string? planCode = null, string? search = null, int? dueWithinDays = null, int page = 1, int pageSize = 25) =>
                 (await dispatcher.QueryAsync(new ListSubscriptionsQuery(new PageRequest(page, pageSize), status, planCode, search, dueWithinDays), ct)).ToHttp(r => Results.Ok(r)))

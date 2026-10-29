@@ -21,7 +21,13 @@ public enum SubscriptionEventType
     Suspended = 5,
     Reactivated = 6,
     Expired = 7,
-    Cancelled = 8
+    Cancelled = 8,
+    CancellationScheduled = 9,
+    CancellationResumed = 10,
+    Renewed = 11,
+    PlanChanged = 12,
+    PlanChangeScheduled = 13,
+    Extended = 14
 }
 
 /// <summary>
@@ -47,6 +53,62 @@ public static class SubscriptionTransitions
 
     /// <summary>Una suscripción cancelada no vuelve: se contrata una nueva. Todas las demás son «la suscripción vigente» del gimnasio.</summary>
     public static bool IsCurrent(SubscriptionStatus status) => status != SubscriptionStatus.Cancelled;
+}
+
+/// <summary>Un cambio de plan es una mejora si el precio por mes del plan nuevo es mayor, una baja si es menor y lateral si es igual.</summary>
+public enum PlanChangeKind
+{
+    Upgrade = 1,
+    Downgrade = 2,
+    Lateral = 3
+}
+
+public enum PlanChangeStatus
+{
+    /// <summary>Ya está en vigor.</summary>
+    Applied = 1,
+
+    /// <summary>Entra en vigor al terminar el período actual.</summary>
+    Scheduled = 2,
+
+    /// <summary>Se reemplazó por otro cambio antes de entrar en vigor.</summary>
+    Superseded = 3
+}
+
+/// <summary>Qué le toca hacer al proceso automático de vencimientos con una suscripción en un día dado.</summary>
+public enum LifecycleAction
+{
+    None = 0,
+    ExpireTrial = 1,
+    RenewFree = 2,
+    CancelAtPeriodEnd = 3,
+    MarkPastDue = 4,
+    ExpireGrace = 5
+}
+
+/// <summary>Reglas puras del proceso de vencimientos (testeables sin base de datos): dado el estado y el día local, qué corresponde.</summary>
+public static class SubscriptionLifecycle
+{
+    public static LifecycleAction NextAction(Subscription s, DateOnly today)
+    {
+        switch (s.Status)
+        {
+            case SubscriptionStatus.Trialing when today >= s.CurrentPeriodEnd:
+                return s.CancelAtPeriodEnd ? LifecycleAction.CancelAtPeriodEnd : LifecycleAction.ExpireTrial;
+            case SubscriptionStatus.Active when today >= s.CurrentPeriodEnd:
+                if (s.CancelAtPeriodEnd)
+                {
+                    return LifecycleAction.CancelAtPeriodEnd;
+                }
+
+                // Un plan de precio 0 no se cobra: su período se renueva solo. Uno de pago pasa a mora hasta que se confirme el pago.
+                return s.IsFree ? LifecycleAction.RenewFree : LifecycleAction.MarkPastDue;
+            case SubscriptionStatus.PastDue when s.GraceEndsOn is { } grace && today >= grace:
+                return LifecycleAction.ExpireGrace;
+            default:
+                return LifecycleAction.None;
+        }
+    }
 }
 
 /// <summary>Condiciones que se copian del plan al contratar: la suscripción no vuelve a consultar el precio del plan.</summary>
@@ -90,12 +152,21 @@ public sealed class Subscription : IAuditable
     public DateTimeOffset? SuspendedAt { get; private set; }
     public string? SuspensionReason { get; private set; }
     public SubscriptionStatus? StatusBeforeSuspension { get; private set; }
+
+    /// <summary>Plan al que pasará la suscripción al terminar el período (una baja de plan programada). Nulo si no hay cambio pendiente.</summary>
+    public Guid? PendingPlanId { get; private set; }
+
+    public Guid? PendingPlanVersionId { get; private set; }
+
+    /// <summary>Motivo de una cancelación programada para el fin del período (la suscripción sigue vigente hasta entonces).</summary>
+    public string? ScheduledCancelReason { get; private set; }
     public DateTimeOffset CreatedAt { get; init; }
     public Guid? CreatedBy { get; init; }
     public DateTimeOffset? UpdatedAt { get; private set; }
     public Guid? UpdatedBy { get; private set; }
 
     public List<SubscriptionEvent> Events { get; init; } = [];
+    public List<SubscriptionPlanChange> PlanChanges { get; init; } = [];
 
     public bool IsCurrent => SubscriptionTransitions.IsCurrent(Status);
 
@@ -269,6 +340,213 @@ public sealed class Subscription : IAuditable
         return Result.Success();
     }
 
+    /// <summary>
+    /// Renueva un período. Empieza donde terminó el anterior (sin huecos ni solapes); si la suscripción ya había vencido, o el período resultante
+    /// ya pasó por completo, empieza hoy: no se cobra por días que el cliente no tuvo. No hay prorrateo. Si había una baja de plan programada,
+    /// entra en vigor aquí y el período nuevo ya se cobra con el precio del plan nuevo.
+    /// </summary>
+    public Result Renew(PlanSnapshot? pendingPlan, DateOnly today, int windowDays, Guid? actor, DateTimeOffset now, string? note, bool automatic = false)
+    {
+        if (Status is not (SubscriptionStatus.Active or SubscriptionStatus.PastDue or SubscriptionStatus.Expired))
+        {
+            return InvalidTransition(SubscriptionStatus.Active);
+        }
+
+        if (CancelAtPeriodEnd)
+        {
+            return Result.Failure(Error.Conflict("subscriptions.cancellation_scheduled", "La suscripción tiene una cancelación programada: retírela antes de renovar."));
+        }
+
+        // Renovar con demasiada anticipación acumularía períodos pagados por adelantado sin control.
+        if (Status == SubscriptionStatus.Active && CurrentPeriodEnd > today.AddDays(windowDays))
+        {
+            return Result.Failure(Error.Conflict("subscriptions.renewal_too_early", $"Solo se puede renovar dentro de los {windowDays} días previos al vencimiento ({CurrentPeriodEnd:yyyy-MM-dd})."));
+        }
+
+        var from = Status;
+        if (pendingPlan is not null)
+        {
+            ApplyPlan(pendingPlan);
+            PendingPlanId = null;
+            PendingPlanVersionId = null;
+            foreach (var scheduled in PlanChanges.Where(c => c.Status == PlanChangeStatus.Scheduled))
+            {
+                scheduled.MarkApplied(now);
+            }
+
+            Record(SubscriptionEventType.PlanChanged, actor, now, from, from, $"{pendingPlan.Code} v{pendingPlan.VersionNumber} · entra en vigor al renovar");
+        }
+
+        var start = Status == SubscriptionStatus.Expired ? today : CurrentPeriodEnd;
+        if (AddPeriod(start, Period) <= today)
+        {
+            start = today;
+        }
+
+        CurrentPeriodStart = start;
+        CurrentPeriodEnd = AddPeriod(start, Period);
+        NextDueOn = CurrentPeriodEnd;
+        TrialEndsOn = null;
+        GraceEndsOn = null;
+        Status = SubscriptionStatus.Active;
+        Record(SubscriptionEventType.Renewed, actor, now, from, Status, Detail(note, automatic ? "Renovación automática (plan gratuito)" : $"Período {CurrentPeriodStart:yyyy-MM-dd} a {CurrentPeriodEnd:yyyy-MM-dd}"));
+        Touch(actor, now);
+        return Result.Success();
+    }
+
+    /// <summary>
+    /// Cambia de plan. Una mejora (o un cambio lateral) entra en vigor de inmediato y no cambia el período ni genera cobro ni crédito. Una baja se
+    /// programa para el fin del período, para que el cliente use lo que ya pagó. En prueba, siempre es inmediato.
+    /// </summary>
+    public Result<SubscriptionPlanChange> ChangePlan(PlanSnapshot target, DateOnly today, Guid? actor, DateTimeOffset now, string? note)
+    {
+        if (Status is not (SubscriptionStatus.Trialing or SubscriptionStatus.Active or SubscriptionStatus.PastDue))
+        {
+            return Error.Conflict("subscriptions.invalid_state", $"Una suscripción {Status} no admite cambio de plan.");
+        }
+
+        if (target.PlanVersionId == PlanVersionId || (target.PlanId == PlanId && target.VersionNumber == PlanVersionNumber))
+        {
+            return Error.Conflict("subscriptions.same_plan", "La suscripción ya tiene ese plan.");
+        }
+
+        var kind = Classify(MonthlyPrice(Price, Period), MonthlyPrice(target.Price, target.Period));
+        var immediate = Status == SubscriptionStatus.Trialing || kind != PlanChangeKind.Downgrade;
+
+        // Un cambio programado anterior pierde vigencia: manda el último.
+        foreach (var pending in PlanChanges.Where(c => c.Status == PlanChangeStatus.Scheduled))
+        {
+            pending.Supersede();
+        }
+
+        var change = new SubscriptionPlanChange
+        {
+            Id = Guid.CreateVersion7(),
+            SubscriptionId = Id,
+            TenantId = TenantId,
+            FromPlanVersionId = PlanVersionId,
+            ToPlanId = target.PlanId,
+            ToPlanVersionId = target.PlanVersionId,
+            Kind = kind,
+            Status = immediate ? PlanChangeStatus.Applied : PlanChangeStatus.Scheduled,
+            RequestedAt = now,
+            EffectiveOn = immediate ? today : CurrentPeriodEnd,
+            AppliedAt = immediate ? now : null,
+            RequestedBy = actor,
+            Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim()
+        };
+        PlanChanges.Add(change);
+
+        var detail = Detail(note, $"{PlanCode} v{PlanVersionNumber} → {target.Code} v{target.VersionNumber} ({kind})");
+        if (immediate)
+        {
+            var current = Status;
+            ApplyPlan(target);
+            PendingPlanId = null;
+            PendingPlanVersionId = null;
+            Record(SubscriptionEventType.PlanChanged, actor, now, current, current, detail);
+        }
+        else
+        {
+            PendingPlanId = target.PlanId;
+            PendingPlanVersionId = target.PlanVersionId;
+            Record(SubscriptionEventType.PlanChangeScheduled, actor, now, Status, Status, $"{detail} · entra en vigor el {CurrentPeriodEnd:yyyy-MM-dd}");
+        }
+
+        Touch(actor, now);
+        return change;
+    }
+
+    /// <summary>Programa la cancelación para el fin del período: sigue vigente y con todo su acceso hasta entonces.</summary>
+    public Result ScheduleCancellation(string reason, Guid? actor, DateTimeOffset now)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Result.Failure(SubscriptionErrors.ReasonRequired);
+        }
+
+        if (Status is not (SubscriptionStatus.Trialing or SubscriptionStatus.Active))
+        {
+            return Result.Failure(Error.Conflict("subscriptions.invalid_state", $"Una suscripción {Status} no admite cancelación al final del período: cancélela de inmediato."));
+        }
+
+        if (CancelAtPeriodEnd)
+        {
+            return Result.Failure(Error.Conflict("subscriptions.cancellation_already_scheduled", "La cancelación ya está programada."));
+        }
+
+        CancelAtPeriodEnd = true;
+        ScheduledCancelReason = reason.Trim();
+        Record(SubscriptionEventType.CancellationScheduled, actor, now, Status, Status, $"{ScheduledCancelReason} · se cancela el {CurrentPeriodEnd:yyyy-MM-dd}");
+        Touch(actor, now);
+        return Result.Success();
+    }
+
+    public Result ResumeCancellation(Guid? actor, DateTimeOffset now, string? note)
+    {
+        if (!CancelAtPeriodEnd)
+        {
+            return Result.Failure(Error.Conflict("subscriptions.no_cancellation_scheduled", "La suscripción no tiene una cancelación programada."));
+        }
+
+        CancelAtPeriodEnd = false;
+        ScheduledCancelReason = null;
+        Record(SubscriptionEventType.CancellationResumed, actor, now, Status, Status, note);
+        Touch(actor, now);
+        return Result.Success();
+    }
+
+    /// <summary>La cancelación programada llegó a su fecha: se cancela con el motivo que se dio al programarla.</summary>
+    public Result CompleteScheduledCancellation(Guid? actor, DateTimeOffset now) =>
+        Cancel(ScheduledCancelReason ?? "Cancelación al final del período", actor, now);
+
+    /// <summary>
+    /// Prórroga administrativa: regala días. En prueba alarga la prueba; activa, alarga el período vigente; en mora, alarga la gracia. Exige motivo y
+    /// queda en el historial y en la auditoría.
+    /// </summary>
+    public Result Extend(int days, string reason, Guid? actor, DateTimeOffset now)
+    {
+        if (string.IsNullOrWhiteSpace(reason))
+        {
+            return Result.Failure(SubscriptionErrors.ReasonRequired);
+        }
+
+        if (days is < 1 or > MaxExtensionDays)
+        {
+            return Result.Failure(Error.Validation("subscriptions.extension_days_invalid", $"La prórroga debe ser de 1 a {MaxExtensionDays} días."));
+        }
+
+        switch (Status)
+        {
+            case SubscriptionStatus.Trialing:
+                CurrentPeriodEnd = CurrentPeriodEnd.AddDays(days);
+                TrialEndsOn = CurrentPeriodEnd;
+                NextDueOn = CurrentPeriodEnd;
+                break;
+            case SubscriptionStatus.Active:
+                CurrentPeriodEnd = CurrentPeriodEnd.AddDays(days);
+                NextDueOn = CurrentPeriodEnd;
+                break;
+            case SubscriptionStatus.PastDue when GraceEndsOn is { } grace:
+                GraceEndsOn = grace.AddDays(days);
+                break;
+            default:
+                return Result.Failure(Error.Conflict("subscriptions.invalid_state", $"Una suscripción {Status} no admite prórroga."));
+        }
+
+        Record(SubscriptionEventType.Extended, actor, now, Status, Status, $"{days} días · {reason.Trim()}");
+        Touch(actor, now);
+        return Result.Success();
+    }
+
+    public const int MaxExtensionDays = 90;
+
+    /// <summary>Precio normalizado a un mes para comparar planes de periodicidad distinta.</summary>
+    public static decimal MonthlyPrice(decimal price, BillingPeriod period) => price / BillingPeriods.Months(period);
+
+    public static PlanChangeKind Classify(decimal currentMonthly, decimal targetMonthly) =>
+        targetMonthly > currentMonthly ? PlanChangeKind.Upgrade : targetMonthly < currentMonthly ? PlanChangeKind.Downgrade : PlanChangeKind.Lateral;
+
     /// <summary>Fin exclusivo de un período que empieza en <paramref name="start"/> (meses calendario, con tope al último día del mes).</summary>
     public static DateOnly AddPeriod(DateOnly start, BillingPeriod period) => start.AddMonths(BillingPeriods.Months(period));
 
@@ -322,6 +600,32 @@ public sealed class SubscriptionEvent
     public SubscriptionStatus? FromStatus { get; init; }
     public SubscriptionStatus? ToStatus { get; init; }
     public string? Detail { get; init; }
+}
+
+/// <summary>Cambio de plan pedido o aplicado a una suscripción: de qué versión a cuál, de qué tipo, cuándo entra en vigor y quién lo hizo.</summary>
+public sealed class SubscriptionPlanChange : IAuditable
+{
+    public Guid Id { get; init; }
+    public Guid SubscriptionId { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid FromPlanVersionId { get; init; }
+    public Guid ToPlanId { get; init; }
+    public Guid ToPlanVersionId { get; init; }
+    public PlanChangeKind Kind { get; init; }
+    public PlanChangeStatus Status { get; internal set; }
+    public DateTimeOffset RequestedAt { get; init; }
+    public DateOnly EffectiveOn { get; init; }
+    public DateTimeOffset? AppliedAt { get; internal set; }
+    public Guid? RequestedBy { get; init; }
+    public string? Note { get; init; }
+
+    internal void MarkApplied(DateTimeOffset now)
+    {
+        Status = PlanChangeStatus.Applied;
+        AppliedAt = now;
+    }
+
+    internal void Supersede() => Status = PlanChangeStatus.Superseded;
 }
 
 public static class SubscriptionErrors

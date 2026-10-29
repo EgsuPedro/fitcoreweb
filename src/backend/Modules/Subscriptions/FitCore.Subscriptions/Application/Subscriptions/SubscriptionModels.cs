@@ -15,6 +15,12 @@ public sealed class SubscriptionOptions
 
     /// <summary>Plan que recibe un gimnasio nuevo cuando el alta no indica ninguno. El plan <c>legacy</c> no tiene límites ni vencimiento.</summary>
     public string DefaultPlanCode { get; set; } = "legacy";
+
+    /// <summary>Con cuántos días de anticipación se puede renovar una suscripción activa (evita acumular períodos pagados por adelantado).</summary>
+    public int RenewalWindowDays { get; set; } = 30;
+
+    /// <summary>Cada cuántos minutos el Worker revisa vencimientos, moras y renovaciones de planes gratuitos.</summary>
+    public int LifecycleIntervalMinutes { get; set; } = 15;
 }
 
 public sealed record SubscriptionEventDto(
@@ -30,6 +36,7 @@ public sealed record SubscriptionDto(
     string Status, DateTimeOffset StartedAt, DateOnly CurrentPeriodStart, DateOnly CurrentPeriodEnd,
     DateOnly? TrialEndsOn, DateOnly NextDueOn, DateOnly? GraceEndsOn, bool CancelAtPeriodEnd,
     DateTimeOffset? CancelledAt, string? CancelReason, DateTimeOffset? SuspendedAt, string? SuspensionReason,
+    string? ScheduledCancelReason, Guid? PendingPlanId, Guid? PendingPlanVersionId,
     DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt, IReadOnlyList<SubscriptionEventDto> RecentEvents)
 {
     internal static SubscriptionDto From(Subscription s, string tenantSlug, string tenantName, IEnumerable<SubscriptionEvent> events) => new(
@@ -38,6 +45,7 @@ public sealed record SubscriptionDto(
         s.Status.ToString(), s.StartedAt, s.CurrentPeriodStart, s.CurrentPeriodEnd,
         s.TrialEndsOn, s.NextDueOn, s.GraceEndsOn, s.CancelAtPeriodEnd,
         s.CancelledAt, s.CancelReason, s.SuspendedAt, s.SuspensionReason,
+        s.ScheduledCancelReason, s.PendingPlanId, s.PendingPlanVersionId,
         s.CreatedAt, s.UpdatedAt, [.. events.OrderByDescending(e => e.OccurredAt).ThenByDescending(e => e.Id).Select(SubscriptionEventDto.From)]);
 }
 
@@ -59,12 +67,44 @@ public sealed record SuspendSubscriptionRequest(string Reason);
 
 public sealed record ReactivateSubscriptionRequest(string? Note);
 
+/// <summary>Renueva el período siguiente (el pago se registra como cobro comercial). Sin prorrateo.</summary>
+public sealed record RenewSubscriptionRequest(string? Note);
+
+/// <summary>Cambia de plan: una mejora entra en vigor de inmediato; una baja, al terminar el período.</summary>
+public sealed record ChangeSubscriptionPlanRequest(Guid PlanId, string? Note);
+
+/// <summary>Cancela de inmediato o, con <c>AtPeriodEnd</c>, al terminar el período (sigue vigente hasta entonces).</summary>
+public sealed record CancelSubscriptionRequest(string Reason, bool AtPeriodEnd);
+
+public sealed record ResumeSubscriptionRequest(string? Note);
+
+/// <summary>Prórroga administrativa de 1 a 90 días, con motivo obligatorio.</summary>
+public sealed record ExtendSubscriptionRequest(int Days, string Reason);
+
+/// <summary>Resultado de una pasada del proceso de vencimientos.</summary>
+public sealed record LifecycleRunSummary(int Examined, int TrialsExpired, int FreeRenewed, int Cancelled, int MarkedPastDue, int GraceExpired, int Failed)
+{
+    public static readonly LifecycleRunSummary Empty = new(0, 0, 0, 0, 0, 0, 0);
+}
+
 public sealed record GetTenantSubscriptionQuery(Guid TenantId) : IQuery<SubscriptionDto>;
 
 public sealed record GetSubscriptionHistoryQuery(Guid TenantId, PageRequest Page) : IQuery<PagedResult<SubscriptionHistoryItemDto>>;
 
 public sealed record ListSubscriptionsQuery(PageRequest Page, string? Status, string? PlanCode, string? Search, int? DueWithinDays)
     : IQuery<PagedResult<SubscriptionSummaryDto>>;
+
+public sealed record RenewSubscriptionCommand(Guid TenantId, RenewSubscriptionRequest Request) : ICommand<SubscriptionDto>;
+
+public sealed record ChangeSubscriptionPlanCommand(Guid TenantId, ChangeSubscriptionPlanRequest Request) : ICommand<SubscriptionDto>;
+
+public sealed record CancelSubscriptionCommand(Guid TenantId, CancelSubscriptionRequest Request) : ICommand<SubscriptionDto>;
+
+public sealed record ResumeSubscriptionCommand(Guid TenantId, ResumeSubscriptionRequest Request) : ICommand<SubscriptionDto>;
+
+public sealed record ExtendSubscriptionCommand(Guid TenantId, ExtendSubscriptionRequest Request) : ICommand<SubscriptionDto>;
+
+public sealed record RunLifecycleCommand : ICommand<LifecycleRunSummary>;
 
 public sealed record CreateSubscriptionCommand(Guid TenantId, CreateSubscriptionRequest Request) : ICommand<SubscriptionDto>;
 
@@ -106,4 +146,37 @@ public sealed class SuspendSubscriptionRequestValidator : AbstractValidator<Susp
 public sealed class ReactivateSubscriptionRequestValidator : AbstractValidator<ReactivateSubscriptionRequest>
 {
     public ReactivateSubscriptionRequestValidator() => RuleFor(x => x.Note).MaximumLength(500);
+}
+
+public sealed class RenewSubscriptionRequestValidator : AbstractValidator<RenewSubscriptionRequest>
+{
+    public RenewSubscriptionRequestValidator() => RuleFor(x => x.Note).MaximumLength(500);
+}
+
+public sealed class ChangeSubscriptionPlanRequestValidator : AbstractValidator<ChangeSubscriptionPlanRequest>
+{
+    public ChangeSubscriptionPlanRequestValidator()
+    {
+        RuleFor(x => x.PlanId).NotEmpty();
+        RuleFor(x => x.Note).MaximumLength(500);
+    }
+}
+
+public sealed class CancelSubscriptionRequestValidator : AbstractValidator<CancelSubscriptionRequest>
+{
+    public CancelSubscriptionRequestValidator() => RuleFor(x => x.Reason).NotEmpty().MaximumLength(500);
+}
+
+public sealed class ResumeSubscriptionRequestValidator : AbstractValidator<ResumeSubscriptionRequest>
+{
+    public ResumeSubscriptionRequestValidator() => RuleFor(x => x.Note).MaximumLength(500);
+}
+
+public sealed class ExtendSubscriptionRequestValidator : AbstractValidator<ExtendSubscriptionRequest>
+{
+    public ExtendSubscriptionRequestValidator()
+    {
+        RuleFor(x => x.Days).InclusiveBetween(1, Domain.Subscription.MaxExtensionDays);
+        RuleFor(x => x.Reason).NotEmpty().MaximumLength(500);
+    }
 }

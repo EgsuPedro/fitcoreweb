@@ -6,6 +6,7 @@ using FitCore.Infrastructure.Core;
 using FitCore.Platform;
 using FitCore.Platform.Persistence;
 using FitCore.SharedKernel;
+using FitCore.Subscriptions;
 using FitCore.Worker;
 using Serilog;
 using Serilog.Formatting.Compact;
@@ -37,6 +38,7 @@ builder.Services.AddWhatsAppNotifications(builder.Configuration);
 builder.Services.AddClassesPersistence(builder.Configuration);
 builder.Services.AddWaitlistMaintenance();
 builder.Services.AddClassNotifications();
+builder.Services.AddSubscriptionsPersistence(builder.Configuration);
 
 // Jobs: la outbox publica los eventos de dominio. Los siguientes (cuotas recurrentes, vencimientos,
 // recordatorios) se registran aquí por módulo cuando existan.
@@ -44,6 +46,7 @@ builder.Services.AddHostedService<OutboxProcessor>();
 builder.Services.AddHostedService<ExpiryNotificationWorker>();
 builder.Services.AddHostedService<WaitlistWorker>();
 builder.Services.AddHostedService<NotificationWorker>();
+builder.Services.AddHostedService<SubscriptionWorker>();
 builder.Services.AddHostedService<HeartbeatService>();
 
 await builder.Build().RunAsync();

@@ -257,7 +257,7 @@ internal sealed class GetMemberHandler(CommercialDbContext db, IAccessContext ac
     }
 }
 
-internal sealed class CreateMemberHandler(CommercialDbContext db, IAccessContext access, IClock clock, ICurrentUser currentUser)
+internal sealed class CreateMemberHandler(CommercialDbContext db, IAccessContext access, IClock clock, ICurrentUser currentUser, ICapabilityEvaluator capabilities)
     : ICommandHandler<CreateMemberCommand, MemberDto>
 {
     public async Task<Result<MemberDto>> HandleAsync(CreateMemberCommand command, CancellationToken cancellationToken)
@@ -279,6 +279,19 @@ internal sealed class CreateMemberHandler(CommercialDbContext db, IAccessContext
         if (await db.Members.AnyAsync(m => m.IdType == request.IdType && m.IdNumber == idNumber, cancellationToken))
         {
             return MemberErrors.DuplicateIdentification;
+        }
+
+        // Funcionalidad y límite de alumnos del plan. La base lo respalda con un disparador: dos altas simultáneas no pasan el tope.
+        var feature = await capabilities.RequireFeatureAsync(Capabilities.Features.Members, isWrite: true, cancellationToken);
+        if (feature.IsFailure)
+        {
+            return feature.Error;
+        }
+
+        var capacity = await capabilities.RequireCapacityAsync(Capabilities.Limits.Members, 1, cancellationToken);
+        if (capacity.IsFailure)
+        {
+            return capacity.Error;
         }
 
         // El código sale de un contador: si el alta falla, la transacción revierte el número y no quedan huecos.

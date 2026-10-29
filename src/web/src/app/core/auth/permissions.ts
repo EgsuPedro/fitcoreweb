@@ -88,4 +88,6 @@ export const Perm = {
   ReportsInstructorRead: 'reports.instructor.read',
   ReportsCompare: 'reports.compare',
   ReportsExport: 'reports.export',
+  SubscriptionRead: 'subscription.read',
+  SubscriptionManage: 'subscription.manage',
 } as const;

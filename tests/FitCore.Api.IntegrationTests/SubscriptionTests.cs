@@ -266,7 +266,9 @@ public class SubscriptionTests(ApiFixture api)
         // La suspensión comercial NO es la administrativa: el gimnasio sigue activo y su propietario sigue dentro y operando.
         Assert.Equal("Active", await ScalarAsync<string>($"SELECT status FROM organizations.tenants WHERE id = '{tenant.Id}'"));
         Assert.Equal(HttpStatusCode.OK, (await tenant.Owner.GetAsync("/api/v1/organization")).StatusCode);
-        Assert.Equal(HttpStatusCode.Created, (await tenant.Owner.PostAsJsonAsync("/api/v1/branches", new { code = "UIO", name = "Quito", timeZone = "America/Guayaquil", sriEstablishmentCode = "001", address = (string?)null })).StatusCode);
+        // Con la suscripción restringida se consulta, pero no se crean sucursales nuevas (el detalle está en SubscriptionLimitTests).
+        Assert.Equal(HttpStatusCode.OK, (await tenant.Owner.GetAsync("/api/v1/branches")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await tenant.Owner.PostAsJsonAsync("/api/v1/branches", new { code = "UIO", name = "Quito", timeZone = "America/Guayaquil", sriEstablishmentCode = "001", address = (string?)null })).StatusCode);
         var login = await api.CreateClient().PostAsJsonAsync("/api/v1/auth/login", new { tenantSlug = tenant.Slug, email = tenant.OwnerEmail, password = tenant.OwnerPassword, useCookie = false });
         Assert.Equal(HttpStatusCode.OK, login.StatusCode);
 

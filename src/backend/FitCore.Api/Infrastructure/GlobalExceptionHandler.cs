@@ -47,6 +47,12 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         // Respaldo de la base: dos solicitudes simultáneas no pueden dejar membresías vigentes que se solapan.
         DbUpdateException { InnerException: PostgresException { SqlState: PostgresErrorCodes.ExclusionViolation } } =>
             (StatusCodes.Status409Conflict, "El alumno ya tiene una membresía que coincide con esas fechas.", "memberships.overlap"),
+        // Respaldo de la base para los límites del plan: dos altas simultáneas no pueden pasar el tope contratado ni crear recursos con la
+        // suscripción restringida (el servicio de capacidades avisa antes; esto cubre la carrera).
+        DbUpdateException { InnerException: PostgresException { SqlState: "FC101" } } =>
+            (StatusCodes.Status409Conflict, "Se alcanzó el límite de su plan. Solicite un cambio de plan para agregar más.", "subscription.limit_reached"),
+        DbUpdateException { InnerException: PostgresException { SqlState: "FC102" } } =>
+            (StatusCodes.Status403Forbidden, "Su suscripción está restringida: no se pueden crear recursos nuevos. Regularícela en «Mi suscripción».", "subscription.restricted"),
         DbUpdateConcurrencyException =>
             (StatusCodes.Status409Conflict, "El registro fue modificado por otra persona. Recárguelo e intente de nuevo.", "conflict.concurrency"),
         // Cuerpo ilegible (JSON mal formado, UTF-8 inválido): error del cliente, no del servidor.

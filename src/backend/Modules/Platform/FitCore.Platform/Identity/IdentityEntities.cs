@@ -3,6 +3,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace FitCore.Platform.Identity;
 
+/// <summary>Quién es el titular de la cuenta: el personal del gimnasio o un alumno con acceso a su portal. Solo el personal cuenta para el límite de usuarios internos del plan.</summary>
+public enum AccountKind
+{
+    Staff = 1,
+    Member = 2
+}
+
 public sealed class AppUser : IdentityUser<Guid>, ITenantOwned, IAuditable
 {
     public Guid TenantId { get; set; }
@@ -12,6 +19,8 @@ public sealed class AppUser : IdentityUser<Guid>, ITenantOwned, IAuditable
 
     /// <summary>Clave temporal entregada por el personal: hasta cambiarla, la cuenta no tiene permisos.</summary>
     public bool MustChangePassword { get; set; }
+
+    public AccountKind AccountKind { get; set; } = AccountKind.Staff;
 }
 
 public sealed class AppRole : IdentityRole<Guid>, ITenantOwned, IAuditable

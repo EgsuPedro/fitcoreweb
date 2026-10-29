@@ -187,6 +187,7 @@ app.UseMiddleware<TenantContextMiddleware>();
 app.UseRateLimiter();
 app.UseAuthorization();
 app.UseMiddleware<BranchHeaderMiddleware>();
+app.UseMiddleware<FeatureGateMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -208,6 +209,7 @@ v1.MapAnalyticsEndpoints();
 v1.MapReportsEndpoints();
 v1.MapPlansEndpoints();
 v1.MapSubscriptionsEndpoints();
+v1.MapMySubscriptionEndpoints();
 
 await DatabaseInitializer.InitializeAsync(app.Services, app.Configuration);
 

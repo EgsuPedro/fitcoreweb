@@ -91,6 +91,15 @@ Nunca se eliminan ni desactivan datos por vencimiento. **Suspensión administrat
 - Gimnasio: `subscription.read` (ver plan, consumo, avisos, facturas; propietario y administrador), `subscription.manage` (pedir cambio de plan, cancelar, pedir reactivación; propietario). El propietario **no** puede editar precios ni marcar pagos.
 Las métricas del panel global son **agregados**: no exponen datos personales, clínicos ni financieros de alumnos.
 
+### Bloque 4 — lo implementado
+- **Contrato** en BuildingBlocks (`ICapabilityEvaluator`, `AccessMode`, `CapabilityErrors`); lo implementa Subscriptions. Códigos de error estables: `subscription.limit_reached` (409), `subscription.feature_unavailable` (403), `subscription.restricted` (403), `subscription.not_found` (403: gimnasio sin derechos registrados; falla cerrado). Los mensajes dicen el plan, el límite, el consumo y qué hacer.
+- **Derechos vigentes** `subscriptions.tenant_entitlements` (modo de acceso, funciones, límites): los **deriva un disparador de PostgreSQL** de la suscripción actual del gimnasio (la no cancelada o, si no hay, la última), en la misma transacción. Modo: Trialing/Active → Full; PastDue → Grace; Suspended/Expired/Cancelled → Restricted. Una escritura directa también los actualiza. RLS: lee el propio gimnasio o plataforma; escribe solo plataforma.
+- **Límites bajo concurrencia** (disparadores `BEFORE INSERT`, y al reactivar): `organizations.branches` (sucursales **activas**), `identity.app_users` (usuarios **internos activos**: la columna nueva `account_kind` separa al personal de los alumnos con acceso al portal, que **no** cuentan) y `members.members` (todos los alumnos registrados). Un bloqueo asesor por gimnasio y límite serializa las altas: dos simultáneas nunca pasan el tope (SQLSTATE `FC101`; `FC102` = suscripción restringida; la API los traduce a 409/403). Sin derechos registrados (alta del gimnasio en curso, gimnasio de plataforma) no se bloquea. El **almacenamiento no se mide** todavía: el límite se guarda y se muestra como «sin medir».
+- **Dónde se consulta el servicio:** altas de sucursal (la primera no exige la función `branches`; las siguientes sí, y el límite siempre), de usuario y de alumno; y un **middleware único** (`FeatureGateMiddleware`) que mapea grupos de rutas → función, sin condiciones dispersas: `classes`, `training`, `nutrition` (incluye evaluaciones y objetivos), `extra_storage` (fotos de progreso), `advanced_reports` (`/analytics`, reportes), `exports`, `attendance`, `cash_payments` y `advanced_permissions` (solo escrituras de `/roles`; los roles de plantilla se consultan siempre). **Modo restringido:** las escrituras de `classes`, `training`, `nutrition`, `extra_storage` y `advanced_permissions` se congelan; sus consultas, los reportes, la **exportación**, los **cobros, la caja, las obligaciones y la asistencia de alumnos** siguen funcionando. Crear sucursales, usuarios y alumnos se bloquea en Restricted.
+- **Consumo:** `GET /my/subscription/usage` (permiso `subscription.read`): funciones habilitadas, y por límite: tope, consumo, restante, si se alcanzó y si se mide.
+- **Funciones declarativas (sin punto de control propio todavía):** `members` y `branches` se exigen en el alta; no hay rutas que dependan solo de ellas.
+- **Pasar a un plan menor** no borra nada: lo ya creado queda y las altas se bloquean hasta bajar del límite.
+
 ## Notificaciones comerciales
 Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago confirmado, pago fallido, mora, cambio de plan, cancelación, suspensión, reactivación. `subscriptions.notices` con único anti-duplicado y entrega interna (portal). El `SubscriptionWorker` genera los avisos de calendario (anticipos configurables) de forma idempotente y reintenta los canales externos, que hoy no existen.
 
@@ -100,7 +109,7 @@ Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago conf
 | 1 | Diagnóstico y ADR 0012 | Hecho |
 | 2 | Módulo, catálogo de planes con versiones, funciones y límites; `/platform/plans` | Hecho |
 | 3 | Suscripciones, transiciones, historial, concurrencia y migración de los gimnasios existentes | Hecho |
-| 4 | Servicio de capacidades, derechos vigentes, disparadores de límites y modo de acceso | Pendiente |
+| 4 | Servicio de capacidades, derechos vigentes, disparadores de límites y modo de acceso | Hecho |
 | 5 | Renovaciones, cambios de plan, cancelaciones, prórrogas y vencimientos (`SubscriptionWorker`) | Pendiente |
 | 6 | Cobros comerciales: facturas internas, pagos, intentos, reversiones; separación de pagos de alumnos | Pendiente |
 | 7 | Panel global de plataforma: organizaciones, métricas, notas, auditoría | Pendiente |

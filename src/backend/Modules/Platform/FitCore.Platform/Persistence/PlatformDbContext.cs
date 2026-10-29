@@ -133,6 +133,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             RemoveGlobalUniqueIndex(b.Metadata, nameof(AppUser.NormalizedUserName));
             b.HasAlternateKey(u => new { u.TenantId, u.Id });
             b.Property(u => u.FullName).HasMaxLength(200).IsRequired();
+            b.Property(u => u.AccountKind).HasConversion<string>().HasMaxLength(10).HasDefaultValue(AccountKind.Staff);
             b.HasIndex(u => new { u.TenantId, u.NormalizedEmail }).IsUnique();
             b.HasIndex(u => new { u.TenantId, u.NormalizedUserName }).IsUnique();
             b.HasOne<Tenant>().WithMany().HasForeignKey(u => u.TenantId).OnDelete(DeleteBehavior.Restrict);

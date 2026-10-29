@@ -497,6 +497,111 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                     b.ToTable("subscription_events", "subscriptions");
                 });
 
+            modelBuilder.Entity("FitCore.Subscriptions.Persistence.BranchRef", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_branches");
+
+                    b.ToTable("branches", "organizations", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("FitCore.Subscriptions.Persistence.MemberRef", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_members");
+
+                    b.ToTable("members", "members", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("FitCore.Subscriptions.Persistence.TenantEntitlement", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("AccessMode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("access_mode");
+
+                    b.PrimitiveCollection<string[]>("Features")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("features");
+
+                    b.Property<string>("Limits")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("limits");
+
+                    b.Property<string>("PlanCode")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("plan_code");
+
+                    b.Property<string>("PlanName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("plan_name");
+
+                    b.Property<int>("PlanVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("plan_version");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subscription_id");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("TenantId")
+                        .HasName("pk_tenant_entitlements");
+
+                    b.HasIndex("SubscriptionId")
+                        .HasDatabaseName("ix_tenant_entitlements_subscription_id");
+
+                    b.ToTable("tenant_entitlements", "subscriptions");
+                });
+
             modelBuilder.Entity("FitCore.Subscriptions.Persistence.TenantRef", b =>
                 {
                     b.Property<Guid>("Id")
@@ -532,6 +637,35 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .HasName("pk_tenants");
 
                     b.ToTable("tenants", "organizations", t =>
+                        {
+                            t.ExcludeFromMigrations();
+                        });
+                });
+
+            modelBuilder.Entity("FitCore.Subscriptions.Persistence.UserRef", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountKind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("account_kind");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_app_users");
+
+                    b.ToTable("app_users", "identity", t =>
                         {
                             t.ExcludeFromMigrations();
                         });

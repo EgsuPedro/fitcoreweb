@@ -21,6 +21,12 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
     internal DbSet<PlanLimit> PlanLimits => Set<PlanLimit>();
     internal DbSet<Subscription> Subscriptions => Set<Subscription>();
     internal DbSet<SubscriptionEvent> SubscriptionEvents => Set<SubscriptionEvent>();
+    internal DbSet<TenantEntitlement> Entitlements => Set<TenantEntitlement>();
+
+    // Vistas de solo lectura de otros módulos, para medir el consumo de los límites (RLS y filtro limitan a un solo gimnasio).
+    internal DbSet<BranchRef> Branches => Set<BranchRef>();
+    internal DbSet<UserRef> Users => Set<UserRef>();
+    internal DbSet<MemberRef> Members => Set<MemberRef>();
 
     /// <summary>Gimnasios (solo lectura, sin filtro: el equipo de plataforma los consulta a todos; el aislamiento de las suscripciones lo da RLS).</summary>
     internal DbSet<TenantRef> Tenants => Set<TenantRef>();
@@ -37,6 +43,27 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
         modelBuilder.ApplyConfiguration(new PlanLimitConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionEventConfiguration());
+        modelBuilder.ApplyConfiguration(new TenantEntitlementConfiguration());
+        modelBuilder.Entity<TenantEntitlement>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<BranchRef>(b =>
+        {
+            b.ToTable("branches", "organizations", t => t.ExcludeFromMigrations());
+            b.HasKey(x => x.Id);
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
+        modelBuilder.Entity<UserRef>(b =>
+        {
+            b.ToTable("app_users", "identity", t => t.ExcludeFromMigrations());
+            b.HasKey(x => x.Id);
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
+        modelBuilder.Entity<MemberRef>(b =>
+        {
+            b.ToTable("members", "members", t => t.ExcludeFromMigrations());
+            b.HasKey(x => x.Id);
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
         // Filtro por gimnasio del contexto actual; las operaciones de plataforma (entre gimnasios) usan IgnoreQueryFilters() y la base
         // (RLS) decide: solo el gimnasio «platform» ve y escribe las suscripciones de todos.
         modelBuilder.Entity<Subscription>().HasQueryFilter(x => x.TenantId == CurrentTenantId);

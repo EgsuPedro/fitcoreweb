@@ -104,6 +104,8 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `members.access` | Dar, restablecer, suspender y reactivar el acceso de un alumno a su portal (administrador de sucursal; recepción no lo tiene) |
 | `me.read` | Solo del rol `Alumno`: ver sus propios datos en el portal (`/me/*`) |
 | `platform.taxes.manage` | Solo plataforma: registrar tarifas de IVA por decreto |
+| `subscription.read` | Fase 7: ver el consumo, las funciones y los límites del plan contratado (`GET /my/subscription/usage`). Propietario por defecto; el administrador de sucursal y el resto no |
+| `subscription.manage` | Fase 7: solicitar cambios de plan, cancelación o reactivación de la suscripción propia (las solicitudes llegan en el bloque 8). No permite editar precios, marcar pagos ni cambiar el estado comercial |
 | `platform.plans.read` | Solo plataforma (Fase 7): consultar el catálogo de planes comerciales de FitCore 360 (`GET /platform/plans`, `/catalog`, `/{id}`). No es el permiso `plans.read` de los gimnasios (planes de membresía de alumnos) |
 | `platform.subscriptions.read` | Solo plataforma (Fase 7): consultar la suscripción comercial de un gimnasio, su historial y el listado de suscripciones (`GET /platform/tenants/{id}/subscription`, `…/history`, `GET /platform/subscriptions`) |
 | `platform.subscriptions.manage` | Solo plataforma (Fase 7): asignar un plan, activar una prueba, suspender y reactivar comercialmente (`POST …/subscription`, `…/activate`, `…/suspend`, `…/reactivate`). Distinta de `platform.tenants.manage`, que suspende administrativamente (cierra el acceso) |

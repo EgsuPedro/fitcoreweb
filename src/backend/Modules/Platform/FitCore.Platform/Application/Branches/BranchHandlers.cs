@@ -117,7 +117,7 @@ internal sealed class GetBranchHandler(PlatformDbContext db, IAccessContext acce
     }
 }
 
-internal sealed class CreateBranchHandler(PlatformDbContext db, IAccessContext access, IClock clock)
+internal sealed class CreateBranchHandler(PlatformDbContext db, IAccessContext access, IClock clock, ICapabilityEvaluator capabilities)
     : ICommandHandler<CreateBranchCommand, BranchDto>
 {
     public async Task<Result<BranchDto>> HandleAsync(CreateBranchCommand command, CancellationToken cancellationToken)
@@ -138,6 +138,22 @@ internal sealed class CreateBranchHandler(PlatformDbContext db, IAccessContext a
         if (await db.Branches.AnyAsync(b => b.Code == code, cancellationToken))
         {
             return Error.Conflict("branches.code_taken", "Ya existe una sucursal con ese código.");
+        }
+
+        // La primera sucursal no exige la función «Gestión de sucursales» (multi-sucursal); las siguientes sí. El límite del plan aplica siempre.
+        if (await db.Branches.AnyAsync(b => b.IsActive, cancellationToken))
+        {
+            var multi = await capabilities.RequireFeatureAsync(FitCore.SharedKernel.Capabilities.Features.Branches, isWrite: true, cancellationToken);
+            if (multi.IsFailure)
+            {
+                return multi.Error;
+            }
+        }
+
+        var capacity = await capabilities.RequireCapacityAsync(FitCore.SharedKernel.Capabilities.Limits.Branches, 1, cancellationToken);
+        if (capacity.IsFailure)
+        {
+            return capacity.Error;
         }
 
         var branch = Branch.Create(

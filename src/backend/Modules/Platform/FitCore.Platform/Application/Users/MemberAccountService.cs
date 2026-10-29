@@ -75,6 +75,7 @@ internal sealed class MemberAccountService(
             FullName = fullName.Trim(),
             IsActive = true,
             MustChangePassword = true,
+            AccountKind = AccountKind.Member,
             CreatedAt = clock.UtcNow
         };
 

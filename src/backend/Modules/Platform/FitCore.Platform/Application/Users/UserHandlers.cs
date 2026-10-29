@@ -218,7 +218,8 @@ internal sealed class CreateUserHandler(
     UserManager<AppUser> users,
     IAccessContext access,
     UserAdministration administration,
-    IClock clock) : ICommandHandler<CreateUserCommand, UserDto>
+    IClock clock,
+    ICapabilityEvaluator capabilities) : ICommandHandler<CreateUserCommand, UserDto>
 {
     public async Task<Result<UserDto>> HandleAsync(CreateUserCommand command, CancellationToken cancellationToken)
     {
@@ -236,6 +237,13 @@ internal sealed class CreateUserHandler(
         if (invalid is not null)
         {
             return invalid;
+        }
+
+        // Solo el personal cuenta para el límite del plan; las cuentas de alumnos se crean por otro camino y no cuentan.
+        var capacity = await capabilities.RequireCapacityAsync(FitCore.SharedKernel.Capabilities.Limits.InternalUsers, 1, cancellationToken);
+        if (capacity.IsFailure)
+        {
+            return capacity.Error;
         }
 
         var email = request.Email.Trim();

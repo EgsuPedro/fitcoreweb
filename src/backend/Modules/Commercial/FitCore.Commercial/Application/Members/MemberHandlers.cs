@@ -1,5 +1,7 @@
 using System.Text.RegularExpressions;
 using FitCore.Application.Core;
+using FitCore.Commercial.Application.Memberships;
+using FitCore.Commercial.Application.Settings;
 using FitCore.Commercial.Domain;
 using FitCore.Commercial.Persistence;
 using FitCore.Platform.Application;
@@ -301,7 +303,7 @@ internal sealed class CreateMemberHandler(CommercialDbContext db, IAccessContext
                 request.EmergencyContactPhone,
                 request.EmergencyContactRelationship,
                 request.Notes),
-            DateOnly.FromDateTime(now.UtcDateTime),
+            LocalDates.Today(clock, await MembershipQueries.BranchTimeZoneAsync(db, branch.Value.Id, cancellationToken)),
             currentUser.UserId,
             now);
 

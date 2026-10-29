@@ -222,6 +222,16 @@ Con el gimnasio de práctica `analitica` en http://localhost:4200 (o `ng serve` 
 4. **Exportar CSV** (botón en cada reporte) y **Mis exportaciones**: descarga el archivo y lo vuelve a descargar desde el historial; los archivos vencen a las 24 horas.
 5. **Roles**: un Entrenador ve solo «Mis clases (analítica)»; un rol sin permisos de reportes no ve el menú y la URL directa lo redirige.
 
+## 4b. Medir el rendimiento con volumen (bloque 10)
+
+Solo desarrollo. Crea el gimnasio `volumen` (propietario `dueno@volumen.test`) con 20.000 alumnos, 40.000 membresías, 36.000 pagos, 368.000 entradas y 175.000 reservas, y mide cada endpoint:
+
+```
+node scripts/analytics-volume.mjs --members 20000   # ≈1 min; es repetible (borra y recarga los datos de ese gimnasio)
+node scripts/analytics-perf.mjs --runs 5            # tabla con la mediana por endpoint, a 30 días y a 366 días
+```
+
+Los resultados de referencia están en [informe-fase-6.md](informe-fase-6.md).
+
 ## 5. Qué NO está todavía
-- Exportación a PDF (diferida: no hay biblioteca instalada) y medición de rendimiento con volumen (bloque 10).
-- Medición de rendimiento con volumen y revisión de planes de ejecución: bloque 10.
+- Exportación a PDF (diferida: no hay biblioteca instalada) y tarea periódica que purgue exportaciones vencidas (hoy se purgan al consultar).

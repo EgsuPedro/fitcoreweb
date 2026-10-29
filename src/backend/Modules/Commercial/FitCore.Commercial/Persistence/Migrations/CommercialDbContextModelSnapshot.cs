@@ -767,6 +767,10 @@ namespace FitCore.Commercial.Persistence.Migrations
                     b.HasIndex("TenantId", "PromotionId")
                         .HasDatabaseName("ix_memberships_tenant_id_promotion_id");
 
+                    b.HasIndex("TenantId", "RenewedFromId")
+                        .HasDatabaseName("ix_memberships_tenant_id_renewed_from_id")
+                        .HasFilter("renewed_from_id IS NOT NULL");
+
                     b.HasIndex("TenantId", "MemberId", "StartDate")
                         .HasDatabaseName("ix_memberships_tenant_id_member_id_start_date");
 

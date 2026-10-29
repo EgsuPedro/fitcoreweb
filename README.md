@@ -90,6 +90,8 @@ Con el entorno levantado:
 | Reservas y asistencia a clase (Fase 5) | `GET/POST /class-reservations`, `POST …/{id}/cancel|accept|decline`, `GET /class-attendance` |
 | Portal del alumno: clases (Fase 5) | `GET /me/class-sessions`, `GET/POST /me/class-reservations`, `POST …/{id}/cancel|accept|decline`, `GET /me/class-attendance` |
 | Avisos internos (Fase 5) | `GET /me/notifications` (`/summary`, `PATCH …/{id}/read`, `POST …/read-all`), `GET/PUT /me/notification-preferences` |
+| Dashboard y reportes (Fase 6) | `GET /analytics/context`, `/analytics/dashboard` (+`/comparison`); financieros `GET /reports/financial/collections|payment-methods|outstanding-balances|cash-registers|reversals`; alumnos `GET /reports/members/summary|acquisitions|retention|renewals|expirations`; operación `GET /reports/attendance`, `/reports/classes/occupancy|cancellations`; `GET /reports/branches/comparison`. Filtros comunes: `preset` (Today, Last7Days, Last30Days, CurrentMonth, PreviousMonth, CurrentYear, Custom), `from`/`to`, `branchIds` |
+| Exportaciones CSV (Fase 6) | `POST /reports/exports`, `GET /reports/exports`, `GET /reports/exports/{id}`, `GET …/{id}/download` |
 | Políticas e IVA | `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates` (solo plataforma) |
 
 Errores en `application/problem+json` con un `code` estable; validación con 422 y detalle por campo.
@@ -100,6 +102,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 
 **Fase 5** (completa) (módulo `FitCore.Classes`, [ADR 0010](docs/adr/0010-modulo-classes.md)): clases grupales con reglas configurables, sesiones sueltas y series recurrentes idempotentes, control de superposición y disponibilidad del instructor, reservas con cupo protegido bajo concurrencia, lista de espera con invitación con plazo (la vence y promueve el Worker), asistencia a clase, bandeja de avisos internos con preferencias, calendario de Angular para el personal y sección «Mis clases» en el portal del alumno. **Solo existe el canal interno**: no se envían correos, SMS, WhatsApp ni push (no hay proveedor). Requiere el servicio `worker`. Resumen en [docs/informe-fase-5.md](docs/informe-fase-5.md); validación manual en [docs/guia-pruebas-fase-5.md](docs/guia-pruebas-fase-5.md).
 
+**Fase 6** (completa) (módulo `FitCore.Analytics`, solo lectura, [ADR 0011](docs/adr/0011-modulo-analytics.md)): panel por rol, reportes financieros, de alumnos y membresías, de asistencia y clases, comparación de sucursales y exportación a CSV (24 h de vigencia, tope de 20.000 filas), con 46 indicadores definidos ([catálogo](docs/analytics-indicadores.md)). Todo se calcula en PostgreSQL con los datos reales, filtrado por el alcance del usuario en el servidor; no hay cachés ni tablas de resumen. Lo cobrado **no** es utilidad. Exportación a PDF diferida. Resumen en [docs/informe-fase-6.md](docs/informe-fase-6.md); validación manual en [docs/guia-pruebas-fase-6.md](docs/guia-pruebas-fase-6.md).
+
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
 - [Arquitectura](docs/architecture.md): estructura, auditoría, primer administrador, configuración y ambientes
@@ -109,6 +113,9 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 - [Informe de la Fase 4](docs/informe-fase-4.md): bienestar, privacidad, migraciones, endpoints, pruebas y pendientes
 - [Informe de la Fase 5](docs/informe-fase-5.md): clases, reservas, espera, asistencia, avisos, pruebas y pendientes
 - [Guía de pruebas de la Fase 5](docs/guia-pruebas-fase-5.md): validación manual pantalla por pantalla
+- [Informe de la Fase 6](docs/informe-fase-6.md): analítica, reglas, rendimiento medido, pruebas y pendientes
+- [Indicadores de analítica](docs/analytics-indicadores.md): definición de cada indicador
+- [Guía de pruebas de la Fase 6](docs/guia-pruebas-fase-6.md): validación manual con datos de práctica
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación
 

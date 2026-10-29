@@ -104,7 +104,7 @@ Proyección de las columnas necesarias, agregaciones en PostgreSQL, sin N+1, fil
 | 7 | Comparación entre sucursales (`/reports/branches/comparison`) | Hecho |
 | 8 | Exportaciones CSV (migración `report_exports`, vencimiento, descarga protegida) | Hecho |
 | 9 | Angular: dashboard, reportes, comparación, exportaciones | Hecho |
-| 10 | Rendimiento medido, regresión, documentación e informe de la fase | Pendiente |
+| 10 | Rendimiento medido, regresión, documentación e informe de la fase | Hecho |
 
 ## Dependencias y límites ya conocidos
 - **PDF:** requiere una biblioteca (p. ej. QuestPDF) y decisión de licencia; diferido.

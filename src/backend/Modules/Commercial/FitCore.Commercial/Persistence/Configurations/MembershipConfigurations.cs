@@ -35,6 +35,8 @@ internal sealed class MembershipConfiguration : IEntityTypeConfiguration<Members
 
         b.HasIndex(x => new { x.TenantId, x.MemberId, x.StartDate });
         b.HasIndex(x => new { x.TenantId, x.BranchId, x.Status, x.EndDate });
+        // Lo usan las renovaciones («¿existe una membresía que renueve a esta?») y los reportes de analítica; sin él cada consulta recorre toda la tabla.
+        b.HasIndex(x => new { x.TenantId, x.RenewedFromId }).HasFilter("renewed_from_id IS NOT NULL");
     }
 }
 

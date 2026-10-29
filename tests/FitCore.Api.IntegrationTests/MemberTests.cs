@@ -79,7 +79,8 @@ public class MemberTests(ApiFixture api)
         Assert.Equal("ana.perez@correo.test", member.Email);
         Assert.Equal("Active", member.Status);
         Assert.Equal(branch, member.BranchId);
-        Assert.Equal(DateOnly.FromDateTime(DateTime.UtcNow), member.EnrolledOn);
+        // La fecha de alta es la local de la sucursal (Ecuador, UTC-5), no la UTC: entre las 19:00 y las 24:00 son días distintos.
+        Assert.Equal(DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-5)), member.EnrolledOn);
         var users = await tenant.Owner.GetFromJsonAsync<PagedDto<UserDto>>("/api/v1/users");
         Assert.Equal(users!.Items.Single(u => u.Email == tenant.OwnerEmail).Id, member.CreatedBy);
 

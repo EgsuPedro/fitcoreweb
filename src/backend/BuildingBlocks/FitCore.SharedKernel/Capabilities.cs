@@ -1,7 +1,7 @@
 namespace FitCore.SharedKernel;
 
 /// <summary>
-/// Catálogo de capacidades comerciales de FitCore 360 (ADR 0012). Son códigos estables: los planes los combinan y los módulos de negocio
+/// Catálogo de capacidades comerciales de FIT360 (ADR 0012). Son códigos estables: los planes los combinan y los módulos de negocio
 /// los consultan por código, nunca por el nombre del plan. Agregar una capacidad nueva es agregar una fila aquí; las reglas de autorización
 /// y los planes no se reescriben.
 /// </summary>

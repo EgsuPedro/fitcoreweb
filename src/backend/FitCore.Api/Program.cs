@@ -177,8 +177,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(options =>
     {
         options.RoutePrefix = "swagger";
-        options.SwaggerEndpoint("/openapi/v1.json", "FitCore 360 v1");
-        options.DocumentTitle = "FitCore 360 - API";
+        options.SwaggerEndpoint("/openapi/v1.json", "FIT360 v1");
+        options.DocumentTitle = "FIT360 - API";
     });
 }
 

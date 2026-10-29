@@ -2590,7 +2590,7 @@
     },
     "organizations": {
       "title": "Organizaciones clientes",
-      "subtitle": "Gimnasios que contratan FitCore 360: plan, estado, vencimientos y consumo agregado. Nunca datos de sus alumnos.",
+      "subtitle": "Gimnasios que contratan FIT360: plan, estado, vencimientos y consumo agregado. Nunca datos de sus alumnos.",
       "filters": "Filtros",
       "searchHint": "Nombre o identificador",
       "tenantStatus": "Estado administrativo",
@@ -2606,7 +2606,7 @@
     },
     "plans": {
       "title": "Planes comerciales",
-      "subtitle": "Lo que FitCore 360 le vende a un gimnasio. No son las membresías que el gimnasio vende a sus alumnos.",
+      "subtitle": "Lo que FIT360 le vende a un gimnasio. No son las membresías que el gimnasio vende a sus alumnos.",
       "new": "Nuevo plan",
       "edit": "Editar plan",
       "plan": "Plan",
@@ -2673,7 +2673,7 @@
     },
     "billing": {
       "title": "Cobros comerciales",
-      "subtitle": "Facturas internas, pagos y resumen de lo que FitCore 360 le cobra a los gimnasios.",
+      "subtitle": "Facturas internas, pagos y resumen de lo que FIT360 le cobra a los gimnasios.",
       "runLifecycle": "Ejecutar vencimientos ahora",
       "notice": "Los documentos son internos: no son comprobantes tributarios. No hay cobro automático: los pagos se registran con la referencia del comprobante.",
       "summary": "Resumen de cobros",
@@ -2848,7 +2848,7 @@
       "configured": "Configurado",
       "notConfigured": "Sin proveedor",
       "notConfiguredHint": "No hay un proveedor de pagos configurado: los webhooks se rechazan y todos los pagos se registran a mano. Para activarlo se define el secreto de firma en la configuración del servidor (nunca en el repositorio).",
-      "hint": "Solo se aceptan avisos firmados por el proveedor. El importe y la moneda deben coincidir exactamente con la factura emitida; lo que no concuerda no cambia nada y queda aquí como rechazado para revisarlo a mano. FitCore 360 no guarda datos de tarjeta.",
+      "hint": "Solo se aceptan avisos firmados por el proveedor. El importe y la moneda deben coincidir exactamente con la factura emitida; lo que no concuerda no cambia nada y queda aquí como rechazado para revisarlo a mano. FIT360 no guarda datos de tarjeta.",
       "endpoint": "Dirección de avisos",
       "header": "Encabezado de la firma",
       "tolerance": "Tolerancia de la marca de tiempo",
@@ -2882,7 +2882,7 @@
   },
   "mySubscription": {
     "title": "Mi suscripción",
-    "subtitle": "Lo que contrató con FitCore 360: plan, período, consumo, facturas y avisos. Para cambiar algo, haga una solicitud.",
+    "subtitle": "Lo que contrató con FIT360: plan, período, consumo, facturas y avisos. Para cambiar algo, haga una solicitud.",
     "tabs": {
       "label": "Secciones",
       "summary": "Resumen",
@@ -2907,7 +2907,7 @@
     "openInvoice": "Factura por pagar",
     "dueOn": "vence",
     "overdue": "Vencida",
-    "howToPay": "No hay cobro en línea: pague por transferencia o en efectivo con su ejecutivo de FitCore 360 y el pago se registra con la referencia del comprobante. Nunca nos envíe datos de tarjeta.",
+    "howToPay": "No hay cobro en línea: pague por transferencia o en efectivo con su ejecutivo de FIT360 y el pago se registra con la referencia del comprobante. Nunca nos envíe datos de tarjeta.",
     "requestsPending": "Solicitudes pendientes",
     "noPending": "No tiene solicitudes pendientes.",
     "kind": {
@@ -2919,7 +2919,7 @@
     "askChange": "Pedir un cambio de plan",
     "askCancel": "Pedir la cancelación",
     "askReactivate": "Pedir la reactivación",
-    "requestHint": "Una solicitud no cambia su contrato por sí sola: el equipo de FitCore 360 la revisa y le responde. Verá la respuesta aquí.",
+    "requestHint": "Una solicitud no cambia su contrato por sí sola: el equipo de FIT360 la revisa y le responde. Verá la respuesta aquí.",
     "limits": "Límites de su plan",
     "notMeasured": "sin medir",
     "unlimited": "sin límite",

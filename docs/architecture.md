@@ -3,7 +3,7 @@
 Resumen de las decisiones aprobadas. El detalle y la justificación están en `docs/adr/`.
 
 ## Visión
-FitCore 360 es un SaaS multiempresa para administrar gimnasios y sus sucursales (Ecuador, USD, SRI). Monolito modular con Clean Architecture: un único despliegue de API y un Worker, con módulos de límites estrictos (ADR 0001). Cliente web Angular; app móvil Flutter más adelante.
+FIT360 es un SaaS multiempresa para administrar gimnasios y sus sucursales (Ecuador, USD, SRI). Monolito modular con Clean Architecture: un único despliegue de API y un Worker, con módulos de límites estrictos (ADR 0001). Cliente web Angular; app móvil Flutter más adelante.
 
 ## Estructura (y por qué difiere del prompt de la Fase 1)
 El prompt sugería `FitCore360.Domain/Application/Infrastructure/API`. La Fase 0 aprobó un **monolito modular**, donde cada módulo contiene sus propias capas, en lugar de cuatro proyectos globales:

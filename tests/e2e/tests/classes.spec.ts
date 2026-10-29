@@ -170,6 +170,9 @@ test.describe.serial('clases grupales', () => {
 
     // El Worker procesa la outbox cada pocos segundos: se reintenta hasta que llegue el aviso.
     await trainerPage.goto('/inbox');
+    // Hay que esperar a que la sesión termine de restaurarse antes de recargar: recargar a mitad del refresh descarta la respuesta (que rota la cookie)
+    // y el siguiente intento llega con una cookie ya usada, que el servidor revoca por seguridad.
+    await expect(nav(trainerPage)).toBeVisible();
     await expect(async () => {
       await trainerPage.reload();
       await expect(trainerPage.getByText('Sesión cancelada', { exact: true }).first()).toBeVisible({ timeout: 2_000 });

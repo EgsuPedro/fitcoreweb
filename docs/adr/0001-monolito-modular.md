@@ -3,7 +3,7 @@
 **Estado:** Aprobado (Fase 0)
 
 ## Contexto
-FitCore 360 tiene un dominio financiero que exige transacciones ACID entre módulos (pago, asignación, caja, asiento contable) y un equipo pequeño.
+FIT360 tiene un dominio financiero que exige transacciones ACID entre módulos (pago, asignación, caja, asiento contable) y un equipo pequeño.
 
 ## Decisión
 Un solo despliegue de API y un Worker, sobre una base PostgreSQL, divididos internamente en módulos con límites estrictos:

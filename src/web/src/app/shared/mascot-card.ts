@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 
 /**
  * Tarjeta de bienvenida con la mascota «Fiti». Presentacional: recibe el saludo, el texto guía y la etiqueta de la acción principal ya traducidos
- * y avisa con `action` cuando se pulsa el botón. La imagen es estática y liviana; el espacio queda listo para sustituirla por una animación
- * (Lottie o GIF) cuando exista, sin tocar quien usa la tarjeta.
+ * y avisa con `action` cuando se pulsa el botón. La mascota es una animación (GIF) y, para quien pide menos movimiento, una imagen fija.
+ * Cuando exista una versión más liviana (MP4/WebM o Lottie) se cambia aquí sin tocar quien usa la tarjeta.
  */
 @Component({
   selector: 'fc-mascot-card',
@@ -17,7 +17,11 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
           <button type="button" class="btn btn-primary" (click)="action.emit()">{{ actionLabel() }}</button>
         }
       </div>
-      <img class="mascot-figure" src="brand/fiti.png" alt="" width="212" height="275" loading="lazy" decoding="async" />
+      <!-- Animación de Fiti (GIF); con «reducir movimiento» activado en el sistema se muestra la imagen fija. -->
+      <picture>
+        <source media="(prefers-reduced-motion: reduce)" srcset="brand/fiti.png" />
+        <img class="mascot-figure animated" src="brand/fiti-animado.gif" alt="" width="388" height="692" loading="lazy" decoding="async" />
+      </picture>
     </section>
   `,
 })

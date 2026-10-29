@@ -6,7 +6,7 @@ using FitCore.Subscriptions.Application.Plans;
 namespace FitCore.Api.Endpoints;
 
 /// <summary>
-/// Planes comerciales de FitCore 360 (lo que la plataforma le vende a un gimnasio). Solo el equipo de plataforma: los permisos
+/// Planes comerciales de FIT360 (lo que la plataforma le vende a un gimnasio). Solo el equipo de plataforma: los permisos
 /// <c>platform.plans.*</c> no se pueden asignar fuera del gimnasio «platform». No tienen relación con <c>/membership-plans</c>.
 /// </summary>
 internal static class PlansEndpoints

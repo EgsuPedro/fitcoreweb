@@ -1,4 +1,4 @@
-# FitCore 360
+# FIT360
 
 Plataforma SaaS para la administración integral de gimnasios (Ecuador, USD).
 

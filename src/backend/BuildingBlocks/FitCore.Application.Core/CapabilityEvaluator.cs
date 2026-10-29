@@ -50,5 +50,5 @@ public static class CapabilityErrors
         $"Su suscripción está {statusText}: puede consultar y exportar sus datos, pero no crear nuevos recursos ni modificar esta función. Regularice su suscripción en «Mi suscripción».");
 
     public static readonly Error None = Error.Forbidden(
-        NoSubscription, "El gimnasio no tiene una suscripción comercial vigente. Contacte a FitCore 360.");
+        NoSubscription, "El gimnasio no tiene una suscripción comercial vigente. Contacte a FIT360.");
 }

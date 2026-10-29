@@ -13,7 +13,7 @@ import { ToastService } from '../../shared/toast';
 import { emptyToNull, isFree, parseAmount, parseLimit } from './platform-math';
 
 /**
- * Catálogo de planes comerciales de FitCore 360 (lo que la plataforma le vende a un gimnasio; no son las membresías de los alumnos). Cada cambio de
+ * Catálogo de planes comerciales de FIT360 (lo que la plataforma le vende a un gimnasio; no son las membresías de los alumnos). Cada cambio de
  * precio, periodicidad, prueba, límites o funciones crea una versión nueva: las suscripciones existentes conservan la suya. Un plan no se borra: se desactiva.
  */
 @Component({

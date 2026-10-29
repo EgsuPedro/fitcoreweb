@@ -18,7 +18,7 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
       <aside class="sidebar">
         <div class="sidebar-brand">
           <img class="brand-logo" src="brand/logo.png" alt="" width="381" height="328" />
-          <span class="sr-only">FitCore 360</span>
+          <span class="sr-only">FIT360</span>
         </div>
         <nav [attr.aria-label]="'nav.label' | transloco">
           @for (item of items(); track item.path) {

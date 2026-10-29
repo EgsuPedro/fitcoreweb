@@ -6,7 +6,7 @@ using Npgsql;
 
 namespace FitCore.Api.IntegrationTests;
 
-/// <summary>Catálogo de planes comerciales de FitCore 360 (módulo Subscriptions): versiones, límites, funciones, auditoría y aislamiento.</summary>
+/// <summary>Catálogo de planes comerciales de FIT360 (módulo Subscriptions): versiones, límites, funciones, auditoría y aislamiento.</summary>
 [Collection(ApiCollection3.Name)]
 public class SubscriptionPlanTests(ApiFixture api)
 {

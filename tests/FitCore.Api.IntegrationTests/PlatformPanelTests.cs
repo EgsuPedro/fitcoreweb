@@ -6,7 +6,7 @@ using Npgsql;
 
 namespace FitCore.Api.IntegrationTests;
 
-/// <summary>Panel global de FitCore 360: organizaciones, consumo agregado, notas, actividad administrativa y métricas, con mínimo privilegio.</summary>
+/// <summary>Panel global de FIT360: organizaciones, consumo agregado, notas, actividad administrativa y métricas, con mínimo privilegio.</summary>
 [Collection(ApiCollection2.Name)]
 public class PlatformPanelTests(ApiFixture api)
 {

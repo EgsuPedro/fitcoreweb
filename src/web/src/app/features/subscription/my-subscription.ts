@@ -31,7 +31,7 @@ interface Asking {
 }
 
 /**
- * «Mi suscripción»: lo que el gimnasio contrató con FitCore 360 (plan, período, consumo, facturas, avisos). El gimnasio <b>no cambia</b> su contrato aquí:
+ * «Mi suscripción»: lo que el gimnasio contrató con FIT360 (plan, período, consumo, facturas, avisos). El gimnasio <b>no cambia</b> su contrato aquí:
  * pide un cambio de plan, la cancelación o la reactivación, y el equipo de plataforma lo aprueba o lo rechaza con una razón. No hay cobro en línea ni
  * se guardan datos de tarjeta; los documentos son internos, no comprobantes tributarios.
  */

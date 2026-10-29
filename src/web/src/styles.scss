@@ -1,4 +1,4 @@
-// Estilos globales de FitCore 360. Sin librería de UI: tokens CSS + clases utilitarias de componentes.
+// Estilos globales de FIT360. Sin librería de UI: tokens CSS + clases utilitarias de componentes.
 
 // Tipografía de la marca, autoalojada desde el paquete (sin CDN, funciona sin internet y respeta la CSP).
 @import '@fontsource/inter/latin-400.css';
@@ -1383,9 +1383,21 @@ fieldset.field {
     padding: 1.5rem 1.25rem 1rem;
     margin-bottom: 0;
 
-    .mascot-figure {
+    picture {
       order: -1;
+    }
+
+    .mascot-figure {
       height: 15rem;
+    }
+
+    // La animación trae su propio fondo (un gimnasio): se muestra como una ventana con esquinas redondeadas.
+    .mascot-figure.animated {
+      height: auto;
+      width: 13rem;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 14px rgb(15 118 110 / 22%);
+      filter: none;
     }
 
     .mascot-text {
@@ -1403,9 +1415,17 @@ fieldset.field {
       border-top-width: 1px;
       border-left-width: 5px;
 
-      .mascot-figure {
+      picture {
         order: 0;
+      }
+
+      .mascot-figure {
         height: 11rem;
+      }
+
+      .mascot-figure.animated {
+        height: 11rem;
+        width: auto;
       }
     }
   }
@@ -1467,4 +1487,12 @@ fieldset.field {
   display: block;
   color: var(--danger);
   font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  // Con movimiento reducido se muestra la imagen fija (transparente): sin marco ni sombra de «ventana».
+  .mascot-card .mascot-figure.animated {
+    border-radius: 0;
+    box-shadow: none;
+  }
 }

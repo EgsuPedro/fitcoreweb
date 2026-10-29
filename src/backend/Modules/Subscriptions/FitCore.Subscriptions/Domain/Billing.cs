@@ -23,7 +23,7 @@ public enum InvoiceKind
 
 /// <summary>
 /// Medios de pago que se registran a mano. El pago con tarjeta solo existirá a través de un proveedor de pagos (que guarda el número y el CVV):
-/// FitCore 360 nunca los almacena.
+/// FIT360 nunca los almacena.
 /// </summary>
 public enum SubscriptionPaymentMethod
 {
@@ -34,13 +34,13 @@ public enum SubscriptionPaymentMethod
 }
 
 /// <summary>
-/// Documento interno de cobro de una suscripción comercial: lo que FitCore 360 le cobra a un gimnasio por un período. <b>No es un comprobante
+/// Documento interno de cobro de una suscripción comercial: lo que FIT360 le cobra a un gimnasio por un período. <b>No es un comprobante
 /// tributario</b> y no tiene relación con los pagos que un gimnasio recibe de sus alumnos (<c>billing.payments</c>). El importe y la moneda
 /// se copian de la suscripción al emitirlo y no cambian.
 /// </summary>
 public sealed class SubscriptionInvoice : IAuditable
 {
-    public const string Notice = "Comprobante interno de cobro de FitCore 360. No es un comprobante tributario.";
+    public const string Notice = "Comprobante interno de cobro de FIT360. No es un comprobante tributario.";
 
     public Guid Id { get; init; }
     public string Number { get; init; } = string.Empty;

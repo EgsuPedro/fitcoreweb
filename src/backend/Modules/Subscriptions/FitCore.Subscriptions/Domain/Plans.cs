@@ -48,7 +48,7 @@ public sealed record PlanTerms(
 }
 
 /// <summary>
-/// Plan comercial de FitCore 360 (lo que la plataforma le vende a un gimnasio; no tiene relación con las membresías que el gimnasio
+/// Plan comercial de FIT360 (lo que la plataforma le vende a un gimnasio; no tiene relación con las membresías que el gimnasio
 /// vende a sus alumnos). El código es único y estable. Un plan nunca se borra: se desactiva, y las condiciones viven en
 /// <see cref="PlanVersion"/> para que los cambios de precio no alteren a quien ya contrató.
 /// </summary>

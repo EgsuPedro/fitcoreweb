@@ -165,7 +165,7 @@ public static class DatabaseInitializer
         var result = await provisioning.ProvisionAsync(
             new CreateTenantRequest(
                 Tenant.PlatformSlug,
-                "FitCore 360 (plataforma)",
+                "FIT360 (plataforma)",
                 Tenant.DefaultTimeZone,
                 Tenant.DefaultLocale,
                 bootstrap.AdminEmail,

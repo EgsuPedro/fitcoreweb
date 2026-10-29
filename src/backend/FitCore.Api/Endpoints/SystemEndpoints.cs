@@ -11,7 +11,7 @@ internal static class SystemEndpoints
     {
         routes.MapGet("/system/info", (IWebHostEnvironment env, IClock clock) =>
                 new SystemInfoResponse(
-                    "FitCore 360",
+                    "FIT360",
                     Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "0.0.0",
                     env.EnvironmentName,
                     clock.UtcNow))

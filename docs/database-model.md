@@ -119,7 +119,7 @@ Migraciones propias, con su historial en `classes.__ef_migrations_history`. Mism
 | classes | `idempotency_keys` | Respuesta guardada de cada solicitud con `Idempotency-Key` (clave por gimnasio): repetirla devuelve la misma reserva |
 
 ## Módulo de suscripciones SaaS (Fase 7, `SubscriptionsDbContext`, esquema `subscriptions`)
-Lo que **FitCore 360 le vende a un gimnasio**; no tiene relación con las membresías ni los pagos de alumnos (`members`, `billing`). Historial de migraciones en `subscriptions.__ef_migrations_history` (`InitialSubscriptions` → `AddSubscriptionsSecurity`). Los planes son **globales** (sin `tenant_id`); lo que dependa de un gimnasio llevará `tenant_id` y RLS forzada.
+Lo que **FIT360 le vende a un gimnasio**; no tiene relación con las membresías ni los pagos de alumnos (`members`, `billing`). Historial de migraciones en `subscriptions.__ef_migrations_history` (`InitialSubscriptions` → `AddSubscriptionsSecurity`). Los planes son **globales** (sin `tenant_id`); lo que dependa de un gimnasio llevará `tenant_id` y RLS forzada.
 
 | Esquema | Tabla | Contenido |
 |---|---|---|

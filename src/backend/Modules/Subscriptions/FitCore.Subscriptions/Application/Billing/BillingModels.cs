@@ -77,7 +77,7 @@ internal static class BillingErrors
     public static readonly Error KeyRequired = Error.Validation("billing.idempotency_key_required", "Esta operación exige el encabezado Idempotency-Key.");
     public static readonly Error KeyReused = Error.Conflict("billing.idempotency_key_reused", "Esa clave de idempotencia ya se usó en otra operación.");
     public static readonly Error AmountMismatch = Error.Validation("billing.amount_mismatch", "El importe o la moneda no coinciden con los de la factura.");
-    public static readonly Error CardNotManual = Error.Validation("billing.card_requires_provider", "El pago con tarjeta solo se registra a través de un proveedor de pagos: FitCore 360 no guarda datos de tarjeta.");
+    public static readonly Error CardNotManual = Error.Validation("billing.card_requires_provider", "El pago con tarjeta solo se registra a través de un proveedor de pagos: FIT360 no guarda datos de tarjeta.");
     public static readonly Error CardDataRejected = Error.Validation("billing.card_data_rejected", "El texto parece contener un número de tarjeta. No escriba datos de tarjeta: use la referencia del comprobante.");
     public static readonly Error FutureDate = Error.Validation("billing.paid_at_future", "La fecha de pago no puede ser futura.");
 }

@@ -23,7 +23,7 @@ const OUTCOMES = ['Applied', 'Rejected', 'Ignored'] as const;
 const STATUSES = ['Pending', 'Failed', 'Paid', 'Void', 'Refunded', 'PartiallyRefunded'] as const;
 
 /**
- * Cobros comerciales de FitCore 360: facturas internas (no tributarias), pagos y resumen. Cobrar, anular y reembolsar se hacen desde la ficha de cada
+ * Cobros comerciales de FIT360: facturas internas (no tributarias), pagos y resumen. Cobrar, anular y reembolsar se hacen desde la ficha de cada
  * organización (el reembolso, aquí, sobre el pago). Lo emitido, lo cobrado, lo reembolsado y lo pendiente son sumas distintas y se rotulan aparte.
  */
 @Component({

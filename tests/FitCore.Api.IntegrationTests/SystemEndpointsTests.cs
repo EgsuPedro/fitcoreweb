@@ -42,7 +42,7 @@ public class SystemEndpointsTests : IClassFixture<WebApplicationFactory<Program>
         response.EnsureSuccessStatusCode();
         var body = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
         Assert.NotNull(body);
-        Assert.Equal("FitCore 360", body["name"].ToString());
+        Assert.Equal("FIT360", body["name"].ToString());
         Assert.True(body.ContainsKey("utcNow"));
     }
 

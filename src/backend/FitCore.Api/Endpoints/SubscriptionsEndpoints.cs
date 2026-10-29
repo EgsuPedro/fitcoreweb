@@ -6,7 +6,7 @@ using FitCore.Subscriptions.Application.Subscriptions;
 namespace FitCore.Api.Endpoints;
 
 /// <summary>
-/// Suscripciones comerciales de los gimnasios (administración de la plataforma). Es el contrato de uso de FitCore 360, no las membresías
+/// Suscripciones comerciales de los gimnasios (administración de la plataforma). Es el contrato de uso de FIT360, no las membresías
 /// de los alumnos. <c>/platform/tenants/{id}/suspend</c> sigue siendo la suspensión administrativa (cierra el acceso); la suspensión
 /// <i>comercial</i> es <c>/subscription/suspend</c> y no cierra la sesión.
 /// </summary>

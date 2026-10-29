@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace FitCore.Api.Endpoints;
 
 /// <summary>
-/// Cobros comerciales de FitCore 360 (lo que la plataforma le cobra a un gimnasio por su suscripción). Dominio aparte de los pagos que un gimnasio
+/// Cobros comerciales de FIT360 (lo que la plataforma le cobra a un gimnasio por su suscripción). Dominio aparte de los pagos que un gimnasio
 /// recibe de sus alumnos. Los documentos son internos: no son comprobantes tributarios. Las operaciones que mueven dinero exigen <c>Idempotency-Key</c>.
 /// </summary>
 internal static class BillingEndpoints

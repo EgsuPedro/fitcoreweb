@@ -37,7 +37,7 @@ public enum ProviderEventType
     PaymentRefunded = 3
 }
 
-/// <summary>Lo que el proveedor comunica, ya verificado y traducido al lenguaje de FitCore 360. No contiene datos de tarjeta.</summary>
+/// <summary>Lo que el proveedor comunica, ya verificado y traducido al lenguaje de FIT360. No contiene datos de tarjeta.</summary>
 public sealed record ProviderNotification(
     string ExternalEventId, ProviderEventType Type, string InvoiceNumber, string? ProviderReference, decimal Amount, string Currency, DateTimeOffset OccurredAt, string? FailureReason);
 
@@ -59,7 +59,7 @@ public interface IPaymentProviderGateway
 }
 
 /// <summary>
-/// Contrato de webhook firmado de FitCore 360: encabezado <c>X-FitCore-Signature: t=&lt;segundos unix&gt;,v1=&lt;hex&gt;</c> donde <c>v1 = HMAC-SHA256(secreto, "t.cuerpo")</c>.
+/// Contrato de webhook firmado de FIT360: encabezado <c>X-FitCore-Signature: t=&lt;segundos unix&gt;,v1=&lt;hex&gt;</c> donde <c>v1 = HMAC-SHA256(secreto, "t.cuerpo")</c>.
 /// La marca de tiempo va dentro de lo firmado (no se puede reutilizar una firma con otra hora), se rechaza fuera de tolerancia y la comparación es de tiempo
 /// constante. Cuerpo JSON: <c>{ "id", "type": "payment.succeeded|payment.failed|payment.refunded", "occurredAt", "data": { "invoiceNumber", "providerReference", "amount", "currency", "failureReason" } }</c>.
 /// Un adaptador de un proveedor concreto reemplaza esta clase con su propio esquema.

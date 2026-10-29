@@ -2,11 +2,11 @@
 
 Corresponde a la «FASE 6» del prompt del usuario (nuestra numeración: 7). Módulo `FitCore.Subscriptions` (esquema `subscriptions`). Decisiones, reglas y detalle por bloque: [ADR 0012](adr/0012-modulo-subscriptions.md). Validación manual con datos: [guia-pruebas-fase-7.md](guia-pruebas-fase-7.md).
 
-**Regla principal de la fase:** lo que FitCore 360 le vende a un gimnasio (suscripciones comerciales) es **otro dominio** que lo que el gimnasio le cobra a sus alumnos (`members.*`, `billing.*`), y ningún cambio comercial corrompe las operaciones de los gimnasios ni de otro gimnasio.
+**Regla principal de la fase:** lo que FIT360 le vende a un gimnasio (suscripciones comerciales) es **otro dominio** que lo que el gimnasio le cobra a sus alumnos (`members.*`, `billing.*`), y ningún cambio comercial corrompe las operaciones de los gimnasios ni de otro gimnasio.
 
 ## Lo que NO existe (dicho sin rodeos)
 - **No hay cobro automático.** Ninguna suscripción de pago se renueva sola: queda en mora hasta que la plataforma registra el pago (a mano o por el webhook del proveedor).
-- **No hay proveedor de pagos real ni simulado.** Existe el puerto (`IPaymentProviderGateway`) y un verificador de webhooks firmados con un contrato propio de FitCore 360; ningún adaptador de una pasarela concreta. Sin secreto configurado, los webhooks se rechazan con 503.
+- **No hay proveedor de pagos real ni simulado.** Existe el puerto (`IPaymentProviderGateway`) y un verificador de webhooks firmados con un contrato propio de FIT360; ningún adaptador de una pasarela concreta. Sin secreto configurado, los webhooks se rechazan con 503.
 - **No hay facturación tributaria.** Los documentos son «comprobantes internos de cobro»; la facturación electrónica del SRI es una fase independiente.
 - **No hay avisos por correo, SMS ni WhatsApp.** Solo avisos internos en el portal y un banner.
 - **No hay prorrateo.** Una mejora de plan entra de inmediato sin cobrar ni acreditar la diferencia; una baja se aplica al terminar el período.

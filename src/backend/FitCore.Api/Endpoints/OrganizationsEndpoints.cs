@@ -6,7 +6,7 @@ using FitCore.Subscriptions.Application.Organizations;
 namespace FitCore.Api.Endpoints;
 
 /// <summary>
-/// Panel global de FitCore 360: organizaciones clientes, notas, actividad administrativa y métricas agregadas. Solo el equipo de plataforma, con el mínimo
+/// Panel global de FIT360: organizaciones clientes, notas, actividad administrativa y métricas agregadas. Solo el equipo de plataforma, con el mínimo
 /// privilegio: ve el contrato, el cobro y conteos de consumo de cada gimnasio, nunca los datos personales ni clínicos ni financieros de sus alumnos.
 /// (Las rutas de <c>/platform/tenants</c> siguen siendo el alta y la suspensión administrativa.)
 /// </summary>

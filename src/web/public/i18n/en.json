@@ -2590,7 +2590,7 @@
     },
     "organizations": {
       "title": "Client organizations",
-      "subtitle": "Gyms that use FitCore 360: plan, status, due dates and aggregate usage. Never their members' data.",
+      "subtitle": "Gyms that use FIT360: plan, status, due dates and aggregate usage. Never their members' data.",
       "filters": "Filters",
       "searchHint": "Name or identifier",
       "tenantStatus": "Administrative status",
@@ -2606,7 +2606,7 @@
     },
     "plans": {
       "title": "Commercial plans",
-      "subtitle": "What FitCore 360 sells to a gym. They are not the memberships a gym sells to its members.",
+      "subtitle": "What FIT360 sells to a gym. They are not the memberships a gym sells to its members.",
       "new": "New plan",
       "edit": "Edit plan",
       "plan": "Plan",
@@ -2673,7 +2673,7 @@
     },
     "billing": {
       "title": "Commercial billing",
-      "subtitle": "Internal invoices, payments and summary of what FitCore 360 charges gyms.",
+      "subtitle": "Internal invoices, payments and summary of what FIT360 charges gyms.",
       "runLifecycle": "Run expirations now",
       "notice": "Documents are internal: they are not tax documents. There is no automatic charging: payments are recorded with the receipt reference.",
       "summary": "Billing summary",
@@ -2848,7 +2848,7 @@
       "configured": "Configured",
       "notConfigured": "No provider",
       "notConfiguredHint": "No payment provider is configured: webhooks are rejected and every payment is recorded by hand. To enable it, define the signing secret in the server configuration (never in the repository).",
-      "hint": "Only notifications signed by the provider are accepted. The amount and currency must match the issued invoice exactly; anything that does not match changes nothing and is listed here as rejected for manual review. FitCore 360 does not store card data.",
+      "hint": "Only notifications signed by the provider are accepted. The amount and currency must match the issued invoice exactly; anything that does not match changes nothing and is listed here as rejected for manual review. FIT360 does not store card data.",
       "endpoint": "Notification address",
       "header": "Signature header",
       "tolerance": "Timestamp tolerance",
@@ -2882,7 +2882,7 @@
   },
   "mySubscription": {
     "title": "My subscription",
-    "subtitle": "What you subscribed to with FitCore 360: plan, period, usage, invoices and notices. To change anything, make a request.",
+    "subtitle": "What you subscribed to with FIT360: plan, period, usage, invoices and notices. To change anything, make a request.",
     "tabs": {
       "label": "Sections",
       "summary": "Summary",
@@ -2907,7 +2907,7 @@
     "openInvoice": "Invoice to pay",
     "dueOn": "due",
     "overdue": "Overdue",
-    "howToPay": "There is no online charging: pay by bank transfer or cash with your FitCore 360 representative and the payment is recorded with the receipt reference. Never send us card data.",
+    "howToPay": "There is no online charging: pay by bank transfer or cash with your FIT360 representative and the payment is recorded with the receipt reference. Never send us card data.",
     "requestsPending": "Pending requests",
     "noPending": "You have no pending requests.",
     "kind": {
@@ -2919,7 +2919,7 @@
     "askChange": "Request a plan change",
     "askCancel": "Request cancellation",
     "askReactivate": "Request reactivation",
-    "requestHint": "A request does not change your contract by itself: the FitCore 360 team reviews it and answers. You will see the answer here.",
+    "requestHint": "A request does not change your contract by itself: the FIT360 team reviews it and answers. You will see the answer here.",
     "limits": "Your plan limits",
     "notMeasured": "not measured",
     "unlimited": "unlimited",

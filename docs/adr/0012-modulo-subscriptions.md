@@ -5,10 +5,10 @@
 ## Vocabulario (para no confundir los dos dominios)
 | Término | Qué es | Dónde vive |
 |---|---|---|
-| **Plan comercial / suscripción SaaS** | Lo que FitCore 360 le vende a un gimnasio | **`FitCore.Subscriptions`** (esquema `subscriptions`) — *nuevo* |
+| **Plan comercial / suscripción SaaS** | Lo que FIT360 le vende a un gimnasio | **`FitCore.Subscriptions`** (esquema `subscriptions`) — *nuevo* |
 | **Plan / membresía de gimnasio** | Lo que un gimnasio le vende a un alumno (`members.membership_plans`, `members.memberships`) | `FitCore.Commercial` — **no se toca** |
 | **Pago de alumno** | `billing.payments`, `billing.payment_obligations` | `FitCore.Commercial` — **no se toca** |
-| **Cobro comercial SaaS** | Lo que el gimnasio le paga a FitCore 360 | `subscriptions.invoices`, `subscriptions.payments` — *nuevo* |
+| **Cobro comercial SaaS** | Lo que el gimnasio le paga a FIT360 | `subscriptions.invoices`, `subscriptions.payments` — *nuevo* |
 
 Prefijos de código, rutas y permisos: `subscriptions.*`, `/platform/plans`, `/my/subscription`, `/platform/billing`. Ninguna entidad nueva reutiliza tablas de membresías ni de pagos de alumnos.
 
@@ -141,7 +141,7 @@ Portal «Mi suscripción» del gimnasio. El gimnasio **no modifica** su contrato
 
 ### Bloque 9 — lo implementado
 Abstracción del proveedor de pagos y webhooks protegidos. **No hay proveedor real ni se simula uno**: sin secreto configurado el sistema funciona exactamente como antes (pagos registrados a mano) y los webhooks se rechazan con 503.
-- **Puerto:** `IPaymentProviderGateway` (`Code`, `IsConfigured`, `VerifyAndParse`). Un proveedor concreto se agrega implementando esta interfaz con su propio esquema de firma y su formato; el resto del sistema no cambia. La implementación incluida, `SignedWebhookGateway`, define el **contrato de webhook firmado de FitCore 360**, no el de una pasarela en particular.
+- **Puerto:** `IPaymentProviderGateway` (`Code`, `IsConfigured`, `VerifyAndParse`). Un proveedor concreto se agrega implementando esta interfaz con su propio esquema de firma y su formato; el resto del sistema no cambia. La implementación incluida, `SignedWebhookGateway`, define el **contrato de webhook firmado de FIT360**, no el de una pasarela en particular.
 - **Contrato:** `POST /api/v1/webhooks/payments` (anónimo, sin sesión) con `X-FitCore-Signature: t=<segundos unix>,v1=<hex>`, donde `v1 = HMAC-SHA256(secreto, "t.cuerpo")`. Cuerpo JSON: `{ id, type: payment.succeeded|payment.failed|payment.refunded, occurredAt, data: { invoiceNumber, providerReference, amount, currency, failureReason } }`.
 - **Autenticidad:** la marca de tiempo va dentro de lo firmado (no se reutiliza una firma con otra hora); se compara en tiempo constante; tolerancia `ToleranceSeconds` (300) en ambos sentidos; solo se mira la hora **después** de validar la firma. Firma ausente, mal formada, de otro secreto, con cuerpo alterado o vencida → **el mismo 401** (no revela cuál falló). Cuerpo ilegible pero bien firmado → 400; mayor que `MaxBodyBytes` (64 KiB, también sin `Content-Length`) → 413. Límite de peticiones por IP (`RateLimiting:WebhookPermitPerMinute`). Una sesión de usuario no sustituye la firma.
 - **Secretos:** `Subscriptions:Payments:WebhookSecret` (mínimo 16 caracteres) y `ProviderCode` vienen de la configuración del servidor (variables `PAYMENT_WEBHOOK_SECRET`/`PAYMENT_PROVIDER_CODE` del compose; nunca del repositorio ni de la API). `PreviousWebhookSecret` permite **rotar** sin cortar el servicio. El secreto nunca se devuelve ni se registra.

@@ -12,7 +12,7 @@ namespace FitCore.Subscriptions.Application.Providers;
 
 /// <summary>
 /// Aplica un evento ya verificado del proveedor. La autenticidad (firma y marca de tiempo) se comprobó antes, en <see cref="IPaymentProviderGateway"/>; aquí se
-/// comprueba que el <b>contenido</b> concuerde con lo que FitCore 360 emitió: la factura existe, el importe y la moneda son exactamente los suyos, sigue abierta
+/// comprueba que el <b>contenido</b> concuerde con lo que FIT360 emitió: la factura existe, el importe y la moneda son exactamente los suyos, sigue abierta
 /// y la suscripción admite el pago. Si algo no concuerda no cambia nada: se deja constancia del evento como <c>Rejected</c> para revisarlo a mano. Es idempotente:
 /// el par (proveedor, id de evento) es único, así que un reenvío —o dos entregas simultáneas— no aplica nada dos veces. Actúa con el contexto de plataforma.
 /// </summary>

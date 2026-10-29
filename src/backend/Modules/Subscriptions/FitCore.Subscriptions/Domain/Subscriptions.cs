@@ -122,7 +122,7 @@ public sealed record PlanSnapshot(
     string Currency, BillingPeriod Period, decimal Price, int TrialDays, int? GraceDays);
 
 /// <summary>
-/// Suscripción comercial: el contrato de uso de FitCore 360 de un gimnasio (no confundir con las membresías que el gimnasio vende a sus
+/// Suscripción comercial: el contrato de uso de FIT360 de un gimnasio (no confundir con las membresías que el gimnasio vende a sus
 /// alumnos). Guarda el estado actual y una copia de las condiciones contratadas; el historial vive en <see cref="SubscriptionEvent"/>.
 /// Los períodos son fechas locales del gimnasio, con el fin exclusivo: el período siguiente empieza el día que termina el anterior.
 /// </summary>

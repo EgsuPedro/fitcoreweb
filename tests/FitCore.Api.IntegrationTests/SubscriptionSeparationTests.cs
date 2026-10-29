@@ -11,7 +11,7 @@ using static FitCore.Api.IntegrationTests.Infrastructure.CommercialTestApi;
 namespace FitCore.Api.IntegrationTests;
 
 /// <summary>
-/// Pruebas de aceptación de la Fase 7 sobre la regla principal: lo que FitCore 360 le cobra a un gimnasio (suscripciones comerciales) es otro dominio que lo
+/// Pruebas de aceptación de la Fase 7 sobre la regla principal: lo que FIT360 le cobra a un gimnasio (suscripciones comerciales) es otro dominio que lo
 /// que el gimnasio le cobra a sus alumnos, y ningún cambio comercial corrompe las operaciones del gimnasio ni de otro gimnasio.
 /// </summary>
 [Collection(ApiCollection1.Name)]

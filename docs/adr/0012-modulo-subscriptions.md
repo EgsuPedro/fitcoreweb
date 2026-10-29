@@ -167,4 +167,4 @@ Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago conf
 | 7 | Panel global de plataforma: organizaciones, métricas, notas, auditoría | Hecho |
 | 8 | Portal del cliente («Mi suscripción») en Angular y avisos comerciales | Hecho |
 | 9 | Abstracción del proveedor de pagos y webhooks protegidos (sin proveedor real) | Hecho |
-| 10 | Pruebas completas, revisión de seguridad, documentación e informe de la fase | Pendiente |
+| 10 | Pruebas completas, revisión de seguridad, documentación e informe de la fase | Hecho |

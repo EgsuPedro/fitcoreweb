@@ -9,6 +9,8 @@
 | 3 | Comercial: alumnos, planes, membresías, cobros, caja, asistencia, avisos (ver [informe](informe-fase-3.md)) | Hecha |
 | 4 | Bienestar: entrenadores, ejercicios, rutinas, nutrición, evaluaciones, objetivos, fotos privadas, Angular (ver [informe](informe-fase-4.md)) | Hecha |
 | 5 | Clases grupales: sesiones y series, reservas, lista de espera con invitación, asistencia a clase, avisos internos, Angular del personal y del alumno (ver [informe](informe-fase-5.md)) | Hecha |
+| 6 | Analítica: panel por rol, reportes financieros, de alumnos y de operación, comparación de sucursales, exportación a CSV (ver [informe](informe-fase-6.md)) | Hecha |
+| 7 | Administración SaaS: planes comerciales, suscripciones, límites en PostgreSQL, cobros comerciales internos, panel global, portal «Mi suscripción», proveedor de pagos (solo abstracción y webhooks firmados; ver [informe](informe-fase-7.md)) | Hecha |
 
 Pruebas actuales: ver el informe de la Fase 5 (cifras de la última regresión completa). CI en GitHub Actions: backend, web, e2e y docker.
 

@@ -105,6 +105,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 
 **Fase 6** (completa) (módulo `FitCore.Analytics`, solo lectura, [ADR 0011](docs/adr/0011-modulo-analytics.md)): panel por rol, reportes financieros, de alumnos y membresías, de asistencia y clases, comparación de sucursales y exportación a CSV (24 h de vigencia, tope de 20.000 filas), con 46 indicadores definidos ([catálogo](docs/analytics-indicadores.md)). Todo se calcula en PostgreSQL con los datos reales, filtrado por el alcance del usuario en el servidor; no hay cachés ni tablas de resumen. Lo cobrado **no** es utilidad. Exportación a PDF diferida. Resumen en [docs/informe-fase-6.md](docs/informe-fase-6.md); validación manual en [docs/guia-pruebas-fase-6.md](docs/guia-pruebas-fase-6.md).
 
+**Fase 7** (completa) (módulo `FitCore.Subscriptions`, [ADR 0012](docs/adr/0012-modulo-subscriptions.md)): planes comerciales con versiones, funciones y límites; suscripciones con prueba, gracia, renovación, cambio de plan, cancelación y prórroga; límites de sucursales, usuarios y alumnos hechos cumplir en PostgreSQL; modo restringido que conserva el cobro a los alumnos; facturas y pagos comerciales internos; panel global de plataforma con métricas (MRR contratado, no cobrado); portal «Mi suscripción» con solicitudes y avisos internos; y la abstracción del proveedor de pagos con webhooks firmados e idempotentes. **No hay cobro automático, ni proveedor de pagos real, ni facturación tributaria, ni avisos por correo/SMS/WhatsApp.** El dominio comercial SaaS está separado de los pagos y membresías de los alumnos. Resumen en [docs/informe-fase-7.md](docs/informe-fase-7.md); validación manual en [docs/guia-pruebas-fase-7.md](docs/guia-pruebas-fase-7.md).
+
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
 - [Arquitectura](docs/architecture.md): estructura, auditoría, primer administrador, configuración y ambientes
@@ -117,6 +119,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 - [Informe de la Fase 6](docs/informe-fase-6.md): analítica, reglas, rendimiento medido, pruebas y pendientes
 - [Indicadores de analítica](docs/analytics-indicadores.md): definición de cada indicador
 - [Guía de pruebas de la Fase 6](docs/guia-pruebas-fase-6.md): validación manual con datos de práctica
+- [Informe de la Fase 7](docs/informe-fase-7.md): suscripciones SaaS, límites, cobros comerciales, panel, portal, proveedor de pagos, pruebas, seguridad y pendientes
+- [Guía de pruebas de la Fase 7](docs/guia-pruebas-fase-7.md): validación manual con datos
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación
 

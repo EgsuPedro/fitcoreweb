@@ -32,7 +32,7 @@ function rememberTenant(slug: string): void {
     <main class="login-page">
       <section class="login-card card">
         <div class="login-brand">
-          <span class="brand-mark" aria-hidden="true">F</span>
+          <img class="brand-logo" src="brand/logo.png" alt="" width="381" height="328" />
           <h1>FitCore 360</h1>
           <p class="muted">{{ 'login.subtitle' | transloco }}</p>
         </div>

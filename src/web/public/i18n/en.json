@@ -110,7 +110,12 @@
     "allBranches": "All",
     "permissions": "Permissions",
     "shortcuts": "Shortcuts",
-    "noAccess": "Your user has no permissions yet. Ask an administrator to assign you a role."
+    "noAccess": "Your user has no permissions yet. Ask an administrator to assign you a role.",
+    "mascot": {
+      "title": "Great to see you, {{ name }}!",
+      "text": "I'm Fiti, your training buddy. Check today's figures and notices to start the day ahead.",
+      "action": "Get started"
+    }
   },
   "status": {
     "forbiddenTitle": "No access",

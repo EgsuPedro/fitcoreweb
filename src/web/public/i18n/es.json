@@ -110,7 +110,12 @@
     "allBranches": "Todas",
     "permissions": "Permisos",
     "shortcuts": "Accesos directos",
-    "noAccess": "Su usuario aún no tiene permisos asignados. Pida a un administrador que le asigne un rol."
+    "noAccess": "Su usuario aún no tiene permisos asignados. Pida a un administrador que le asigne un rol.",
+    "mascot": {
+      "title": "¡Qué bueno verte, {{ name }}!",
+      "text": "Soy Fiti, tu compañero de entrenamiento. Revisa las cifras y los avisos de hoy para empezar el día con ventaja.",
+      "action": "Empezar"
+    }
   },
   "status": {
     "forbiddenTitle": "Sin acceso",

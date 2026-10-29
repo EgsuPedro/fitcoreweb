@@ -19,9 +19,9 @@ test.describe('acceso', () => {
     const submit = page.getByRole('button', { name: 'Iniciar sesión' });
     await expect(submit).toBeVisible();
 
-    // Un botón sin estilos tendría el fondo gris del navegador; con estilos usa el color de acento.
+    // Un botón sin estilos tendría el fondo gris del navegador; con estilos, la acción principal usa el color de la marca (naranja).
     const background = await submit.evaluate((el) => getComputedStyle(el).backgroundColor);
-    const accent = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
+    const accent = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--cta').trim());
     expect(accent).not.toBe('');
     const probe = await page.evaluate((color) => {
       const el = document.createElement('i');

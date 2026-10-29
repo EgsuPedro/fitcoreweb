@@ -23,7 +23,7 @@ const sameAsNew = (group: AbstractControl): ValidationErrors | null => {
     <main class="login-page">
       <section class="login-card card">
         <div class="login-brand">
-          <span class="brand-mark" aria-hidden="true">F</span>
+          <img class="brand-logo" src="brand/logo.png" alt="" width="381" height="328" />
           <h1>{{ 'account.changePassword' | transloco }}</h1>
           <p class="muted">{{ (forced() ? 'account.forcedHint' : 'account.changeHint') | transloco }}</p>
         </div>

@@ -1,37 +1,66 @@
 // Estilos globales de FitCore 360. Sin librería de UI: tokens CSS + clases utilitarias de componentes.
 
+// Tipografía de la marca, autoalojada desde el paquete (sin CDN, funciona sin internet y respeta la CSP).
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-500.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/inter/latin-700.css';
+
+// Identidad FIT360: teal = confianza y estructura (menú, títulos, enlaces, foco); naranja = energía (acción principal, CTA).
 :root {
-  --bg: #f4f6f8;
+  --bg: #f8fafc;
   --surface: #ffffff;
-  --surface-2: #eef1f4;
-  --border: #d9dee4;
+  --surface-2: #f1f5f9;
+  --border: #dbe3ea;
   --text: #17202a;
   --muted: #5d6b7a;
-  --accent: #0b7a6f;
+  --accent: #0f766e;
+  --accent-strong: #0b5e57;
   --accent-contrast: #ffffff;
-  --accent-soft: #dff3f0;
+  --accent-soft: #e2f4f1;
+  --accent-soft-strong: #c9ebe6;
+  --cta: #f97316;
+  --cta-hover: #ea6a0a;
+  --cta-active: #c2570a;
+  --cta-contrast: #1c1208;
+  --cta-soft: #ffedd5;
+  --sidebar-bg: #0f766e;
+  --sidebar-bg-end: #0b5e57;
+  --sidebar-text: #e6f6f4;
+  --sidebar-hover: rgb(255 255 255 / 12%);
+  --sidebar-active: rgb(255 255 255 / 20%);
   --danger: #b42318;
   --danger-soft: #fde8e6;
   --warning: #8a5a00;
   --warning-soft: #fff3d6;
   --ok: #0b7a3e;
   --ok-soft: #dcf5e6;
-  --shadow: 0 1px 2px rgb(16 24 40 / 6%), 0 1px 3px rgb(16 24 40 / 10%);
-  --radius: 10px;
+  --shadow: 0 1px 2px rgb(15 118 110 / 6%), 0 4px 12px rgb(16 24 40 / 6%);
+  --radius: 12px;
   --sidebar-width: 15rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #10161c;
-    --surface: #18212a;
-    --surface-2: #1f2a35;
+    --bg: #0e151b;
+    --surface: #17212a;
+    --surface-2: #1e2a35;
     --border: #2b3947;
     --text: #e8edf2;
     --muted: #9aa8b6;
     --accent: #2dd4bf;
+    --accent-strong: #5eead4;
     --accent-contrast: #062925;
     --accent-soft: #123a37;
+    --accent-soft-strong: #1a504b;
+    --cta: #fb923c;
+    --cta-hover: #f97316;
+    --cta-active: #ea580c;
+    --cta-contrast: #1c1208;
+    --cta-soft: #3a2410;
+    --sidebar-bg: #0d3b37;
+    --sidebar-bg-end: #0a2d2a;
+    --sidebar-text: #d7eeeb;
     --danger: #ff8a80;
     --danger-soft: #3b1b19;
     --warning: #ffcf70;
@@ -56,11 +85,12 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
 }
 
 h1 {
+  color: var(--accent-strong);
   font-size: 1.5rem;
   margin: 0;
 }
@@ -104,6 +134,8 @@ pre {
 }
 
 // ---------- Botones ----------
+// Estados siempre visibles: reposo, hover, clic (:active) y foco. La acción principal es naranja; el resto, teal.
+// Cada variante define su propio hover/active con mayor especificidad que el botón base: el texto nunca queda sobre un fondo del mismo color.
 .btn {
   display: inline-flex;
   align-items: center;
@@ -115,10 +147,26 @@ pre {
   background: var(--surface);
   color: var(--text);
   font: inherit;
+  font-weight: 500;
   cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.05s ease;
 
   &:hover:not(:disabled) {
-    background: var(--surface-2);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent-strong);
+  }
+
+  &:active:not(:disabled) {
+    background: var(--accent-soft-strong);
+    border-color: var(--accent-strong);
+    color: var(--accent-strong);
+    transform: translateY(1px);
   }
 
   &:disabled {
@@ -127,12 +175,28 @@ pre {
   }
 
   &.btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--accent-contrast);
+    background: var(--cta);
+    border-color: var(--cta);
+    color: var(--cta-contrast);
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgb(194 87 10 / 30%);
 
     &:hover:not(:disabled) {
-      filter: brightness(1.08);
+      background: var(--cta-hover);
+      border-color: var(--cta-hover);
+      color: var(--cta-contrast);
+      box-shadow: 0 2px 6px rgb(194 87 10 / 35%);
+    }
+
+    &:active:not(:disabled) {
+      background: var(--cta-active);
+      border-color: var(--cta-active);
+      color: #ffffff;
+      box-shadow: none;
+    }
+
+    &:focus-visible {
+      outline-color: var(--cta-hover);
     }
   }
 
@@ -143,6 +207,14 @@ pre {
 
     &:hover:not(:disabled) {
       background: var(--danger-soft);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    &:active:not(:disabled) {
+      background: var(--danger);
+      border-color: var(--danger);
+      color: #ffffff;
     }
   }
 
@@ -150,9 +222,15 @@ pre {
     border-color: transparent;
     background: transparent;
 
+    &:hover:not(:disabled) {
+      background: var(--accent-soft);
+      border-color: transparent;
+      color: var(--accent-strong);
+    }
+
     &.active {
       background: var(--accent-soft);
-      color: var(--accent);
+      color: var(--accent-strong);
       font-weight: 600;
     }
   }
@@ -480,16 +558,25 @@ select.ng-touched.ng-invalid {
 }
 
 .sidebar {
-  background: var(--surface);
-  border-right: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--sidebar-bg), var(--sidebar-bg-end));
+  color: var(--sidebar-text);
   padding: 1rem 0.75rem;
 
   .sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    padding: 0.25rem 0.5rem 1rem;
-    font-weight: 700;
+    justify-content: center;
+    margin: 0 0.25rem 1rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius);
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 18%);
+
+    .brand-logo {
+      display: block;
+      height: 3.6rem;
+      width: auto;
+    }
   }
 
   nav {
@@ -505,17 +592,28 @@ select.ng-touched.ng-invalid {
   gap: 0.65rem;
   padding: 0.55rem 0.75rem;
   border-radius: 8px;
-  color: var(--text);
+  border-left: 3px solid transparent;
+  color: var(--sidebar-text);
   text-decoration: none;
+  transition: background-color 0.15s ease;
 
   &:hover {
-    background: var(--surface-2);
+    background: var(--sidebar-hover);
+  }
+
+  &:active {
+    background: var(--sidebar-active);
   }
 
   &.active {
-    background: var(--accent-soft);
-    color: var(--accent);
+    background: var(--sidebar-active);
+    border-left-color: var(--cta);
+    color: #ffffff;
     font-weight: 600;
+  }
+
+  &:focus-visible {
+    outline-color: #ffffff;
   }
 
   .nav-icon {
@@ -1107,7 +1205,9 @@ fieldset.field {
 .segmented .btn { border-radius: 0; }
 .segmented .btn:first-child { border-radius: var(--radius) 0 0 var(--radius); }
 .segmented .btn:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
-.segmented .btn.active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+.segmented .btn.active,
+.segmented .btn.active:hover:not(:disabled),
+.segmented .btn.active:active:not(:disabled) { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
 .cal-toolbar { align-items: center; }
 .cal-title { margin-left: 0.5rem; text-transform: capitalize; }
 .cal-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.5rem; margin-block: 0.75rem; }
@@ -1182,4 +1282,74 @@ fieldset.field {
 @media (max-width: 40rem) {
   .bars li { grid-template-columns: 5rem 1fr; }
   .bar-value { grid-column: 1 / -1; }
+}
+
+// ---------- Marca ----------
+.brand-logo {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.login-brand .brand-logo {
+  height: 7.5rem;
+  width: auto;
+  margin: 0 auto 0.5rem;
+}
+
+// ---------- Tarjeta de bienvenida con la mascota «Fiti» ----------
+.mascot-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  padding: 1.5rem 1.75rem;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #f0fdf4, #e6f4f1);
+  box-shadow: var(--shadow);
+  color: #17202a;
+
+  .mascot-title {
+    margin: 0 0 0.35rem;
+    font-size: 1.5rem;
+    color: var(--accent-strong);
+  }
+
+  .mascot-text {
+    margin: 0 0 1rem;
+    max-width: 38rem;
+    color: #3b4a58;
+  }
+
+  .mascot-figure {
+    display: block;
+    height: 11rem;
+    width: auto;
+    // Reservado para una animación Lottie/GIF de Fiti: aquí va la imagen estática hasta tenerla.
+    filter: drop-shadow(0 6px 8px rgb(15 118 110 / 18%));
+  }
+
+  @media (width <= 640px) {
+    grid-template-columns: 1fr;
+    justify-items: start;
+
+    .mascot-figure {
+      height: 8rem;
+      justify-self: end;
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .mascot-card {
+    background: linear-gradient(135deg, #123a37, #0f2f2d);
+    color: var(--text);
+
+    .mascot-text {
+      color: var(--muted);
+    }
+  }
 }

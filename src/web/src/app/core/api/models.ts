@@ -195,3 +195,14 @@ export type SubscriptionPayment = Schemas['SubscriptionPaymentDto2'];
 export type BillingSummary = Schemas['BillingSummaryDto'];
 export type PayInvoiceRequest = Schemas['PayInvoiceRequest'];
 export type LifecycleSummary = Schemas['LifecycleRunSummary'];
+
+// Portal «Mi suscripción» (Fase 7): lo que el gimnasio ve de su contrato comercial y lo que puede pedir.
+export type MySubscription = Schemas['MySubscriptionDto'];
+export type SubscriptionAlert = Schemas['SubscriptionAlertDto'];
+export type SubscriptionNotice = Schemas['NoticeDto'];
+export type SubscriptionRequestItem = Schemas['SubscriptionRequestDto'];
+export type SubscriptionRequestKind = Schemas['SubscriptionRequestKind'];
+export type AvailablePlan = Schemas['AvailablePlanDto'];
+export type SubscriptionUsage = Schemas['UsageDto'];
+export type PlatformRequest = Schemas['PlatformRequestDto'];
+export type NewSubscriptionRequest = Schemas['NewSubscriptionRequest'];

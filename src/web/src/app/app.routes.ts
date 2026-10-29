@@ -166,6 +166,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/audit/audit').then((m) => m.Audit),
       },
       {
+        path: 'my/subscription',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.SubscriptionRead },
+        loadComponent: () => import('./features/subscription/my-subscription').then((m) => m.MySubscriptionPage),
+      },
+      {
+        path: 'platform/requests',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformSubscriptionsRead },
+        loadComponent: () => import('./features/platform/requests').then((m) => m.PlatformRequests),
+      },
+      {
         path: 'platform/organizations',
         canActivate: [permissionGuard],
         data: { permission: Perm.PlatformOrganizationsRead },

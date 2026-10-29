@@ -2,6 +2,7 @@ using FitCore.Application.Core;
 using FitCore.SharedKernel;
 using FitCore.Subscriptions.Application.Billing;
 using FitCore.Subscriptions.Application.Organizations;
+using FitCore.Subscriptions.Application.Portal;
 using FitCore.Subscriptions.Domain;
 using FitCore.Subscriptions.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -174,7 +175,26 @@ public sealed class SubscriptionLifecycleRunner(
             }
         }
 
-        return summary with { UsageRefreshed = await RefreshUsageAsync(platformId, cancellationToken) };
+        // Los avisos van después de procesar: así reflejan los cambios de estado de esta misma pasada.
+        var notices = await GenerateNoticesAsync(platformId, cancellationToken);
+        return summary with { UsageRefreshed = await RefreshUsageAsync(platformId, cancellationToken), NoticesCreated = notices };
+    }
+
+    /// <summary>Crea los avisos comerciales internos que falten (idempotente). Un fallo aquí nunca detiene el proceso de vencimientos.</summary>
+    private async Task<int> GenerateNoticesAsync(Guid platformId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await using var scope = scopes.CreateAsyncScope();
+            scope.ServiceProvider.GetRequiredService<ITenantContext>().Set(platformId);
+            var db = scope.ServiceProvider.GetRequiredService<SubscriptionsDbContext>();
+            return await NoticeGenerator.GenerateAsync(db, clock.UtcNow, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "Falló la generación de avisos comerciales");
+            return 0;
+        }
     }
 
     /// <summary>Renueva la foto de consumo de las organizaciones que la tienen vieja (o ninguna), unas pocas por pasada, para no cargar la base.</summary>

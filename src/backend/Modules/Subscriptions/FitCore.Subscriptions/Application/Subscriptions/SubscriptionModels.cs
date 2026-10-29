@@ -88,7 +88,7 @@ public sealed record ResumeSubscriptionRequest(string? Note);
 public sealed record ExtendSubscriptionRequest(int Days, string Reason);
 
 /// <summary>Resultado de una pasada del proceso de vencimientos.</summary>
-public sealed record LifecycleRunSummary(int Examined, int TrialsExpired, int FreeRenewed, int Cancelled, int MarkedPastDue, int GraceExpired, int Failed, int InvoicesIssued = 0, int UsageRefreshed = 0)
+public sealed record LifecycleRunSummary(int Examined, int TrialsExpired, int FreeRenewed, int Cancelled, int MarkedPastDue, int GraceExpired, int Failed, int InvoicesIssued = 0, int UsageRefreshed = 0, int NoticesCreated = 0)
 {
     public static readonly LifecycleRunSummary Empty = new(0, 0, 0, 0, 0, 0, 0);
 }

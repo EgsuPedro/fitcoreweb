@@ -128,8 +128,19 @@ Panel global del equipo de plataforma (solo en el gimnasio `platform`), **sin ac
 - **Angular:** `/platform/metrics`, `/platform/organizations` (+ detalle con acciones de ciclo de vida, factura, notas, historial y actividad), `/platform/plans` (catálogo y versiones) y `/platform/billing` (facturas, pagos, reembolsos, ejecutar vencimientos). Alta de gimnasio con plan y prueba.
 - **Límites conocidos:** no hay cobro automático ni proveedor; el almacenamiento no se mide; el consumo del listado puede tener hasta una hora de antigüedad.
 
+### Bloque 8 — lo implementado
+Portal «Mi suscripción» del gimnasio. El gimnasio **no modifica** su contrato: pide, y la plataforma aprueba o rechaza.
+- **Qué ve** (`subscription.read`: propietario y administrador): `GET /my/subscription` (plan, versión, precio, período, vencimiento, prueba, gracia, cancelación programada, plan siguiente, modo de acceso, factura abierta, solicitudes pendientes, avisos sin leer y las **alertas** calculadas con el estado real), `/usage` (límites y funciones), `/plans` (solo planes activos y vendibles —nunca `legacy`—, marcando si pasar a cada uno es mejora, baja o lateral), `/invoices` (sus documentos internos; sin intentos, referencias ni notas), `/notices`, `/requests`. Nunca ve las notas administrativas, el motivo interno de una suspensión ni datos de otros gimnasios.
+- **Qué pide** (`subscription.manage`: propietario): `POST /my/subscription/requests` con `kind`: **ChangePlan** (plan vendible distinto del actual), **Cancellation** (con motivo; si se aprueba termina al fin del período) o **Reactivation** (solo si está suspendida, vencida, cancelada o con cancelación programada). Una pendiente por suscripción y tipo (índice único parcial); `POST …/requests/{id}/withdraw` la retira. Los mensajes (máx. 500) rechazan texto con forma de tarjeta. Estando **restringido** (suspendido o vencido) el gimnasio sigue pudiendo pedir.
+- **Quién resuelve** (plataforma): `GET /platform/subscription-requests` (`platform.subscriptions.read`; pendientes primero) y `POST …/{id}/approve|reject` (`platform.subscriptions.manage`). **Aprobar** ejecuta la acción con las reglas y la auditoría de siempre (mejora inmediata, baja al renovar, cancelación al fin del período, reactivación o retiro de la cancelación) y marca la solicitud **en la misma transacción**; si no se puede aplicar (p. ej. ya no está suspendida) la solicitud sigue pendiente y se explica por qué. **Rechazar** exige una razón que el gimnasio lee en su portal.
+- **Avisos** (`subscription_notices`): internos, sin canales externos. Los genera el proceso de vencimientos (worker o `run-lifecycle`) de forma idempotente: uno por hecho del historial de los últimos 14 días (`event:{id}`) y de calendario (prueba por terminar ≤3 días, vencimiento ≤7, fin de gracia ≤2, una vez por fecha). Guardan solo datos neutros (plan, fecha, número de factura). `NoticesCreated` en el resumen del proceso.
+- **Banner:** el shell muestra las alertas (suspendida, vencida, cancelada, mora con fecha de fin de gracia, prueba por terminar, vencimiento cercano, uso restringido) a quien tiene `subscription.read`; sin alertas no ocupa lugar.
+- **Base de datos:** `subscription_requests` y `subscription_notices` con RLS forzada. Solicitudes: el gimnasio lee e inserta las suyas (siempre `Pending`, sobre una suscripción propia) y solo puede pasarlas a `Withdrawn`; el resto lo hace la plataforma; una resuelta no cambia ni se borra (disparador FC110). Avisos: solo la plataforma los crea; el gimnasio solo marca `read_at` (una vez); ni se editan ni se borran.
+- **Angular:** `/my/subscription` (pestañas Resumen, Uso, Planes, Facturas, Avisos, Solicitudes) y `/platform/requests`.
+- **Límites conocidos:** no hay cobro en línea (el pago lo registra la plataforma con la referencia del comprobante); no hay envío por correo/SMS/WhatsApp; el aviso de calendario usa el día UTC.
+
 ## Notificaciones comerciales
-Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago confirmado, pago fallido, mora, cambio de plan, cancelación, suspensión, reactivación. `subscriptions.notices` con único anti-duplicado y entrega interna (portal). El `SubscriptionWorker` genera los avisos de calendario (anticipos configurables) de forma idempotente y reintenta los canales externos, que hoy no existen.
+Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago confirmado, pago fallido, mora, cambio de plan, cancelación, suspensión, reactivación. `subscriptions.subscription_notices` con único anti-duplicado y entrega interna (portal). El `SubscriptionWorker` genera los avisos de calendario (anticipos configurables) de forma idempotente y reintenta los canales externos, que hoy no existen.
 
 ## Bloques de implementación
 | # | Bloque | Estado |
@@ -141,6 +152,6 @@ Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago conf
 | 5 | Renovaciones, cambios de plan, cancelaciones, prórrogas y vencimientos (`SubscriptionWorker`) | Hecho |
 | 6 | Cobros comerciales: facturas internas, pagos, intentos, reversiones; separación de pagos de alumnos | Hecho |
 | 7 | Panel global de plataforma: organizaciones, métricas, notas, auditoría | Hecho |
-| 8 | Portal del cliente («Mi suscripción») en Angular y avisos comerciales | Pendiente |
+| 8 | Portal del cliente («Mi suscripción») en Angular y avisos comerciales | Hecho |
 | 9 | Abstracción del proveedor de pagos y webhooks protegidos (sin proveedor real) | Pendiente |
 | 10 | Pruebas completas, revisión de seguridad, documentación e informe de la fase | Pendiente |

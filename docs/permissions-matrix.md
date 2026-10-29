@@ -104,8 +104,8 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `members.access` | Dar, restablecer, suspender y reactivar el acceso de un alumno a su portal (administrador de sucursal; recepción no lo tiene) |
 | `me.read` | Solo del rol `Alumno`: ver sus propios datos en el portal (`/me/*`) |
 | `platform.taxes.manage` | Solo plataforma: registrar tarifas de IVA por decreto |
-| `subscription.read` | Fase 7: ver el consumo, las funciones y los límites del plan contratado (`GET /my/subscription/usage`). Propietario por defecto; el administrador de sucursal y el resto no |
-| `subscription.manage` | Fase 7: solicitar cambios de plan, cancelación o reactivación de la suscripción propia (las solicitudes llegan en el bloque 8). No permite editar precios, marcar pagos ni cambiar el estado comercial |
+| `subscription.read` | Fase 7: ver el portal «Mi suscripción»: plan, período, consumo, funciones y límites, facturas internas, avisos y solicitudes propias (`GET /my/subscription`, `/usage`, `/plans`, `/invoices`, `/notices`, `/requests`). Propietario por defecto; el administrador de sucursal y el resto no |
+| `subscription.manage` | Fase 7: solicitar cambios de plan, cancelación o reactivación de la suscripción propia (`POST /my/subscription/requests`, `…/requests/{id}/withdraw`; la plataforma las aprueba o rechaza con `platform.subscriptions.manage`). No permite editar precios, marcar pagos ni cambiar el estado comercial |
 | `platform.plans.read` | Solo plataforma (Fase 7): consultar el catálogo de planes comerciales de FitCore 360 (`GET /platform/plans`, `/catalog`, `/{id}`). No es el permiso `plans.read` de los gimnasios (planes de membresía de alumnos) |
 | `platform.billing.read` | Solo plataforma (Fase 7): consultar facturas internas, pagos y el resumen de cobros comerciales (`GET /platform/billing/invoices`, `/payments`, `/summary`) |
 | `platform.billing.manage` | Solo plataforma (Fase 7): emitir y anular facturas, registrar pagos, intentos fallidos y reembolsos (`POST …/subscription/invoices`, `/platform/billing/invoices/{id}/pay|attempts|void`, `/payments/{id}/refund`). Pagar y reembolsar exigen `Idempotency-Key` |

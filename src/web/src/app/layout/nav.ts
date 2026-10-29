@@ -40,12 +40,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.users', path: '/users', icon: '☺', permission: Perm.UsersRead },
   { labelKey: 'nav.roles', path: '/roles', icon: '⚿', permission: Perm.RolesRead },
   { labelKey: 'nav.audit', path: '/audit', icon: '☰', permission: Perm.AuditRead },
+  { labelKey: 'nav.mySubscription', path: '/my/subscription', icon: '★', permission: Perm.SubscriptionRead },
   { labelKey: 'nav.taxRates', path: '/platform/tax-rates', icon: '‰', permission: Perm.PlatformTaxesManage },
   { labelKey: 'nav.globalExercises', path: '/platform/exercises', icon: '♜', permission: Perm.PlatformExercisesManage },
   { labelKey: 'nav.platformMetrics', path: '/platform/metrics', icon: '◔', permission: Perm.PlatformMetricsRead },
   { labelKey: 'nav.platformOrganizations', path: '/platform/organizations', icon: '▣', permission: Perm.PlatformOrganizationsRead },
   { labelKey: 'nav.platformPlans', path: '/platform/plans', icon: '☷', permission: Perm.PlatformPlansRead },
   { labelKey: 'nav.platformBilling', path: '/platform/billing', icon: '$', permission: Perm.PlatformBillingRead },
+  { labelKey: 'nav.platformRequests', path: '/platform/requests', icon: '✉', permission: Perm.PlatformSubscriptionsRead },
   { labelKey: 'nav.tenants', path: '/platform/tenants', icon: '▦', permission: Perm.PlatformTenantsManage },
 ];
 

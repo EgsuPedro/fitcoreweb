@@ -29,6 +29,8 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
     internal DbSet<TenantEntitlement> Entitlements => Set<TenantEntitlement>();
     internal DbSet<PlatformNote> PlatformNotes => Set<PlatformNote>();
     internal DbSet<TenantUsageSnapshot> UsageSnapshots => Set<TenantUsageSnapshot>();
+    internal DbSet<SubscriptionRequest> Requests => Set<SubscriptionRequest>();
+    internal DbSet<SubscriptionNotice> Notices => Set<SubscriptionNotice>();
 
     // Vistas de solo lectura de otros módulos, para medir el consumo de los límites (RLS y filtro limitan a un solo gimnasio).
     internal DbSet<BranchRef> Branches => Set<BranchRef>();
@@ -64,6 +66,10 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
         modelBuilder.ApplyConfiguration(new PlatformNoteConfiguration());
         modelBuilder.ApplyConfiguration(new TenantUsageSnapshotConfiguration());
         modelBuilder.Entity<TenantEntitlement>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        modelBuilder.ApplyConfiguration(new SubscriptionRequestConfiguration());
+        modelBuilder.ApplyConfiguration(new SubscriptionNoticeConfiguration());
+        modelBuilder.Entity<SubscriptionRequest>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        modelBuilder.Entity<SubscriptionNotice>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
 
         modelBuilder.Entity<BranchRef>(b =>
         {
@@ -346,5 +352,39 @@ internal sealed class TenantUsageSnapshotConfiguration : IEntityTypeConfiguratio
         b.ToTable("tenant_usage_snapshots", SubscriptionsDbContext.Schema);
         b.HasKey(x => x.TenantId);
         b.Property(x => x.TenantId).ValueGeneratedNever();
+    }
+}
+
+internal sealed class SubscriptionRequestConfiguration : IEntityTypeConfiguration<SubscriptionRequest>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionRequest> b)
+    {
+        b.ToTable("subscription_requests", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(20).IsRequired();
+        b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20).IsRequired();
+        b.Property(x => x.Message).HasMaxLength(SubscriptionRequest.MaxMessageLength);
+        b.Property(x => x.ResolutionNote).HasMaxLength(SubscriptionRequest.MaxMessageLength);
+        b.HasIndex(x => new { x.TenantId, x.CreatedAt });
+        b.HasIndex(x => new { x.Status, x.CreatedAt });
+        b.HasIndex(x => new { x.SubscriptionId, x.Kind }).IsUnique().HasFilter("status = 'Pending'").HasDatabaseName("ux_subscription_requests_pending");
+    }
+}
+
+internal sealed class SubscriptionNoticeConfiguration : IEntityTypeConfiguration<SubscriptionNotice>
+{
+    public void Configure(EntityTypeBuilder<SubscriptionNotice> b)
+    {
+        b.ToTable("subscription_notices", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Type).HasMaxLength(40).IsRequired();
+        b.Property(x => x.Severity).HasConversion<string>().HasMaxLength(20).IsRequired();
+        b.Property(x => x.DedupeKey).HasMaxLength(120).IsRequired();
+        b.Property(x => x.PlanName).HasMaxLength(120);
+        b.Property(x => x.Reference).HasMaxLength(40);
+        b.HasIndex(x => new { x.TenantId, x.DedupeKey }).IsUnique().HasDatabaseName("ux_subscription_notices_dedupe");
+        b.HasIndex(x => new { x.TenantId, x.CreatedAt });
     }
 }

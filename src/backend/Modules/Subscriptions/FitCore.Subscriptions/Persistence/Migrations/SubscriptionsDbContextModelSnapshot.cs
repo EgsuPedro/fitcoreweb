@@ -683,6 +683,73 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                     b.ToTable("invoices", "subscriptions");
                 });
 
+            modelBuilder.Entity("FitCore.Subscriptions.Domain.SubscriptionNotice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DedupeKey")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("dedupe_key");
+
+                    b.Property<string>("PlanName")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("plan_name");
+
+                    b.Property<DateTimeOffset?>("ReadAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("read_at");
+
+                    b.Property<string>("Reference")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("reference");
+
+                    b.Property<DateOnly?>("RelatedDate")
+                        .HasColumnType("date")
+                        .HasColumnName("related_date");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("severity");
+
+                    b.Property<Guid?>("SubscriptionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subscription_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_subscription_notices");
+
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_subscription_notices_tenant_id_created_at");
+
+                    b.HasIndex("TenantId", "DedupeKey")
+                        .IsUnique()
+                        .HasDatabaseName("ux_subscription_notices_dedupe");
+
+                    b.ToTable("subscription_notices", "subscriptions");
+                });
+
             modelBuilder.Entity("FitCore.Subscriptions.Domain.SubscriptionPayment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -958,6 +1025,79 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .HasDatabaseName("ix_subscription_plan_changes_tenant_id_status");
 
                     b.ToTable("subscription_plan_changes", "subscriptions");
+                });
+
+            modelBuilder.Entity("FitCore.Subscriptions.Domain.SubscriptionRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("message");
+
+                    b.Property<Guid?>("RequestedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requested_by");
+
+                    b.Property<Guid?>("RequestedPlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requested_plan_id");
+
+                    b.Property<string>("ResolutionNote")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("resolution_note");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<Guid?>("ResolvedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("resolved_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("subscription_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_subscription_requests");
+
+                    b.HasIndex("Status", "CreatedAt")
+                        .HasDatabaseName("ix_subscription_requests_status_created_at");
+
+                    b.HasIndex("SubscriptionId", "Kind")
+                        .IsUnique()
+                        .HasDatabaseName("ux_subscription_requests_pending")
+                        .HasFilter("status = 'Pending'");
+
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_subscription_requests_tenant_id_created_at");
+
+                    b.ToTable("subscription_requests", "subscriptions");
                 });
 
             modelBuilder.Entity("FitCore.Subscriptions.Domain.TenantUsageSnapshot", b =>

@@ -97,7 +97,9 @@
     "platformMetrics": "Métricas SaaS",
     "platformOrganizations": "Organizaciones",
     "platformPlans": "Planes comerciales",
-    "platformBilling": "Cobros comerciales"
+    "platformBilling": "Cobros comerciales",
+    "mySubscription": "Mi suscripción",
+    "platformRequests": "Solicitudes de gimnasios"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -679,6 +681,27 @@
       "feature_unavailable": "Su plan no incluye esta funcionalidad.",
       "restricted": "Su suscripción está restringida: puede consultar y exportar, pero no crear ni modificar. Regularícela en «Mi suscripción».",
       "not_found": "El gimnasio no tiene una suscripción comercial vigente."
+    },
+    "subscription_requests": {
+      "not_found": "La solicitud no existe.",
+      "plan_required": "Elija el plan al que desea cambiar.",
+      "plan_not_allowed": "Esta solicitud no lleva un plan.",
+      "message_required": "Cuéntenos el motivo de la cancelación.",
+      "message_too_long": "El mensaje no puede superar 500 caracteres.",
+      "message_sensitive": "El mensaje parece contener un número de tarjeta: no escriba datos de pago.",
+      "note_required": "Indique la razón del rechazo: el gimnasio la verá.",
+      "note_too_long": "La nota no puede superar 500 caracteres.",
+      "note_sensitive": "La nota parece contener un número de tarjeta: no escriba datos de pago.",
+      "already_resolved": "La solicitud ya fue resuelta.",
+      "already_pending": "Ya hay una solicitud pendiente de este tipo: espere la respuesta o retírela.",
+      "plan_not_available": "Ese plan no está disponible.",
+      "same_plan": "Ya está en ese plan.",
+      "invalid_state": "La suscripción no admite esa solicitud en su estado actual.",
+      "reactivation_not_applicable": "La suscripción no está suspendida ni con cancelación programada: asigne un plan o renueve desde la organización y rechace la solicitud con una nota.",
+      "status_invalid": "El estado no es válido."
+    },
+    "subscription_notices": {
+      "not_found": "El aviso no existe."
     }
   },
   "enums": {
@@ -2782,6 +2805,221 @@
       "PlatformNote.Created": "Nota agregada",
       "Tenant.Suspended": "Gimnasio suspendido (administrativo)",
       "Tenant.Activated": "Gimnasio reactivado (administrativo)"
+    },
+    "requests": {
+      "title": "Solicitudes de gimnasios",
+      "subtitle": "Lo que los gimnasios piden sobre su suscripción: cambio de plan, cancelación o reactivación. Usted aprueba o rechaza.",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "empty": "No hay solicitudes con ese estado.",
+      "confirm": "Confirmar",
+      "approveHint": "Se ejecuta la acción pedida con las reglas de siempre (una mejora entra de inmediato; una baja, al terminar el período). Queda auditado.",
+      "rejectHint": "El gimnasio verá la razón en su portal.",
+      "reasonRequired": "Razón del rechazo (la verá el gimnasio)",
+      "noteOptional": "Nota para el gimnasio (opcional)",
+      "approved": "Solicitud aprobada y aplicada.",
+      "rejected": "Solicitud rechazada."
+    }
+  },
+  "mySubscription": {
+    "title": "Mi suscripción",
+    "subtitle": "Lo que contrató con FitCore 360: plan, período, consumo, facturas y avisos. Para cambiar algo, haga una solicitud.",
+    "tabs": {
+      "label": "Secciones",
+      "summary": "Resumen",
+      "usage": "Uso del plan",
+      "plans": "Planes",
+      "invoices": "Facturas",
+      "notices": "Avisos",
+      "requests": "Solicitudes"
+    },
+    "price": "Precio",
+    "free": "Gratuito",
+    "accessMode": "Modo de acceso",
+    "currentPeriod": "Período actual",
+    "nextDue": "Próximo vencimiento",
+    "trialEnds": "La prueba termina",
+    "graceEnds": "La gracia termina",
+    "cancelScheduled": "Termina el",
+    "pendingPlan": "Plan siguiente",
+    "pendingPlanHint": "entra en vigor al renovar.",
+    "restrictedExplain": "Su suscripción está restringida: puede consultar y exportar, y seguir cobrando a sus alumnos y registrando asistencia, pero no crear sucursales, usuarios ni alumnos nuevos. Pida la reactivación.",
+    "graceExplain": "Está en período de gracia: todo sigue funcionando. Regularice el pago antes de que termine.",
+    "openInvoice": "Factura por pagar",
+    "dueOn": "vence",
+    "overdue": "Vencida",
+    "howToPay": "No hay cobro en línea: pague por transferencia o en efectivo con su ejecutivo de FitCore 360 y el pago se registra con la referencia del comprobante. Nunca nos envíe datos de tarjeta.",
+    "requestsPending": "Solicitudes pendientes",
+    "noPending": "No tiene solicitudes pendientes.",
+    "kind": {
+      "ChangePlan": "Cambio de plan",
+      "Cancellation": "Cancelación",
+      "Reactivation": "Reactivación"
+    },
+    "withdraw": "Retirar",
+    "askChange": "Pedir un cambio de plan",
+    "askCancel": "Pedir la cancelación",
+    "askReactivate": "Pedir la reactivación",
+    "requestHint": "Una solicitud no cambia su contrato por sí sola: el equipo de FitCore 360 la revisa y le responde. Verá la respuesta aquí.",
+    "limits": "Límites de su plan",
+    "notMeasured": "sin medir",
+    "unlimited": "sin límite",
+    "limitReached": "Llegó al límite de su plan: pida un cambio de plan para agregar más.",
+    "features": "Funcionalidades",
+    "included": "Incluida",
+    "notIncluded": "No incluida",
+    "plansIntro": "Planes disponibles. Una mejora entra de inmediato sin cobrar la diferencia; una baja se aplica al terminar el período en curso.",
+    "currentPlan": "Su plan",
+    "changeKind": {
+      "Upgrade": "Es una mejora: entra de inmediato.",
+      "Downgrade": "Es una baja: se aplica al terminar el período.",
+      "Lateral": "Mismo precio: entra de inmediato."
+    },
+    "askThisPlan": "Pedir este plan",
+    "noPlans": "No hay otros planes disponibles.",
+    "changePending": "Ya tiene una solicitud de cambio de plan pendiente.",
+    "invoiceNotice": "Documentos internos de cobro. No son comprobantes tributarios.",
+    "markAllRead": "Marcar todo como leído",
+    "new": "Nuevo",
+    "markRead": "Marcar como leído",
+    "noNotices": "No tiene avisos.",
+    "request": "Solicitud",
+    "answer": "Respuesta",
+    "requestStatus": {
+      "Pending": "Pendiente",
+      "Approved": "Aprobada",
+      "Rejected": "Rechazada",
+      "Withdrawn": "Retirada"
+    },
+    "noRequests": "No ha hecho solicitudes.",
+    "ask": {
+      "ChangePlan": "Pedir cambio de plan",
+      "Cancellation": "Pedir la cancelación",
+      "Reactivation": "Pedir la reactivación"
+    },
+    "reasonRequired": "Cuéntenos el motivo (obligatorio)",
+    "messageOptional": "Mensaje para el equipo (opcional)",
+    "noCardData": "No escriba números de tarjeta ni datos de pago.",
+    "askHint": "La cancelación, si se aprueba, termina al final del período en curso: hasta entonces todo sigue funcionando y sus datos se conservan.",
+    "send": "Enviar solicitud",
+    "sent": "Solicitud enviada. Le responderemos aquí.",
+    "withdrawn": "Solicitud retirada.",
+    "alert": {
+      "view": "Ver mi suscripción",
+      "suspended": {
+        "title": "Suscripción suspendida.",
+        "body": "Puede consultar y exportar, pero no crear ni modificar. Pida la reactivación."
+      },
+      "expired": {
+        "title": "Suscripción vencida.",
+        "body": "Puede consultar y exportar, pero no crear ni modificar. Pida la reactivación."
+      },
+      "cancelled": {
+        "title": "Suscripción cancelada.",
+        "body": "Sus datos se conservan. Pida la reactivación para volver a usarla."
+      },
+      "past_due": {
+        "title": "Pago pendiente.",
+        "body": "Todo funciona hasta el {{ date }}; después el uso quedará restringido."
+      },
+      "trial_ending": {
+        "title": "Su prueba termina pronto.",
+        "body": "Termina el {{ date }}."
+      },
+      "due_soon": {
+        "title": "Se acerca su vencimiento.",
+        "body": "Vence el {{ date }}."
+      },
+      "cancellation_scheduled": {
+        "title": "Cancelación programada.",
+        "body": "Termina el {{ date }}."
+      },
+      "restricted": {
+        "title": "Uso restringido.",
+        "body": "Puede consultar y exportar; no crear ni modificar."
+      }
+    },
+    "notice": {
+      "trial_started": {
+        "title": "Prueba iniciada",
+        "body": "Su prueba gratuita del plan {{ plan }} empezó. Termina el {{ date }}."
+      },
+      "trial_ending": {
+        "title": "Su prueba termina pronto",
+        "body": "La prueba gratuita de {{ plan }} termina el {{ date }}. Después hará falta el pago para seguir usando todo."
+      },
+      "activated": {
+        "title": "Suscripción activada",
+        "body": "Su plan {{ plan }} está activo hasta el {{ date }}."
+      },
+      "due_soon": {
+        "title": "Se acerca su vencimiento",
+        "body": "El período de {{ plan }} vence el {{ date }}. Cuando reciba la factura, regularice el pago."
+      },
+      "past_due": {
+        "title": "Pago pendiente",
+        "body": "El período de {{ plan }} venció. Todo sigue funcionando hasta el {{ date }}: regularice el pago antes."
+      },
+      "grace_ending": {
+        "title": "La gracia termina pronto",
+        "body": "Si no se regulariza el pago antes del {{ date }}, el uso quedará restringido a consulta y exportación."
+      },
+      "expired": {
+        "title": "Suscripción vencida",
+        "body": "Su suscripción de {{ plan }} venció. Puede consultar y exportar, pero no crear ni modificar. Pida la reactivación."
+      },
+      "suspended": {
+        "title": "Suscripción suspendida",
+        "body": "Su suscripción de {{ plan }} fue suspendida. Puede consultar y exportar. Para reactivarla, escríbanos desde «Solicitudes»."
+      },
+      "reactivated": {
+        "title": "Suscripción reactivada",
+        "body": "Su suscripción de {{ plan }} volvió a estar en regla."
+      },
+      "cancelled": {
+        "title": "Suscripción cancelada",
+        "body": "Su suscripción de {{ plan }} fue cancelada. Sus datos se conservan."
+      },
+      "cancellation_scheduled": {
+        "title": "Cancelación programada",
+        "body": "Su suscripción de {{ plan }} terminará el {{ date }}."
+      },
+      "cancellation_resumed": {
+        "title": "Cancelación retirada",
+        "body": "Su suscripción de {{ plan }} continúa: ya no está programada para terminar."
+      },
+      "renewed": {
+        "title": "Suscripción renovada",
+        "body": "Su plan {{ plan }} se renovó hasta el {{ date }}."
+      },
+      "plan_changed": {
+        "title": "Cambio de plan",
+        "body": "Su plan ahora es {{ plan }}."
+      },
+      "plan_change_scheduled": {
+        "title": "Cambio de plan programado",
+        "body": "Pasará a {{ plan }} al terminar el período actual ({{ date }})."
+      },
+      "extended": {
+        "title": "Prórroga",
+        "body": "Se amplió su plazo. Nueva fecha: {{ date }}."
+      },
+      "invoice_issued": {
+        "title": "Factura emitida",
+        "body": "Se emitió el documento {{ ref }} de {{ plan }}. Es un comprobante interno, no tributario."
+      },
+      "payment_confirmed": {
+        "title": "Pago confirmado",
+        "body": "Registramos su pago {{ ref }}. Gracias."
+      },
+      "payment_failed": {
+        "title": "Pago no registrado",
+        "body": "No pudimos registrar el pago {{ ref }}. La factura sigue abierta: puede volver a intentarlo."
+      },
+      "payment_refunded": {
+        "title": "Reembolso registrado",
+        "body": "Registramos un reembolso del pago {{ ref }}."
+      }
     }
   }
 }

@@ -54,7 +54,7 @@ test.describe('acceso', () => {
     await page.getByRole('button', { name: 'Iniciar sesión' }).click();
 
     await expect(page).toHaveURL(/\/platform\/tenants$/);
-    await expect(page.getByRole('heading', { name: 'Gimnasios' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Gimnasios', exact: true })).toBeVisible();
   });
 
   test('un returnUrl externo se ignora (no hay redirección abierta)', async ({ page, baseURL }) => {
@@ -76,11 +76,11 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
     await signIn(page, 'platform', email, password);
 
     await expect(page.getByRole('heading', { name: /^Hola,/ })).toBeVisible();
-    await expect(nav(page).getByRole('link', { name: 'Gimnasios' })).toBeVisible();
+    await expect(nav(page).getByRole('link', { name: 'Gimnasios', exact: true })).toBeVisible();
     await expect(nav(page).getByRole('link', { name: 'Sucursales', exact: true })).toHaveCount(0);
     await expect(nav(page).getByRole('link', { name: 'Usuarios' })).toHaveCount(0);
 
-    await nav(page).getByRole('link', { name: 'Gimnasios' }).click();
+    await nav(page).getByRole('link', { name: 'Gimnasios', exact: true }).click();
     await page.getByRole('button', { name: 'Nuevo gimnasio' }).click();
     const dialog = page.getByRole('dialog');
     await dialog.locator('[formControlName="slug"]').fill(slug);
@@ -97,7 +97,7 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
   test('una contraseña débil al crear el gimnasio se explica en español', async ({ page }) => {
     const { email, password } = platformCredentials();
     await signIn(page, 'platform', email, password);
-    await nav(page).getByRole('link', { name: 'Gimnasios' }).click();
+    await nav(page).getByRole('link', { name: 'Gimnasios', exact: true }).click();
     await page.getByRole('button', { name: 'Nuevo gimnasio' }).click();
 
     const dialog = page.getByRole('dialog');
@@ -117,7 +117,7 @@ test.describe.serial('flujo completo: plataforma → gimnasio → personal', () 
     for (const name of ['Inicio', 'Sucursales', 'Usuarios', 'Roles y permisos', 'Auditoría']) {
       await expect(nav(page).getByRole('link', { name, exact: true })).toBeVisible();
     }
-    await expect(nav(page).getByRole('link', { name: 'Gimnasios' })).toHaveCount(0);
+    await expect(nav(page).getByRole('link', { name: 'Gimnasios', exact: true })).toHaveCount(0);
   });
 
   test('el propietario crea una sucursal, un rol y un usuario', async ({ page }) => {

@@ -3300,6 +3300,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/my/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMySubscription"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/my/subscription/usage": {
         parameters: {
             query?: never;
@@ -3310,6 +3326,166 @@ export interface paths {
         get: operations["GetMySubscriptionUsage"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMySubscriptionPlans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMySubscriptionInvoices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/notices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMySubscriptionNotices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/notices/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MarkAllMySubscriptionNoticesRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/notices/{id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["MarkMySubscriptionNoticeRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListMySubscriptionRequests"];
+        put?: never;
+        post: operations["CreateMySubscriptionRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/requests/{id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["WithdrawMySubscriptionRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/subscription-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListPlatformSubscriptionRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/subscription-requests/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ApprovePlatformSubscriptionRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/subscription-requests/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RejectPlatformSubscriptionRequest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3645,6 +3821,11 @@ export interface components {
             end: string;
             /** Format: uuid */
             branchId: string | null;
+        };
+        AvailablePlanDto: {
+            plan: components["schemas"]["PlanSummaryDto2"];
+            isCurrent: boolean;
+            changeKind: string;
         };
         BalanceByBranchDto: {
             /** Format: uuid */
@@ -4920,6 +5101,11 @@ export interface components {
              * @default 0
              */
             usageRefreshed: number;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            noticesCreated: number;
         };
         LimitCatalogDto: {
             code: string;
@@ -5435,6 +5621,46 @@ export interface components {
             amount: number;
             status: string;
         };
+        MySubscriptionDto: {
+            /** Format: uuid */
+            id: string;
+            planCode: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: double */
+            price: number;
+            currency: string;
+            billingPeriod: string;
+            status: string;
+            accessMode: string;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date */
+            currentPeriodStart: string;
+            /** Format: date */
+            currentPeriodEnd: string;
+            /** Format: date */
+            trialEndsOn: string | null;
+            /** Format: date */
+            nextDueOn: string;
+            /** Format: date */
+            graceEndsOn: string | null;
+            cancelAtPeriodEnd: boolean;
+            pendingPlanName: string | null;
+            openInvoice: components["schemas"]["OpenInvoiceDto"];
+            alerts: components["schemas"]["SubscriptionAlertDto"][];
+            pendingRequests: components["schemas"]["SubscriptionRequestDto"][];
+            /** Format: int32 */
+            unreadNotices: number;
+            isFree: boolean;
+        };
+        NewSubscriptionRequest: {
+            kind: components["schemas"]["SubscriptionRequestKind"];
+            /** Format: uuid */
+            planId: string | null;
+            message: string | null;
+        };
         NoteDto: {
             /** Format: uuid */
             id: string;
@@ -5444,6 +5670,20 @@ export interface components {
             authorName: string | null;
             /** Format: date-time */
             createdAt: string;
+        };
+        NoticeDto: {
+            /** Format: uuid */
+            id: string;
+            type: string;
+            severity: string;
+            planName: string | null;
+            /** Format: date */
+            relatedDate: string | null;
+            reference: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            readAt: string | null;
         };
         NotificationDto: {
             /** Format: uuid */
@@ -5860,6 +6100,22 @@ export interface components {
             openingAmount: number;
             notes: string | null;
         };
+        OpenInvoiceDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            status: string;
+            /** Format: double */
+            amount: number;
+            currency: string;
+            /** Format: date */
+            periodStart: string;
+            /** Format: date */
+            periodEnd: string;
+            /** Format: date */
+            dueOn: string;
+            overdue: boolean;
+        } | null;
         OperationsComparisonDto: {
             /** Format: int32 */
             visits: number;
@@ -6268,6 +6524,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfNoticeDto: {
+            items: components["schemas"]["NoticeDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfNotificationDto: {
             items: components["schemas"]["NotificationDto"][];
             /** Format: int32 */
@@ -6358,6 +6623,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfPlatformRequestDto: {
+            items: components["schemas"]["PlatformRequestDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfPromotionDto: {
             items: components["schemas"]["PromotionDto"][];
             /** Format: int32 */
@@ -6405,6 +6679,15 @@ export interface components {
         };
         PagedResultOfSubscriptionPaymentDto: {
             items: components["schemas"]["SubscriptionPaymentDto2"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfSubscriptionRequestDto: {
+            items: components["schemas"]["SubscriptionRequestDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -6854,6 +7137,31 @@ export interface components {
             /** Format: uuid */
             createdBy: string | null;
         };
+        PlatformRequestDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            kind: string;
+            status: string;
+            /** Format: uuid */
+            requestedPlanId: string | null;
+            requestedPlanName: string | null;
+            message: string | null;
+            /** Format: uuid */
+            requestedBy: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            /** Format: uuid */
+            resolvedBy: string | null;
+            resolutionNote: string | null;
+            currentPlanName: string | null;
+            subscriptionStatus: string | null;
+        };
         PreferenceChange: {
             type: components["schemas"]["NotificationType"];
             enabled: boolean;
@@ -7102,6 +7410,9 @@ export interface components {
             offeredAt: string | null;
             /** Format: date-time */
             offerExpiresAt: string | null;
+        };
+        ResolveSubscriptionRequest: {
+            note: string | null;
         };
         ResumeSubscriptionRequest: {
             note: string | null;
@@ -7378,6 +7689,12 @@ export interface components {
             date: string;
             reason: string;
         };
+        SubscriptionAlertDto: {
+            code: string;
+            severity: string;
+            /** Format: date */
+            date: string | null;
+        };
         SubscriptionDto: {
             /** Format: uuid */
             id: string;
@@ -7551,6 +7868,23 @@ export interface components {
         };
         /** @enum {unknown} */
         SubscriptionPaymentMethod: "BankTransfer" | "Cash" | "Other" | "Card";
+        SubscriptionRequestDto: {
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            status: string;
+            /** Format: uuid */
+            requestedPlanId: string | null;
+            requestedPlanName: string | null;
+            message: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            resolvedAt: string | null;
+            resolutionNote: string | null;
+        };
+        /** @enum {unknown} */
+        SubscriptionRequestKind: "ChangePlan" | "Cancellation" | "Reactivation";
         SubscriptionSummaryDto: {
             /** Format: uuid */
             id: string;
@@ -14239,6 +14573,26 @@ export interface operations {
             };
         };
     };
+    GetMySubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MySubscriptionDto"];
+                };
+            };
+        };
+    };
     GetMySubscriptionUsage: {
         parameters: {
             query?: never;
@@ -14255,6 +14609,261 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UsageDto"];
+                };
+            };
+        };
+    };
+    ListMySubscriptionPlans: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailablePlanDto"][];
+                };
+            };
+        };
+    };
+    ListMySubscriptionInvoices: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfInvoiceSummaryDto"];
+                };
+            };
+        };
+    };
+    ListMySubscriptionNotices: {
+        parameters: {
+            query?: {
+                unreadOnly?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfNoticeDto"];
+                };
+            };
+        };
+    };
+    MarkAllMySubscriptionNoticesRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": number;
+                };
+            };
+        };
+    };
+    MarkMySubscriptionNoticeRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": number;
+                };
+            };
+        };
+    };
+    ListMySubscriptionRequests: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfSubscriptionRequestDto"];
+                };
+            };
+        };
+    };
+    CreateMySubscriptionRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRequestDto"];
+                };
+            };
+        };
+    };
+    WithdrawMySubscriptionRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionRequestDto"];
+                };
+            };
+        };
+    };
+    ListPlatformSubscriptionRequests: {
+        parameters: {
+            query?: {
+                status?: string;
+                tenantId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfPlatformRequestDto"];
+                };
+            };
+        };
+    };
+    ApprovePlatformSubscriptionRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformRequestDto"];
+                };
+            };
+        };
+    };
+    RejectPlatformSubscriptionRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResolveSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformRequestDto"];
                 };
             };
         };

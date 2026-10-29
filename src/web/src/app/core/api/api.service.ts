@@ -12,6 +12,13 @@ import type {
   LifecycleSummary,
   OrganizationActivity,
   OrganizationDetail,
+  AvailablePlan,
+  MySubscription,
+  NewSubscriptionRequest,
+  PlatformRequest,
+  SubscriptionNotice,
+  SubscriptionRequestItem,
+  SubscriptionUsage,
   OrganizationNote,
   OrganizationSummary,
   OrganizationUsage,
@@ -280,6 +287,53 @@ export class ApiService {
 
   billingSummary(query: Query = {}): Observable<BillingSummary> {
     return this.get('/platform/billing/summary', query);
+  }
+
+  // Portal «Mi suscripción» (gimnasio)
+  mySubscription(): Observable<MySubscription> {
+    return this.get('/my/subscription');
+  }
+
+  mySubscriptionUsage(): Observable<SubscriptionUsage> {
+    return this.get('/my/subscription/usage');
+  }
+
+  mySubscriptionPlans(): Observable<AvailablePlan[]> {
+    return this.get('/my/subscription/plans');
+  }
+
+  mySubscriptionInvoices(query: Query = {}): Observable<Paged<InvoiceSummary>> {
+    return this.get('/my/subscription/invoices', query);
+  }
+
+  mySubscriptionNotices(query: Query = {}): Observable<Paged<SubscriptionNotice>> {
+    return this.get('/my/subscription/notices', query);
+  }
+
+  /** Sin id marca todos los avisos como leídos; devuelve cuántos cambió. */
+  markSubscriptionNoticesRead(id?: string): Observable<number> {
+    return this.http.post<number>(`${API_BASE}/my/subscription/notices${id ? `/${id}` : ''}/read`, {});
+  }
+
+  mySubscriptionRequests(query: Query = {}): Observable<Paged<SubscriptionRequestItem>> {
+    return this.get('/my/subscription/requests', query);
+  }
+
+  createSubscriptionRequest(body: NewSubscriptionRequest): Observable<SubscriptionRequestItem> {
+    return this.http.post<SubscriptionRequestItem>(`${API_BASE}/my/subscription/requests`, body);
+  }
+
+  withdrawSubscriptionRequest(id: string): Observable<SubscriptionRequestItem> {
+    return this.http.post<SubscriptionRequestItem>(`${API_BASE}/my/subscription/requests/${id}/withdraw`, {});
+  }
+
+  // Solicitudes de los gimnasios (plataforma)
+  platformRequests(query: Query = {}): Observable<Paged<PlatformRequest>> {
+    return this.get('/platform/subscription-requests', query);
+  }
+
+  resolveSubscriptionRequest(id: string, decision: 'approve' | 'reject', note: string | null): Observable<PlatformRequest> {
+    return this.http.post<PlatformRequest>(`${API_BASE}/platform/subscription-requests/${id}/${decision}`, { note });
   }
 
   // Sucursales

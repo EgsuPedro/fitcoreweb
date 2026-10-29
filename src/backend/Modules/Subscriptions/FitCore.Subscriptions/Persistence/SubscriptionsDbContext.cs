@@ -27,6 +27,8 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
     internal DbSet<SubscriptionPaymentAttempt> PaymentAttempts => Set<SubscriptionPaymentAttempt>();
     internal DbSet<SubscriptionPaymentRefund> PaymentRefunds => Set<SubscriptionPaymentRefund>();
     internal DbSet<TenantEntitlement> Entitlements => Set<TenantEntitlement>();
+    internal DbSet<PlatformNote> PlatformNotes => Set<PlatformNote>();
+    internal DbSet<TenantUsageSnapshot> UsageSnapshots => Set<TenantUsageSnapshot>();
 
     // Vistas de solo lectura de otros módulos, para medir el consumo de los límites (RLS y filtro limitan a un solo gimnasio).
     internal DbSet<BranchRef> Branches => Set<BranchRef>();
@@ -59,6 +61,8 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
         modelBuilder.Entity<SubscriptionPaymentRefund>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
         modelBuilder.Entity<SubscriptionPlanChange>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
         modelBuilder.ApplyConfiguration(new TenantEntitlementConfiguration());
+        modelBuilder.ApplyConfiguration(new PlatformNoteConfiguration());
+        modelBuilder.ApplyConfiguration(new TenantUsageSnapshotConfiguration());
         modelBuilder.Entity<TenantEntitlement>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
 
         modelBuilder.Entity<BranchRef>(b =>
@@ -320,5 +324,27 @@ internal sealed class SubscriptionPaymentRefundConfiguration : IEntityTypeConfig
         b.Property(x => x.IdempotencyKey).HasMaxLength(100).IsRequired();
         b.HasIndex(x => x.IdempotencyKey).IsUnique();
         b.HasIndex(x => x.PaymentId);
+    }
+}
+
+internal sealed class PlatformNoteConfiguration : IEntityTypeConfiguration<PlatformNote>
+{
+    public void Configure(EntityTypeBuilder<PlatformNote> b)
+    {
+        b.ToTable("platform_notes", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Text).HasMaxLength(PlatformNote.MaxLength).IsRequired();
+        b.HasIndex(x => new { x.TenantId, x.CreatedAt });
+    }
+}
+
+internal sealed class TenantUsageSnapshotConfiguration : IEntityTypeConfiguration<TenantUsageSnapshot>
+{
+    public void Configure(EntityTypeBuilder<TenantUsageSnapshot> b)
+    {
+        b.ToTable("tenant_usage_snapshots", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.TenantId);
+        b.Property(x => x.TenantId).ValueGeneratedNever();
     }
 }

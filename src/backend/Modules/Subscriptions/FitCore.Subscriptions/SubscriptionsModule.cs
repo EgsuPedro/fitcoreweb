@@ -2,6 +2,7 @@ using FitCore.Application.Core;
 using FitCore.Infrastructure.Core;
 using FitCore.Platform.Persistence;
 using FitCore.Subscriptions.Application.Entitlements;
+using FitCore.Subscriptions.Application.Organizations;
 using FitCore.Subscriptions.Application.Plans;
 using FitCore.Subscriptions.Application.Subscriptions;
 using FitCore.Subscriptions.Persistence;
@@ -30,6 +31,7 @@ public static class SubscriptionsModule
         // Compartido con el Worker: el proceso de vencimientos y sus valores de configuración.
         services.Configure<SubscriptionOptions>(configuration.GetSection(SubscriptionOptions.SectionName));
         services.AddSingleton<SubscriptionLifecycleRunner>();
+        services.AddSingleton<UsageMeter>();
         return services;
     }
 

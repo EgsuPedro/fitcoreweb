@@ -24,6 +24,9 @@ public sealed class SubscriptionOptions
 
     /// <summary>Con cuántos días de anticipación se emite la factura del período siguiente de una suscripción de pago.</summary>
     public int InvoiceLeadDays { get; set; } = 10;
+
+    /// <summary>Cada cuántos minutos se vuelve a medir el consumo (sucursales, usuarios, alumnos) de cada organización.</summary>
+    public int UsageSnapshotMinutes { get; set; } = 60;
 }
 
 public sealed record SubscriptionEventDto(
@@ -85,7 +88,7 @@ public sealed record ResumeSubscriptionRequest(string? Note);
 public sealed record ExtendSubscriptionRequest(int Days, string Reason);
 
 /// <summary>Resultado de una pasada del proceso de vencimientos.</summary>
-public sealed record LifecycleRunSummary(int Examined, int TrialsExpired, int FreeRenewed, int Cancelled, int MarkedPastDue, int GraceExpired, int Failed, int InvoicesIssued = 0)
+public sealed record LifecycleRunSummary(int Examined, int TrialsExpired, int FreeRenewed, int Cancelled, int MarkedPastDue, int GraceExpired, int Failed, int InvoicesIssued = 0, int UsageRefreshed = 0)
 {
     public static readonly LifecycleRunSummary Empty = new(0, 0, 0, 0, 0, 0, 0);
 }

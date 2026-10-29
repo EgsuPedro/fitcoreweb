@@ -204,7 +204,7 @@ internal sealed class ListTenantsHandler(PlatformDbContext db) : IQueryHandler<L
     }
 }
 
-internal sealed class SetTenantStatusHandler(PlatformDbContext db) : ICommandHandler<SetTenantStatusCommand, TenantDto>
+internal sealed class SetTenantStatusHandler(PlatformDbContext db, SecurityAudit audit) : ICommandHandler<SetTenantStatusCommand, TenantDto>
 {
     public async Task<Result<TenantDto>> HandleAsync(SetTenantStatusCommand command, CancellationToken cancellationToken)
     {
@@ -228,6 +228,8 @@ internal sealed class SetTenantStatusHandler(PlatformDbContext db) : ICommandHan
             tenant.Suspend();
         }
 
+        // Suspender o activar un gimnasio (medida administrativa o de seguridad) es una acción relevante: queda auditada con quién y cuándo.
+        audit.Record(command.Active ? "Tenant.Activated" : "Tenant.Suspended", nameof(Tenant), tenant.Id.ToString(), details: new { tenant.Slug });
         await db.SaveChangesAsync(cancellationToken);
         return TenantDto.From(tenant);
     }

@@ -119,6 +119,15 @@ Dominio **aparte** de los pagos que un gimnasio recibe de sus alumnos (`billing.
 - **Sin datos de tarjeta:** el pago con tarjeta **no se registra a mano** (solo existirá a través de un proveedor de pagos); un texto que parezca un número de tarjeta (13 a 19 dígitos que pasan Luhn) en referencia, notas o motivo se rechaza. La tabla no tiene columnas para números ni CVV.
 - **Historial:** cada hecho (factura emitida, pago confirmado o fallido, anulación, reembolso) queda en `subscription_events` y en la auditoría. **Resumen** (`GET /platform/billing/summary`): **emitido** (facturas no anuladas), **cobrado** (pagos confirmados, antes de reembolsos), **reembolsado**, **neto** y **pendiente/vencido** (facturas abiertas hoy). Son sumas de documentos y pagos reales, no MRR ni ARR.
 
+### Bloque 7 — lo implementado
+Panel global del equipo de plataforma (solo en el gimnasio `platform`), **sin acceso a datos de alumnos**: solo lee `subscriptions.*`, `organizations.tenants/branches` y conteos.
+- **Organizaciones** (`GET /platform/organizations`, `/{id}`; `platform.organizations.read`): lista con filtros (texto, estado administrativo, estado de suscripción, plan, vencimiento en 7/15/30 días), suscripción, próximo vencimiento y **consumo agregado** (sucursales, usuarios internos, alumnos). El consumo es una **foto con fecha** (`tenant_usage_snapshots`, solo plataforma): el proceso de vencimientos la renueva cada hora (`UsageSnapshotMinutes`) o a pedido (`POST /{id}/usage/refresh`). El medidor solo hace `COUNT` al entrar al contexto del gimnasio; nunca lee filas de alumnos. No se mide almacenamiento todavía.
+- **Notas administrativas** (`platform_notes`, `GET|POST /{id}/notes`; `platform.organizations.manage`): máximo 1000 caracteres, solo plataforma (RLS), rechazan texto con forma de tarjeta; el gimnasio no las ve.
+- **Actividad** (`GET /{id}/activity`): acciones administrativas auditadas (suscripción, facturas, pagos, notas, suspensión/reactivación administrativa del gimnasio, que ahora también se audita).
+- **Métricas** (`GET /platform/metrics`; `platform.metrics.read`): organizaciones, suspendidas, sin suscripción, pruebas, mora, facturas vencidas, distribución por estado y plan, cobrado/reembolsado/neto/pendiente, renovaciones, cancelaciones y conversión de pruebas. **MRR** = suma de precio ÷ meses del período de las suscripciones de pago Active/PastDue (es lo **contratado**, no lo cobrado); **ARR** = MRR × 12. La fórmula viaja en la respuesta.
+- **Angular:** `/platform/metrics`, `/platform/organizations` (+ detalle con acciones de ciclo de vida, factura, notas, historial y actividad), `/platform/plans` (catálogo y versiones) y `/platform/billing` (facturas, pagos, reembolsos, ejecutar vencimientos). Alta de gimnasio con plan y prueba.
+- **Límites conocidos:** no hay cobro automático ni proveedor; el almacenamiento no se mide; el consumo del listado puede tener hasta una hora de antigüedad.
+
 ## Notificaciones comerciales
 Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago confirmado, pago fallido, mora, cambio de plan, cancelación, suspensión, reactivación. `subscriptions.notices` con único anti-duplicado y entrega interna (portal). El `SubscriptionWorker` genera los avisos de calendario (anticipos configurables) de forma idempotente y reintenta los canales externos, que hoy no existen.
 
@@ -131,7 +140,7 @@ Tipos: inicio de prueba, fin de prueba próximo, vencimiento próximo, pago conf
 | 4 | Servicio de capacidades, derechos vigentes, disparadores de límites y modo de acceso | Hecho |
 | 5 | Renovaciones, cambios de plan, cancelaciones, prórrogas y vencimientos (`SubscriptionWorker`) | Hecho |
 | 6 | Cobros comerciales: facturas internas, pagos, intentos, reversiones; separación de pagos de alumnos | Hecho |
-| 7 | Panel global de plataforma: organizaciones, métricas, notas, auditoría | Pendiente |
+| 7 | Panel global de plataforma: organizaciones, métricas, notas, auditoría | Hecho |
 | 8 | Portal del cliente («Mi suscripción») en Angular y avisos comerciales | Pendiente |
 | 9 | Abstracción del proveedor de pagos y webhooks protegidos (sin proveedor real) | Pendiente |
 | 10 | Pruebas completas, revisión de seguridad, documentación e informe de la fase | Pendiente |

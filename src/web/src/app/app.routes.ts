@@ -166,6 +166,36 @@ export const routes: Routes = [
         loadComponent: () => import('./features/audit/audit').then((m) => m.Audit),
       },
       {
+        path: 'platform/organizations',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformOrganizationsRead },
+        loadComponent: () => import('./features/platform/organizations').then((m) => m.PlatformOrganizations),
+      },
+      {
+        path: 'platform/organizations/:id',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformOrganizationsRead },
+        loadComponent: () => import('./features/platform/organization-detail').then((m) => m.PlatformOrganization),
+      },
+      {
+        path: 'platform/plans',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformPlansRead },
+        loadComponent: () => import('./features/platform/plans').then((m) => m.PlatformPlans),
+      },
+      {
+        path: 'platform/billing',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformBillingRead },
+        loadComponent: () => import('./features/platform/billing').then((m) => m.PlatformBilling),
+      },
+      {
+        path: 'platform/metrics',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformMetricsRead },
+        loadComponent: () => import('./features/platform/metrics').then((m) => m.PlatformMetricsPage),
+      },
+      {
         path: 'platform/tenants',
         canActivate: [permissionGuard],
         data: { permission: Perm.PlatformTenantsManage },

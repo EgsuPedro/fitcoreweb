@@ -292,6 +292,39 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                     b.ToTable("plan_versions", "subscriptions");
                 });
 
+            modelBuilder.Entity("FitCore.Subscriptions.Domain.PlatformNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("AuthorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_platform_notes");
+
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_platform_notes_tenant_id_created_at");
+
+                    b.ToTable("platform_notes", "subscriptions");
+                });
+
             modelBuilder.Entity("FitCore.Subscriptions.Domain.Subscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -927,6 +960,34 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                     b.ToTable("subscription_plan_changes", "subscriptions");
                 });
 
+            modelBuilder.Entity("FitCore.Subscriptions.Domain.TenantUsageSnapshot", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int>("Branches")
+                        .HasColumnType("integer")
+                        .HasColumnName("branches");
+
+                    b.Property<int>("InternalUsers")
+                        .HasColumnType("integer")
+                        .HasColumnName("internal_users");
+
+                    b.Property<DateTimeOffset>("MeasuredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("measured_at");
+
+                    b.Property<int>("Members")
+                        .HasColumnType("integer")
+                        .HasColumnName("members");
+
+                    b.HasKey("TenantId")
+                        .HasName("pk_tenant_usage_snapshots");
+
+                    b.ToTable("tenant_usage_snapshots", "subscriptions");
+                });
+
             modelBuilder.Entity("FitCore.Subscriptions.Persistence.BranchRef", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1083,6 +1144,11 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("account_kind");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("full_name");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")

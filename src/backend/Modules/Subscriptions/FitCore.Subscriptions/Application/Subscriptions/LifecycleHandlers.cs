@@ -1,6 +1,7 @@
 using FitCore.Application.Core;
 using FitCore.SharedKernel;
 using FitCore.Subscriptions.Application.Billing;
+using FitCore.Subscriptions.Application.Organizations;
 using FitCore.Subscriptions.Domain;
 using FitCore.Subscriptions.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -122,7 +123,7 @@ internal sealed class RunLifecycleHandler(SubscriptionLifecycleRunner runner) : 
 /// No hay cobro automático: sin proveedor de pagos, la renovación de un plan de pago se confirma registrando el pago.
 /// </summary>
 public sealed class SubscriptionLifecycleRunner(
-    IServiceScopeFactory scopes, IClock clock, IOptions<SubscriptionOptions> options, ILogger<SubscriptionLifecycleRunner> logger)
+    IServiceScopeFactory scopes, IClock clock, IOptions<SubscriptionOptions> options, UsageMeter usageMeter, ILogger<SubscriptionLifecycleRunner> logger)
 {
     public async Task<LifecycleRunSummary> RunAsync(CancellationToken cancellationToken)
     {
@@ -173,7 +174,47 @@ public sealed class SubscriptionLifecycleRunner(
             }
         }
 
-        return summary;
+        return summary with { UsageRefreshed = await RefreshUsageAsync(platformId, cancellationToken) };
+    }
+
+    /// <summary>Renueva la foto de consumo de las organizaciones que la tienen vieja (o ninguna), unas pocas por pasada, para no cargar la base.</summary>
+    private async Task<int> RefreshUsageAsync(Guid platformId, CancellationToken cancellationToken)
+    {
+        var refreshed = 0;
+        try
+        {
+            await using var scope = scopes.CreateAsyncScope();
+            scope.ServiceProvider.GetRequiredService<ITenantContext>().Set(platformId);
+            var db = scope.ServiceProvider.GetRequiredService<SubscriptionsDbContext>();
+            var cutoff = clock.UtcNow.AddMinutes(-Math.Max(1, options.Value.UsageSnapshotMinutes));
+            var stale = await (from t in db.Tenants.AsNoTracking()
+                               where t.Slug != SubscriptionStore.PlatformSlug
+                               join u in db.UsageSnapshots.AsNoTracking() on t.Id equals u.TenantId into usage
+                               from u in usage.DefaultIfEmpty()
+                               where u == null || u.MeasuredAt < cutoff
+                               orderby u == null ? DateTimeOffset.MinValue : u.MeasuredAt
+                               select t.Id).Take(100).ToListAsync(cancellationToken);
+            foreach (var tenantId in stale)
+            {
+                try
+                {
+                    await usageMeter.RefreshAsync(db, clock, tenantId, cancellationToken);
+                    refreshed++;
+                    db.ChangeTracker.Clear();
+                }
+                catch (Exception ex) when (ex is not OperationCanceledException)
+                {
+                    db.ChangeTracker.Clear();
+                    logger.LogWarning(ex, "No se pudo medir el consumo del gimnasio {TenantId}", tenantId);
+                }
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogError(ex, "Falló la actualización de las fotos de consumo");
+        }
+
+        return refreshed;
     }
 
     private async Task<(LifecycleAction Action, bool Invoiced)> ProcessAsync(Guid platformId, Guid subscriptionId, CancellationToken cancellationToken)

@@ -628,6 +628,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/subscriptions/run-lifecycle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RunSubscriptionLifecycle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListSubscriptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["IssueSubscriptionInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetPlatformMetrics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/login": {
         parameters: {
             query?: never;
@@ -2804,6 +2868,454 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/platform/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListCommercialPlans"];
+        put?: never;
+        post: operations["CreateCommercialPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/plans/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetCommercialPlanCatalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetCommercialPlan"];
+        put: operations["UpdateCommercialPlan"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/plans/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetCommercialPlanStatus"];
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTenantSubscription"];
+        put?: never;
+        post: operations["CreateTenantSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetTenantSubscriptionHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/activate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ActivateTenantSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SuspendTenantSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReactivateTenantSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RenewTenantSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/change-plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ChangeTenantSubscriptionPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CancelTenantSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/resume-cancellation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ResumeTenantSubscriptionCancellation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/tenants/{id}/subscription/extend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ExtendTenantSubscription"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListSubscriptionInvoices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetSubscriptionInvoice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/invoices/{id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PaySubscriptionInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/invoices/{id}/attempts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RecordFailedSubscriptionPaymentAttempt"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/invoices/{id}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VoidSubscriptionInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListSubscriptionPayments"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/payments/{id}/refund": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RefundSubscriptionPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetSubscriptionBillingSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/organizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListPlatformOrganizations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/organizations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetPlatformOrganization"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/organizations/{id}/usage/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RefreshOrganizationUsage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/organizations/{id}/notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListOrganizationNotes"];
+        put?: never;
+        post: operations["AddOrganizationNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/organizations/{id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetOrganizationActivity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/my/subscription/usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetMySubscriptionUsage"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2836,8 +3348,27 @@ export interface components {
             trend: components["schemas"]["TrendRowDto"][];
             memberships: components["schemas"]["PagedResultOfMembershipRowDto"];
         };
+        ActivateSubscriptionRequest: {
+            note: string | null;
+        };
+        ActivityEntryDto: {
+            /** Format: int64 */
+            id: number;
+            action: string;
+            entity: string;
+            entityId: string | null;
+            /** Format: uuid */
+            actorId: string | null;
+            actorName: string | null;
+            /** Format: date-time */
+            occurredAt: string;
+            changes: string | null;
+        };
         /** @enum {unknown} */
         ActivityType: "Yoga" | "Spinning" | "Functional" | "Zumba" | "Pilates" | "Stretching" | "Boxing" | "Dance" | "Other";
+        AddNoteRequest: {
+            text: string;
+        };
         AgingBucketDto: {
             label: string;
             /** Format: int32 */
@@ -3128,6 +3659,37 @@ export interface components {
             /** Format: int32 */
             overdueCount: number;
         };
+        /** @enum {unknown} */
+        BillingPeriod: "Monthly" | "Quarterly" | "Yearly";
+        BillingSummaryDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            currency: string;
+            /** Format: double */
+            issuedAmount: number;
+            /** Format: int32 */
+            issuedCount: number;
+            /** Format: double */
+            collectedAmount: number;
+            /** Format: int32 */
+            collectedCount: number;
+            /** Format: double */
+            refundedAmount: number;
+            /** Format: double */
+            netCollectedAmount: number;
+            /** Format: double */
+            pendingAmount: number;
+            /** Format: int32 */
+            pendingCount: number;
+            /** Format: double */
+            overdueAmount: number;
+            /** Format: int32 */
+            overdueCount: number;
+            /** Format: int32 */
+            failedCount: number;
+        };
         BranchComparisonReportDto: {
             header: components["schemas"]["ReportHeader"];
             branches: components["schemas"]["BranchComparisonRowDto"][];
@@ -3207,6 +3769,10 @@ export interface components {
             series: components["schemas"]["ClassSeriesDto"];
             /** Format: int32 */
             cancelledSessions: number;
+        };
+        CancelSubscriptionRequest: {
+            reason: string;
+            atPeriodEnd: boolean;
         };
         CashMovementDto: {
             /** Format: uuid */
@@ -3340,6 +3906,11 @@ export interface components {
         ChangePasswordRequest: {
             currentPassword: string;
             newPassword: string;
+        };
+        ChangeSubscriptionPlanRequest: {
+            /** Format: uuid */
+            planId: string;
+            note: string | null;
         };
         CheckInRequest: {
             /** Format: uuid */
@@ -3636,6 +4207,24 @@ export interface components {
             notes: string | null;
             allocations: components["schemas"]["AllocationRequest"][] | null;
         };
+        CreatePlanRequest: {
+            code: string;
+            name: string;
+            description: string | null;
+            rules: string | null;
+            isActive: boolean;
+            currency: string;
+            billingPeriod: components["schemas"]["BillingPeriod"];
+            /** Format: double */
+            price: number;
+            /** Format: int32 */
+            trialDays: number;
+            /** Format: int32 */
+            graceDays: number | null;
+            features: string[];
+            limits: components["schemas"]["PlanLimitDto"][];
+            changeNote: string | null;
+        };
         CreateReservationRequest: {
             /** Format: uuid */
             sessionId: string;
@@ -3677,6 +4266,12 @@ export interface components {
             notes: string | null;
             availabilityOverrideReason: string | null;
         };
+        CreateSubscriptionRequest: {
+            /** Format: uuid */
+            planId: string;
+            startTrial: boolean;
+            note: string | null;
+        };
         CreateTaxRateRequest: {
             /** Format: double */
             percent: number;
@@ -3691,6 +4286,10 @@ export interface components {
             ownerEmail: string;
             ownerFullName: string;
             ownerPassword: string;
+            /** @default null */
+            planCode: string | null;
+            /** @default false */
+            startTrial: boolean;
         };
         CreateTrainerNoteRequest: {
             text: string;
@@ -3837,6 +4436,11 @@ export interface components {
             promotionCode: string | null;
             /** Format: date */
             dueDate: string | null;
+        };
+        EntitlementLimitDto: {
+            code: string;
+            /** Format: int64 */
+            limit: number | null;
         };
         /** @enum {unknown} */
         Equipment: "BodyWeight" | "Barbell" | "Dumbbell" | "Kettlebell" | "Machine" | "Cable" | "Band" | "Bench" | "PullUpBar" | "CardioMachine" | "Other";
@@ -4017,6 +4621,22 @@ export interface components {
              */
             classId: string | null;
         };
+        ExtendSubscriptionRequest: {
+            /** Format: int32 */
+            days: number;
+            reason: string;
+        };
+        FeatureAvailabilityDto: {
+            code: string;
+            name: string;
+            description: string;
+            enabled: boolean;
+        };
+        FeatureCatalogDto: {
+            code: string;
+            name: string;
+            description: string;
+        };
         FinancialComparisonDto: {
             /** Format: double */
             collected: number;
@@ -4187,6 +4807,76 @@ export interface components {
             kpis: unknown[];
             sessions: components["schemas"]["SessionBreakdownDto"];
         } | null;
+        InvoiceDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            /** Format: uuid */
+            subscriptionId: string;
+            kind: string;
+            status: string;
+            /** Format: double */
+            amount: number;
+            currency: string;
+            planCode: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: date */
+            periodStart: string;
+            /** Format: date */
+            periodEnd: string;
+            /** Format: date-time */
+            issuedAt: string;
+            /** Format: date */
+            dueOn: string;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: date-time */
+            voidedAt: string | null;
+            voidReason: string | null;
+            /** Format: double */
+            refundedAmount: number;
+            /** Format: int32 */
+            attemptCount: number;
+            isOpen: boolean;
+            notice: string;
+            payment: components["schemas"]["SubscriptionPaymentDto"];
+            attempts: components["schemas"]["PaymentAttemptDto"][];
+        };
+        InvoiceSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            kind: string;
+            status: string;
+            /** Format: double */
+            amount: number;
+            currency: string;
+            planCode: string;
+            /** Format: date */
+            periodStart: string;
+            /** Format: date */
+            periodEnd: string;
+            /** Format: date-time */
+            issuedAt: string;
+            /** Format: date */
+            dueOn: string;
+            /** Format: date-time */
+            paidAt: string | null;
+            /** Format: double */
+            refundedAmount: number;
+            /** Format: int32 */
+            attemptCount: number;
+        };
         JsonElement: unknown;
         KpiDto: {
             key: string;
@@ -4205,6 +4895,52 @@ export interface components {
         };
         /** @enum {unknown} */
         KpiUnit: "Count" | "Currency" | "Percent" | "Average";
+        LifecycleRunSummary: {
+            /** Format: int32 */
+            examined: number;
+            /** Format: int32 */
+            trialsExpired: number;
+            /** Format: int32 */
+            freeRenewed: number;
+            /** Format: int32 */
+            cancelled: number;
+            /** Format: int32 */
+            markedPastDue: number;
+            /** Format: int32 */
+            graceExpired: number;
+            /** Format: int32 */
+            failed: number;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            invoicesIssued: number;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            usageRefreshed: number;
+        };
+        LimitCatalogDto: {
+            code: string;
+            name: string;
+            description: string;
+            unit: string;
+        };
+        LimitUsageDto: {
+            code: string;
+            name: string;
+            description: string;
+            unit: string;
+            /** Format: int64 */
+            limit: number | null;
+            /** Format: int64 */
+            used: number | null;
+            /** Format: int64 */
+            remaining: number | null;
+            reached: boolean;
+            measured: boolean;
+        };
         LoginRequest: {
             tenantSlug: string;
             email: string;
@@ -4575,6 +5311,58 @@ export interface components {
             /** Format: double */
             delta: number | null;
         };
+        MetricsDto: {
+            /** Format: date */
+            from: string;
+            /** Format: date */
+            to: string;
+            currency: string;
+            /** Format: int32 */
+            organizations: number;
+            /** Format: int32 */
+            suspendedOrganizations: number;
+            /** Format: int32 */
+            organizationsWithoutSubscription: number;
+            subscriptionsByStatus: {
+                [key: string]: number;
+            };
+            /** Format: int32 */
+            trialsInProgress: number;
+            /** Format: int32 */
+            pastDue: number;
+            /** Format: int32 */
+            overdueInvoices: number;
+            /** Format: double */
+            overdueAmount: number;
+            byPlan: components["schemas"]["PlanDistributionDto"][];
+            /** Format: double */
+            collectedAmount: number;
+            /** Format: double */
+            refundedAmount: number;
+            /** Format: double */
+            netCollectedAmount: number;
+            /** Format: double */
+            pendingInvoicedAmount: number;
+            /** Format: int32 */
+            renewalsPaid: number;
+            /** Format: int32 */
+            activationsPaid: number;
+            /** Format: int32 */
+            freeRenewals: number;
+            /** Format: int32 */
+            cancellations: number;
+            /** Format: int32 */
+            trialsConverted: number;
+            /** Format: int32 */
+            trialsLost: number;
+            /** Format: double */
+            trialConversionPercent: number | null;
+            /** Format: double */
+            mrr: number;
+            /** Format: double */
+            arr: number;
+            mrrFormula: string;
+        };
         MonthRangeDto: {
             /** Format: date */
             from: string;
@@ -4646,6 +5434,16 @@ export interface components {
             /** Format: double */
             amount: number;
             status: string;
+        };
+        NoteDto: {
+            /** Format: uuid */
+            id: string;
+            text: string;
+            /** Format: uuid */
+            authorId: string | null;
+            authorName: string | null;
+            /** Format: date-time */
+            createdAt: string;
         };
         NotificationDto: {
             /** Format: uuid */
@@ -5090,6 +5888,83 @@ export interface components {
             kpis: unknown[];
             sessions: components["schemas"]["SessionBreakdownDto"];
         } | null;
+        OrganizationDto: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            tenantStatus: string;
+            timeZone: string;
+            /** Format: date-time */
+            createdAt: string;
+            subscription: components["schemas"]["SubscriptionDto2"];
+            entitlement: components["schemas"]["OrganizationEntitlementDto"];
+            usage: components["schemas"]["OrganizationUsageDto"];
+            /** Format: int32 */
+            openInvoices: number;
+            /** Format: double */
+            openInvoicesAmount: number;
+            recentInvoices: components["schemas"]["InvoiceSummaryDto"][];
+            /** Format: int32 */
+            notesCount: number;
+        };
+        OrganizationEntitlementDto: {
+            accessMode: string;
+            features: string[];
+            limits: components["schemas"]["EntitlementLimitDto"][];
+        } | null;
+        OrganizationSubscriptionDto: {
+            /** Format: uuid */
+            subscriptionId: string;
+            planCode: string;
+            planName: string;
+            status: string;
+            /** Format: double */
+            price: number;
+            currency: string;
+            billingPeriod: string;
+            /** Format: date */
+            currentPeriodEnd: string;
+            /** Format: date */
+            nextDueOn: string;
+            /** Format: date */
+            trialEndsOn: string | null;
+            /** Format: date */
+            graceEndsOn: string | null;
+            cancelAtPeriodEnd: boolean;
+        } | null;
+        OrganizationSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            slug: string;
+            name: string;
+            tenantStatus: string;
+            timeZone: string;
+            /** Format: date-time */
+            createdAt: string;
+            subscription: components["schemas"]["OrganizationSubscriptionDto"];
+            usage: components["schemas"]["OrganizationUsageDto"];
+        };
+        OrganizationUsageDto: {
+            /** Format: int32 */
+            branches: number;
+            /** Format: int32 */
+            internalUsers: number;
+            /** Format: int32 */
+            members: number;
+            /** Format: date-time */
+            measuredAt: string;
+        } | null;
+        OrganizationUsageDto2: {
+            /** Format: int32 */
+            branches: number;
+            /** Format: int32 */
+            internalUsers: number;
+            /** Format: int32 */
+            members: number;
+            /** Format: date-time */
+            measuredAt: string;
+        };
         OutstandingReportDto: {
             header: components["schemas"]["ReportHeader"];
             /** Format: double */
@@ -5104,6 +5979,15 @@ export interface components {
             byBranch: components["schemas"]["BalanceByBranchDto"][];
             members: components["schemas"]["PagedResultOfMemberBalanceDto"];
             obligations: components["schemas"]["PagedResultOfObligationBalanceDto"];
+        };
+        PagedResultOfActivityEntryDto: {
+            items: components["schemas"]["ActivityEntryDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
         };
         PagedResultOfAssessmentDto: {
             items: components["schemas"]["AssessmentDto"][];
@@ -5276,6 +6160,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfInvoiceSummaryDto: {
+            items: components["schemas"]["InvoiceSummaryDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfLostMemberDto: {
             items: components["schemas"]["LostMemberDto"][];
             /** Format: int32 */
@@ -5366,6 +6259,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfNoteDto: {
+            items: components["schemas"]["NoteDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfNotificationDto: {
             items: components["schemas"]["NotificationDto"][];
             /** Format: int32 */
@@ -5411,6 +6313,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfOrganizationSummaryDto: {
+            items: components["schemas"]["OrganizationSummaryDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfPaymentDto: {
             items: components["schemas"]["PaymentDto"][];
             /** Format: int32 */
@@ -5431,6 +6342,15 @@ export interface components {
         };
         PagedResultOfPlanSummaryDto: {
             items: components["schemas"]["PlanSummaryDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfPlanSummaryDto2: {
+            items: components["schemas"]["PlanSummaryDto2"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -5467,6 +6387,33 @@ export interface components {
         };
         PagedResultOfSessionOccupancyDto: {
             items: components["schemas"]["SessionOccupancyDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfSubscriptionHistoryItemDto: {
+            items: components["schemas"]["SubscriptionHistoryItemDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfSubscriptionPaymentDto: {
+            items: components["schemas"]["SubscriptionPaymentDto2"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfSubscriptionSummaryDto: {
+            items: components["schemas"]["SubscriptionSummaryDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -5527,6 +6474,25 @@ export interface components {
             pageSize: number;
             /** Format: int32 */
             totalCount: number;
+        };
+        PayInvoiceRequest: {
+            /** Format: double */
+            amount: number;
+            currency: string;
+            method: components["schemas"]["SubscriptionPaymentMethod"];
+            reference: string | null;
+            /** Format: date-time */
+            paidAt: string | null;
+            notes: string | null;
+        };
+        PaymentAttemptDto: {
+            /** Format: uuid */
+            id: string;
+            method: string;
+            reference: string | null;
+            reason: string;
+            /** Format: date-time */
+            attemptedAt: string;
         };
         PaymentDto: {
             /** Format: uuid */
@@ -5643,6 +6609,12 @@ export interface components {
             /** Format: date-time */
             recordedAt: string;
         };
+        PlanCatalogDto: {
+            features: components["schemas"]["FeatureCatalogDto"][];
+            limits: components["schemas"]["LimitCatalogDto"][];
+            billingPeriods: string[];
+            currencies: string[];
+        };
         PlanDayDto: {
             /** Format: uuid */
             id: string;
@@ -5685,6 +6657,14 @@ export interface components {
             /** Format: date-time */
             updatedAt: string | null;
         };
+        PlanDistributionDto: {
+            planCode: string;
+            planName: string;
+            /** Format: int32 */
+            subscriptions: number;
+            /** Format: double */
+            mrr: number;
+        };
         PlanDto: {
             /** Format: uuid */
             id: string;
@@ -5724,6 +6704,21 @@ export interface components {
             /** Format: uuid */
             updatedBy: string | null;
         };
+        PlanDto2: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            description: string | null;
+            rules: string | null;
+            isActive: boolean;
+            current: components["schemas"]["PlanVersionDto2"];
+            versions: components["schemas"]["PlanVersionDto2"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
         PlanExerciseDto: {
             /** Format: uuid */
             id: string;
@@ -5759,6 +6754,11 @@ export interface components {
             /** Format: double */
             recommendedLoadKg: number | null;
             notes: string | null;
+        };
+        PlanLimitDto: {
+            code: string;
+            /** Format: int64 */
+            value: number | null;
         };
         PlanRequest: {
             name: string;
@@ -5808,12 +6808,46 @@ export interface components {
             /** Format: date-time */
             updatedAt: string | null;
         };
+        PlanSummaryDto2: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            description: string | null;
+            isActive: boolean;
+            current: components["schemas"]["PlanVersionDto2"];
+            /** Format: int32 */
+            versionCount: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+        };
         PlanVersionDto: {
             /** Format: uuid */
             id: string;
             /** Format: int32 */
             number: number;
             name: string;
+            changeNote: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: uuid */
+            createdBy: string | null;
+        };
+        PlanVersionDto2: {
+            /** Format: int32 */
+            number: number;
+            currency: string;
+            billingPeriod: string;
+            /** Format: double */
+            price: number;
+            /** Format: int32 */
+            trialDays: number;
+            /** Format: int32 */
+            graceDays: number | null;
+            features: string[];
+            limits: components["schemas"]["PlanLimitDto"][];
             changeNote: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -5902,6 +6936,9 @@ export interface components {
             /** Format: date-time */
             issuedAt: string;
         };
+        ReactivateSubscriptionRequest: {
+            note: string | null;
+        };
         ReceiptDto: {
             receiptNumber: string;
             notice: string;
@@ -5965,9 +7002,19 @@ export interface components {
         RecordAttendanceRequest: {
             entries: components["schemas"]["AttendanceEntryRequest"][];
         };
+        RecordFailedAttemptRequest: {
+            method: components["schemas"]["SubscriptionPaymentMethod"];
+            reference: string | null;
+            reason: string;
+        };
         RefreshRequest: {
             refreshToken: string | null;
         } | null;
+        RefundPaymentRequest: {
+            /** Format: double */
+            amount: number;
+            reason: string;
+        };
         RenewalGroupDto: {
             key: string;
             name: string;
@@ -6003,6 +7050,9 @@ export interface components {
             promotionCode: string | null;
             /** Format: date */
             dueDate: string | null;
+        };
+        RenewSubscriptionRequest: {
+            note: string | null;
         };
         ReportHeader: {
             currency: string;
@@ -6052,6 +7102,9 @@ export interface components {
             offeredAt: string | null;
             /** Format: date-time */
             offerExpiresAt: string | null;
+        };
+        ResumeSubscriptionRequest: {
+            note: string | null;
         };
         RetentionGroupDto: {
             key: string;
@@ -6296,6 +7349,9 @@ export interface components {
         SetPlanStatusRequest: {
             active: boolean;
         };
+        SetPlanStatusRequest2: {
+            isActive: boolean;
+        };
         SetRequest: {
             /** Format: int32 */
             reps: number | null;
@@ -6320,6 +7376,206 @@ export interface components {
         SkippedOccurrenceDto: {
             /** Format: date */
             date: string;
+            reason: string;
+        };
+        SubscriptionDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            /** Format: uuid */
+            planId: string;
+            planCode: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: double */
+            price: number;
+            currency: string;
+            billingPeriod: string;
+            status: string;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date */
+            currentPeriodStart: string;
+            /** Format: date */
+            currentPeriodEnd: string;
+            /** Format: date */
+            trialEndsOn: string | null;
+            /** Format: date */
+            nextDueOn: string;
+            /** Format: date */
+            graceEndsOn: string | null;
+            cancelAtPeriodEnd: boolean;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            cancelReason: string | null;
+            /** Format: date-time */
+            suspendedAt: string | null;
+            suspensionReason: string | null;
+            scheduledCancelReason: string | null;
+            /** Format: uuid */
+            pendingPlanId: string | null;
+            /** Format: uuid */
+            pendingPlanVersionId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+            recentEvents: components["schemas"]["SubscriptionEventDto"][];
+        };
+        SubscriptionDto2: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            /** Format: uuid */
+            planId: string;
+            planCode: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            /** Format: double */
+            price: number;
+            currency: string;
+            billingPeriod: string;
+            status: string;
+            /** Format: date-time */
+            startedAt: string;
+            /** Format: date */
+            currentPeriodStart: string;
+            /** Format: date */
+            currentPeriodEnd: string;
+            /** Format: date */
+            trialEndsOn: string | null;
+            /** Format: date */
+            nextDueOn: string;
+            /** Format: date */
+            graceEndsOn: string | null;
+            cancelAtPeriodEnd: boolean;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            cancelReason: string | null;
+            /** Format: date-time */
+            suspendedAt: string | null;
+            suspensionReason: string | null;
+            scheduledCancelReason: string | null;
+            /** Format: uuid */
+            pendingPlanId: string | null;
+            /** Format: uuid */
+            pendingPlanVersionId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string | null;
+            recentEvents: components["schemas"]["SubscriptionEventDto"][];
+        } | null;
+        SubscriptionEventDto: {
+            /** Format: uuid */
+            id: string;
+            type: string;
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: uuid */
+            actorId: string | null;
+            fromStatus: string | null;
+            toStatus: string | null;
+            detail: string | null;
+        };
+        SubscriptionHistoryItemDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            subscriptionId: string;
+            planCode: string;
+            type: string;
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: uuid */
+            actorId: string | null;
+            fromStatus: string | null;
+            toStatus: string | null;
+            detail: string | null;
+        };
+        SubscriptionPaymentDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            invoiceId: string;
+            invoiceNumber: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            /** Format: double */
+            amount: number;
+            currency: string;
+            method: string;
+            reference: string | null;
+            provider: string | null;
+            /** Format: date-time */
+            paidAt: string;
+            /** Format: date-time */
+            confirmedAt: string;
+            /** Format: double */
+            refundedAmount: number;
+            notes: string | null;
+        } | null;
+        SubscriptionPaymentDto2: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            invoiceId: string;
+            invoiceNumber: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            /** Format: double */
+            amount: number;
+            currency: string;
+            method: string;
+            reference: string | null;
+            provider: string | null;
+            /** Format: date-time */
+            paidAt: string;
+            /** Format: date-time */
+            confirmedAt: string;
+            /** Format: double */
+            refundedAmount: number;
+            notes: string | null;
+        };
+        /** @enum {unknown} */
+        SubscriptionPaymentMethod: "BankTransfer" | "Cash" | "Other" | "Card";
+        SubscriptionSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            tenantId: string;
+            tenantSlug: string;
+            tenantName: string;
+            tenantStatus: string;
+            planCode: string;
+            planName: string;
+            status: string;
+            /** Format: double */
+            price: number;
+            currency: string;
+            billingPeriod: string;
+            /** Format: date */
+            currentPeriodEnd: string;
+            /** Format: date */
+            nextDueOn: string;
+            /** Format: date */
+            trialEndsOn: string | null;
+            /** Format: date */
+            graceEndsOn: string | null;
+        };
+        SuspendSubscriptionRequest: {
             reason: string;
         };
         SystemInfoResponse: {
@@ -6531,6 +7787,22 @@ export interface components {
             timeZone: string;
             locale: string;
         };
+        UpdatePlanRequest: {
+            name: string;
+            description: string | null;
+            rules: string | null;
+            currency: string;
+            billingPeriod: components["schemas"]["BillingPeriod"];
+            /** Format: double */
+            price: number;
+            /** Format: int32 */
+            trialDays: number;
+            /** Format: int32 */
+            graceDays: number | null;
+            features: string[];
+            limits: components["schemas"]["PlanLimitDto"][];
+            changeNote: string | null;
+        };
         UpdatePreferencesRequest: {
             preferences: components["schemas"]["PreferenceChange"][];
         };
@@ -6556,6 +7828,16 @@ export interface components {
             bio: string | null;
             /** Format: date */
             joinedOn: string;
+        };
+        UsageDto: {
+            planCode: string;
+            planName: string;
+            /** Format: int32 */
+            planVersion: number;
+            status: string;
+            accessMode: string;
+            features: components["schemas"]["FeatureAvailabilityDto"][];
+            limits: components["schemas"]["LimitUsageDto"][];
         };
         UserDto: {
             /** Format: uuid */
@@ -6604,6 +7886,9 @@ export interface components {
             payable: number;
             reason: string | null;
             voidedBy: string | null;
+        };
+        VoidInvoiceRequest: {
+            reason: string;
         };
         VoidObligationRequest: {
             reason: string;
@@ -7759,6 +9044,98 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    RunSubscriptionLifecycle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LifecycleRunSummary"];
+                };
+            };
+        };
+    };
+    ListSubscriptions: {
+        parameters: {
+            query?: {
+                status?: string;
+                planCode?: string;
+                search?: string;
+                dueWithinDays?: number;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfSubscriptionSummaryDto"];
+                };
+            };
+        };
+    };
+    IssueSubscriptionInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto"];
+                };
+            };
+        };
+    };
+    GetPlatformMetrics: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricsDto"];
+                };
             };
         };
     };
@@ -12079,6 +13456,806 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    ListCommercialPlans: {
+        parameters: {
+            query?: {
+                search?: string;
+                isActive?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfPlanSummaryDto2"];
+                };
+            };
+        };
+    };
+    CreateCommercialPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePlanRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDto2"];
+                };
+            };
+        };
+    };
+    GetCommercialPlanCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanCatalogDto"];
+                };
+            };
+        };
+    };
+    GetCommercialPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDto2"];
+                };
+            };
+        };
+    };
+    UpdateCommercialPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePlanRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDto2"];
+                };
+            };
+        };
+    };
+    SetCommercialPlanStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPlanStatusRequest2"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDto2"];
+                };
+            };
+        };
+    };
+    GetTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    CreateTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    GetTenantSubscriptionHistory: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfSubscriptionHistoryItemDto"];
+                };
+            };
+        };
+    };
+    ActivateTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivateSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    SuspendTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuspendSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    ReactivateTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReactivateSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    RenewTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RenewSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    ChangeTenantSubscriptionPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeSubscriptionPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    CancelTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    ResumeTenantSubscriptionCancellation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResumeSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    ExtendTenantSubscription: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExtendSubscriptionRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionDto"];
+                };
+            };
+        };
+    };
+    ListSubscriptionInvoices: {
+        parameters: {
+            query?: {
+                status?: string;
+                tenantId?: string;
+                search?: string;
+                from?: string;
+                to?: string;
+                overdue?: boolean;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfInvoiceSummaryDto"];
+                };
+            };
+        };
+    };
+    GetSubscriptionInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto"];
+                };
+            };
+        };
+    };
+    PaySubscriptionInvoice: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayInvoiceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto"];
+                };
+            };
+        };
+    };
+    RecordFailedSubscriptionPaymentAttempt: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordFailedAttemptRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto"];
+                };
+            };
+        };
+    };
+    VoidSubscriptionInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoidInvoiceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto"];
+                };
+            };
+        };
+    };
+    ListSubscriptionPayments: {
+        parameters: {
+            query?: {
+                tenantId?: string;
+                from?: string;
+                to?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfSubscriptionPaymentDto"];
+                };
+            };
+        };
+    };
+    RefundSubscriptionPayment: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefundPaymentRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto"];
+                };
+            };
+        };
+    };
+    GetSubscriptionBillingSummary: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BillingSummaryDto"];
+                };
+            };
+        };
+    };
+    ListPlatformOrganizations: {
+        parameters: {
+            query?: {
+                search?: string;
+                tenantStatus?: string;
+                subscriptionStatus?: string;
+                planCode?: string;
+                dueWithinDays?: number;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfOrganizationSummaryDto"];
+                };
+            };
+        };
+    };
+    GetPlatformOrganization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationDto"];
+                };
+            };
+        };
+    };
+    RefreshOrganizationUsage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrganizationUsageDto2"];
+                };
+            };
+        };
+    };
+    ListOrganizationNotes: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfNoteDto"];
+                };
+            };
+        };
+    };
+    AddOrganizationNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddNoteRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NoteDto"];
+                };
+            };
+        };
+    };
+    GetOrganizationActivity: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfActivityEntryDto"];
+                };
+            };
+        };
+    };
+    GetMySubscriptionUsage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UsageDto"];
+                };
             };
         };
     };

@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../../core/api/api.service';
-import type { Tenant } from '../../core/api/models';
+import type { CommercialPlanSummary, Tenant } from '../../core/api/models';
 import { ErrorMessages, Formatter } from '../../core/i18n/messages';
 import { Confirm } from '../../shared/confirm';
 import { Modal } from '../../shared/modal';
@@ -13,7 +14,7 @@ const LOCALES = ['es-EC', 'es', 'en'] as const;
 
 @Component({
   selector: 'fc-tenants',
-  imports: [ReactiveFormsModule, TranslocoPipe, Modal, Pager, Confirm],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, Modal, Pager, Confirm],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="page-header">
@@ -51,6 +52,7 @@ const LOCALES = ['es-EC', 'es', 'en'] as const;
               </td>
               <td class="actions">
                 @if (tenant.slug !== 'platform') {
+                  <a class="btn" [routerLink]="['/platform/organizations', tenant.id]">{{ 'tenants.viewOrganization' | transloco }}</a>
                   <button type="button" class="btn" [class.btn-danger]="tenant.status === 'Active'" (click)="statusTarget.set(tenant)">
                     {{ (tenant.status === 'Active' ? 'tenants.suspend' : 'tenants.activate') | transloco }}
                   </button>
@@ -98,6 +100,20 @@ const LOCALES = ['es-EC', 'es', 'en'] as const;
                 <option [value]="locale">{{ locale }}</option>
               }
             </select>
+          </label>
+          <label class="field">
+            <span>{{ 'tenants.plan' | transloco }}</span>
+            <select formControlName="planCode">
+              <option value="">{{ 'tenants.planDefault' | transloco }}</option>
+              @for (plan of plans(); track plan.id) {
+                <option [value]="plan.code">{{ plan.name }} · {{ plan.current.price }} {{ plan.current.currency }}</option>
+              }
+            </select>
+            <small class="muted">{{ 'tenants.planHint' | transloco }}</small>
+          </label>
+          <label class="check">
+            <input type="checkbox" formControlName="startTrial" />
+            <span>{{ 'tenants.startTrial' | transloco }}</span>
           </label>
           <h3>{{ 'tenants.owner' | transloco }}</h3>
           <label class="field">
@@ -154,6 +170,7 @@ export class Tenants implements OnInit {
   protected readonly saving = signal(false);
   protected readonly formError = signal<string | null>(null);
   protected readonly statusTarget = signal<Tenant | null>(null);
+  protected readonly plans = signal<CommercialPlanSummary[]>([]);
 
   protected readonly form = this.fb.nonNullable.group({
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/)]],
@@ -163,6 +180,8 @@ export class Tenants implements OnInit {
     ownerFullName: ['', [Validators.required, Validators.maxLength(200)]],
     ownerEmail: ['', [Validators.required, Validators.email]],
     ownerPassword: ['', [Validators.required]],
+    planCode: [''],
+    startTrial: [false],
   });
 
   ngOnInit(): void {
@@ -183,9 +202,13 @@ export class Tenants implements OnInit {
       ownerFullName: '',
       ownerEmail: '',
       ownerPassword: '',
+      planCode: '',
+      startTrial: false,
     });
     this.formError.set(null);
     this.creating.set(true);
+    // Planes que se pueden asignar a un gimnasio nuevo (solo los activos).
+    this.api.commercialPlans({ isActive: true, pageSize: 100 }).subscribe({ next: (r) => this.plans.set(r.items), error: () => this.plans.set([]) });
   }
 
   protected save(): void {
@@ -205,6 +228,8 @@ export class Tenants implements OnInit {
         name: value.name.trim(),
         ownerEmail: value.ownerEmail.trim(),
         ownerFullName: value.ownerFullName.trim(),
+        planCode: value.planCode || null,
+        startTrial: value.startTrial && value.planCode !== '',
       })
       .subscribe({
         next: () => {

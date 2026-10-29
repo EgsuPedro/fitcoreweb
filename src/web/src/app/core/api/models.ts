@@ -167,3 +167,31 @@ export type ReportExport = Schemas['ExportDto'];
 export type ExportReportKey = Schemas['ExportReport'];
 export type ExportRequest = Schemas['ExportRequest'];
 export type PeriodPresetKey = Schemas['PeriodPreset'];
+
+// Administración SaaS (Fase 7): planes comerciales, suscripciones, cobros y panel global de la plataforma.
+// Los nombres con «2» del OpenAPI son los de este módulo cuando chocan con los de los planes de membresía de los gimnasios.
+export type CommercialPlan = Schemas['PlanDto2'];
+export type CommercialPlanSummary = Schemas['PlanSummaryDto2'];
+export type CommercialPlanVersion = Schemas['PlanVersionDto2'];
+export type CommercialPlanLimit = Schemas['PlanLimitDto'];
+export type PlanCatalog = Schemas['PlanCatalogDto'];
+export type CreateCommercialPlanRequest = Schemas['CreatePlanRequest'];
+export type UpdateCommercialPlanRequest = Schemas['UpdatePlanRequest'];
+export type BillingPeriodKey = Schemas['BillingPeriod'];
+
+export type SubscriptionDetail = Schemas['SubscriptionDto'];
+export type SubscriptionEvent = Schemas['SubscriptionEventDto'];
+export type SubscriptionSummary = Schemas['SubscriptionSummaryDto'];
+export type OrganizationSummary = Schemas['OrganizationSummaryDto'];
+export type OrganizationDetail = Schemas['OrganizationDto'];
+export type OrganizationUsage = Schemas['OrganizationUsageDto'];
+export type OrganizationNote = Schemas['NoteDto'];
+export type OrganizationActivity = Schemas['ActivityEntryDto'];
+export type PlatformMetrics = Schemas['MetricsDto'];
+
+export type Invoice = Schemas['InvoiceDto'];
+export type InvoiceSummary = Schemas['InvoiceSummaryDto'];
+export type SubscriptionPayment = Schemas['SubscriptionPaymentDto2'];
+export type BillingSummary = Schemas['BillingSummaryDto'];
+export type PayInvoiceRequest = Schemas['PayInvoiceRequest'];
+export type LifecycleSummary = Schemas['LifecycleRunSummary'];

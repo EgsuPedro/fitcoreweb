@@ -15,6 +15,9 @@ public static class Permissions
     public const string PlatformSubscriptionsManage = "platform.subscriptions.manage";
     public const string PlatformBillingRead = "platform.billing.read";
     public const string PlatformBillingManage = "platform.billing.manage";
+    public const string PlatformOrganizationsRead = "platform.organizations.read";
+    public const string PlatformOrganizationsManage = "platform.organizations.manage";
+    public const string PlatformMetricsRead = "platform.metrics.read";
 
     public const string OrganizationRead = "organization.read";
     public const string OrganizationUpdate = "organization.update";
@@ -127,6 +130,9 @@ public static class Permissions
         new(PlatformTaxesManage, "platform", "Administrar las tarifas de IVA (solo equipo de plataforma)"),
         new(PlatformExercisesManage, "platform", "Administrar el catálogo base de ejercicios (solo equipo de plataforma)"),
         new(PlatformPlansRead, "platform", "Consultar el catálogo de planes comerciales de FitCore 360 (solo equipo de plataforma)"),
+        new(PlatformOrganizationsRead, "platform", "Consultar las organizaciones clientes (gimnasios): plan, estado, vencimientos, consumo agregado, notas y actividad administrativa. Nunca datos personales de alumnos (solo equipo de plataforma)"),
+        new(PlatformOrganizationsManage, "platform", "Registrar notas administrativas no sensibles y refrescar la medición de consumo de una organización (solo equipo de plataforma)"),
+        new(PlatformMetricsRead, "platform", "Ver las métricas agregadas del producto SaaS: organizaciones, suscripciones, cobros, renovaciones y cancelaciones (solo equipo de plataforma)"),
         new(PlatformBillingRead, "platform", "Consultar las facturas internas, los pagos y el resumen de cobros comerciales de FitCore 360 (solo equipo de plataforma)"),
         new(PlatformBillingManage, "platform", "Emitir y anular facturas internas, registrar pagos, intentos fallidos y reembolsos de cobros comerciales (solo equipo de plataforma)"),
         new(PlatformSubscriptionsRead, "platform", "Consultar las suscripciones comerciales de los gimnasios, su estado y su historial (solo equipo de plataforma)"),

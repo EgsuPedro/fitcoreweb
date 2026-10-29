@@ -3,6 +3,24 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import type {
   AccessDecision,
+  BillingSummary,
+  CommercialPlan,
+  CommercialPlanSummary,
+  CreateCommercialPlanRequest,
+  Invoice,
+  InvoiceSummary,
+  LifecycleSummary,
+  OrganizationActivity,
+  OrganizationDetail,
+  OrganizationNote,
+  OrganizationSummary,
+  OrganizationUsage,
+  PayInvoiceRequest,
+  PlanCatalog,
+  PlatformMetrics,
+  SubscriptionDetail,
+  SubscriptionPayment,
+  UpdateCommercialPlanRequest,
   AttendanceEntryRequest,
   CancelSeriesResult,
   ClassAttendance,
@@ -163,6 +181,105 @@ export class ApiService {
   /** Operaciones que mueven dinero: la clave de idempotencia evita duplicarlas ante un reintento. */
   private postKeyed<T>(path: string, body: unknown, key: string): Observable<T> {
     return this.http.post<T>(`${API_BASE}${path}`, body, { headers: new HttpHeaders({ 'Idempotency-Key': key }) });
+  }
+
+  // Administración SaaS (solo equipo de plataforma)
+  commercialPlans(query: Query = {}): Observable<Paged<CommercialPlanSummary>> {
+    return this.get('/platform/plans', query);
+  }
+
+  commercialPlan(id: string): Observable<CommercialPlan> {
+    return this.get(`/platform/plans/${id}`);
+  }
+
+  planCatalog(): Observable<PlanCatalog> {
+    return this.get('/platform/plans/catalog');
+  }
+
+  createCommercialPlan(body: CreateCommercialPlanRequest): Observable<CommercialPlan> {
+    return this.http.post<CommercialPlan>(`${API_BASE}/platform/plans`, body);
+  }
+
+  updateCommercialPlan(id: string, body: UpdateCommercialPlanRequest): Observable<CommercialPlan> {
+    return this.http.put<CommercialPlan>(`${API_BASE}/platform/plans/${id}`, body);
+  }
+
+  setCommercialPlanStatus(id: string, isActive: boolean): Observable<CommercialPlan> {
+    return this.http.patch<CommercialPlan>(`${API_BASE}/platform/plans/${id}/status`, { isActive });
+  }
+
+  organizations(query: Query = {}): Observable<Paged<OrganizationSummary>> {
+    return this.get('/platform/organizations', query);
+  }
+
+  organization(id: string): Observable<OrganizationDetail> {
+    return this.get(`/platform/organizations/${id}`);
+  }
+
+  refreshOrganizationUsage(id: string): Observable<OrganizationUsage> {
+    return this.http.post<OrganizationUsage>(`${API_BASE}/platform/organizations/${id}/usage/refresh`, {});
+  }
+
+  organizationNotes(id: string, query: Query = {}): Observable<Paged<OrganizationNote>> {
+    return this.get(`/platform/organizations/${id}/notes`, query);
+  }
+
+  addOrganizationNote(id: string, text: string): Observable<OrganizationNote> {
+    return this.http.post<OrganizationNote>(`${API_BASE}/platform/organizations/${id}/notes`, { text });
+  }
+
+  organizationActivity(id: string, query: Query = {}): Observable<Paged<OrganizationActivity>> {
+    return this.get(`/platform/organizations/${id}/activity`, query);
+  }
+
+  platformMetrics(query: Query = {}): Observable<PlatformMetrics> {
+    return this.get('/platform/metrics', query);
+  }
+
+  /** Acciones de plataforma sobre la suscripción de un gimnasio: assign (POST raíz), activate, suspend, reactivate, renew, change-plan, cancel, resume-cancellation, extend. */
+  subscriptionAction(tenantId: string, action: string, body: unknown = {}): Observable<SubscriptionDetail> {
+    const suffix = action === 'assign' ? '' : `/${action}`;
+    return this.http.post<SubscriptionDetail>(`${API_BASE}/platform/tenants/${tenantId}/subscription${suffix}`, body);
+  }
+
+  runSubscriptionLifecycle(): Observable<LifecycleSummary> {
+    return this.http.post<LifecycleSummary>(`${API_BASE}/platform/subscriptions/run-lifecycle`, {});
+  }
+
+  issueInvoice(tenantId: string): Observable<Invoice> {
+    return this.http.post<Invoice>(`${API_BASE}/platform/tenants/${tenantId}/subscription/invoices`, {});
+  }
+
+  invoices(query: Query = {}): Observable<Paged<InvoiceSummary>> {
+    return this.get('/platform/billing/invoices', query);
+  }
+
+  invoice(id: string): Observable<Invoice> {
+    return this.get(`/platform/billing/invoices/${id}`);
+  }
+
+  payInvoice(id: string, body: PayInvoiceRequest, key: string): Observable<Invoice> {
+    return this.postKeyed(`/platform/billing/invoices/${id}/pay`, body, key);
+  }
+
+  recordFailedAttempt(id: string, body: { method: string; reference: string | null; reason: string }): Observable<Invoice> {
+    return this.http.post<Invoice>(`${API_BASE}/platform/billing/invoices/${id}/attempts`, body);
+  }
+
+  voidInvoice(id: string, reason: string): Observable<Invoice> {
+    return this.http.post<Invoice>(`${API_BASE}/platform/billing/invoices/${id}/void`, { reason });
+  }
+
+  subscriptionPayments(query: Query = {}): Observable<Paged<SubscriptionPayment>> {
+    return this.get('/platform/billing/payments', query);
+  }
+
+  refundSubscriptionPayment(id: string, body: { amount: number; reason: string }, key: string): Observable<Invoice> {
+    return this.postKeyed(`/platform/billing/payments/${id}/refund`, body, key);
+  }
+
+  billingSummary(query: Query = {}): Observable<BillingSummary> {
+    return this.get('/platform/billing/summary', query);
   }
 
   // Sucursales

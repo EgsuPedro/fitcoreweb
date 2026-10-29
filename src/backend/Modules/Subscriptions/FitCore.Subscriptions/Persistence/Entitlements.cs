@@ -68,6 +68,7 @@ internal sealed class UserRef
     public Guid TenantId { get; init; }
     public bool IsActive { get; init; }
     public string AccountKind { get; init; } = string.Empty;
+    public string FullName { get; init; } = string.Empty;
 }
 
 /// <summary>Alumno (solo lectura): para medir el consumo del límite de alumnos registrados.</summary>

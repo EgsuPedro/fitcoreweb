@@ -381,7 +381,8 @@
       "nothing_to_pay": "The member has no pending obligations.",
       "obligation_not_payable": "The obligation is voided or already paid.",
       "paid_at_invalid": "The payment date cannot be in the future or older than 30 days.",
-      "reversal_requires_open_cash_session": "To reverse a cash payment from an already closed register you need an open register at the branch."
+      "reversal_requires_open_cash_session": "To reverse a cash payment from an already closed register you need an open register at the branch.",
+      "outcome_invalid": "The result is not valid."
     },
     "plans": {
       "branches_required": "Indicate at which branches within your scope the plan is sold.",
@@ -2668,7 +2669,8 @@
       "tabs": {
         "label": "Billing",
         "invoices": "Invoices",
-        "payments": "Payments"
+        "payments": "Payments",
+        "provider": "Payment provider"
       },
       "overdueOnly": "Overdue only",
       "number": "Number",
@@ -2819,6 +2821,42 @@
       "noteOptional": "Note for the gym (optional)",
       "approved": "Request approved and applied.",
       "rejected": "Request rejected."
+    },
+    "provider": {
+      "title": "Payment provider integration",
+      "configured": "Configured",
+      "notConfigured": "No provider",
+      "notConfiguredHint": "No payment provider is configured: webhooks are rejected and every payment is recorded by hand. To enable it, define the signing secret in the server configuration (never in the repository).",
+      "hint": "Only notifications signed by the provider are accepted. The amount and currency must match the issued invoice exactly; anything that does not match changes nothing and is listed here as rejected for manual review. FitCore 360 does not store card data.",
+      "endpoint": "Notification address",
+      "header": "Signature header",
+      "tolerance": "Timestamp tolerance",
+      "rotation": "A secret rotation is in progress: the previous secret is also accepted. Remove it once the provider signs with the new one.",
+      "result": "Result",
+      "received": "Received",
+      "event": "Event",
+      "empty": "No provider event has been received yet.",
+      "outcome": {
+        "Applied": "Applied",
+        "Rejected": "Rejected",
+        "Ignored": "Ignored"
+      },
+      "type": {
+        "PaymentSucceeded": "Payment confirmed",
+        "PaymentFailed": "Charge failed",
+        "PaymentRefunded": "Refund"
+      },
+      "code": {
+        "billing.invoice_not_found": "The invoice does not exist.",
+        "billing.amount_mismatch": "The amount or currency does not match the invoice.",
+        "billing.already_paid": "That charge was already recorded.",
+        "billing.invoice_not_open": "The invoice no longer accepts payments (paid, voided or refunded).",
+        "billing.subscription_suspended": "The subscription is suspended: reactivate it and record the payment by hand.",
+        "billing.subscription_not_billable": "The subscription cannot be billed in its current status.",
+        "subscriptions.not_found": "The subscription was not found.",
+        "billing.payment_not_found": "The refunded payment was not found.",
+        "billing.refund_amount_invalid": "The refund exceeds what was paid or is not valid."
+      }
     }
   },
   "mySubscription": {

@@ -23,6 +23,8 @@ import type {
   OrganizationSummary,
   OrganizationUsage,
   PayInvoiceRequest,
+  PaymentProviderStatus,
+  ProviderEvent,
   PlanCatalog,
   PlatformMetrics,
   SubscriptionDetail,
@@ -283,6 +285,14 @@ export class ApiService {
 
   refundSubscriptionPayment(id: string, body: { amount: number; reason: string }, key: string): Observable<Invoice> {
     return this.postKeyed(`/platform/billing/payments/${id}/refund`, body, key);
+  }
+
+  paymentProviderStatus(): Observable<PaymentProviderStatus> {
+    return this.get('/platform/billing/provider');
+  }
+
+  providerEvents(query: Query = {}): Observable<Paged<ProviderEvent>> {
+    return this.get('/platform/billing/provider-events', query);
   }
 
   billingSummary(query: Query = {}): Observable<BillingSummary> {

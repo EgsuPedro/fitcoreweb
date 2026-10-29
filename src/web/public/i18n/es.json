@@ -381,7 +381,8 @@
       "nothing_to_pay": "El alumno no tiene obligaciones pendientes.",
       "obligation_not_payable": "La obligación está anulada o ya está pagada.",
       "paid_at_invalid": "La fecha del pago no puede ser futura ni anterior a 30 días.",
-      "reversal_requires_open_cash_session": "Para revertir un cobro en efectivo de una caja ya cerrada necesita una caja abierta en la sucursal."
+      "reversal_requires_open_cash_session": "Para revertir un cobro en efectivo de una caja ya cerrada necesita una caja abierta en la sucursal.",
+      "outcome_invalid": "El resultado no es válido."
     },
     "plans": {
       "branches_required": "Indique en qué sucursales de su alcance se vende el plan.",
@@ -2668,7 +2669,8 @@
       "tabs": {
         "label": "Cobros",
         "invoices": "Facturas",
-        "payments": "Pagos"
+        "payments": "Pagos",
+        "provider": "Proveedor de pagos"
       },
       "overdueOnly": "Solo vencidas",
       "number": "Número",
@@ -2819,6 +2821,42 @@
       "noteOptional": "Nota para el gimnasio (opcional)",
       "approved": "Solicitud aprobada y aplicada.",
       "rejected": "Solicitud rechazada."
+    },
+    "provider": {
+      "title": "Integración con el proveedor de pagos",
+      "configured": "Configurado",
+      "notConfigured": "Sin proveedor",
+      "notConfiguredHint": "No hay un proveedor de pagos configurado: los webhooks se rechazan y todos los pagos se registran a mano. Para activarlo se define el secreto de firma en la configuración del servidor (nunca en el repositorio).",
+      "hint": "Solo se aceptan avisos firmados por el proveedor. El importe y la moneda deben coincidir exactamente con la factura emitida; lo que no concuerda no cambia nada y queda aquí como rechazado para revisarlo a mano. FitCore 360 no guarda datos de tarjeta.",
+      "endpoint": "Dirección de avisos",
+      "header": "Encabezado de la firma",
+      "tolerance": "Tolerancia de la marca de tiempo",
+      "rotation": "Hay una rotación de secreto en curso: se acepta también el secreto anterior. Retírelo cuando el proveedor ya firme con el nuevo.",
+      "result": "Resultado",
+      "received": "Recibido",
+      "event": "Evento",
+      "empty": "Todavía no se ha recibido ningún evento del proveedor.",
+      "outcome": {
+        "Applied": "Aplicado",
+        "Rejected": "Rechazado",
+        "Ignored": "Ignorado"
+      },
+      "type": {
+        "PaymentSucceeded": "Pago confirmado",
+        "PaymentFailed": "Cobro fallido",
+        "PaymentRefunded": "Reembolso"
+      },
+      "code": {
+        "billing.invoice_not_found": "La factura no existe.",
+        "billing.amount_mismatch": "El importe o la moneda no coinciden con la factura.",
+        "billing.already_paid": "Ese cobro ya estaba registrado.",
+        "billing.invoice_not_open": "La factura ya no admite pagos (pagada, anulada o reembolsada).",
+        "billing.subscription_suspended": "La suscripción está suspendida: reactívela y registre el pago a mano.",
+        "billing.subscription_not_billable": "La suscripción no admite cobros en su estado actual.",
+        "subscriptions.not_found": "No se encontró la suscripción.",
+        "billing.payment_not_found": "No se encontró el pago que se reembolsa.",
+        "billing.refund_amount_invalid": "El reembolso supera lo pagado o no es válido."
+      }
     }
   },
   "mySubscription": {

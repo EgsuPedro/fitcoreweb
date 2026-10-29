@@ -41,6 +41,9 @@ services:
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?Defina JWT_SIGNING_KEY (mínimo 32 caracteres) en infra/compose/.env}
       Platform__AdminEmail: ${PLATFORM_ADMIN_EMAIL:-}
       Platform__AdminPassword: ${PLATFORM_ADMIN_PASSWORD:-}
+      # Proveedor de pagos: sin secreto no hay proveedor y los webhooks se rechazan (todo pago se registra a mano).
+      Subscriptions__Payments__ProviderCode: ${PAYMENT_PROVIDER_CODE:-webhook}
+      Subscriptions__Payments__WebhookSecret: ${PAYMENT_WEBHOOK_SECRET:-}
       # Límite de intentos de acceso por minuto y por IP. Las pruebas end-to-end inician muchas sesiones desde una sola IP: en CI se sube.
       RateLimiting__LoginPermitPerMinute: ${LOGIN_RATE_LIMIT:-20}
       # Redes privadas de Docker: solo ahí se confía en X-Forwarded-For (lo envía el nginx del servicio web).

@@ -676,6 +676,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/webhooks/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ReceivePaymentWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/metrics": {
         parameters: {
             query?: never;
@@ -3212,6 +3228,38 @@ export interface paths {
             cookie?: never;
         };
         get: operations["GetSubscriptionBillingSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/provider": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetPaymentProviderStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/billing/provider-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListPaymentProviderEvents"];
         put?: never;
         post?: never;
         delete?: never;
@@ -6641,6 +6689,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfProviderEventDto: {
+            items: components["schemas"]["ProviderEventDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfReservationDto: {
             items: components["schemas"]["ReservationDto"][];
             /** Format: int32 */
@@ -7238,6 +7295,38 @@ export interface components {
             restrictions: string | null;
             isActive: boolean;
             planIds: string[] | null;
+        };
+        ProviderEventDto: {
+            /** Format: uuid */
+            id: string;
+            provider: string;
+            externalEventId: string;
+            type: string;
+            /** Format: uuid */
+            tenantId: string | null;
+            tenantName: string | null;
+            /** Format: uuid */
+            invoiceId: string | null;
+            invoiceNumber: string | null;
+            providerReference: string | null;
+            /** Format: double */
+            amount: number | null;
+            currency: string | null;
+            /** Format: date-time */
+            occurredAt: string;
+            /** Format: date-time */
+            receivedAt: string;
+            outcome: string;
+            outcomeCode: string | null;
+        };
+        ProviderStatusDto: {
+            configured: boolean;
+            provider: string;
+            signatureHeader: string;
+            webhookPath: string;
+            /** Format: int32 */
+            toleranceSeconds: number;
+            rotationInProgress: boolean;
         };
         QrTokenDto: {
             token: string;
@@ -8226,6 +8315,11 @@ export interface components {
         };
         VoidObligationRequest: {
             reason: string;
+        };
+        WebhookReceiptDto: {
+            received: boolean;
+            outcome: string;
+            duplicate: boolean;
         };
         WorkoutSessionDto: {
             /** Format: uuid */
@@ -9446,6 +9540,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InvoiceDto"];
+                };
+            };
+        };
+    };
+    ReceivePaymentWebhook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WebhookReceiptDto"];
                 };
             };
         };
@@ -14421,6 +14535,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BillingSummaryDto"];
+                };
+            };
+        };
+    };
+    GetPaymentProviderStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderStatusDto"];
+                };
+            };
+        };
+    };
+    ListPaymentProviderEvents: {
+        parameters: {
+            query?: {
+                outcome?: string;
+                tenantId?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfProviderEventDto"];
                 };
             };
         };

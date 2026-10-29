@@ -31,6 +31,7 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
     internal DbSet<TenantUsageSnapshot> UsageSnapshots => Set<TenantUsageSnapshot>();
     internal DbSet<SubscriptionRequest> Requests => Set<SubscriptionRequest>();
     internal DbSet<SubscriptionNotice> Notices => Set<SubscriptionNotice>();
+    internal DbSet<ProviderEventRecord> ProviderEvents => Set<ProviderEventRecord>();
 
     // Vistas de solo lectura de otros módulos, para medir el consumo de los límites (RLS y filtro limitan a un solo gimnasio).
     internal DbSet<BranchRef> Branches => Set<BranchRef>();
@@ -68,6 +69,7 @@ public sealed class SubscriptionsDbContext(DbContextOptions<SubscriptionsDbConte
         modelBuilder.Entity<TenantEntitlement>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
         modelBuilder.ApplyConfiguration(new SubscriptionRequestConfiguration());
         modelBuilder.ApplyConfiguration(new SubscriptionNoticeConfiguration());
+        modelBuilder.ApplyConfiguration(new ProviderEventConfiguration());
         modelBuilder.Entity<SubscriptionRequest>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
         modelBuilder.Entity<SubscriptionNotice>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
 
@@ -386,5 +388,27 @@ internal sealed class SubscriptionNoticeConfiguration : IEntityTypeConfiguration
         b.Property(x => x.Reference).HasMaxLength(40);
         b.HasIndex(x => new { x.TenantId, x.DedupeKey }).IsUnique().HasDatabaseName("ux_subscription_notices_dedupe");
         b.HasIndex(x => new { x.TenantId, x.CreatedAt });
+    }
+}
+
+internal sealed class ProviderEventConfiguration : IEntityTypeConfiguration<ProviderEventRecord>
+{
+    public void Configure(EntityTypeBuilder<ProviderEventRecord> b)
+    {
+        b.ToTable("provider_events", SubscriptionsDbContext.Schema);
+        b.HasKey(x => x.Id);
+        b.Property(x => x.Id).ValueGeneratedNever();
+        b.Property(x => x.Provider).HasMaxLength(30).IsRequired();
+        b.Property(x => x.ExternalEventId).HasMaxLength(100).IsRequired();
+        b.Property(x => x.Type).HasMaxLength(30).IsRequired();
+        b.Property(x => x.InvoiceNumber).HasMaxLength(40);
+        b.Property(x => x.ProviderReference).HasMaxLength(100);
+        b.Property(x => x.Amount).HasPrecision(12, 2);
+        b.Property(x => x.Currency).HasMaxLength(3);
+        b.Property(x => x.Outcome).HasConversion<string>().HasMaxLength(20).IsRequired();
+        b.Property(x => x.OutcomeCode).HasMaxLength(60);
+        b.HasIndex(x => new { x.Provider, x.ExternalEventId }).IsUnique().HasDatabaseName("ux_provider_events_external");
+        b.HasIndex(x => x.ReceivedAt);
+        b.HasIndex(x => new { x.TenantId, x.ReceivedAt });
     }
 }

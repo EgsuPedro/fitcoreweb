@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal 
 import { RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ApiService } from '../../core/api/api.service';
-import type { BillingSummary, InvoiceSummary, SubscriptionPayment } from '../../core/api/models';
+import type { BillingSummary, InvoiceSummary, PaymentProviderStatus, ProviderEvent, SubscriptionPayment } from '../../core/api/models';
 import { ErrorMessages } from '../../core/i18n/messages';
 import { Badge } from '../../shared/badge';
 import { FcDate, FcDateTime, FcMoney } from '../../shared/format.pipes';
@@ -17,7 +17,9 @@ import { invoiceTone, parseAmount } from './platform-math';
 const TABS = [
   { id: 'invoices', labelKey: 'platform.billing.tabs.invoices' },
   { id: 'payments', labelKey: 'platform.billing.tabs.payments' },
+  { id: 'provider', labelKey: 'platform.billing.tabs.provider' },
 ] as const;
+const OUTCOMES = ['Applied', 'Rejected', 'Ignored'] as const;
 const STATUSES = ['Pending', 'Failed', 'Paid', 'Void', 'Refunded', 'PartiallyRefunded'] as const;
 
 /**
@@ -106,7 +108,7 @@ const STATUSES = ['Pending', 'Failed', 'Paid', 'Void', 'Refunded', 'PartiallyRef
         </table>
       </div>
       <fc-pager [page]="invoices.page()" [pageSize]="invoices.pageSize" [total]="invoices.total()" (pageChange)="invoices.goTo($event)" />
-    } @else {
+    } @else if (tab.current() === 'payments') {
       @if (payments.error()) { <p class="alert alert-danger" role="alert">{{ payments.error() }}</p> }
       <div class="card table-card">
         <table class="table">
@@ -142,6 +144,72 @@ const STATUSES = ['Pending', 'Failed', 'Paid', 'Void', 'Refunded', 'PartiallyRef
         </table>
       </div>
       <fc-pager [page]="payments.page()" [pageSize]="payments.pageSize" [total]="payments.total()" (pageChange)="payments.goTo($event)" />
+    } @else {
+      <section class="card">
+        <h2>{{ 'platform.provider.title' | transloco }}</h2>
+        @if (providerStatus(); as s) {
+          @if (s.configured) {
+            <p><fc-badge tone="ok">{{ 'platform.provider.configured' | transloco }}</fc-badge> <strong>{{ s.provider }}</strong></p>
+            <dl class="summary">
+              <div><dt>{{ 'platform.provider.endpoint' | transloco }}</dt><dd><code>POST {{ s.webhookPath }}</code></dd></div>
+              <div><dt>{{ 'platform.provider.header' | transloco }}</dt><dd><code>{{ s.signatureHeader }}</code></dd></div>
+              <div><dt>{{ 'platform.provider.tolerance' | transloco }}</dt><dd>{{ s.toleranceSeconds }} s</dd></div>
+            </dl>
+            @if (s.rotationInProgress) { <p class="alert alert-info">{{ 'platform.provider.rotation' | transloco }}</p> }
+          } @else {
+            <p><fc-badge tone="off">{{ 'platform.provider.notConfigured' | transloco }}</fc-badge></p>
+            <p class="muted">{{ 'platform.provider.notConfiguredHint' | transloco }}</p>
+          }
+        }
+        <p class="muted">{{ 'platform.provider.hint' | transloco }}</p>
+      </section>
+
+      <section class="card filters">
+        <div class="filters-row">
+          <label class="inline-field">
+            <span>{{ 'platform.provider.result' | transloco }}</span>
+            <select (change)="events.set({ outcome: $any($event.target).value })">
+              <option value="">{{ 'common.all' | transloco }}</option>
+              @for (o of outcomes; track o) { <option [value]="o">{{ 'platform.provider.outcome.' + o | transloco }}</option> }
+            </select>
+          </label>
+        </div>
+      </section>
+      @if (events.error()) { <p class="alert alert-danger" role="alert">{{ events.error() }}</p> }
+      <div class="card table-card">
+        <table class="table">
+          <caption class="sr-only">{{ 'platform.billing.tabs.provider' | transloco }}</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'platform.provider.received' | transloco }}</th>
+              <th scope="col">{{ 'platform.provider.event' | transloco }}</th>
+              <th scope="col">{{ 'platform.billing.number' | transloco }}</th>
+              <th scope="col" class="num">{{ 'platform.billing.amount' | transloco }}</th>
+              <th scope="col">{{ 'platform.provider.result' | transloco }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (e of events.items(); track e.id) {
+              <tr>
+                <td>{{ e.receivedAt | fcDateTime }}</td>
+                <td>{{ 'platform.provider.type.' + e.type | transloco }}<br /><small class="muted">{{ e.externalEventId }}</small></td>
+                <td>
+                  @if (e.tenantId) { <a [routerLink]="['/platform/organizations', e.tenantId]">{{ e.tenantName }}</a><br /> }
+                  {{ e.invoiceNumber }}
+                </td>
+                <td class="num">@if (e.amount !== null) { {{ e.amount | fcMoney }} <small class="muted">{{ e.currency }}</small> }</td>
+                <td>
+                  <fc-badge [tone]="outcomeTone(e.outcome)">{{ 'platform.provider.outcome.' + e.outcome | transloco }}</fc-badge>
+                  @if (e.outcomeCode) { <br /><small class="muted">{{ outcomeCodeText(e.outcomeCode) }}</small> }
+                </td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="empty">{{ (events.loading() ? 'common.loading' : 'platform.provider.empty') | transloco }}</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <fc-pager [page]="events.page()" [pageSize]="events.pageSize" [total]="events.total()" (pageChange)="events.goTo($event)" />
     }
 
     @if (refunding(); as p) {
@@ -170,6 +238,9 @@ export class PlatformBilling implements OnInit {
   protected readonly statuses = STATUSES;
   protected readonly tab = queryTab(TABS.map((t) => t.id), 'invoices');
   protected readonly invoices = new ListState<InvoiceSummary>((q) => this.api.invoices(q), this.errors, this.destroyRef);
+  protected readonly events = new ListState<ProviderEvent>((q) => this.api.providerEvents(q), this.errors, this.destroyRef);
+  protected readonly outcomes = OUTCOMES;
+  protected readonly providerStatus = signal<PaymentProviderStatus | null>(null);
   protected readonly payments = new ListState<SubscriptionPayment>((q) => this.api.subscriptionPayments(q), this.errors, this.destroyRef);
 
   protected readonly summary = signal<BillingSummary | null>(null);
@@ -187,7 +258,20 @@ export class PlatformBilling implements OnInit {
   ngOnInit(): void {
     this.invoices.load();
     this.payments.load();
+    this.events.load();
+    this.api.paymentProviderStatus().subscribe({ next: (s) => this.providerStatus.set(s), error: () => this.providerStatus.set(null) });
     this.loadSummary();
+  }
+
+  protected outcomeTone(outcome: string) {
+    return outcome === 'Applied' ? 'ok' : outcome === 'Rejected' ? 'danger' : 'off';
+  }
+
+  /** Motivo por el que un evento no se aplicó, en palabras; si es un código desconocido se muestra tal cual. */
+  protected outcomeCodeText(code: string): string {
+    const key = 'platform.provider.code.' + code;
+    const text = this.transloco.translate(key);
+    return text === key ? code : text;
   }
 
   protected tone(status: string) {

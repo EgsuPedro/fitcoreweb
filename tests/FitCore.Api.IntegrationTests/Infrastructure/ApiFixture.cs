@@ -16,6 +16,7 @@ public sealed class ApiFixture : IAsyncLifetime
     public const string PlatformEmail = "admin@fitcore.test";
     public const string PlatformPassword = "PlatformPass1234";
     public const string SigningKey = "test-signing-key-test-signing-key-0123456789";
+    public const string WebhookSecret = "whsec-test-secret-0123456789abcdef";
 
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
         .WithDatabase("fitcore")
@@ -68,6 +69,9 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("Platform:AdminEmail", PlatformEmail);
             builder.UseSetting("Platform:AdminPassword", PlatformPassword);
             builder.UseSetting("RateLimiting:LoginPermitPerMinute", "100000");
+            builder.UseSetting("RateLimiting:WebhookPermitPerMinute", "100000");
+            builder.UseSetting("Subscriptions:Payments:ProviderCode", "testpay");
+            builder.UseSetting("Subscriptions:Payments:WebhookSecret", WebhookSecret);
             builder.UseSetting("RateLimiting:SessionPermitPerMinute", "100000");
             builder.UseSetting("FileStorage:RootPath", FilesRoot);
         });

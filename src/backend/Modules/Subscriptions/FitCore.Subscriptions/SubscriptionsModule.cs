@@ -4,6 +4,7 @@ using FitCore.Platform.Persistence;
 using FitCore.Subscriptions.Application.Entitlements;
 using FitCore.Subscriptions.Application.Organizations;
 using FitCore.Subscriptions.Application.Plans;
+using FitCore.Subscriptions.Application.Providers;
 using FitCore.Subscriptions.Application.Subscriptions;
 using FitCore.Subscriptions.Persistence;
 using FluentValidation;
@@ -39,6 +40,9 @@ public static class SubscriptionsModule
     public static IServiceCollection AddSubscriptionsModule(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSubscriptionsPersistence(configuration);
+        // Proveedor de pagos: solo recibe webhooks firmados. Sin secreto configurado no hay proveedor y todo sigue siendo manual.
+        services.Configure<PaymentProviderOptions>(configuration.GetSection(PaymentProviderOptions.SectionName));
+        services.AddSingleton<IPaymentProviderGateway, SignedWebhookGateway>();
         services.AddScoped<ITenantProvisioningHook, SubscriptionProvisioningHook>();
         services.AddScoped<ICapabilityEvaluator, CapabilityEvaluator>();
         services.AddSingleton<IModuleInitializer, SubscriptionsInitializer>();

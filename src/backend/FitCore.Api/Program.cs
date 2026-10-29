@@ -138,6 +138,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     AddPerIpPolicy(options, RateLimitPolicies.Login, builder.Configuration.GetValue("RateLimiting:LoginPermitPerMinute", 20));
+    AddPerIpPolicy(options, RateLimitPolicies.Webhooks, builder.Configuration.GetValue("RateLimiting:WebhookPermitPerMinute", 300));
     AddPerIpPolicy(options, RateLimitPolicies.Session, builder.Configuration.GetValue("RateLimiting:SessionPermitPerMinute", 120));
 });
 
@@ -210,6 +211,7 @@ v1.MapReportsEndpoints();
 v1.MapPlansEndpoints();
 v1.MapSubscriptionsEndpoints();
 v1.MapBillingEndpoints();
+v1.MapWebhookEndpoints();
 v1.MapOrganizationsEndpoints();
 v1.MapMySubscriptionEndpoints();
 

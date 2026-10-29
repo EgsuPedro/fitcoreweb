@@ -20,6 +20,11 @@ test.describe('Panel SaaS de plataforma', () => {
     await nav(page).getByRole('link', { name: 'Cobros comerciales', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Cobros comerciales', level: 1 })).toBeVisible();
 
+    // Sin secreto configurado no hay proveedor: se dice claramente y no se simula ninguno.
+    await page.getByRole('tab', { name: 'Proveedor de pagos' }).click();
+    await expect(page.getByRole('heading', { name: 'Integración con el proveedor de pagos' })).toBeVisible();
+    await expect(page.getByText('Sin proveedor')).toBeVisible();
+
     await nav(page).getByRole('link', { name: 'Organizaciones', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Organizaciones clientes', level: 1 })).toBeVisible();
     await page.getByRole('link', { name: 'Abrir' }).first().click();

@@ -78,6 +78,36 @@ internal static class BillingStore
         }
     }
 
+    /// <summary>
+    /// Aplica el pago de una factura a su suscripción: prueba → activa; activa, en mora o vencida → renueva (sin prorrateo); y salda la factura. Lo comparten el
+    /// pago registrado a mano y el confirmado por el proveedor, para que ambos obedezcan exactamente las mismas reglas. No guarda: lo hace quien la llama,
+    /// en la misma transacción que el pago.
+    /// </summary>
+    public static async Task<Result> ApplyPaymentAsync(
+        SubscriptionsDbContext db, SubscriptionInvoice invoice, Subscription subscription, DateOnly today, DateTimeOffset paidAt, Guid? actor, DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
+        if (subscription.Status == SubscriptionStatus.Suspended)
+        {
+            return BillingErrors.SubscriptionSuspended;
+        }
+
+        var note = $"Pago {invoice.Number}";
+        var applied = subscription.Status switch
+        {
+            SubscriptionStatus.Trialing => subscription.Activate(today, actor, now, note),
+            SubscriptionStatus.Active or SubscriptionStatus.PastDue or SubscriptionStatus.Expired => subscription.Renew(
+                await PlanSnapshots.PendingAsync(db, subscription, cancellationToken), today, 3650, actor, now, note),
+            _ => Result.Failure(BillingErrors.SubscriptionNotBillable)
+        };
+        if (applied.IsFailure)
+        {
+            return applied.Error;
+        }
+
+        return invoice.MarkPaid(subscription.CurrentPeriodStart, subscription.CurrentPeriodEnd, paidAt, actor, now);
+    }
+
     public static async Task<Result<InvoiceDto>> ToDtoAsync(SubscriptionsDbContext db, Guid invoiceId, DateOnly today, CancellationToken cancellationToken)
     {
         var row = await (from i in db.Invoices.IgnoreQueryFilters().AsNoTracking()
@@ -208,20 +238,7 @@ internal sealed class PayInvoiceHandler(SubscriptionsDbContext db, IClock clock,
 
         // El pago se aplica a la suscripción en la misma transacción: si la suscripción no lo admite (cancelación programada, estado inválido),
         // no queda registrado ningún pago a medias.
-        var note = $"Pago {invoice.Number}";
-        var applied = subscription.Status switch
-        {
-            SubscriptionStatus.Trialing => subscription.Activate(today, currentUser.UserId, now, note),
-            SubscriptionStatus.Active or SubscriptionStatus.PastDue or SubscriptionStatus.Expired => subscription.Renew(
-                await PlanSnapshots.PendingAsync(db, subscription, cancellationToken), today, 3650, currentUser.UserId, now, note),
-            _ => Result.Failure(BillingErrors.SubscriptionNotBillable)
-        };
-        if (applied.IsFailure)
-        {
-            return applied.Error;
-        }
-
-        var marked = invoice.MarkPaid(subscription.CurrentPeriodStart, subscription.CurrentPeriodEnd, paidAt, currentUser.UserId, now);
+        var marked = await BillingStore.ApplyPaymentAsync(db, invoice, subscription, today, paidAt, currentUser.UserId, now, cancellationToken);
         if (marked.IsFailure)
         {
             return marked.Error;

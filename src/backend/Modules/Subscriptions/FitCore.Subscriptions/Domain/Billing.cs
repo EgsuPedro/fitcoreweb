@@ -216,6 +216,26 @@ public sealed class SubscriptionPayment : IAuditable
         Notes = string.IsNullOrWhiteSpace(notes) ? null : notes.Trim()
     };
 
+    /// <summary>
+    /// Pago confirmado por un proveedor de pagos (webhook firmado): es la única vía para el medio Tarjeta. Guarda la referencia del proveedor (único por
+    /// proveedor) y usa el id del evento como clave de idempotencia; no hay ningún dato de tarjeta.
+    /// </summary>
+    public static SubscriptionPayment ConfirmFromProvider(
+        SubscriptionInvoice invoice, string provider, string providerReference, string eventId, DateTimeOffset paidAt, DateTimeOffset now) => new()
+    {
+        Id = Guid.CreateVersion7(),
+        TenantId = invoice.TenantId,
+        InvoiceId = invoice.Id,
+        Amount = invoice.Amount,
+        Currency = invoice.Currency,
+        Method = SubscriptionPaymentMethod.Card,
+        Provider = provider,
+        ProviderReference = providerReference,
+        IdempotencyKey = $"{provider}:{eventId}",
+        PaidAt = paidAt,
+        ConfirmedAt = now
+    };
+
     internal void AddRefund(decimal amount) => RefundedAmount += amount;
 }
 

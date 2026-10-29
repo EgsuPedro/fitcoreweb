@@ -206,3 +206,7 @@ export type AvailablePlan = Schemas['AvailablePlanDto'];
 export type SubscriptionUsage = Schemas['UsageDto'];
 export type PlatformRequest = Schemas['PlatformRequestDto'];
 export type NewSubscriptionRequest = Schemas['NewSubscriptionRequest'];
+
+// Proveedor de pagos (Fase 7): estado de la integración y eventos recibidos por webhook.
+export type PaymentProviderStatus = Schemas['ProviderStatusDto'];
+export type ProviderEvent = Schemas['ProviderEventDto'];

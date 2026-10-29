@@ -2,6 +2,7 @@ using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
 using FitCore.Platform.Domain;
 using FitCore.Subscriptions.Application.Billing;
+using FitCore.Subscriptions.Application.Providers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitCore.Api.Endpoints;
@@ -76,6 +77,18 @@ internal static class BillingEndpoints
             .RequirePermission(Permissions.PlatformBillingRead)
             .Produces<BillingSummaryDto>()
             .WithName("GetSubscriptionBillingSummary");
+
+        group.MapGet("/provider", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetProviderStatusQuery(), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformBillingRead)
+            .Produces<ProviderStatusDto>()
+            .WithName("GetPaymentProviderStatus");
+
+        group.MapGet("/provider-events", async (IDispatcher dispatcher, CancellationToken ct, string? outcome = null, Guid? tenantId = null, int page = 1, int pageSize = 25) =>
+                (await dispatcher.QueryAsync(new ListProviderEventsQuery(new PageRequest(page, pageSize), outcome, tenantId), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformBillingRead)
+            .Produces<PagedResult<ProviderEventDto>>()
+            .WithName("ListPaymentProviderEvents");
 
         return routes;
     }

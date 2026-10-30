@@ -16,4 +16,7 @@ internal static class RateLimitPolicies
 
     /// <summary>Registro, confirmación y reenvío del registro público: acciones que envían correo o crean gimnasios, con un límite más estricto.</summary>
     public const string Register = "public-register";
+
+    /// <summary>Pedir y usar el enlace de recuperación de contraseña: envía correo y cambia credenciales, por eso va aparte del inicio de sesión.</summary>
+    public const string Recovery = "auth-recovery";
 }

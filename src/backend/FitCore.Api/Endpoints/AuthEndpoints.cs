@@ -34,6 +34,23 @@ internal static class AuthEndpoints
             .Produces<TokenResponse>()
             .WithName("Login");
 
+        // Recuperación de contraseña: la respuesta es siempre la misma exista o no la cuenta.
+        group.MapPost("/forgot-password", async (ForgotPasswordRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ForgotPasswordCommand(request), ct)).ToHttp(r => Results.Json(r, statusCode: StatusCodes.Status202Accepted)))
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.Recovery)
+            .WithValidation<ForgotPasswordRequest>()
+            .Produces<PasswordRecoveryAccepted>(StatusCodes.Status202Accepted)
+            .WithName("ForgotPassword");
+
+        group.MapPost("/reset-password", async (ResetPasswordRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ResetPasswordCommand(request), ct)).ToHttp(_ => Results.NoContent()))
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.Recovery)
+            .WithValidation<ResetPasswordRequest>()
+            .Produces(StatusCodes.Status204NoContent)
+            .WithName("ResetPassword");
+
         // El refresh token llega en el cuerpo (móvil) o en la cookie HttpOnly (web).
         group.MapPost("/refresh", async ([FromBody] RefreshRequest? request, IDispatcher dispatcher, HttpContext http, CancellationToken ct) =>
             {

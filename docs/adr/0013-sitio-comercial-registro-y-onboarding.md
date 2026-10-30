@@ -65,7 +65,7 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 | 2 | Correo: puerto `IEmailSender`, SMTP real, cola con reintentos, plantillas es/en, Mailpit, tokens de cuenta | Hecho |
 | 3 | Planes públicos (`is_public`, endpoints, límites de frecuencia, pantalla de plataforma) | Hecho |
 | 4 | Registro del propietario y creación transaccional del gimnasio (con verificación y prueba única) | Hecho |
-| 5 | Recuperación de contraseña y reenvíos | Pendiente |
+| 5 | Recuperación de contraseña y reenvíos | Hecho |
 | 6 | Onboarding persistente (backend y asistente Angular) | Pendiente |
 | 7 | Invitaciones de empleados y límites de usuarios | Pendiente |
 | 8 | Sitio público Angular (inicio, funcionalidades, planes, nosotros, preguntas, contacto), SEO y prerenderizado; contacto y demostraciones | Pendiente |
@@ -84,3 +84,11 @@ Facturación electrónica del SRI, nómina, app móvil (Flutter), avisos por Wha
 - **Versiones legales:** `Legal:TermsVersion` / `Legal:PrivacyVersion` (hoy `2026-10-30-borrador`); el registro exige exactamente las vigentes.
 - **Mantenimiento** (Worker, cada 6 h): vence los pendientes, borra su clave y elimina los terminados de más de 30 días.
 - **Pendiente de otros bloques:** pantalla (bloque 9), textos legales visibles (bloque 8), asistente de configuración que lleva `PendingSetup` a `Ready` (bloque 6).
+
+## Bloque 5 — cómo quedó la recuperación de contraseña (implementación)
+- **Endpoints** (sin sesión, límite `RateLimiting:RecoveryPermitPerMinute`, 10/min por IP): `POST /auth/forgot-password {tenantSlug, email}` responde siempre `202` igual (exista o no el gimnasio o la cuenta) y `POST /auth/reset-password {token, newPassword}` responde `204`. Los reenvíos del registro ya estaban en el bloque 4; los de invitaciones llegan en el bloque 7.
+- **Enlace:** token de cuenta propio (SHA-256 en la base, un solo uso, **1 hora**); pedir otro invalida el anterior. Por cuenta: mínimo 60 s entre solicitudes y máximo 3 por hora (el exceso responde igual y no envía nada).
+- **Quién no recibe correo:** gimnasios suspendidos, usuarios inactivos y el **gimnasio de plataforma** (su administrador se recupera con la configuración del servidor).
+- **Al restablecer** (una transacción): valida la política de contraseñas, guarda el hash, renueva el sello de seguridad, levanta el bloqueo por intentos, quita «debe cambiar contraseña», **cierra todas las sesiones**, revoca otros enlaces pendientes, audita y encola un aviso «se cambió su contraseña». Si la contraseña nueva no cumple la política el enlace **no se gasta**.
+- **Sin correo configurado** responde `503 auth.recovery_email_unavailable` (la persona debe pedirlo a su administrador).
+- Ni la contraseña ni el token aparecen en la auditoría ni en los registros (hay una prueba que lo verifica).

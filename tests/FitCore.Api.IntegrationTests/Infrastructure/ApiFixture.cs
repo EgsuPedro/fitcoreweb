@@ -80,6 +80,7 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("RateLimiting:SessionPermitPerMinute", "100000");
             builder.UseSetting("RateLimiting:PublicReadPermitPerMinute", "100000");
             builder.UseSetting("RateLimiting:RegisterPermitPerMinute", "100000");
+            builder.UseSetting("RateLimiting:RecoveryPermitPerMinute", "100000");
             builder.UseSetting("Email:Smtp:Host", "smtp.test.invalid");
             builder.UseSetting("Email:Smtp:From", "no-reply@fit360.test");
             builder.UseSetting("PublicSite:BaseUrl", "https://fit360.test");

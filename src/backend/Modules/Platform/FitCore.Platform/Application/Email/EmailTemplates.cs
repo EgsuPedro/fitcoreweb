@@ -7,6 +7,7 @@ public static class EmailTemplateCodes
     public const string VerifyEmail = "verify_email";
     public const string PasswordReset = "password_reset";
     public const string Invitation = "invitation";
+    public const string PasswordChanged = "password_changed";
     public const string DemoRequestNotification = "demo_request_notification";
 }
 
@@ -47,6 +48,12 @@ public static class EmailTemplates
                 en ? "Accept invitation" : "Aceptar invitación",
                 Link(values),
                 en ? "If you were not expecting this invitation, you can ignore it." : "Si no esperaba esta invitación, puede ignorarla."),
+            EmailTemplateCodes.PasswordChanged => Notice(
+                en ? "Your password was changed — FIT360" : "Se cambió su contraseña — FIT360",
+                en ? $"Hello {V(values, "name")}," : $"Hola {V(values, "name")},",
+                en ? "The password of your FIT360 account was just changed and all open sessions were closed."
+                   : "La contraseña de su cuenta de FIT360 acaba de cambiarse y se cerraron todas las sesiones abiertas.",
+                en ? "If it was not you, ask your administrator to reset your password right away." : "Si no fue usted, pida a su administrador que restablezca su contraseña de inmediato."),
             EmailTemplateCodes.DemoRequestNotification => Notification(values, en),
             _ => throw new ArgumentOutOfRangeException(nameof(template), template, "Plantilla de correo desconocida.")
         };
@@ -67,6 +74,12 @@ public static class EmailTemplates
         var text = string.Join("\n", lines.Select(l => $"{l.Label}: {l.Value}"));
         var rows = string.Concat(lines.Select(l => $"<tr><td><strong>{H(l.Label)}</strong></td><td>{H(l.Value)}</td></tr>"));
         return new EmailContent(subject, text, Wrap($"<table cellpadding=\"6\">{rows}</table>"));
+    }
+
+    private static EmailContent Notice(string subject, string greeting, string body, string footer)
+    {
+        var text = $"{greeting}\n\n{body}\n\n{footer}\n\nFIT360";
+        return new EmailContent(subject, text, Wrap($"<p>{H(greeting)}</p><p>{H(body)}</p><p style=\"font-size:13px;color:#555\">{H(footer)}</p>"));
     }
 
     private static EmailContent Action(string subject, string greeting, string body, string button, string link, string footer)

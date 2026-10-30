@@ -100,7 +100,8 @@
     "platformBilling": "Cobros comerciales",
     "mySubscription": "Mi suscripción",
     "platformRequests": "Solicitudes de gimnasios",
-    "branding": "Logo del gimnasio"
+    "branding": "Logo del gimnasio",
+    "invitations": "Invitaciones"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -724,6 +725,16 @@
     "onboarding": {
       "incomplete": "Faltan pasos obligatorios: los datos del gimnasio y la sucursal principal.",
       "unknown_step": "Ese paso no existe o no se puede resolver así."
+    },
+    "invitations": {
+      "already_pending": "Ya hay una invitación pendiente para ese correo. Reenvíela o revóquela.",
+      "daily_limit": "Se alcanzó el máximo de invitaciones por día. Intente mañana.",
+      "email_unavailable": "El envío de correo no está disponible: no se pueden enviar invitaciones por ahora.",
+      "not_pending": "La invitación ya no está pendiente.",
+      "not_found": "Invitación no encontrada.",
+      "resend_too_soon": "Espere un minuto antes de reenviar, o se alcanzó el máximo de reenvíos.",
+      "token_invalid": "La invitación no es válida, ya se usó o venció. Pida una nueva.",
+      "role_unavailable": "El rol de esta invitación ya no existe. Pida una nueva."
     }
   },
   "enums": {
@@ -3179,7 +3190,8 @@
     },
     "team": {
       "title": "Su equipo",
-      "intro": "Podrá invitar a recepcionistas, entrenadores y administradores desde la sección Usuarios cuando termine esta configuración."
+      "intro": "Podrá invitar a recepcionistas, entrenadores y administradores desde la sección Usuarios cuando termine esta configuración.",
+      "invite": "Invitar ahora"
     },
     "finish": {
       "title": "Resumen",
@@ -3189,5 +3201,29 @@
       "goHome": "Ir al inicio",
       "toast": "Configuración terminada."
     }
+  },
+  "invitations": {
+    "title": "Invitaciones",
+    "subtitle": "Invite a su personal por correo: cada persona crea su propia contraseña con un enlace de un solo uso.",
+    "new": "Invitar a una persona",
+    "email": "Correo",
+    "role": "Rol",
+    "expires": "Vence",
+    "empty": "Aún no hay invitaciones.",
+    "send": "Enviar invitación",
+    "resend": "Reenviar",
+    "revoke": "Revocar",
+    "revokeConfirm": "La invitación a {{email}} dejará de funcionar. ¿Revocarla?",
+    "hint": "El enlace vence en 7 días. Mientras esté pendiente, la invitación reserva una plaza de su plan.",
+    "status": {
+      "Pending": "Pendiente",
+      "Accepted": "Aceptada",
+      "Revoked": "Revocada",
+      "Expired": "Vencida"
+    },
+    "sent": "Invitación enviada.",
+    "resent": "Invitación reenviada.",
+    "revoked": "Invitación revocada.",
+    "invalidForm": "Revise el correo y el rol."
   }
 }

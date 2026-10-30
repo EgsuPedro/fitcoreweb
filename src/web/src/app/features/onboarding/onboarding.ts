@@ -140,6 +140,7 @@ const STEPS: Step[] = ['profile', 'branch', 'settings', 'team', 'finish'];
           <section class="card section">
             <h2>{{ 'onboarding.team.title' | transloco }}</h2>
             <p class="muted">{{ 'onboarding.team.intro' | transloco }}</p>
+            <p><a class="btn" routerLink="/invitations">{{ 'onboarding.team.invite' | transloco }}</a></p>
             <div class="inline-actions">
               <button type="button" class="btn" (click)="go('settings')">{{ 'onboarding.back' | transloco }}</button>
               <button type="button" class="btn" [disabled]="busy()" (click)="skip('team')">{{ 'onboarding.skip' | transloco }}</button>

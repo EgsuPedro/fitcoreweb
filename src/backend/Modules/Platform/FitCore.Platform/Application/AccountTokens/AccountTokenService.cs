@@ -79,6 +79,23 @@ public sealed class AccountTokenService(PlatformDbContext db, IClock clock)
         return rows.Count == 0 ? null : new ConsumedToken(rows[0].SubjectId, rows[0].TenantId);
     }
 
+    /// <summary>Como <see cref="ConsumeAsync"/> pero sin gastar el token: sirve para mostrar de qué es el enlace antes de que la persona decida.</summary>
+    public async Task<ConsumedToken?> PeekAsync(string purpose, string rawToken, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(rawToken) || rawToken.Length > 200)
+        {
+            return null;
+        }
+
+        var hash = Hash(rawToken);
+        var now = clock.UtcNow;
+        var token = await db.AccountTokens.AsNoTracking()
+            .Where(t => t.TokenHash == hash && t.Purpose == purpose && t.UsedAt == null && t.RevokedAt == null && t.ExpiresAt > now)
+            .Select(t => new ConsumedToken(t.SubjectId, t.TenantId))
+            .FirstOrDefaultAsync(cancellationToken);
+        return token;
+    }
+
     /// <summary>Revoca los tokens vigentes del sujeto (por ejemplo, al cancelar una invitación).</summary>
     public Task<int> RevokeAsync(string purpose, Guid subjectId, CancellationToken cancellationToken)
     {

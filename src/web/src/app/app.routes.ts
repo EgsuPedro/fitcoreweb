@@ -148,6 +148,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/branches/branches').then((m) => m.Branches),
       },
       {
+        path: 'invitations',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.UsersCreate },
+        loadComponent: () => import('./features/invitations/invitations').then((m) => m.Invitations),
+      },
+      {
         path: 'users',
         canActivate: [permissionGuard],
         data: { permission: Perm.UsersRead },

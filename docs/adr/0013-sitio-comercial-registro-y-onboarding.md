@@ -67,7 +67,7 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 | 4 | Registro del propietario y creación transaccional del gimnasio (con verificación y prueba única) | Hecho |
 | 5 | Recuperación de contraseña y reenvíos | Hecho |
 | 6 | Onboarding persistente (backend y asistente Angular) | Hecho |
-| 7 | Invitaciones de empleados y límites de usuarios | Pendiente |
+| 7 | Invitaciones de empleados y límites de usuarios | Hecho |
 | 8 | Sitio público Angular (inicio, funcionalidades, planes, nosotros, preguntas, contacto), SEO y prerenderizado; contacto y demostraciones | Pendiente |
 | 9 | Pantallas de registro, verificación, recuperación e invitación; panel del propietario | Pendiente |
 | 10 | Pruebas (las 20 obligatorias), revisión de seguridad, accesibilidad y rendimiento, documentación e informe | Pendiente |
@@ -101,3 +101,12 @@ Facturación electrónica del SRI, nómina, app móvil (Flutter), avisos por Wha
 - **No bloquea el uso:** un gimnasio `PendingSetup` sigue usando todo lo habilitado; solo ve un aviso («Continuar configuración») si tiene permiso para completarlo. `GET /auth/me` informa `setupStatus`.
 - **Datos nuevos:** `tenants.contact_email/contact_phone/country` y `branches.phone/hours` (migración `AddOnboarding`).
 - **Pendiente:** el paso «equipo» solo explica dónde invitar; el formulario de invitaciones llega con el bloque 7.
+
+## Bloque 7 — cómo quedaron las invitaciones (implementación)
+- **Tabla** `identity.invitations` (RLS forzada, migración `AddInvitations`): correo normalizado, rol, sucursales, estado `Pending/Accepted/Revoked` («Vencida» se calcula), quién invitó, vencimiento a **7 días**. A lo sumo una pendiente por correo y gimnasio. El enlace es un token de cuenta (solo su hash) que apunta a la fila.
+- **Endpoints del gimnasio** (`users.create` para escribir, `users.read` para listar): `GET/POST /invitations`, `POST /invitations/{id}/revoke`, `POST /invitations/{id}/resend`. **Públicos:** `POST /public/invitations/preview` (muestra gimnasio, correo y rol sin gastar el enlace) y `POST /public/invitations/accept` (nombre y contraseña).
+- **Reglas al invitar:** las mismas que al crear un usuario a mano (el rol y las sucursales existen y quien invita no puede dar más de lo que puede conceder; nunca un rol de plataforma); correo sin usuario existente ni invitación pendiente; tope de 20 invitaciones por día por gimnasio; sin SMTP responde 503.
+- **Límite del plan:** las invitaciones pendientes **reservan plaza** (se invita a lo sumo hasta el límite de usuarios internos) y **al aceptar se vuelve a comprobar**; si ya no hay plaza el enlace no se gasta.
+- **Al aceptar** (una transacción): el gimnasio sale del enlace y de la fila, nunca del navegador; exige que el gimnasio esté activo, que quien invitó siga activo, que el rol exista y que la contraseña cumpla la política (si no, el enlace no se gasta). Crea el usuario con el rol y las sucursales de la invitación (correo ya verificado, porque recibió el enlace), la marca aceptada y audita. Respuestas iguales («enlace no válido») para desconocido, vencido, revocado, usado o de un gimnasio suspendido.
+- **Pantalla del propietario:** `/invitations` (lista, invitar, reenviar, revocar). La pantalla pública de aceptación llega con el bloque 9.
+- **Observación (no corregida aquí):** la pantalla de invitar muestra todos los roles y deja decidir al servidor, porque el filtro del navegador (`canAssignRole`) ignora que algunos permisos sensibles se pueden conceder sin poseerlos; la pantalla de Usuarios tiene ese mismo filtro y hoy no ofrece al propietario los roles con permisos sensibles (Entrenador, Nutricionista).

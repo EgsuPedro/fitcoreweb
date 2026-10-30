@@ -157,6 +157,85 @@ namespace FitCore.Platform.Persistence.Migrations
                     b.ToTable("emails", "messaging");
                 });
 
+            modelBuilder.Entity("FitCore.Platform.Application.Invitations.Invitation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("AcceptedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("accepted_at");
+
+                    b.Property<Guid?>("AcceptedUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("accepted_user_id");
+
+                    b.PrimitiveCollection<Guid[]>("BranchIds")
+                        .IsRequired()
+                        .HasColumnType("uuid[]")
+                        .HasColumnName("branch_ids");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("EmailNormalized")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email_normalized");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<DateTimeOffset>("LastSentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_sent_at");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.Property<int>("SendCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("send_count");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invitations");
+
+                    b.HasIndex("TenantId", "EmailNormalized")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invitations_tenant_id_email_normalized")
+                        .HasFilter("status = 'Pending'");
+
+                    b.HasIndex("TenantId", "Status", "CreatedAt")
+                        .HasDatabaseName("ix_invitations_tenant_id_status_created_at");
+
+                    b.ToTable("invitations", "identity");
+                });
+
             modelBuilder.Entity("FitCore.Platform.Application.Onboarding.TenantOnboarding", b =>
                 {
                     b.Property<Guid>("TenantId")

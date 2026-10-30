@@ -35,6 +35,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<FitCore.Platform.Application.Registration.PendingRegistration> PendingRegistrations => Set<FitCore.Platform.Application.Registration.PendingRegistration>();
     public DbSet<FitCore.Platform.Application.Registration.TrialClaim> TrialClaims => Set<FitCore.Platform.Application.Registration.TrialClaim>();
     public DbSet<FitCore.Platform.Application.Registration.LegalAcceptance> LegalAcceptances => Set<FitCore.Platform.Application.Registration.LegalAcceptance>();
+    public DbSet<FitCore.Platform.Application.Invitations.Invitation> Invitations => Set<FitCore.Platform.Application.Invitations.Invitation>();
     public DbSet<FitCore.Platform.Application.Onboarding.TenantOnboarding> Onboardings => Set<FitCore.Platform.Application.Onboarding.TenantOnboarding>();
     public DbSet<FitCore.Platform.Application.AccountTokens.AccountToken> AccountTokens => Set<FitCore.Platform.Application.AccountTokens.AccountToken>();
 
@@ -151,6 +152,19 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.Property(x => x.Document).HasMaxLength(30).IsRequired();
             b.Property(x => x.Version).HasMaxLength(60).IsRequired();
             b.HasIndex(x => new { x.TenantId, x.UserId });
+        });
+
+        builder.Entity<FitCore.Platform.Application.Invitations.Invitation>(b =>
+        {
+            b.ToTable("invitations", IdentitySchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.Email).HasMaxLength(256).IsRequired();
+            b.Property(x => x.EmailNormalized).HasMaxLength(256).IsRequired();
+            b.Property(x => x.Status).HasMaxLength(20).IsRequired();
+            b.Property(x => x.BranchIds).HasColumnType("uuid[]");
+            b.HasIndex(x => new { x.TenantId, x.Status, x.CreatedAt });
+            b.HasIndex(x => new { x.TenantId, x.EmailNormalized }).HasFilter("status = 'Pending'").IsUnique();
         });
 
         builder.Entity<FitCore.Platform.Application.Onboarding.TenantOnboarding>(b =>

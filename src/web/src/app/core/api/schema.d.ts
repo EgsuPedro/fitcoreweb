@@ -3092,6 +3092,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/invitations/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["PreviewInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/invitations/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AcceptInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/tenants/{id}/subscription": {
         parameters: {
             query?: never;
@@ -3540,6 +3572,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListInvitations"];
+        put?: never;
+        post: operations["CreateInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RevokeInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invitations/{id}/resend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ResendInvitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -3816,6 +3896,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AcceptedInvitationDto: {
+            tenantSlug: string;
+            email: string;
+        };
+        AcceptInvitationRequest: {
+            token: string;
+            fullName: string;
+            password: string;
+        };
         AccessDecisionDto: {
             allowed: boolean;
             code: string | null;
@@ -4674,6 +4763,12 @@ export interface components {
             name: string;
             allowMultipleOpenSessions: boolean;
         };
+        CreateInvitationRequest: {
+            email: string;
+            /** Format: uuid */
+            roleId: string;
+            branchIds: string[] | null;
+        };
         CreateMemberRequest: {
             /** Format: uuid */
             branchId: string;
@@ -5339,6 +5434,27 @@ export interface components {
             kpis: unknown[];
             sessions: components["schemas"]["SessionBreakdownDto"];
         } | null;
+        InvitationDto: {
+            /** Format: uuid */
+            id: string;
+            email: string;
+            /** Format: uuid */
+            roleId: string;
+            roleName: string;
+            branchIds: string[];
+            status: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        InvitationPreviewDto: {
+            gymName: string;
+            email: string;
+            roleName: string;
+            /** Format: date-time */
+            expiresAt: string;
+        };
         InvoiceDto: {
             /** Format: uuid */
             id: string;
@@ -7583,6 +7699,9 @@ export interface components {
         PreferenceChange: {
             type: components["schemas"]["NotificationType"];
             enabled: boolean;
+        };
+        PreviewInvitationRequest: {
+            token: string;
         };
         ProgressPhotoDto: {
             /** Format: uuid */
@@ -14698,6 +14817,54 @@ export interface operations {
             };
         };
     };
+    PreviewInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationPreviewDto"];
+                };
+            };
+        };
+    };
+    AcceptInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AcceptInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcceptedInvitationDto"];
+                };
+            };
+        };
+    };
     GetTenantSubscription: {
         parameters: {
             query?: never;
@@ -15438,6 +15605,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OnboardingDto"];
+                };
+            };
+        };
+    };
+    ListInvitations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationDto"][];
+                };
+            };
+        };
+    };
+    CreateInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInvitationRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationDto"];
+                };
+            };
+        };
+    };
+    RevokeInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationDto"];
+                };
+            };
+        };
+    };
+    ResendInvitation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationDto"];
                 };
             };
         };

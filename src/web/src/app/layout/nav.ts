@@ -38,6 +38,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.settings', path: '/settings', icon: '⚙', permission: Perm.PlansRead },
   { labelKey: 'nav.branches', path: '/branches', icon: '⌖', permission: Perm.BranchesRead },
   { labelKey: 'nav.users', path: '/users', icon: '☺', permission: Perm.UsersRead },
+  { labelKey: 'nav.invitations', path: '/invitations', icon: '✉', permission: Perm.UsersCreate },
   { labelKey: 'nav.roles', path: '/roles', icon: '⚿', permission: Perm.RolesRead },
   { labelKey: 'nav.audit', path: '/audit', icon: '☰', permission: Perm.AuditRead },
   { labelKey: 'nav.branding', path: '/branding', icon: '◈', permission: Perm.BrandingManage },

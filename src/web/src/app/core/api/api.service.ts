@@ -14,6 +14,8 @@ import type {
   OrganizationDetail,
   AvailablePlan,
   Branding,
+  CreateInvitationRequest,
+  Invitation,
   Onboarding,
   OnboardingBranchRequest,
   OnboardingProfileRequest,
@@ -418,6 +420,19 @@ export class ApiService {
   branding(): Observable<Branding> {
     return this.get('/tenant/branding');
   }
+  invitations(): Observable<Invitation[]> {
+    return this.get('/invitations');
+  }
+  createInvitation(body: CreateInvitationRequest): Observable<Invitation> {
+    return this.http.post<Invitation>(`${API_BASE}/invitations`, body);
+  }
+  resendInvitation(id: string): Observable<Invitation> {
+    return this.http.post<Invitation>(`${API_BASE}/invitations/${id}/resend`, {});
+  }
+  revokeInvitation(id: string): Observable<Invitation> {
+    return this.http.post<Invitation>(`${API_BASE}/invitations/${id}/revoke`, {});
+  }
+
   onboarding(): Observable<Onboarding> {
     return this.get('/onboarding');
   }

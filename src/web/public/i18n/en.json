@@ -100,7 +100,8 @@
     "platformBilling": "Commercial billing",
     "mySubscription": "My subscription",
     "platformRequests": "Gym requests",
-    "branding": "Gym logo"
+    "branding": "Gym logo",
+    "invitations": "Invitations"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -724,6 +725,16 @@
     "onboarding": {
       "incomplete": "Mandatory steps are missing: the gym details and the main branch.",
       "unknown_step": "That step does not exist or cannot be resolved that way."
+    },
+    "invitations": {
+      "already_pending": "There is already a pending invitation for that email. Resend or revoke it.",
+      "daily_limit": "The daily invitation limit was reached. Try again tomorrow.",
+      "email_unavailable": "Email sending is unavailable: invitations cannot be sent right now.",
+      "not_pending": "The invitation is no longer pending.",
+      "not_found": "Invitation not found.",
+      "resend_too_soon": "Wait a minute before resending, or the resend limit was reached.",
+      "token_invalid": "The invitation is not valid, was already used or has expired. Ask for a new one.",
+      "role_unavailable": "The role of this invitation no longer exists. Ask for a new one."
     }
   },
   "enums": {
@@ -3179,7 +3190,8 @@
     },
     "team": {
       "title": "Your team",
-      "intro": "You will be able to invite receptionists, trainers and administrators from the Users section once this setup is finished."
+      "intro": "You will be able to invite receptionists, trainers and administrators from the Users section once this setup is finished.",
+      "invite": "Invite now"
     },
     "finish": {
       "title": "Summary",
@@ -3189,5 +3201,29 @@
       "goHome": "Go to home",
       "toast": "Setup finished."
     }
+  },
+  "invitations": {
+    "title": "Invitations",
+    "subtitle": "Invite your staff by email: each person sets their own password with a single-use link.",
+    "new": "Invite a person",
+    "email": "Email",
+    "role": "Role",
+    "expires": "Expires",
+    "empty": "There are no invitations yet.",
+    "send": "Send invitation",
+    "resend": "Resend",
+    "revoke": "Revoke",
+    "revokeConfirm": "The invitation to {{email}} will stop working. Revoke it?",
+    "hint": "The link expires in 7 days. While pending, the invitation reserves a seat in your plan.",
+    "status": {
+      "Pending": "Pending",
+      "Accepted": "Accepted",
+      "Revoked": "Revoked",
+      "Expired": "Expired"
+    },
+    "sent": "Invitation sent.",
+    "resent": "Invitation resent.",
+    "revoked": "Invitation revoked.",
+    "invalidForm": "Check the email and the role."
   }
 }

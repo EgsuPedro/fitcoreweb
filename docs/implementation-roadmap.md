@@ -28,7 +28,9 @@ Pruebas actuales: ver el informe de la Fase 5 (cifras de la última regresión c
 | Caché de permisos | Hoy una consulta por solicitud; medir antes de optimizar |
 
 ## Fase en curso
-Ninguna. La Fase 8 está cerrada; la siguiente la define el orden de los pendientes de abajo.
+| Fase | Contenido |
+|---|---|
+| 9 | **Facturación electrónica del SRI** ([ADR 0014](adr/0014-facturacion-electronica-sri.md)): configuración tributaria, certificado cifrado, XML y firma XAdES-BES, transmisión y autorización reales, RIDE, correo, notas de crédito. Bloque 1 (diagnóstico y plan) hecho; **no se cierra sin una autorización real en el ambiente de pruebas del SRI**. |
 
 ## Pendientes que NO se olvidan (por orden de prioridad acordado el 2026-10-29)
 | Pendiente | Qué falta para empezar |

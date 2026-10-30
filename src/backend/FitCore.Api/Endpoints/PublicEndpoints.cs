@@ -1,5 +1,6 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
+using FitCore.Platform.Application.Registration;
 using FitCore.Subscriptions.Application.Public;
 
 namespace FitCore.Api.Endpoints;
@@ -43,6 +44,31 @@ internal static class PublicEndpoints
             .RequireRateLimiting(RateLimitPolicies.PublicRead)
             .Produces<PublicPlanDto>()
             .WithName("GetPublicPlan");
+
+        // Registro de un gimnasio: la respuesta es siempre la misma (202) exista o no el correo, para no revelar quién está registrado.
+        group.MapPost("/registrations", async (RegisterGymRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new RegisterGymCommand(request), ct)).ToHttp(r => Results.Json(r, statusCode: StatusCodes.Status202Accepted)))
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.Register)
+            .WithValidation<RegisterGymRequest>()
+            .Produces<RegistrationAccepted>(StatusCodes.Status202Accepted)
+            .WithName("RegisterGym");
+
+        group.MapPost("/registrations/verify-email", async (VerifyRegistrationRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new VerifyRegistrationCommand(request.Token), ct)).ToHttp(r => Results.Ok(r)))
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.Register)
+            .WithValidation<VerifyRegistrationRequest>()
+            .Produces<VerifiedRegistrationDto>()
+            .WithName("VerifyRegistrationEmail");
+
+        group.MapPost("/registrations/resend-verification", async (ResendVerificationRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ResendVerificationCommand(request.Email), ct)).ToHttp(r => Results.Json(r, statusCode: StatusCodes.Status202Accepted)))
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.Register)
+            .WithValidation<ResendVerificationRequest>()
+            .Produces<RegistrationAccepted>(StatusCodes.Status202Accepted)
+            .WithName("ResendRegistrationVerification");
 
         return routes;
     }

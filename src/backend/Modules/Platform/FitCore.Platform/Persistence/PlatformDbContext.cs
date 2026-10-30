@@ -32,6 +32,9 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<FitCore.Platform.Application.Email.QueuedEmail> QueuedEmails => Set<FitCore.Platform.Application.Email.QueuedEmail>();
+    public DbSet<FitCore.Platform.Application.Registration.PendingRegistration> PendingRegistrations => Set<FitCore.Platform.Application.Registration.PendingRegistration>();
+    public DbSet<FitCore.Platform.Application.Registration.TrialClaim> TrialClaims => Set<FitCore.Platform.Application.Registration.TrialClaim>();
+    public DbSet<FitCore.Platform.Application.Registration.LegalAcceptance> LegalAcceptances => Set<FitCore.Platform.Application.Registration.LegalAcceptance>();
     public DbSet<FitCore.Platform.Application.AccountTokens.AccountToken> AccountTokens => Set<FitCore.Platform.Application.AccountTokens.AccountToken>();
 
     // Guid.Empty nunca coincide con un tenant real: sin tenant activo no se ve ninguna fila.
@@ -108,6 +111,47 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.Property(x => x.Sha256).HasMaxLength(64).IsRequired();
         });
 
+        // Registro público: anterior a la existencia del gimnasio, por eso sin RLS (la API nunca lo expone; solo guarda la contraseña ya hasheada hasta confirmar el correo).
+        builder.Entity<FitCore.Platform.Application.Registration.PendingRegistration>(b =>
+        {
+            b.ToTable("pending_registrations", OrganizationsSchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.Email).HasMaxLength(256).IsRequired();
+            b.Property(x => x.EmailNormalized).HasMaxLength(256).IsRequired();
+            b.Property(x => x.OwnerFullName).HasMaxLength(200).IsRequired();
+            b.Property(x => x.PasswordHash).HasMaxLength(400).IsRequired();
+            b.Property(x => x.GymName).HasMaxLength(200).IsRequired();
+            b.Property(x => x.Slug).HasMaxLength(40).IsRequired();
+            b.Property(x => x.PlanCode).HasMaxLength(40).IsRequired();
+            b.Property(x => x.Locale).HasMaxLength(10).IsRequired();
+            b.Property(x => x.TimeZone).HasMaxLength(64).IsRequired();
+            b.Property(x => x.TermsVersion).HasMaxLength(60).IsRequired();
+            b.Property(x => x.PrivacyVersion).HasMaxLength(60).IsRequired();
+            b.Property(x => x.Status).HasMaxLength(20).IsRequired();
+            b.HasIndex(x => new { x.EmailNormalized, x.Status });
+            b.HasIndex(x => new { x.Slug, x.Status });
+            b.HasIndex(x => x.CreatedAt);
+        });
+
+        builder.Entity<FitCore.Platform.Application.Registration.TrialClaim>(b =>
+        {
+            b.ToTable("trial_claims", OrganizationsSchema);
+            b.HasKey(x => x.EmailNormalized);
+            b.Property(x => x.EmailNormalized).HasMaxLength(256).ValueGeneratedNever();
+            b.Property(x => x.PlanCode).HasMaxLength(40).IsRequired();
+        });
+
+        builder.Entity<FitCore.Platform.Application.Registration.LegalAcceptance>(b =>
+        {
+            b.ToTable("legal_acceptances", OrganizationsSchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.Document).HasMaxLength(30).IsRequired();
+            b.Property(x => x.Version).HasMaxLength(60).IsRequired();
+            b.HasIndex(x => new { x.TenantId, x.UserId });
+        });
+
         builder.Entity<Tenant>(b =>
         {
             b.ToTable("tenants", OrganizationsSchema);
@@ -118,6 +162,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.Property(t => t.DefaultCurrency).HasMaxLength(3).IsRequired();
             b.Property(t => t.Locale).HasMaxLength(10).IsRequired();
             b.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
+            b.Property(t => t.SetupStatus).HasConversion<string>().HasMaxLength(20).HasDefaultValue(TenantSetupStatus.Ready);
             b.HasIndex(t => t.Slug).IsUnique();
             AddXminConcurrency(b);
         });

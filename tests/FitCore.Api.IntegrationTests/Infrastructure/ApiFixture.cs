@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Npgsql;
@@ -55,6 +56,10 @@ public sealed class ApiFixture : IAsyncLifetime
             }
         }).CreateClient();
 
+    /// <summary>Un cliente de otra instancia de la API (misma base) con servicios sustituidos: sirve para inyectar fallos que no se pueden provocar con datos.</summary>
+    public HttpClient CreateClientWithServices(Action<IServiceCollection> configure) =>
+        _factory!.WithWebHostBuilder(builder => builder.ConfigureServices(configure)).CreateClient();
+
     public async Task InitializeAsync()
     {
         await _container.StartAsync();
@@ -74,6 +79,10 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("Subscriptions:Payments:WebhookSecret", WebhookSecret);
             builder.UseSetting("RateLimiting:SessionPermitPerMinute", "100000");
             builder.UseSetting("RateLimiting:PublicReadPermitPerMinute", "100000");
+            builder.UseSetting("RateLimiting:RegisterPermitPerMinute", "100000");
+            builder.UseSetting("Email:Smtp:Host", "smtp.test.invalid");
+            builder.UseSetting("Email:Smtp:From", "no-reply@fit360.test");
+            builder.UseSetting("PublicSite:BaseUrl", "https://fit360.test");
             builder.UseSetting("FileStorage:RootPath", FilesRoot);
         });
 

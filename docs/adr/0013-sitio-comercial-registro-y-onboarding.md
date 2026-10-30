@@ -64,7 +64,7 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 | 1 | Diagnóstico y ADR 0013 | Hecho |
 | 2 | Correo: puerto `IEmailSender`, SMTP real, cola con reintentos, plantillas es/en, Mailpit, tokens de cuenta | Hecho |
 | 3 | Planes públicos (`is_public`, endpoints, límites de frecuencia, pantalla de plataforma) | Hecho |
-| 4 | Registro del propietario y creación transaccional del gimnasio (con verificación y prueba única) | Pendiente |
+| 4 | Registro del propietario y creación transaccional del gimnasio (con verificación y prueba única) | Hecho |
 | 5 | Recuperación de contraseña y reenvíos | Pendiente |
 | 6 | Onboarding persistente (backend y asistente Angular) | Pendiente |
 | 7 | Invitaciones de empleados y límites de usuarios | Pendiente |
@@ -74,3 +74,13 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 
 ## Fuera de esta fase (anotado, no olvidado)
 Facturación electrónica del SRI, nómina, app móvil (Flutter), avisos por WhatsApp/SMS, cobro automático con proveedor de pagos, inventario y punto de venta, CAPTCHA, verificación de correo de usuarios creados por el personal. Ver [hoja de ruta](../implementation-roadmap.md).
+
+## Bloque 4 — cómo quedó el registro (implementación)
+- **Endpoints públicos** (sin sesión, con límite por IP `RateLimiting:RegisterPermitPerMinute`, 10/min): `POST /public/registrations`, `POST /public/registrations/verify-email`, `POST /public/registrations/resend-verification`. Registro y reenvío responden siempre `202 {"status":"check_email"}` exista o no la cuenta.
+- **Tablas** (migración `AddPublicRegistration`): `organizations.pending_registrations` (clave hasheada, borrada al terminar), `organizations.trial_claims` (una por correo normalizado), `organizations.legal_acceptances` (con RLS forzada), y `tenants.setup_status`.
+- **Contrato entre módulos:** `IPublicPlanCatalog` (BuildingBlocks) lo implementa Suscripciones; Platform no la conoce. El precio, la moneda y la prueba salen siempre de ahí; los campos `price/amount/currency` del cuerpo se rechazan.
+- **Confirmación en dos pasos.** *Paso A* (una sola transacción): gasta el token, crea gimnasio + roles + propietario con la clave ya hasheada, aceptaciones legales, reclamación de prueba y auditoría; si algo falla no queda nada y el mismo enlace sigue sirviendo. *Paso B:* abre la suscripción (otro módulo y otra conexión, por eso no puede ir en la misma transacción). Si B falla dos veces el gimnasio se **suspende** y el registro queda `Failed` para revisión de la plataforma (compensación; no hay borrado). Es la única parte que no es atómica.
+- **Límites por correo:** 3 registros por hora por correo normalizado (el exceso responde igual pero no envía nada); reenvío mínimo cada 60 s y máximo 6 por registro.
+- **Versiones legales:** `Legal:TermsVersion` / `Legal:PrivacyVersion` (hoy `2026-10-30-borrador`); el registro exige exactamente las vigentes.
+- **Mantenimiento** (Worker, cada 6 h): vence los pendientes, borra su clave y elimina los terminados de más de 30 días.
+- **Pendiente de otros bloques:** pantalla (bloque 9), textos legales visibles (bloque 8), asistente de configuración que lleva `PendingSetup` a `Ready` (bloque 6).

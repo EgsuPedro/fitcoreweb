@@ -140,6 +140,7 @@ builder.Services.AddRateLimiter(options =>
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     AddPerIpPolicy(options, RateLimitPolicies.Login, builder.Configuration.GetValue("RateLimiting:LoginPermitPerMinute", 20));
     AddPerIpPolicy(options, RateLimitPolicies.Webhooks, builder.Configuration.GetValue("RateLimiting:WebhookPermitPerMinute", 300));
+    AddPerIpPolicy(options, RateLimitPolicies.Register, builder.Configuration.GetValue("RateLimiting:RegisterPermitPerMinute", 10));
     AddPerIpPolicy(options, RateLimitPolicies.PublicRead, builder.Configuration.GetValue("RateLimiting:PublicReadPermitPerMinute", 120));
     AddPerIpPolicy(options, RateLimitPolicies.Session, builder.Configuration.GetValue("RateLimiting:SessionPermitPerMinute", 120));
 });

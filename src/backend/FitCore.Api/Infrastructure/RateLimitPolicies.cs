@@ -13,4 +13,7 @@ internal static class RateLimitPolicies
 
     /// <summary>Lectura pública del sitio comercial (planes): sin sesión, por eso se limita por IP.</summary>
     public const string PublicRead = "public-read";
+
+    /// <summary>Registro, confirmación y reenvío del registro público: acciones que envían correo o crean gimnasios, con un límite más estricto.</summary>
+    public const string Register = "public-register";
 }

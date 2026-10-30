@@ -3012,6 +3012,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["RegisterGym"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/registrations/verify-email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["VerifyRegistrationEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/registrations/resend-verification": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ResendRegistrationVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/tenants/{id}/subscription": {
         parameters: {
             query?: never;
@@ -7554,6 +7602,36 @@ export interface components {
             amount: number;
             reason: string;
         };
+        RegisterGymRequest: {
+            ownerFullName: string;
+            email: string;
+            password: string;
+            gymName: string;
+            slug: string;
+            planCode: string;
+            termsVersion: string;
+            privacyVersion: string;
+            /** @default es */
+            locale: string | null;
+            /** @default null */
+            timeZone: string | null;
+            /**
+             * Format: double
+             * @default null
+             */
+            price: number | null;
+            /**
+             * Format: double
+             * @default null
+             */
+            amount: number | null;
+            /** @default null */
+            currency: string | null;
+        };
+        RegistrationAccepted: {
+            /** @default check_email */
+            status: string;
+        };
         RenewalGroupDto: {
             key: string;
             name: string;
@@ -7604,6 +7682,9 @@ export interface components {
             comparable: components["schemas"]["PeriodDto"];
             branchIds: string[];
             basis: string;
+        };
+        ResendVerificationRequest: {
+            email: string;
         };
         ReservationDto: {
             /** Format: uuid */
@@ -8178,6 +8259,8 @@ export interface components {
             locale: string;
             /** Format: date-time */
             createdAt: string;
+            /** @default Ready */
+            setupStatus: string;
         };
         TokenResponse: {
             accessToken: string;
@@ -8440,6 +8523,17 @@ export interface components {
         };
         /** @enum {unknown} */
         VariationState: "Ok" | "NoBaseline" | "NoData" | "NotApplicable";
+        VerifiedRegistrationDto: {
+            tenantSlug: string;
+            ownerEmail: string;
+            planName: string;
+            /** Format: int32 */
+            trialDays: number;
+            setupStatus: string;
+        };
+        VerifyRegistrationRequest: {
+            token: string;
+        };
         VoidedObligationRowDto: {
             /** Format: uuid */
             obligationId: string;
@@ -14281,6 +14375,78 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PublicPlanDto"];
+                };
+            };
+        };
+    };
+    RegisterGym: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterGymRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationAccepted"];
+                };
+            };
+        };
+    };
+    VerifyRegistrationEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyRegistrationRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerifiedRegistrationDto"];
+                };
+            };
+        };
+    };
+    ResendRegistrationVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResendVerificationRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationAccepted"];
                 };
             };
         };

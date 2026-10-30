@@ -7,7 +7,10 @@ public enum ErrorType
     Conflict,
     Forbidden,
     Unauthorized,
-    Failure
+    Failure,
+
+    /// <summary>Un servicio del que depende la operación no está disponible (por ejemplo, el correo sin configurar).</summary>
+    Unavailable
 }
 
 /// <summary>Error de negocio con código estable (los clientes lo traducen según el idioma).</summary>
@@ -21,6 +24,7 @@ public sealed record Error(string Code, string Description, ErrorType Type)
     public static Error Forbidden(string code, string description) => new(code, description, ErrorType.Forbidden);
     public static Error Unauthorized(string code, string description) => new(code, description, ErrorType.Unauthorized);
     public static Error Failure(string code, string description) => new(code, description, ErrorType.Failure);
+    public static Error Unavailable(string code, string description) => new(code, description, ErrorType.Unavailable);
 }
 
 public class Result

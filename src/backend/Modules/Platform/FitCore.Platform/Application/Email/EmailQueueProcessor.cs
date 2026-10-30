@@ -138,9 +138,11 @@ public sealed class EmailQueueProcessor(IServiceScopeFactory scopes, IClock cloc
             .ExecuteDeleteAsync(cancellationToken);
         var tokens = await scope.ServiceProvider.GetRequiredService<AccountTokens.AccountTokenService>()
             .PurgeAsync(TimeSpan.FromDays(7), cancellationToken);
-        if (deleted + tokens > 0)
+        var registrations = await Registration.RegistrationMaintenance.RunAsync(db, clock, cancellationToken);
+        if (deleted + tokens + registrations > 0)
         {
-            logger.LogInformation("Limpieza: {Emails} correos y {Tokens} tokens antiguos eliminados", deleted, tokens);
+            logger.LogInformation(
+                "Limpieza: {Emails} correos, {Tokens} tokens y {Registrations} registros antiguos procesados", deleted, tokens, registrations);
         }
     }
 }

@@ -9,6 +9,13 @@ public enum TenantStatus
     Suspended = 2
 }
 
+/// <summary>Avance de la puesta en marcha del gimnasio (onboarding). Es independiente del estado administrativo y de la suscripción.</summary>
+public enum TenantSetupStatus
+{
+    PendingSetup = 1,
+    Ready = 2
+}
+
 public sealed record TenantCreated(Guid TenantId, string Slug, Guid EventId, DateTimeOffset OccurredAt)
     : DomainEvent(EventId, OccurredAt);
 
@@ -31,6 +38,9 @@ public sealed partial class Tenant : Entity<Guid>, IAuditable
     public string DefaultCurrency { get; private set; } = Money.DefaultCurrency;
     public string Locale { get; private set; } = DefaultLocale;
     public DateTimeOffset CreatedAt { get; private set; }
+
+    /// <summary>Los gimnasios creados por la plataforma o anteriores al onboarding nacen «Ready»; los del registro público, «PendingSetup». No bloquea el uso.</summary>
+    public TenantSetupStatus SetupStatus { get; private set; } = TenantSetupStatus.Ready;
 
     public bool IsActive => Status == TenantStatus.Active;
 
@@ -57,6 +67,10 @@ public sealed partial class Tenant : Entity<Guid>, IAuditable
         TimeZone = timeZone;
         Locale = locale;
     }
+
+    public void MarkPendingSetup() => SetupStatus = TenantSetupStatus.PendingSetup;
+
+    public void MarkReady() => SetupStatus = TenantSetupStatus.Ready;
 
     public void Suspend() => Status = TenantStatus.Suspended;
 

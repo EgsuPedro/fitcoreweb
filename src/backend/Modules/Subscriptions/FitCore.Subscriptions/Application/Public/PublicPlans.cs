@@ -79,3 +79,19 @@ internal sealed class GetPublicPlanHandler(SubscriptionsDbContext db) : IQueryHa
         return plan is null ? PublicPlanErrors.NotFound : PublicPlanDto.From(plan);
     }
 }
+
+internal sealed class PublicPlanCatalog(SubscriptionsDbContext db) : IPublicPlanCatalog
+{
+    public async Task<OfferedPlan?> LookupAsync(string code, CancellationToken cancellationToken)
+    {
+        var normalized = (code ?? string.Empty).Trim().ToLowerInvariant();
+        var plan = await PublicPlanStore.Offered(db).FirstOrDefaultAsync(p => p.Code == normalized, cancellationToken);
+        if (plan is null)
+        {
+            return null;
+        }
+
+        var v = plan.Current;
+        return new OfferedPlan(plan.Code, plan.Name, v.Currency, v.Price, v.TrialDays, PublicPlanRules.AllowsSelfService(v));
+    }
+}

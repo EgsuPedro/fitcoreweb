@@ -17,10 +17,11 @@ public sealed record TenantDto(
     string TimeZone,
     string DefaultCurrency,
     string Locale,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    string SetupStatus = "Ready")
 {
     public static TenantDto From(Tenant t) =>
-        new(t.Id, t.Slug, t.Name, t.Status.ToString(), t.TimeZone, t.DefaultCurrency, t.Locale, t.CreatedAt);
+        new(t.Id, t.Slug, t.Name, t.Status.ToString(), t.TimeZone, t.DefaultCurrency, t.Locale, t.CreatedAt, t.SetupStatus.ToString());
 }
 
 public sealed record CreateTenantRequest(
@@ -65,6 +66,11 @@ public sealed class CreateTenantRequestValidator : AbstractValidator<CreateTenan
     }
 }
 
+/// <summary>Variantes del alta: contraseña ya hasheada (registro público) y gimnasio pendiente de configuración.</summary>
+public sealed record ProvisioningOptions(string? OwnerPasswordHash = null, bool PendingSetup = false);
+
+public sealed record ProvisionedTenant(TenantDto Tenant, Guid OwnerId);
+
 /// <summary>
 /// Crea un gimnasio con sus roles de plantilla y su usuario propietario en una sola transacción.
 /// Lo usan el alta desde la plataforma y el arranque (administrador de plataforma).
@@ -77,6 +83,17 @@ public sealed class TenantProvisioningService(
 {
     public async Task<Result<TenantDto>> ProvisionAsync(CreateTenantRequest request, bool isPlatformTenant, CancellationToken cancellationToken)
     {
+        var result = await ProvisionDetailedAsync(request, isPlatformTenant, null, cancellationToken);
+        return result.IsSuccess ? result.Value.Tenant : result.Error;
+    }
+
+    /// <summary>
+    /// Igual que <see cref="ProvisionAsync"/> pero devuelve también el propietario y admite <see cref="ProvisioningOptions"/>. Si el contexto ya tiene una
+    /// transacción abierta se une a ella (quien la abrió decide confirmarla o deshacerla); si no, abre y confirma la suya.
+    /// </summary>
+    public async Task<Result<ProvisionedTenant>> ProvisionDetailedAsync(
+        CreateTenantRequest request, bool isPlatformTenant, ProvisioningOptions? options, CancellationToken cancellationToken)
+    {
         var slug = request.Slug.Trim().ToLowerInvariant();
         if (await db.Tenants.AnyAsync(t => t.Slug == slug, cancellationToken))
         {
@@ -86,9 +103,14 @@ public sealed class TenantProvisioningService(
         var originalTenant = tenantContext.TenantId;
         try
         {
-            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+            await using var ownTransaction = db.Database.CurrentTransaction is null ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
 
             var tenant = Tenant.Create(slug, request.Name, request.TimeZone, request.Locale, clock.UtcNow);
+            if (options is { PendingSetup: true })
+            {
+                tenant.MarkPendingSetup();
+            }
+
             db.Tenants.Add(tenant);
             await db.UseTenantAsync(tenant.Id, cancellationToken);
 
@@ -131,7 +153,17 @@ public sealed class TenantProvisioningService(
                 CreatedAt = clock.UtcNow
             };
 
-            var created = await users.CreateAsync(owner, request.OwnerPassword);
+            IdentityResult created;
+            if (options?.OwnerPasswordHash is { } passwordHash)
+            {
+                owner.PasswordHash = passwordHash;
+                created = await users.CreateAsync(owner);
+            }
+            else
+            {
+                created = await users.CreateAsync(owner, request.OwnerPassword);
+            }
+
             if (!created.Succeeded)
             {
                 return created.ToError();
@@ -141,8 +173,12 @@ public sealed class TenantProvisioningService(
             db.UserRoles.Add(new AppUserRole { TenantId = tenant.Id, UserId = owner.Id, RoleId = ownerRole.Id });
             await db.SaveChangesAsync(cancellationToken);
 
-            await transaction.CommitAsync(cancellationToken);
-            return TenantDto.From(tenant);
+            if (ownTransaction is not null)
+            {
+                await ownTransaction.CommitAsync(cancellationToken);
+            }
+
+            return new ProvisionedTenant(TenantDto.From(tenant), owner.Id);
         }
         finally
         {

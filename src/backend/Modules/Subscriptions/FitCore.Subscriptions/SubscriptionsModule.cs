@@ -44,6 +44,7 @@ public static class SubscriptionsModule
         services.Configure<PaymentProviderOptions>(configuration.GetSection(PaymentProviderOptions.SectionName));
         services.AddSingleton<IPaymentProviderGateway, SignedWebhookGateway>();
         services.AddScoped<ITenantProvisioningHook, SubscriptionProvisioningHook>();
+        services.AddScoped<IPublicPlanCatalog, FitCore.Subscriptions.Application.Public.PublicPlanCatalog>();
         services.AddScoped<ICapabilityEvaluator, CapabilityEvaluator>();
         services.AddSingleton<IModuleInitializer, SubscriptionsInitializer>();
         services.AddValidatorsFromAssemblyContaining<CreatePlanRequestValidator>(includeInternalTypes: true);

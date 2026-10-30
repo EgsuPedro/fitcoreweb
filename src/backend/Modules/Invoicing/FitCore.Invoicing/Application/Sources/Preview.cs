@@ -1,11 +1,9 @@
 using FitCore.Application.Core;
-using FitCore.Invoicing.Application.Security;
+using FitCore.Invoicing.Application.Invoices;
 using FitCore.Invoicing.Application.Settings;
 using FitCore.Invoicing.Domain;
-using FitCore.Platform.Application;
 using FitCore.Platform.Security;
 using FitCore.SharedKernel;
-using Microsoft.Extensions.Options;
 
 namespace FitCore.Invoicing.Application.Sources;
 
@@ -21,8 +19,8 @@ public sealed record InvoicePreviewPaymentDto(string Method, decimal Amount, Dat
 public sealed record InvoiceIssueDto(string Code, bool Blocking);
 
 /// <summary>
-/// Lo que se facturaría con un origen (hoy, una obligación cobrada): comprador resuelto con los tipos del SRI, líneas con impuestos congelados, pagos y todo lo que
-/// impediría o desaconsejaría emitir. No guarda nada ni toca al SRI.
+/// Lo que se facturaría con un origen (hoy, una obligación cobrada): comprador resuelto con los tipos del SRI, cálculo del comprobante con las reglas del SRI, punto de emisión que se usaría
+/// y todo lo que impediría o desaconsejaría emitir. No guarda nada ni toca al SRI.
 /// </summary>
 public sealed record InvoicePreviewDto(
     string SourceType,
@@ -38,10 +36,13 @@ public sealed record InvoicePreviewDto(
     decimal PaidTotal,
     decimal FinalConsumerMaxAmount,
     bool IssuerReady,
+    InvoiceCalculationDto? Calculation,
+    string? EmissionPoint,
+    Guid? ExistingInvoiceId,
     IReadOnlyList<InvoiceIssueDto> Issues,
     bool CanIssue);
 
-public sealed record PreviewInvoiceSourceQuery(string SourceType, Guid SourceId, SriBuyerIdType? BuyerIdType) : IQuery<InvoicePreviewDto>;
+public sealed record PreviewInvoiceSourceQuery(string SourceType, Guid SourceId, SriBuyerIdType? BuyerIdType, Guid? EmissionPointId = null) : IQuery<InvoicePreviewDto>;
 
 public static class SourceErrors
 {
@@ -51,9 +52,7 @@ public static class SourceErrors
 
 // ---- Casos de uso -----------------------------------------------------------------------------------------------------------------
 
-internal sealed class PreviewInvoiceSourceHandler(
-    IAccessContext access, IInvoiceSourceProvider provider, SettingsReader settings, IOptions<InvoicingOptions> options)
-    : IQueryHandler<PreviewInvoiceSourceQuery, InvoicePreviewDto>
+internal sealed class PreviewInvoiceSourceHandler(IAccessContext access, InvoicePlanner planner) : IQueryHandler<PreviewInvoiceSourceQuery, InvoicePreviewDto>
 {
     public async Task<Result<InvoicePreviewDto>> HandleAsync(PreviewInvoiceSourceQuery query, CancellationToken cancellationToken)
     {
@@ -63,51 +62,15 @@ internal sealed class PreviewInvoiceSourceHandler(
             return actor.Error;
         }
 
-        if (query.SourceType != InvoiceSourceTypes.Obligation)
+        var plan = await planner.PlanAsync(query.SourceType, query.SourceId, query.BuyerIdType, query.EmissionPointId, cancellationToken);
+        if (plan.IsFailure)
         {
-            return SourceErrors.UnsupportedType;
+            return plan.Error;
         }
 
-        var source = await provider.LoadAsync(query.SourceType, query.SourceId, cancellationToken);
-        if (source is null)
-        {
-            return SourceErrors.NotFound;
-        }
-
-        var limit = options.Value.FinalConsumerMaxAmount;
-        var total = source.PayableTotal;
-        var resolution = BuyerRules.Resolve(source.Buyer, query.BuyerIdType, total, limit);
-
-        var issues = new List<InvoiceIssueDto>();
-        switch (source.Status)
-        {
-            case InvoiceSourceStatus.Voided:
-                issues.Add(new InvoiceIssueDto("source_voided", true));
-                break;
-            case InvoiceSourceStatus.Open:
-                issues.Add(new InvoiceIssueDto("source_not_paid", true));
-                break;
-        }
-
-        if (source.Currency != "USD")
-        {
-            issues.Add(new InvoiceIssueDto("currency_unsupported", true));
-        }
-
-        if (total <= 0m)
-        {
-            issues.Add(new InvoiceIssueDto("amount_not_positive", true));
-        }
-
-        issues.AddRange(resolution.Issues.Select(i => new InvoiceIssueDto(i.Code, i.Blocking)));
-
-        var configuration = await settings.ReadAsync(cancellationToken);
-        if (!configuration.CanIssue)
-        {
-            issues.Add(new InvoiceIssueDto("issuer_not_ready", true));
-        }
-
-        var buyer = resolution.Buyer is { } b
+        var p = plan.Value;
+        var source = p.Source;
+        var buyer = p.Buyer.Buyer is { } b
             ? new InvoiceBuyerDto(b.IdTypeCode, b.IdType.ToString(), b.IdNumber, b.LegalName, b.Address, b.Email, b.Phone, b.IsFinalConsumer)
             : null;
 
@@ -120,12 +83,15 @@ internal sealed class PreviewInvoiceSourceHandler(
             source.Status.ToString(),
             buyer,
             source.Lines.Select(l => new InvoicePreviewLineDto(l.Description, l.Quantity, l.GrossAmount, l.DiscountAmount, l.PayableAmount, l.Subtotal, l.TaxAmount, l.TaxKind, l.TaxPercent)).ToList(),
-            source.Payments.Select(p => new InvoicePreviewPaymentDto(p.Method, p.Amount, p.PaidAt, p.Reference)).ToList(),
-            total,
+            source.Payments.Select(x => new InvoicePreviewPaymentDto(x.Method, x.Amount, x.PaidAt, x.Reference)).ToList(),
+            source.PayableTotal,
             source.PaidTotal,
-            limit,
-            configuration.CanIssue,
-            issues,
-            issues.All(i => !i.Blocking));
+            p.FinalConsumerMaxAmount,
+            p.IssuerReady,
+            p.Calculation is null ? null : InvoiceCalculationDto.From(p.Calculation),
+            p.Point is null ? null : $"{p.Point.EstablishmentCode}-{p.Point.PointCode}",
+            p.ExistingInvoiceId,
+            p.Issues,
+            p.CanIssue);
     }
 }

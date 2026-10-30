@@ -75,6 +75,508 @@ namespace FitCore.Invoicing.Persistence.Migrations
                     b.ToTable("emission_points", "invoicing");
                 });
 
+            modelBuilder.Entity("FitCore.Invoicing.Domain.EmissionSequence", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("EmissionPointId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("emission_point_id");
+
+                    b.Property<string>("DocumentType")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("document_type");
+
+                    b.Property<string>("Environment")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("environment");
+
+                    b.Property<int>("LastValue")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_value");
+
+                    b.HasKey("TenantId", "EmissionPointId", "DocumentType", "Environment")
+                        .HasName("pk_emission_sequences");
+
+                    b.ToTable("emission_sequences", "invoicing");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.Invoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccessKey")
+                        .IsRequired()
+                        .HasMaxLength(49)
+                        .HasColumnType("character(49)")
+                        .HasColumnName("access_key")
+                        .IsFixedLength();
+
+                    b.Property<bool>("AccountingRequired")
+                        .HasColumnType("boolean")
+                        .HasColumnName("accounting_required");
+
+                    b.Property<Guid>("BranchId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("branch_id");
+
+                    b.Property<string>("BuyerAddress")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("buyer_address");
+
+                    b.Property<string>("BuyerEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("buyer_email");
+
+                    b.Property<string>("BuyerIdNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("buyer_id_number");
+
+                    b.Property<string>("BuyerIdType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("buyer_id_type");
+
+                    b.Property<string>("BuyerName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("buyer_name");
+
+                    b.Property<Guid?>("BuyerPersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("buyer_person_id");
+
+                    b.Property<string>("BuyerPhone")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("buyer_phone");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("currency")
+                        .IsFixedLength();
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("document_type");
+
+                    b.Property<Guid>("EmissionPointId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("emission_point_id");
+
+                    b.Property<string>("Environment")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("environment");
+
+                    b.Property<string>("EstablishmentCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("establishment_code")
+                        .IsFixedLength();
+
+                    b.Property<DateOnly>("IssueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("issue_date");
+
+                    b.Property<string>("IssuerEstablishmentAddress")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("issuer_establishment_address");
+
+                    b.Property<string>("IssuerHeadOfficeAddress")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("issuer_head_office_address");
+
+                    b.Property<string>("IssuerLegalName")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("issuer_legal_name");
+
+                    b.Property<string>("IssuerRuc")
+                        .IsRequired()
+                        .HasMaxLength(13)
+                        .HasColumnType("character(13)")
+                        .HasColumnName("issuer_ruc")
+                        .IsFixedLength();
+
+                    b.Property<string>("IssuerTradeName")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("issuer_trade_name");
+
+                    b.Property<string>("NumericCode")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character(8)")
+                        .HasColumnName("numeric_code")
+                        .IsFixedLength();
+
+                    b.Property<string>("PointCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasColumnName("point_code")
+                        .IsFixedLength();
+
+                    b.Property<decimal>("RoundingDifference")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("rounding_difference");
+
+                    b.Property<int>("Sequential")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequential");
+
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("SourceReference")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("source_reference");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("source_type");
+
+                    b.Property<string>("SpecialTaxpayerNumber")
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)")
+                        .HasColumnName("special_taxpayer_number");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("SubtotalWithoutTaxes")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("subtotal_without_taxes");
+
+                    b.Property<string>("TaxRegime")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("tax_regime");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("total");
+
+                    b.Property<decimal>("TotalDiscount")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("total_discount");
+
+                    b.Property<decimal>("TotalTax")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("total_tax");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("WithholdingAgentNumber")
+                        .HasMaxLength(13)
+                        .HasColumnType("character varying(13)")
+                        .HasColumnName("withholding_agent_number");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoices");
+
+                    b.HasIndex("AccessKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_access_key");
+
+                    b.HasIndex("TenantId", "IssueDate")
+                        .HasDatabaseName("ix_invoices_tenant_id_issue_date");
+
+                    b.HasIndex("TenantId", "SourceType", "SourceId", "DocumentType")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_tenant_id_source_type_source_id_document_type");
+
+                    b.HasIndex("TenantId", "EmissionPointId", "DocumentType", "Environment", "Sequential")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoices_tenant_id_emission_point_id_document_type_environm");
+
+                    b.ToTable("invoices", "invoicing");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ActorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("detail");
+
+                    b.Property<string>("FromStatus")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("from_status");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("ToStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("to_status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_events");
+
+                    b.HasIndex("InvoiceId", "At")
+                        .HasDatabaseName("ix_invoice_events_invoice_id_at");
+
+                    b.ToTable("invoice_events", "invoicing");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("description");
+
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("discount");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<int>("LineNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("line_number");
+
+                    b.Property<string>("MainCode")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("main_code");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(14, 6)
+                        .HasColumnType("numeric(14,6)")
+                        .HasColumnName("quantity");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("subtotal");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("tax_amount");
+
+                    b.Property<string>("TaxCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("tax_code");
+
+                    b.Property<string>("TaxKind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("tax_kind");
+
+                    b.Property<decimal>("TaxPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("tax_percent");
+
+                    b.Property<string>("TaxRateCode")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)")
+                        .HasColumnName("tax_rate_code");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasPrecision(14, 6)
+                        .HasColumnType("numeric(14,6)")
+                        .HasColumnName("unit_price");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_lines");
+
+                    b.HasIndex("InvoiceId", "LineNumber")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoice_lines_invoice_id_line_number");
+
+                    b.ToTable("invoice_lines", "invoicing");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoicePayment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<string>("Method")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("method");
+
+                    b.Property<string>("MethodCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("method_code");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_payments");
+
+                    b.HasIndex("InvoiceId")
+                        .HasDatabaseName("ix_invoice_payments_invoice_id");
+
+                    b.ToTable("invoice_payments", "invoicing");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceTax", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<decimal>("Percent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("percent");
+
+                    b.Property<string>("RateCode")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)")
+                        .HasColumnName("rate_code");
+
+                    b.Property<string>("TaxCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("tax_code");
+
+                    b.Property<decimal>("TaxableBase")
+                        .HasPrecision(14, 2)
+                        .HasColumnType("numeric(14,2)")
+                        .HasColumnName("taxable_base");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_taxes");
+
+                    b.HasIndex("InvoiceId", "TaxCode", "RateCode")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoice_taxes_invoice_id_tax_code_rate_code");
+
+                    b.ToTable("invoice_taxes", "invoicing");
+                });
+
             modelBuilder.Entity("FitCore.Invoicing.Domain.IssuerProfile", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -84,6 +586,14 @@ namespace FitCore.Invoicing.Persistence.Migrations
                     b.Property<bool>("AccountingRequired")
                         .HasColumnType("boolean")
                         .HasColumnName("accounting_required");
+
+                    b.Property<string>("CardPaymentMethod")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasDefaultValue("Credit")
+                        .HasColumnName("card_payment_method");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -391,6 +901,55 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEvent", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_events_invoices_invoice_id");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceLine", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_lines_invoices_invoice_id");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoicePayment", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany("Payments")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_payments_invoices_invoice_id");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceTax", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany("Taxes")
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_taxes_invoices_invoice_id");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.Invoice", b =>
+                {
+                    b.Navigation("Lines");
+
+                    b.Navigation("Payments");
+
+                    b.Navigation("Taxes");
                 });
 #pragma warning restore 612, 618
         }

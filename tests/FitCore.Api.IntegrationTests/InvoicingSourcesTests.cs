@@ -1,11 +1,8 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using FitCore.Api.IntegrationTests.Infrastructure;
-using static FitCore.Api.IntegrationTests.Infrastructure.CommercialTestApi;
+using static FitCore.Api.IntegrationTests.Infrastructure.InvoicingTestApi;
 
 namespace FitCore.Api.IntegrationTests;
 
@@ -16,9 +13,6 @@ namespace FitCore.Api.IntegrationTests;
 [Collection(ApiCollection2.Name)]
 public class InvoicingSourcesTests(ApiFixture api)
 {
-    private const string Ruc = "1790000028001";
-    private const string CertPassword = "Certificado-Prueba-2026!";
-
     private static string NewSlug() => $"ori-{Guid.NewGuid():N}"[..20];
 
     private sealed record Gym(TestTenant Tenant, Guid Branch);
@@ -28,26 +22,6 @@ public class InvoicingSourcesTests(ApiFixture api)
         var tenant = await TestApi.NewTenantAsync(api, NewSlug());
         return new Gym(tenant, await TestApi.CreateBranchAsync(tenant.Owner, "UIO"));
     }
-
-    private static async Task<Guid> NewMemberAsync(HttpClient owner, Guid branch, string idType = "Cedula", string? idNumber = null, string? email = "ana.perez@correo.test", string? address = "Av. Principal 123")
-    {
-        var response = await owner.PostAsJsonAsync("/api/v1/members", new
-        {
-            branchId = branch, firstName = "Ana", lastName = "Pérez", idType, idNumber = idNumber ?? MemberTests.NewCedula(), birthDate = "1992-03-04", email, phone = "0991234567", address
-        });
-        Assert.True(response.StatusCode == HttpStatusCode.Created, await response.Content.ReadAsStringAsync());
-        return (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
-    }
-
-    private static async Task<Guid> NewObligationAsync(HttpClient owner, Guid memberId, decimal amount, string taxKind = "General")
-    {
-        var response = await owner.PostAsJsonAsync("/api/v1/payment-obligations", new { memberId, concept = "Membresía mensual", amount, taxKind });
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
-        return (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
-    }
-
-    private static Task<PaymentDto> PayAsync(HttpClient owner, Guid memberId, Guid obligationId, decimal amount, string method = "Card") =>
-        CommercialTestApi.PayAsync(owner, memberId, amount, method, "VCH-" + Guid.NewGuid().ToString("N")[..6], [new { obligationId, amount }]);
 
     private static async Task<(HttpStatusCode Status, JsonElement Body)> PreviewAsync(HttpClient client, Guid obligationId, string? buyerIdType = null)
     {
@@ -59,34 +33,6 @@ public class InvoicingSourcesTests(ApiFixture api)
 
     private static bool HasIssue(JsonElement preview, string code, bool? blocking = null) =>
         preview.GetProperty("issues").EnumerateArray().Any(i => i.GetProperty("code").GetString() == code && (blocking is null || i.GetProperty("blocking").GetBoolean() == blocking));
-
-    private static byte[] P12()
-    {
-        using var key = RSA.Create(2048);
-        var request = new CertificateRequest($"CN=Gimnasio Prueba, SERIALNUMBER={Ruc}", key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-        request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.NonRepudiation, critical: true));
-        using var certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(365));
-        return certificate.Export(X509ContentType.Pfx, CertPassword);
-    }
-
-    /// <summary>Deja al gimnasio listo para emitir: emisor, un punto de emisión y un certificado de prueba.</summary>
-    private static async Task ConfigureIssuerAsync(HttpClient owner)
-    {
-        var issuer = await owner.PutAsJsonAsync("/api/v1/invoicing/issuer", new
-        {
-            ruc = Ruc, legalName = "Fitness Quito S.A.", tradeName = "Fitness Quito", headOfficeAddress = "Av. Amazonas N24-03 y Colón, Quito", taxRegime = "General", accountingRequired = true,
-            specialTaxpayerNumber = (string?)null, withholdingAgentNumber = (string?)null, environment = "Test", notificationEmail = "facturas@fitness.test", confirmProduction = false
-        });
-        Assert.Equal(HttpStatusCode.OK, issuer.StatusCode);
-        var point = await owner.PostAsJsonAsync("/api/v1/invoicing/emission-points", new { branchId = (Guid?)null, establishmentCode = "001", pointCode = "001", establishmentAddress = "Av. Amazonas N24-03 y Colón, Quito" });
-        Assert.Equal(HttpStatusCode.OK, point.StatusCode);
-        using var form = new MultipartFormDataContent();
-        var part = new ByteArrayContent(P12());
-        part.Headers.ContentType = new MediaTypeHeaderValue("application/x-pkcs12");
-        form.Add(part, "file", "firma.p12");
-        form.Add(new StringContent(CertPassword), "password");
-        Assert.Equal(HttpStatusCode.OK, (await owner.PutAsync("/api/v1/invoicing/certificate", form)).StatusCode);
-    }
 
     private async Task<HttpClient> StaffAsync(TestTenant tenant, string role, params Guid[] branches)
     {

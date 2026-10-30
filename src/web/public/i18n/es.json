@@ -3681,7 +3681,9 @@
       "withholding": "Resolución de agente de retención",
       "accounting": "Obligado a llevar contabilidad",
       "environment": "Ambiente del SRI",
-      "confirmProduction": "Confirmo que quiero emitir comprobantes con validez tributaria real."
+      "confirmProduction": "Confirmo que quiero emitir comprobantes con validez tributaria real.",
+      "card": "Tarjeta habitual",
+      "cardHint": "El sistema registra «tarjeta» sin distinguir; el SRI sí pide crédito o débito. Elija la que más usan sus alumnos."
     },
     "regimes": {
       "General": "General",
@@ -3726,6 +3728,10 @@
       "retireConfirm": "Se borrará el certificado y su contraseña del sistema. No se podrán emitir comprobantes hasta cargar otro.",
       "saved": "Certificado guardado.",
       "retired": "Certificado retirado."
+    },
+    "cards": {
+      "Credit": "Tarjeta de crédito",
+      "Debit": "Tarjeta de débito"
     }
   }
 }

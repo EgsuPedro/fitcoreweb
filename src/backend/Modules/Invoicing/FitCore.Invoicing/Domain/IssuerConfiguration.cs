@@ -49,6 +49,9 @@ public sealed class IssuerProfile : ITenantOwned, IAuditable
     /// <summary>Correo desde el que se envían los comprobantes y al que contesta el cliente.</summary>
     public string? NotificationEmail { get; set; }
 
+    /// <summary>Qué tarjeta es la habitual del gimnasio: el módulo de pagos registra «tarjeta» y el SRI distingue crédito de débito.</summary>
+    public CardPaymentMethod CardPaymentMethod { get; set; } = CardPaymentMethod.Credit;
+
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public Guid? UpdatedBy { get; set; }

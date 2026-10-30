@@ -15,7 +15,7 @@ namespace FitCore.Invoicing.Application.Settings;
 
 public sealed record IssuerDto(
     string Ruc, string LegalName, string? TradeName, string HeadOfficeAddress, string TaxRegime, bool AccountingRequired,
-    string? SpecialTaxpayerNumber, string? WithholdingAgentNumber, string Environment, string EmissionType, string? NotificationEmail, DateTimeOffset UpdatedAt);
+    string? SpecialTaxpayerNumber, string? WithholdingAgentNumber, string Environment, string EmissionType, string? NotificationEmail, string CardPaymentMethod, DateTimeOffset UpdatedAt);
 
 public sealed record EmissionPointDto(Guid Id, Guid? BranchId, string? BranchName, string EstablishmentCode, string PointCode, string EstablishmentAddress, bool IsActive);
 
@@ -39,7 +39,7 @@ public sealed record InvoicingSettingsDto(
 /// </summary>
 public sealed record SaveIssuerRequest(
     string Ruc, string LegalName, string? TradeName, string HeadOfficeAddress, TaxRegime TaxRegime, bool AccountingRequired,
-    string? SpecialTaxpayerNumber, string? WithholdingAgentNumber, SriEnvironment Environment, string? NotificationEmail, bool ConfirmProduction = false);
+    string? SpecialTaxpayerNumber, string? WithholdingAgentNumber, SriEnvironment Environment, string? NotificationEmail, bool ConfirmProduction = false, CardPaymentMethod CardPaymentMethod = CardPaymentMethod.Credit);
 
 public sealed record SaveEmissionPointRequest(Guid? BranchId, string EstablishmentCode, string PointCode, string EstablishmentAddress);
 
@@ -86,6 +86,7 @@ public sealed class SaveIssuerRequestValidator : AbstractValidator<SaveIssuerReq
         RuleFor(x => x.HeadOfficeAddress).NotEmpty().MaximumLength(300);
         RuleFor(x => x.TaxRegime).IsInEnum();
         RuleFor(x => x.Environment).IsInEnum();
+        RuleFor(x => x.CardPaymentMethod).IsInEnum();
         RuleFor(x => x.NotificationEmail).EmailAddress().MaximumLength(256).When(x => !string.IsNullOrWhiteSpace(x.NotificationEmail));
         RuleFor(x => x.SpecialTaxpayerNumber).MaximumLength(13).Matches("^[0-9A-Za-z]+$").When(x => !string.IsNullOrWhiteSpace(x.SpecialTaxpayerNumber));
         RuleFor(x => x.WithholdingAgentNumber).MaximumLength(13).Matches("^[0-9A-Za-z]+$").When(x => !string.IsNullOrWhiteSpace(x.WithholdingAgentNumber));
@@ -149,7 +150,7 @@ internal sealed class SettingsReader(InvoicingDbContext db, ISecretProtector pro
         return new InvoicingSettingsDto(
             issuer is null ? null : new IssuerDto(
                 issuer.Ruc, issuer.LegalName, issuer.TradeName, issuer.HeadOfficeAddress, issuer.TaxRegime.ToString(), issuer.AccountingRequired,
-                issuer.SpecialTaxpayerNumber, issuer.WithholdingAgentNumber, issuer.Environment.ToString(), issuer.EmissionType.ToString(), issuer.NotificationEmail, issuer.UpdatedAt),
+                issuer.SpecialTaxpayerNumber, issuer.WithholdingAgentNumber, issuer.Environment.ToString(), issuer.EmissionType.ToString(), issuer.NotificationEmail, issuer.CardPaymentMethod.ToString(), issuer.UpdatedAt),
             [.. points.Select(p => new EmissionPointDto(
                 p.Id, p.BranchId, p.BranchId is { } id ? branches.GetValueOrDefault(id) : null, p.EstablishmentCode, p.PointCode, p.EstablishmentAddress, p.IsActive))],
             certificate is null
@@ -203,6 +204,7 @@ internal sealed class SaveIssuerHandler(InvoicingDbContext db, IAccessContext ac
         issuer.Environment = r.Environment;
         issuer.EmissionType = EmissionType.Normal;
         issuer.NotificationEmail = Clean(r.NotificationEmail);
+        issuer.CardPaymentMethod = r.CardPaymentMethod;
         issuer.UpdatedAt = now;
         issuer.UpdatedBy = actor.Value.UserId;
         await db.SaveChangesAsync(cancellationToken);

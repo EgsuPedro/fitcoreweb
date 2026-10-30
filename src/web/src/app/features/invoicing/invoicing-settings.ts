@@ -100,6 +100,14 @@ export function looksLikeRuc(value: string): boolean {
           </div>
           <label class="check"><input type="checkbox" formControlName="accountingRequired" /><span>{{ 'invoicing.issuer.accounting' | transloco }}</span></label>
           <label class="field">
+            <span>{{ 'invoicing.issuer.card' | transloco }}</span>
+            <select formControlName="cardPaymentMethod">
+              <option value="Credit">{{ 'invoicing.cards.Credit' | transloco }}</option>
+              <option value="Debit">{{ 'invoicing.cards.Debit' | transloco }}</option>
+            </select>
+            <small class="muted">{{ 'invoicing.issuer.cardHint' | transloco }}</small>
+          </label>
+          <label class="field">
             <span>{{ 'invoicing.issuer.environment' | transloco }}</span>
             <select formControlName="environment">
               <option value="Test">{{ 'invoicing.environments.Test' | transloco }}</option>
@@ -284,6 +292,7 @@ export class InvoicingSettingsPage implements OnInit {
     withholdingAgentNumber: [''],
     environment: ['Test'],
     notificationEmail: ['', [Validators.email, Validators.maxLength(256)]],
+    cardPaymentMethod: ['Credit'],
     confirmProduction: [false],
   });
 
@@ -328,6 +337,7 @@ export class InvoicingSettingsPage implements OnInit {
         withholdingAgentNumber: v.withholdingAgentNumber || null,
         environment: v.environment as 'Test' | 'Production',
         notificationEmail: v.notificationEmail || null,
+        cardPaymentMethod: v.cardPaymentMethod as 'Credit' | 'Debit',
         confirmProduction: v.confirmProduction,
       }),
       'invoicing.saved',
@@ -434,6 +444,7 @@ export class InvoicingSettingsPage implements OnInit {
       withholdingAgentNumber: i?.withholdingAgentNumber ?? '',
       environment: i?.environment ?? 'Test',
       notificationEmail: i?.notificationEmail ?? '',
+      cardPaymentMethod: i?.cardPaymentMethod ?? 'Credit',
       confirmProduction: false,
     });
   }

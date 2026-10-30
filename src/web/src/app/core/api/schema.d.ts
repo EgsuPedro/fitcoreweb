@@ -3796,6 +3796,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoicing/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListInvoices"];
+        put?: never;
+        post: operations["IssueInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/invoices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetInvoice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -4554,6 +4586,11 @@ export interface components {
             reason: string;
             atPeriodEnd: boolean;
         };
+        /**
+         * @default Credit
+         * @enum {unknown}
+         */
+        CardPaymentMethod: "Credit" | "Debit";
         CashMovementDto: {
             /** Format: uuid */
             id: string;
@@ -5703,6 +5740,46 @@ export interface components {
             phone: string | null;
             isFinalConsumer: boolean;
         } | null;
+        InvoiceBuyerDto2: {
+            idTypeCode: string;
+            idType: string;
+            idNumber: string;
+            legalName: string;
+            address: string | null;
+            email: string | null;
+            phone: string | null;
+            isFinalConsumer: boolean;
+        };
+        InvoiceCalculationDto: {
+            lines: components["schemas"]["InvoiceLineDto"][];
+            taxes: components["schemas"]["InvoiceTaxDto"][];
+            payments: components["schemas"]["InvoicePaymentDto"][];
+            /** Format: double */
+            subtotalWithoutTaxes: number;
+            /** Format: double */
+            totalDiscount: number;
+            /** Format: double */
+            totalTax: number;
+            /** Format: double */
+            total: number;
+            /** Format: double */
+            roundingDifference: number;
+        } | null;
+        InvoiceCalculationDto2: {
+            lines: components["schemas"]["InvoiceLineDto"][];
+            taxes: components["schemas"]["InvoiceTaxDto"][];
+            payments: components["schemas"]["InvoicePaymentDto"][];
+            /** Format: double */
+            subtotalWithoutTaxes: number;
+            /** Format: double */
+            totalDiscount: number;
+            /** Format: double */
+            totalTax: number;
+            /** Format: double */
+            total: number;
+            /** Format: double */
+            roundingDifference: number;
+        };
         InvoiceDto: {
             /** Format: uuid */
             id: string;
@@ -5744,9 +5821,99 @@ export interface components {
             payment: components["schemas"]["SubscriptionPaymentDto"];
             attempts: components["schemas"]["PaymentAttemptDto"][];
         };
+        InvoiceDto2: {
+            /** Format: uuid */
+            id: string;
+            documentType: string;
+            number: string;
+            accessKey: string;
+            status: string;
+            environment: string;
+            /** Format: date */
+            issueDate: string;
+            sourceType: string;
+            /** Format: uuid */
+            sourceId: string;
+            sourceReference: string;
+            /** Format: uuid */
+            branchId: string;
+            /** Format: uuid */
+            emissionPointId: string;
+            issuer: components["schemas"]["InvoiceIssuerDto"];
+            buyer: components["schemas"]["InvoiceBuyerDto2"];
+            calculation: components["schemas"]["InvoiceCalculationDto2"];
+            currency: string;
+            /** Format: date-time */
+            createdAt: string;
+            events: components["schemas"]["InvoiceEventDto"][];
+        };
+        InvoiceEventDto: {
+            type: string;
+            fromStatus: string | null;
+            toStatus: string;
+            detail: string | null;
+            /** Format: uuid */
+            actorId: string | null;
+            /** Format: date-time */
+            at: string;
+        };
         InvoiceIssueDto: {
             code: string;
             blocking: boolean;
+        };
+        InvoiceIssuerDto: {
+            ruc: string;
+            legalName: string;
+            tradeName: string | null;
+            headOfficeAddress: string;
+            establishmentAddress: string;
+            taxRegime: string;
+            accountingRequired: boolean;
+            specialTaxpayerNumber: string | null;
+            withholdingAgentNumber: string | null;
+        };
+        InvoiceLineDto: {
+            /** Format: int32 */
+            lineNumber: number;
+            mainCode: string;
+            description: string;
+            /** Format: double */
+            quantity: number;
+            /** Format: double */
+            unitPrice: number;
+            /** Format: double */
+            discount: number;
+            /** Format: double */
+            subtotal: number;
+            taxKind: string;
+            taxRateCode: string;
+            /** Format: double */
+            taxPercent: number;
+            /** Format: double */
+            taxAmount: number;
+        };
+        InvoiceListItemDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            documentType: string;
+            /** Format: date */
+            issueDate: string;
+            status: string;
+            environment: string;
+            buyerName: string;
+            buyerIdNumber: string;
+            /** Format: double */
+            total: number;
+            sourceReference: string;
+            /** Format: uuid */
+            branchId: string;
+        };
+        InvoicePaymentDto: {
+            methodCode: string;
+            method: string;
+            /** Format: double */
+            amount: number;
         };
         InvoicePreviewDto: {
             sourceType: string;
@@ -5767,6 +5934,10 @@ export interface components {
             /** Format: double */
             finalConsumerMaxAmount: number;
             issuerReady: boolean;
+            calculation: components["schemas"]["InvoiceCalculationDto"];
+            emissionPoint: string | null;
+            /** Format: uuid */
+            existingInvoiceId: string | null;
             issues: components["schemas"]["InvoiceIssueDto"][];
             canIssue: boolean;
         };
@@ -5825,6 +5996,16 @@ export interface components {
             /** Format: int32 */
             attemptCount: number;
         };
+        InvoiceTaxDto: {
+            taxCode: string;
+            rateCode: string;
+            /** Format: double */
+            percent: number;
+            /** Format: double */
+            taxableBase: number;
+            /** Format: double */
+            amount: number;
+        };
         InvoicingSettingsDto: {
             issuer: components["schemas"]["IssuerDto"];
             emissionPoints: components["schemas"]["EmissionPointDto"][];
@@ -5832,6 +6013,17 @@ export interface components {
             checks: components["schemas"]["ReadinessCheckDto"][];
             canIssue: boolean;
             masterKeyConfigured: boolean;
+        };
+        IssueInvoiceRequest: {
+            sourceType: string;
+            /** Format: uuid */
+            sourceId: string;
+            buyerIdType?: components["schemas"]["NullableOfSriBuyerIdType"];
+            /**
+             * Format: uuid
+             * @default null
+             */
+            emissionPointId: string | null;
         };
         IssuerDto: {
             ruc: string;
@@ -5845,6 +6037,7 @@ export interface components {
             environment: string;
             emissionType: string;
             notificationEmail: string | null;
+            cardPaymentMethod: string;
             /** Format: date-time */
             updatedAt: string;
         } | null;
@@ -6588,6 +6781,11 @@ export interface components {
          * @enum {unknown}
          */
         NullableOfReservationStatus: "Confirmed" | "Waitlisted" | "Offered" | "Cancelled" | "Expired" | null;
+        /**
+         * @default null
+         * @enum {unknown|null}
+         */
+        NullableOfSriBuyerIdType: "Ruc" | "Cedula" | "Passport" | "FinalConsumer" | "Foreign" | null;
         NutritionAdherenceDto: {
             /** Format: date */
             from: string;
@@ -7260,6 +7458,15 @@ export interface components {
         };
         PagedResultOfInboxNotificationDto: {
             items: components["schemas"]["InboxNotificationDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
+        PagedResultOfInvoiceListItemDto: {
+            items: components["schemas"]["InvoiceListItemDto"][];
             /** Format: int32 */
             page: number;
             /** Format: int32 */
@@ -8529,6 +8736,7 @@ export interface components {
             notificationEmail: string | null;
             /** @default false */
             confirmProduction: boolean;
+            cardPaymentMethod?: components["schemas"]["CardPaymentMethod"];
         };
         SeriesDto: {
             key: string;
@@ -16333,6 +16541,7 @@ export interface operations {
         parameters: {
             query?: {
                 buyerIdType?: "Ruc" | "Cedula" | "Passport" | "FinalConsumer" | "Foreign" | null;
+                emissionPointId?: string;
             };
             header?: never;
             path: {
@@ -16349,6 +16558,86 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InvoicePreviewDto"];
+                };
+            };
+        };
+    };
+    ListInvoices: {
+        parameters: {
+            query?: {
+                page?: number;
+                pageSize?: number;
+                status?: "PendingSignature" | "SignedDocument" | "PendingSubmission" | "Received" | "Processing" | "Authorized" | "NotAuthorized" | "Rejected" | "Voided" | null;
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfInvoiceListItemDto"];
+                };
+            };
+        };
+    };
+    IssueInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueInvoiceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
+                };
+            };
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
+                };
+            };
+        };
+    };
+    GetInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
                 };
             };
         };

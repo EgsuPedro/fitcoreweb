@@ -161,6 +161,16 @@ Historial de migraciones en `invoicing.__ef_migrations_history` (`InitialInvoici
 | invoicing | `emission_points` | Establecimiento (3 dígitos ≠ 000) + punto de emisión (3 dígitos ≠ 000) + dirección del establecimiento + sucursal opcional + activo. Único `(tenant_id, establishment_code, point_code)`. |
 | invoicing | `signing_certificates` | Certificado de firma: `.p12` y contraseña **cifrados** (AES-256-GCM, nonce y contexto por gimnasio), datos públicos (titular, emisor, serie, huella, vigencia, RUC del titular), activo y fechas. Un activo por gimnasio (único parcial). Al retirarlo, un CHECK exige que el archivo y la contraseña queden vacíos. |
 
+Fase 9, bloque 4 (migración `AddInvoices`): comprobantes electrónicos. Todas con `tenant_id` y RLS forzada; `fitcore_app` solo tiene SELECT/INSERT (y UPDATE en `invoices` y `emission_sequences`), nunca DELETE.
+
+| Esquema | Tabla | Contenido |
+|---|---|---|
+| invoicing | `issuer_profiles.card_payment_method` | Tarjeta habitual del gimnasio (Credit/Debit) para el código de forma de pago del SRI. |
+| invoicing | `invoices` | Comprobante: origen (tipo, id, referencia, sucursal), numeración (punto de emisión, establecimiento, punto, secuencial, ambiente), fecha, **clave de acceso de 49 dígitos** (única y verificada por CHECK contra el propio registro), copia del emisor y del comprador, totales (base, descuento, IVA, total, diferencia de redondeo) y estado. Únicos: (gimnasio, tipo de origen, origen, tipo de comprobante), clave de acceso y (gimnasio, punto, tipo, ambiente, secuencial). Disparador `invoices_guard` (FC130): solo cambia `status`/`updated_at`; no se borra. |
+| invoicing | `invoice_lines` / `invoice_taxes` / `invoice_payments` | Líneas (precio unitario, descuento, base, código y porcentaje de tarifa, IVA), totales por tarifa y formas de pago con su código del SRI. Inmutables (FC130). |
+| invoicing | `invoice_events` | Historial inmutable (Created, y los cambios de estado de los siguientes bloques) con quién y cuándo. |
+| invoicing | `emission_sequences` | Último secuencial por gimnasio, punto de emisión, tipo de comprobante y ambiente; se incrementa de forma atómica dentro de la transacción del comprobante. |
+
 ## Módulo de analítica (Fase 6, `AnalyticsDbContext`)
 Casi todo lo que lee son **vistas de solo lectura** de las tablas de otros módulos (`ExcludeFromMigrations`): no crea ni modifica datos de negocio. Su única tabla propia es el registro de exportaciones. Migraciones propias, con su historial en `analytics.__ef_migrations_history` (`InitialAnalytics` → `AddAnalyticsSecurity`).
 

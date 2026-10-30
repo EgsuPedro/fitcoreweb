@@ -3681,7 +3681,9 @@
       "withholding": "Withholding agent resolution",
       "accounting": "Required to keep accounting books",
       "environment": "SRI environment",
-      "confirmProduction": "I confirm I want to issue documents with real tax validity."
+      "confirmProduction": "I confirm I want to issue documents with real tax validity.",
+      "card": "Usual card type",
+      "cardHint": "Payments are recorded as \"card\" without telling credit from debit, but the SRI asks for one. Pick the one your members use most."
     },
     "regimes": {
       "General": "General",
@@ -3726,6 +3728,10 @@
       "retireConfirm": "The certificate and its password will be erased from the system. You will not be able to issue documents until you upload another one.",
       "saved": "Certificate saved.",
       "retired": "Certificate removed."
+    },
+    "cards": {
+      "Credit": "Credit card",
+      "Debit": "Debit card"
     }
   }
 }

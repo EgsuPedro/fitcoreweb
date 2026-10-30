@@ -36,6 +36,7 @@ public static class InvoicingModule
     {
         services.AddInvoicingPersistence(configuration);
         services.AddScoped<SettingsReader>();
+        services.AddScoped<FitCore.Invoicing.Application.Sources.InvoicePlanner>();
         services.AddSingleton<IModuleInitializer, InvoicingInitializer>();
         services.AddValidatorsFromAssemblyContaining<SaveIssuerRequestValidator>(includeInternalTypes: true);
         services.AddHandlersFromAssembly(typeof(InvoicingModule).Assembly);

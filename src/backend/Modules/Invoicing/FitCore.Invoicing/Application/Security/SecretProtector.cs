@@ -18,10 +18,16 @@ public sealed class InvoicingOptions
     public int MasterKeyVersion { get; set; } = 1;
 
     /// <summary>
-    /// Monto máximo (USD, con impuestos) de una venta a consumidor final. Lo fija la normativa tributaria y puede cambiar: por eso es configuración y no una constante.
-    /// Por encima de este valor hay que identificar al comprador.
+    /// Monto máximo (USD) de una factura a consumidor final: si el valor de la factura es mayor, hay que identificar al comprador (ficha técnica 2.34, sección 9.10: 50 USD). Lo fija la normativa y
+    /// ya cambió antes (ficha 2.23), por eso es configuración y no una constante.
     /// </summary>
     public decimal FinalConsumerMaxAmount { get; set; } = 50m;
+
+    /// <summary>
+    /// RUC de la empresa que provee este sistema de facturación (la que opera FIT360). La ficha técnica 2.34 (Anexo 26, Resolución NAC-DGERCGC26-00000027) obliga a los emisores que usan un sistema de
+    /// terceros a incluirlo en la información adicional como «RUC Proveedor». Vacío = no se agrega (hasta que se defina y rija la obligación). Es de la plataforma, no del gimnasio.
+    /// </summary>
+    public string ProviderRuc { get; set; } = string.Empty;
 }
 
 /// <summary>Cifra y descifra secretos (certificado y contraseña). Todo secreto queda atado a su contexto (gimnasio y propósito): copiarlo a otra fila no lo descifra.</summary>

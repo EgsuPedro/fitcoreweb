@@ -16,13 +16,14 @@ public static class InvoiceXmlBuilder
     public const string RimpeLegend = "CONTRIBUYENTE RÉGIMEN RIMPE";
     public const string Currency = "DOLAR";
 
-    public static string Build(Invoice invoice)
+    /// <param name="providerRuc">RUC del proveedor del sistema de facturación, si se configuró: va en la información adicional como «RUC Proveedor» (Anexo 26 de la ficha técnica 2.34).</param>
+    public static string Build(Invoice invoice, string? providerRuc = null)
     {
         var root = new XElement("factura", new XAttribute("id", "comprobante"), new XAttribute("version", Version));
         root.Add(InfoTributaria(invoice));
         root.Add(InfoFactura(invoice));
         root.Add(new XElement("detalles", invoice.Lines.OrderBy(l => l.LineNumber).Select(Detail)));
-        if (AdditionalInfo(invoice) is { } additional)
+        if (AdditionalInfo(invoice, providerRuc) is { } additional)
         {
             root.Add(additional);
         }
@@ -98,7 +99,7 @@ public static class InvoiceXmlBuilder
             new XElement("valor", Money(l.TaxAmount)))));
 
     /// <summary>Datos de contacto y referencia (máximo 15 campos de hasta 300 caracteres según el XSD); solo los que existen.</summary>
-    private static XElement? AdditionalInfo(Invoice i)
+    private static XElement? AdditionalInfo(Invoice i, string? providerRuc)
     {
         var fields = new List<XElement>();
         void Add(string name, string? value)
@@ -112,6 +113,7 @@ public static class InvoiceXmlBuilder
         Add("Email", i.BuyerEmail);
         Add("Telefono", i.BuyerPhone);
         Add("Referencia", i.SourceReference);
+        Add("RUC Proveedor", providerRuc);
         return fields.Count == 0 ? null : new XElement("infoAdicional", fields);
     }
 

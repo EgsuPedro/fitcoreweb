@@ -11,6 +11,7 @@ using FitCore.Platform.Security;
 using FitCore.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace FitCore.Invoicing.Application.Invoices;
@@ -35,6 +36,7 @@ public static class SigningErrors
     public static readonly Error CertificateUnreadable = Error.Unavailable("invoicing.certificate_unreadable", "No se pudo abrir el certificado guardado: revise la clave maestra de facturación o vuelva a cargar el certificado.");
     public static readonly Error XmlInvalid = Error.Failure("invoicing.xml_invalid", "El XML del comprobante no cumple el esquema del SRI; no se firmó. Se registró el detalle para soporte.");
     public static readonly Error SignatureInvalid = Error.Failure("invoicing.signature_invalid", "La firma generada no pasó la verificación local; no se guardó. Se registró el detalle para soporte.");
+    public static readonly Error ProviderRucInvalid = Error.Unavailable("invoicing.provider_ruc_invalid", "El RUC del proveedor del sistema de facturación (configuración de la plataforma) no es válido: no se pueden firmar comprobantes hasta corregirlo.");
     public static readonly Error DocumentNotFound = Error.NotFound("invoicing.document_not_found", "El comprobante todavía no tiene ese documento.");
 }
 
@@ -45,7 +47,7 @@ public static class SigningErrors
 /// el Worker (en la transmisión). Es idempotente y seguro ante concurrencia: firmar lo ya firmado no cambia nada. El certificado y su contraseña se descifran solo aquí, en memoria, y se descartan.
 /// El llamador ya comprobó que puede operar sobre el comprobante.
 /// </summary>
-internal sealed class InvoiceSigner(InvoicingDbContext db, ISecretProtector protector, IClock clock, ILogger<InvoiceSigner> logger)
+internal sealed class InvoiceSigner(InvoicingDbContext db, ISecretProtector protector, IClock clock, IOptions<InvoicingOptions> options, ILogger<InvoiceSigner> logger)
 {
     /// <returns><c>true</c> si esta llamada lo firmó; <c>false</c> si ya no estaba pendiente de firma.</returns>
     public async Task<Result<bool>> SignAsync(Guid invoiceId, Guid? actorId, CancellationToken cancellationToken)
@@ -83,7 +85,14 @@ internal sealed class InvoiceSigner(InvoicingDbContext db, ISecretProtector prot
             return CertificateErrors.Expired;
         }
 
-        var xml = InvoiceXmlBuilder.Build(invoice);
+        var providerRuc = options.Value.ProviderRuc.Trim();
+        if (providerRuc.Length > 0 && !EcuadorIds.IsValidRuc(providerRuc))
+        {
+            logger.LogError("Invoicing:ProviderRuc está configurado con un RUC inválido; no se firma ningún comprobante hasta corregirlo.");
+            return SigningErrors.ProviderRucInvalid;
+        }
+
+        var xml = InvoiceXmlBuilder.Build(invoice, providerRuc.Length == 0 ? null : providerRuc);
         var problems = InvoiceXmlValidator.Validate(xml);
         if (problems.Count > 0)
         {

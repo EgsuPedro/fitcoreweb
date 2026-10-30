@@ -216,6 +216,8 @@ public class InvoiceCalculatorTests
     [InlineData("General", 12, "2")]
     [InlineData("General", 14, "3")]
     [InlineData("General", 15, "4")]
+    [InlineData("General", 5, "5")]
+    [InlineData("General", 13, "10")]
     public void Tax_kinds_map_to_the_SRI_rate_codes_and_no_tax_is_charged_when_free(string kind, double percent, string code)
     {
         var result = InvoiceCalculator.Calculate(Source(40m, 0m, 40m, kind, (decimal)percent), CardPaymentMethod.Credit).Value;

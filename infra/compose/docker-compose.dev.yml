@@ -72,6 +72,8 @@ services:
       Contact__NotifyEmail: ${CONTACT_NOTIFY_EMAIL:-}
       # Clave maestra que cifra los certificados de firma electrónica (32 bytes en base64). Sin ella no se pueden guardar certificados. NUNCA al repositorio.
       Invoicing__MasterKey: ${INVOICING_MASTER_KEY:-}
+      # RUC de la empresa que provee el sistema (Anexo 26 de la ficha técnica 2.34): va como «RUC Proveedor» en la información adicional. Vacío = no se agrega.
+      Invoicing__ProviderRuc: ${INVOICING_PROVIDER_RUC:-}
     volumes:
       # Fotos de progreso: privadas, solo accesibles desde la API. Incluir este volumen en las copias de seguridad.
       - fitcore_files:/var/lib/fitcore/files
@@ -108,6 +110,8 @@ services:
       PublicSite__BaseUrl: ${PUBLIC_SITE_URL:-http://localhost:8081}
       # El Worker firma y transmite los comprobantes al SRI: necesita la misma clave maestra que la API para abrir el certificado. NUNCA al repositorio.
       Invoicing__MasterKey: ${INVOICING_MASTER_KEY:-}
+      # RUC de la empresa que provee el sistema (Anexo 26 de la ficha técnica 2.34): va como «RUC Proveedor» en la información adicional. Vacío = no se agrega.
+      Invoicing__ProviderRuc: ${INVOICING_PROVIDER_RUC:-}
     depends_on:
       postgres:
         condition: service_healthy

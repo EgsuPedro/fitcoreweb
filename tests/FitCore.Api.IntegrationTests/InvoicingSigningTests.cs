@@ -318,4 +318,37 @@ public class InvoicingSigningTests(ApiFixture api)
         Assert.Equal(HttpStatusCode.UnprocessableEntity, shortSpecial.StatusCode);
         Assert.Equal(HttpStatusCode.OK, fine.StatusCode);
     }
+
+    // ---- RUC del proveedor del sistema (Anexo 26 de la ficha técnica 2.34) --------------------------------------------------------------
+
+    [Fact]
+    public async Task The_provider_ruc_configured_for_the_platform_is_signed_into_every_invoice()
+    {
+        var (gym, id, _) = await IssuedInvoiceAsync();
+        using var withProvider = api.CreateClientWith(("Invoicing:ProviderRuc", "1712345675001"));
+        withProvider.DefaultRequestHeaders.Authorization = gym.Tenant.Owner.DefaultRequestHeaders.Authorization;
+
+        var signed = await withProvider.PostAsync($"/api/v1/invoicing/invoices/{id}/sign", null);
+        Assert.True(signed.StatusCode == HttpStatusCode.OK, await signed.Content.ReadAsStringAsync());
+        var xml = await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml");
+
+        var field = XDocument.Parse(xml).Root!.Element("infoAdicional")!.Elements().Single(e => e.Attribute("nombre")!.Value == "RUC Proveedor");
+        Assert.Equal("1712345675001", field.Value);
+        Assert.Empty(InvoiceXmlValidator.Validate(xml));
+        Assert.True(XadesBesSigner.Verify(xml).IsValid);
+    }
+
+    [Fact]
+    public async Task An_invalid_provider_ruc_stops_signing_instead_of_issuing_a_defective_document()
+    {
+        var (gym, id, _) = await IssuedInvoiceAsync();
+        using var broken = api.CreateClientWith(("Invoicing:ProviderRuc", "123"));
+        broken.DefaultRequestHeaders.Authorization = gym.Tenant.Owner.DefaultRequestHeaders.Authorization;
+
+        var response = await ReadAsync(await broken.PostAsync($"/api/v1/invoicing/invoices/{id}/sign", null));
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.Status);
+        Assert.Equal("invoicing.provider_ruc_invalid", response.Body.GetProperty("code").GetString());
+        Assert.Equal("PendingSignature", await ScalarAsync("SELECT status FROM invoicing.invoices WHERE id = @i", ("i", id)));
+    }
 }

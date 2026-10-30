@@ -166,6 +166,24 @@ public class InvoiceXmlBuilderTests
     }
 
     [Fact]
+    public void The_provider_ruc_goes_in_the_additional_information_when_configured_and_the_schema_still_accepts_it()
+    {
+        var xml = InvoiceXmlBuilder.Build(SampleInvoices.Create(), "1790012345001");
+
+        var additional = Root(xml).Element("infoAdicional")!.Elements().ToList();
+        Assert.Equal(["Email", "Telefono", "Referencia", "RUC Proveedor"], additional.Select(e => e.Attribute("nombre")!.Value));
+        Assert.Equal("1790012345001", additional.Last().Value);
+        Assert.Empty(InvoiceXmlValidator.Validate(xml));
+    }
+
+    [Fact]
+    public void Without_a_configured_provider_ruc_the_field_is_not_added()
+    {
+        Assert.DoesNotContain("RUC Proveedor", InvoiceXmlBuilder.Build(SampleInvoices.Create()), StringComparison.Ordinal);
+        Assert.DoesNotContain("RUC Proveedor", InvoiceXmlBuilder.Build(SampleInvoices.Create(), "  "), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Final_consumer_uses_type_07_and_the_fixed_data_and_still_matches_the_schema()
     {
         var xml = InvoiceXmlBuilder.Build(SampleInvoices.Create(buyerType: SriBuyerIdType.FinalConsumer, buyerId: "9999999999999", buyerName: "CONSUMIDOR FINAL", address: null, email: null, phone: null));

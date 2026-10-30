@@ -5,8 +5,8 @@ using FitCore.SharedKernel;
 namespace FitCore.Invoicing.Domain;
 
 /// <summary>
-/// Tipos de identificación del comprador y su código (Tabla 6 de la ficha técnica del SRI, esquema offline, versión 2.20 leída en el documento oficial:
-/// 04 RUC, 05 cédula, 06 pasaporte, 07 venta a consumidor final, 08 identificación del exterior). Debe contrastarse con la versión vigente (2.34) antes del bloque 7.
+/// Tipos de identificación del comprador y su código (Tabla 6 de la ficha técnica del SRI, esquema offline, versión 2.34, verificada en el PDF oficial:
+/// 04 RUC, 05 cédula, 06 pasaporte, 07 venta a consumidor final, 08 identificación del exterior).
 /// </summary>
 public enum SriBuyerIdType
 {

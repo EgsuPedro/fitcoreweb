@@ -70,6 +70,8 @@ services:
       PublicSite__BaseUrl: ${PUBLIC_SITE_URL:-http://localhost:8081}
       # Aviso al equipo comercial cuando llega un contacto o una demostración (vacío = solo queda en la pantalla de plataforma).
       Contact__NotifyEmail: ${CONTACT_NOTIFY_EMAIL:-}
+      # Clave maestra que cifra los certificados de firma electrónica (32 bytes en base64). Sin ella no se pueden guardar certificados. NUNCA al repositorio.
+      Invoicing__MasterKey: ${INVOICING_MASTER_KEY:-}
     volumes:
       # Fotos de progreso: privadas, solo accesibles desde la API. Incluir este volumen en las copias de seguridad.
       - fitcore_files:/var/lib/fitcore/files

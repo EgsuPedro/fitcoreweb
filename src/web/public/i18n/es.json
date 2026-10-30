@@ -105,7 +105,8 @@
     "platformRequests": "Solicitudes de gimnasios",
     "branding": "Logo del gimnasio",
     "invitations": "Invitaciones",
-    "platformLeads": "Solicitudes comerciales"
+    "platformLeads": "Solicitudes comerciales",
+    "invoicing": "Facturación electrónica"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -766,6 +767,23 @@
       "expired": "El enlace venció. Solicite uno nuevo.",
       "trial_already_used": "Este correo ya aprovechó la prueba gratuita. Escríbanos desde la página de contacto para ver las opciones.",
       "provisioning_failed": "No pudimos terminar de crear su gimnasio. Nuestro equipo fue avisado; escríbanos desde la página de contacto."
+    },
+    "invoicing": {
+      "master_key_missing": "La clave maestra de facturación no está configurada en el servidor: no se pueden guardar certificados.",
+      "certificate_password_invalid": "La contraseña del certificado no es correcta o el archivo no es un .p12 válido.",
+      "certificate_no_private_key": "El archivo no contiene la clave privada del certificado.",
+      "certificate_not_rsa": "El certificado de firma debe usar una clave RSA.",
+      "certificate_cannot_sign": "El certificado no está habilitado para firmar documentos.",
+      "certificate_not_yet_valid": "El certificado todavía no está vigente.",
+      "certificate_expired": "El certificado está vencido.",
+      "certificate_required": "Seleccione el archivo del certificado (.p12) y escriba su contraseña.",
+      "certificate_too_large": "El archivo del certificado es demasiado grande.",
+      "certificate_not_found": "No hay un certificado activo.",
+      "emission_point_not_found": "Punto de emisión no encontrado.",
+      "emission_point_taken": "Ya existe un punto de emisión con ese establecimiento y código.",
+      "branch_not_found": "La sucursal indicada no existe.",
+      "establishment_code_mismatch": "El código de establecimiento no coincide con el que tiene configurado la sucursal.",
+      "issuer_required": "Primero guarde los datos del emisor."
     }
   },
   "enums": {
@@ -3617,6 +3635,97 @@
       "forEmail": "Invitación para {{email}}.",
       "submit": "Crear mi cuenta",
       "done": "¡Listo! Su cuenta está creada. Ya puede iniciar sesión."
+    }
+  },
+  "invoicing": {
+    "title": "Facturación electrónica",
+    "subtitle": "Datos tributarios del gimnasio, puntos de emisión y certificado de firma para emitir comprobantes al SRI.",
+    "readOnly": "Puede ver la configuración, pero solo quien tiene permiso de configurar la facturación puede cambiarla.",
+    "saved": "Configuración guardada.",
+    "invalidForm": "Revise los datos del emisor: hay campos incompletos o inválidos.",
+    "invalidPoint": "Revise el punto de emisión: los códigos son de 3 dígitos (distintos de 000) y la dirección es obligatoria.",
+    "testEnvironment": "Está en el ambiente de pruebas del SRI: los comprobantes emitidos no tienen validez tributaria.",
+    "status": {
+      "title": "Estado de la facturación",
+      "ready": "Listo para emitir",
+      "notReady": "Falta configuración",
+      "ok": "Cumplido",
+      "blocking": "Impide emitir",
+      "warning": "Recomendado"
+    },
+    "checks": {
+      "issuer_profile": "Datos del emisor guardados (razón social y dirección matriz)",
+      "ruc_valid": "RUC del emisor válido",
+      "regime_allows_electronic_invoice": "El régimen tributario permite factura electrónica (el Negocio Popular emite nota de venta)",
+      "emission_point": "Al menos un punto de emisión activo",
+      "master_key": "Clave maestra de cifrado configurada en el servidor",
+      "certificate": "Certificado de firma electrónica cargado",
+      "certificate_valid": "Certificado vigente",
+      "notification_email": "Correo de notificación del emisor (recomendado)",
+      "certificate_expiring": "El certificado no vence en los próximos 30 días",
+      "certificate_matches_ruc": "El certificado corresponde al RUC del emisor",
+      "production_environment": "Ambiente de producción (hoy está en pruebas)"
+    },
+    "issuer": {
+      "title": "Datos del emisor",
+      "ruc": "RUC",
+      "rucInvalid": "Escriba un RUC de 13 dígitos.",
+      "legalName": "Razón social",
+      "tradeName": "Nombre comercial",
+      "headOffice": "Dirección de la matriz",
+      "regime": "Régimen tributario",
+      "popularWarning": "El RIMPE Negocio Popular no emite factura electrónica sino nota de venta: no podrá emitir desde aquí.",
+      "notificationEmail": "Correo del emisor",
+      "notificationHint": "Se usa para avisos de la facturación, por ejemplo cuando un certificado está por vencer.",
+      "special": "Resolución de contribuyente especial",
+      "withholding": "Resolución de agente de retención",
+      "accounting": "Obligado a llevar contabilidad",
+      "environment": "Ambiente del SRI",
+      "confirmProduction": "Confirmo que quiero emitir comprobantes con validez tributaria real."
+    },
+    "regimes": {
+      "General": "General",
+      "RimpeEmprendedor": "RIMPE Emprendedor",
+      "RimpeNegocioPopular": "RIMPE Negocio Popular"
+    },
+    "environments": {
+      "Test": "Pruebas",
+      "Production": "Producción"
+    },
+    "points": {
+      "title": "Establecimientos y puntos de emisión",
+      "intro": "Cada comprobante se numera por establecimiento y punto de emisión (por ejemplo 001-001-000000001).",
+      "new": "Nuevo punto de emisión",
+      "edit": "Editar punto de emisión",
+      "establishment": "Establecimiento",
+      "point": "Punto de emisión",
+      "address": "Dirección del establecimiento",
+      "branch": "Sucursal",
+      "codeHint": "Tres dígitos, distintos de 000. No se pueden cambiar después de crearlo.",
+      "empty": "Aún no hay puntos de emisión.",
+      "activate": "Activar",
+      "deactivate": "Desactivar"
+    },
+    "certificate": {
+      "title": "Certificado de firma electrónica",
+      "intro": "Archivo .p12 o .pfx emitido por una entidad certificadora autorizada. Se guarda cifrado y no se vuelve a mostrar.",
+      "none": "Todavía no hay un certificado cargado.",
+      "subject": "Titular",
+      "issuer": "Entidad emisora",
+      "serial": "Serie",
+      "valid": "Vigencia",
+      "expired": "Vencido",
+      "daysLeft": "Vence en {{ days }} días",
+      "otherRuc": "El RUC del certificado no coincide con el del emisor.",
+      "file": "Archivo del certificado",
+      "password": "Contraseña del certificado",
+      "passwordHint": "Solo se usa para abrir el archivo; se guarda cifrada y no se muestra.",
+      "upload": "Cargar certificado",
+      "replace": "Reemplazar certificado",
+      "retire": "Retirar certificado",
+      "retireConfirm": "Se borrará el certificado y su contraseña del sistema. No se podrán emitir comprobantes hasta cargar otro.",
+      "saved": "Certificado guardado.",
+      "retired": "Certificado retirado."
     }
   }
 }

@@ -98,4 +98,12 @@ export const Perm = {
   ReportsExport: 'reports.export',
   SubscriptionRead: 'subscription.read',
   SubscriptionManage: 'subscription.manage',
+  InvoicingRead: 'invoicing.read',
+  InvoicingIssue: 'invoicing.issue',
+  InvoicingSend: 'invoicing.send',
+  InvoicingVoid: 'invoicing.void',
+  InvoicingCreditNote: 'invoicing.credit-note',
+  InvoicingConfigure: 'invoicing.configure',
+  InvoicingDownload: 'invoicing.download',
+  InvoicingResendEmail: 'invoicing.resend-email',
 } as const;

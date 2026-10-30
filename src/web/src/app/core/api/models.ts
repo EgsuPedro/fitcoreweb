@@ -228,3 +228,9 @@ export type OnboardingProfileRequest = Schemas['OnboardingProfileRequest'];
 export type OnboardingBranchRequest = Schemas['OnboardingBranchRequest'];
 export type DayHours = Schemas['DayHoursDto'];
 export type ExportFormatKey = Schemas['ExportFormat'];
+
+export type InvoicingSettings = Schemas['InvoicingSettingsDto'];
+export type EmissionPoint = Schemas['EmissionPointDto'];
+export type SaveIssuerRequest = Schemas['SaveIssuerRequest'];
+export type SaveEmissionPointRequest = Schemas['SaveEmissionPointRequest'];
+export type UpdateEmissionPointRequest = Schemas['UpdateEmissionPointRequest'];

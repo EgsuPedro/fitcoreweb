@@ -84,7 +84,11 @@ public static class RoleTemplates
                 Permissions.ReportsMembersRead,
                 Permissions.ReportsOperationsRead,
                 Permissions.ReportsCompare,
-                Permissions.ReportsExport
+                Permissions.ReportsExport,
+                Permissions.InvoicingRead,
+                Permissions.InvoicingIssue,
+                Permissions.InvoicingDownload,
+                Permissions.InvoicingResendEmail
             ]),
         new(
             "Recepcion",
@@ -129,7 +133,11 @@ public static class RoleTemplates
                 Permissions.CashRead,
                 Permissions.CashOperate,
                 Permissions.AnalyticsDashboardRead,
-                Permissions.ReportsFinancialRead
+                Permissions.ReportsFinancialRead,
+                Permissions.InvoicingRead,
+                Permissions.InvoicingIssue,
+                Permissions.InvoicingDownload,
+                Permissions.InvoicingResendEmail
             ]),
         // Mínimo privilegio: el entrenador trabaja solo con sus alumnos asignados (lo resuelve el módulo de bienestar), no con todo el listado
         // de alumnos ni la asistencia del gimnasio.
@@ -155,7 +163,15 @@ public static class RoleTemplates
                 Permissions.ReportsFinancialRead,
                 Permissions.ReportsMembersRead,
                 Permissions.ReportsCompare,
-                Permissions.ReportsExport
+                Permissions.ReportsExport,
+                Permissions.InvoicingRead,
+                Permissions.InvoicingIssue,
+                Permissions.InvoicingSend,
+                Permissions.InvoicingVoid,
+                Permissions.InvoicingCreditNote,
+                Permissions.InvoicingConfigure,
+                Permissions.InvoicingDownload,
+                Permissions.InvoicingResendEmail
             ]),
         new("Alumno", "Acceso del alumno a su propia información", false, [Permissions.MeRead, Permissions.InboxUse, Permissions.TrainingMemberRead, Permissions.TrainingSessionsLog, Permissions.NutritionMemberRead, Permissions.NutritionLogsRecord, Permissions.AssessmentsRead, Permissions.GoalsRead, Permissions.PhotosRead, Permissions.PhotosManage])
     ];

@@ -30,6 +30,10 @@ import type {
   NewSubscriptionRequest,
   PlatformRequest,
   SubscriptionNotice,
+  InvoicingSettings,
+  SaveIssuerRequest,
+  SaveEmissionPointRequest,
+  UpdateEmissionPointRequest,
   SubscriptionRequestItem,
   SubscriptionUsage,
   OrganizationNote,
@@ -493,6 +497,31 @@ export class ApiService {
 
   brandingLogo(): Observable<Blob> {
     return this.http.get(`${API_BASE}/tenant/branding/logo`, { responseType: 'blob' });
+  }
+  invoicingSettings(): Observable<InvoicingSettings> {
+    return this.http.get<InvoicingSettings>(`${API_BASE}/invoicing/settings`);
+  }
+  saveInvoicingIssuer(body: SaveIssuerRequest): Observable<InvoicingSettings> {
+    return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/issuer`, body);
+  }
+  createEmissionPoint(body: SaveEmissionPointRequest): Observable<InvoicingSettings> {
+    return this.http.post<InvoicingSettings>(`${API_BASE}/invoicing/emission-points`, body);
+  }
+  updateEmissionPoint(id: string, body: UpdateEmissionPointRequest): Observable<InvoicingSettings> {
+    return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}`, body);
+  }
+  setEmissionPointStatus(id: string, isActive: boolean): Observable<InvoicingSettings> {
+    return this.http.patch<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}/status`, { isActive });
+  }
+  /** El certificado y su contraseña viajan una sola vez por HTTPS; el servidor los guarda cifrados y no los devuelve. */
+  uploadSigningCertificate(file: File, password: string): Observable<InvoicingSettings> {
+    const form = new FormData();
+    form.append('file', file, file.name);
+    form.append('password', password);
+    return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/certificate`, form);
+  }
+  retireSigningCertificate(): Observable<InvoicingSettings> {
+    return this.http.delete<InvoicingSettings>(`${API_BASE}/invoicing/certificate`);
   }
   uploadLogo(file: File): Observable<Branding> {
     return this.http.put<Branding>(`${API_BASE}/tenant/branding/logo`, logoForm(file));

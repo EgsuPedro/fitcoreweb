@@ -17,6 +17,7 @@ public sealed class ApiFixture : IAsyncLifetime
     public const string PlatformEmail = "admin@fitcore.test";
     public const string PlatformPassword = "PlatformPass1234";
     public const string SigningKey = "test-signing-key-test-signing-key-0123456789";
+    public const string InvoicingMasterKey = "dGVzdC1tYXN0ZXIta2V5LTMyLWJ5dGVzLWxvbmctISE=";
     public const string WebhookSecret = "whsec-test-secret-0123456789abcdef";
 
     private readonly PostgreSqlContainer _container = new PostgreSqlBuilder("postgres:17")
@@ -85,6 +86,8 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("Email:Smtp:From", "no-reply@fit360.test");
             builder.UseSetting("PublicSite:BaseUrl", "https://fit360.test");
             builder.UseSetting("Contact:NotifyEmail", "ventas@fit360.test");
+            // Clave maestra de facturación SOLO para pruebas (32 bytes en base64). La de producción es otra y nunca está en el repositorio.
+            builder.UseSetting("Invoicing:MasterKey", ApiFixture.InvoicingMasterKey);
             builder.UseSetting("FileStorage:RootPath", FilesRoot);
         });
 

@@ -105,7 +105,8 @@
     "platformRequests": "Gym requests",
     "branding": "Gym logo",
     "invitations": "Invitations",
-    "platformLeads": "Sales requests"
+    "platformLeads": "Sales requests",
+    "invoicing": "Electronic invoicing"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -766,6 +767,23 @@
       "expired": "The link has expired. Ask for a new one.",
       "trial_already_used": "This email already used the free trial. Write to us from the contact page to see the options.",
       "provisioning_failed": "We could not finish creating your gym. Our team was notified; write to us from the contact page."
+    },
+    "invoicing": {
+      "master_key_missing": "The invoicing master key is not configured on the server: certificates cannot be saved.",
+      "certificate_password_invalid": "The certificate password is wrong or the file is not a valid .p12.",
+      "certificate_no_private_key": "The file does not contain the certificate private key.",
+      "certificate_not_rsa": "The signing certificate must use an RSA key.",
+      "certificate_cannot_sign": "The certificate is not enabled for signing documents.",
+      "certificate_not_yet_valid": "The certificate is not valid yet.",
+      "certificate_expired": "The certificate has expired.",
+      "certificate_required": "Select the certificate file (.p12) and enter its password.",
+      "certificate_too_large": "The certificate file is too large.",
+      "certificate_not_found": "There is no active certificate.",
+      "emission_point_not_found": "Emission point not found.",
+      "emission_point_taken": "An emission point with that establishment and code already exists.",
+      "branch_not_found": "The selected branch does not exist.",
+      "establishment_code_mismatch": "The establishment code does not match the one configured on the branch.",
+      "issuer_required": "Save the issuer data first."
     }
   },
   "enums": {
@@ -3617,6 +3635,97 @@
       "forEmail": "Invitation for {{email}}.",
       "submit": "Create my account",
       "done": "Done! Your account is created. You can now sign in."
+    }
+  },
+  "invoicing": {
+    "title": "Electronic invoicing",
+    "subtitle": "The gym's tax data, emission points and signing certificate used to issue documents to the SRI.",
+    "readOnly": "You can view the settings, but only people allowed to configure invoicing can change them.",
+    "saved": "Settings saved.",
+    "invalidForm": "Check the issuer data: some fields are incomplete or invalid.",
+    "invalidPoint": "Check the emission point: codes are 3 digits (not 000) and the address is required.",
+    "testEnvironment": "You are in the SRI test environment: documents issued here have no tax validity.",
+    "status": {
+      "title": "Invoicing status",
+      "ready": "Ready to issue",
+      "notReady": "Setup missing",
+      "ok": "Done",
+      "blocking": "Blocks issuing",
+      "warning": "Recommended"
+    },
+    "checks": {
+      "issuer_profile": "Issuer data saved (legal name and head office address)",
+      "ruc_valid": "Issuer RUC is valid",
+      "regime_allows_electronic_invoice": "The tax regime allows electronic invoices (Negocio Popular issues a sales note)",
+      "emission_point": "At least one active emission point",
+      "master_key": "Encryption master key configured on the server",
+      "certificate": "Electronic signing certificate uploaded",
+      "certificate_valid": "Certificate is currently valid",
+      "notification_email": "Issuer notification email (recommended)",
+      "certificate_expiring": "The certificate does not expire within 30 days",
+      "certificate_matches_ruc": "The certificate belongs to the issuer RUC",
+      "production_environment": "Production environment (currently testing)"
+    },
+    "issuer": {
+      "title": "Issuer data",
+      "ruc": "RUC",
+      "rucInvalid": "Enter a 13-digit RUC.",
+      "legalName": "Legal name",
+      "tradeName": "Trade name",
+      "headOffice": "Head office address",
+      "regime": "Tax regime",
+      "popularWarning": "RIMPE Negocio Popular issues a sales note, not an electronic invoice: you will not be able to issue from here.",
+      "notificationEmail": "Issuer email",
+      "notificationHint": "Used for invoicing notices, for example when a certificate is about to expire.",
+      "special": "Special taxpayer resolution",
+      "withholding": "Withholding agent resolution",
+      "accounting": "Required to keep accounting books",
+      "environment": "SRI environment",
+      "confirmProduction": "I confirm I want to issue documents with real tax validity."
+    },
+    "regimes": {
+      "General": "General",
+      "RimpeEmprendedor": "RIMPE Emprendedor",
+      "RimpeNegocioPopular": "RIMPE Negocio Popular"
+    },
+    "environments": {
+      "Test": "Test",
+      "Production": "Production"
+    },
+    "points": {
+      "title": "Establishments and emission points",
+      "intro": "Each document is numbered by establishment and emission point (for example 001-001-000000001).",
+      "new": "New emission point",
+      "edit": "Edit emission point",
+      "establishment": "Establishment",
+      "point": "Emission point",
+      "address": "Establishment address",
+      "branch": "Branch",
+      "codeHint": "Three digits, not 000. They cannot be changed after creation.",
+      "empty": "There are no emission points yet.",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "certificate": {
+      "title": "Electronic signing certificate",
+      "intro": ".p12 or .pfx file issued by an authorized certification authority. It is stored encrypted and never shown again.",
+      "none": "No certificate has been uploaded yet.",
+      "subject": "Holder",
+      "issuer": "Issuing authority",
+      "serial": "Serial",
+      "valid": "Validity",
+      "expired": "Expired",
+      "daysLeft": "Expires in {{ days }} days",
+      "otherRuc": "The certificate RUC does not match the issuer RUC.",
+      "file": "Certificate file",
+      "password": "Certificate password",
+      "passwordHint": "Only used to open the file; it is stored encrypted and never shown.",
+      "upload": "Upload certificate",
+      "replace": "Replace certificate",
+      "retire": "Remove certificate",
+      "retireConfirm": "The certificate and its password will be erased from the system. You will not be able to issue documents until you upload another one.",
+      "saved": "Certificate saved.",
+      "retired": "Certificate removed."
     }
   }
 }

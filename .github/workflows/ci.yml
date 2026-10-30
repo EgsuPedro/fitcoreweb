@@ -71,6 +71,7 @@ jobs:
           PLATFORM_ADMIN_PASSWORD=Ci-$(openssl rand -hex 8)-Aa1
           LOGIN_RATE_LIMIT=500
           REGISTER_RATE_LIMIT=500
+          INVOICING_MASTER_KEY=$(openssl rand -base64 32)
           EOF
       - name: API, Worker, correo de pruebas (Mailpit), PostgreSQL y web
         run: |

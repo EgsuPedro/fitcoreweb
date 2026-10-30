@@ -3684,6 +3684,102 @@ export interface paths {
         patch: operations["SetContactRequestAttended"];
         trace?: never;
     };
+    "/api/v1/invoicing/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetInvoicingSettings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/issuer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SaveInvoicingIssuer"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/emission-points": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CreateEmissionPoint"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/emission-points/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UpdateEmissionPoint"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/emission-points/{id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetEmissionPointStatus"];
+        trace?: never;
+    };
+    "/api/v1/invoicing/certificate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["UploadSigningCertificate"];
+        post?: never;
+        delete: operations["RetireSigningCertificate"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -4571,6 +4667,25 @@ export interface components {
             /** Format: double */
             difference: number | null;
         };
+        CertificateDto: {
+            /** Format: uuid */
+            id: string;
+            subject: string;
+            issuer: string;
+            serialNumber: string;
+            thumbprint: string;
+            /** Format: date-time */
+            notBefore: string;
+            /** Format: date-time */
+            notAfter: string;
+            /** Format: int32 */
+            daysToExpire: number;
+            expired: boolean;
+            /** Format: date-time */
+            uploadedAt: string;
+            subjectRuc: string | null;
+            matchesIssuerRuc: boolean | null;
+        } | null;
         ChangePasswordRequest: {
             currentPassword: string;
             newPassword: string;
@@ -5131,6 +5246,17 @@ export interface components {
         DiscountType: "Percentage" | "FixedAmount";
         /** @enum {unknown} */
         DurationUnit: "Day" | "Week" | "Month" | "Year";
+        EmissionPointDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            branchId: string | null;
+            branchName: string | null;
+            establishmentCode: string;
+            pointCode: string;
+            establishmentAddress: string;
+            isActive: boolean;
+        };
         EndAssignmentRequest: {
             reason: string;
         };
@@ -5621,6 +5747,29 @@ export interface components {
             /** Format: int32 */
             attemptCount: number;
         };
+        InvoicingSettingsDto: {
+            issuer: components["schemas"]["IssuerDto"];
+            emissionPoints: components["schemas"]["EmissionPointDto"][];
+            certificate: components["schemas"]["CertificateDto"];
+            checks: components["schemas"]["ReadinessCheckDto"][];
+            canIssue: boolean;
+            masterKeyConfigured: boolean;
+        };
+        IssuerDto: {
+            ruc: string;
+            legalName: string;
+            tradeName: string | null;
+            headOfficeAddress: string;
+            taxRegime: string;
+            accountingRequired: boolean;
+            specialTaxpayerNumber: string | null;
+            withholdingAgentNumber: string | null;
+            environment: string;
+            emissionType: string;
+            notificationEmail: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+        } | null;
         JsonElement: unknown;
         KpiDto: {
             key: string;
@@ -7947,6 +8096,11 @@ export interface components {
         ReactivateSubscriptionRequest: {
             note: string | null;
         };
+        ReadinessCheckDto: {
+            code: string;
+            ok: boolean;
+            blocking: boolean;
+        };
         ReceiptDto: {
             receiptNumber: string;
             notice: string;
@@ -8277,6 +8431,27 @@ export interface components {
             /** Format: date-time */
             offerExpiresAt: string | null;
         };
+        SaveEmissionPointRequest: {
+            /** Format: uuid */
+            branchId: string | null;
+            establishmentCode: string;
+            pointCode: string;
+            establishmentAddress: string;
+        };
+        SaveIssuerRequest: {
+            ruc: string;
+            legalName: string;
+            tradeName: string | null;
+            headOfficeAddress: string;
+            taxRegime: components["schemas"]["TaxRegime"];
+            accountingRequired: boolean;
+            specialTaxpayerNumber: string | null;
+            withholdingAgentNumber: string | null;
+            environment: components["schemas"]["SriEnvironment"];
+            notificationEmail: string | null;
+            /** @default false */
+            confirmProduction: boolean;
+        };
         SeriesDto: {
             key: string;
             name: string;
@@ -8382,6 +8557,9 @@ export interface components {
             /** Format: double */
             loadKg: number | null;
         };
+        SetEmissionPointStatusRequest: {
+            isActive: boolean;
+        };
         SetExerciseStatusRequest: {
             isActive: boolean;
         };
@@ -8432,6 +8610,8 @@ export interface components {
             date: string;
             reason: string;
         };
+        /** @enum {unknown} */
+        SriEnvironment: "Test" | "Production";
         SubscriptionAlertDto: {
             code: string;
             severity: string;
@@ -8676,6 +8856,8 @@ export interface components {
             validUntil: string | null;
             isCurrent: boolean;
         };
+        /** @enum {unknown} */
+        TaxRegime: "General" | "RimpeEmprendedor" | "RimpeNegocioPopular";
         TenantDto: {
             /** Format: uuid */
             id: string;
@@ -8840,6 +9022,11 @@ export interface components {
             dueDays: number;
             /** Format: int32 */
             maxDiscountPercent: number;
+        };
+        UpdateEmissionPointRequest: {
+            /** Format: uuid */
+            branchId: string | null;
+            establishmentAddress: string;
         };
         UpdateMemberRequest: {
             firstName: string;
@@ -15900,6 +16087,166 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ContactRequestDto"];
+                };
+            };
+        };
+    };
+    GetInvoicingSettings: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    SaveInvoicingIssuer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveIssuerRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    CreateEmissionPoint: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveEmissionPointRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    UpdateEmissionPoint: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEmissionPointRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    SetEmissionPointStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetEmissionPointStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    UploadSigningCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    RetireSigningCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
                 };
             };
         };

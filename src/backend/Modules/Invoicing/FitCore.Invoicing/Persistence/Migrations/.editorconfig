@@ -1,0 +1,3 @@
+[*.cs]
+# Migraciones de EF Core (generadas y SQL de RLS): se excluyen de los analizadores de estilo.
+generated_code = true

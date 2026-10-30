@@ -152,6 +152,15 @@ Lo que **FIT360 le vende a un gimnasio**; no tiene relación con las membresías
 | identity | `app_users.account_kind` | `Staff` o `Member` (alumno con acceso al portal); solo el personal cuenta para el límite de usuarios internos. Migración `AddAccountKind` (rellena `Member` según el rol de plantilla «Alumno»). |
 | subscriptions | `plan_limits` | Límite cuantitativo por versión y código (`Capabilities.Limits`); `NULL` = sin límite. Todos los límites del catálogo se indican siempre: uno olvidado no es «ilimitado». |
 
+## Módulo de facturación electrónica (Fase 9, `InvoicingDbContext`, esquema `invoicing`)
+Historial de migraciones en `invoicing.__ef_migrations_history` (`InitialInvoicing`). Todas las tablas llevan `tenant_id`, RLS forzada (`tenant_isolation`) y auditoría; `fitcore_app` no tiene `DELETE`.
+
+| Esquema | Tabla | Contenido |
+|---|---|---|
+| invoicing | `issuer_profiles` | Perfil tributario del gimnasio (uno por gimnasio): RUC (13 dígitos), razón social, nombre comercial, dirección matriz, régimen (General, RimpeEmprendedor, RimpeNegocioPopular), obligado a contabilidad, resoluciones de contribuyente especial y agente de retención, ambiente (Test/Production), tipo de emisión y correo de notificación. |
+| invoicing | `emission_points` | Establecimiento (3 dígitos ≠ 000) + punto de emisión (3 dígitos ≠ 000) + dirección del establecimiento + sucursal opcional + activo. Único `(tenant_id, establishment_code, point_code)`. |
+| invoicing | `signing_certificates` | Certificado de firma: `.p12` y contraseña **cifrados** (AES-256-GCM, nonce y contexto por gimnasio), datos públicos (titular, emisor, serie, huella, vigencia, RUC del titular), activo y fechas. Un activo por gimnasio (único parcial). Al retirarlo, un CHECK exige que el archivo y la contraseña queden vacíos. |
+
 ## Módulo de analítica (Fase 6, `AnalyticsDbContext`)
 Casi todo lo que lee son **vistas de solo lectura** de las tablas de otros módulos (`ExcludeFromMigrations`): no crea ni modifica datos de negocio. Su única tabla propia es el registro de exportaciones. Migraciones propias, con su historial en `analytics.__ef_migrations_history` (`InitialAnalytics` → `AddAnalyticsSecurity`).
 

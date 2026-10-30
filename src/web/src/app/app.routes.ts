@@ -212,6 +212,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/branding/branding').then((m) => m.BrandingPage),
       },
       {
+        path: 'invoicing/settings',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.InvoicingRead },
+        loadComponent: () => import('./features/invoicing/invoicing-settings').then((m) => m.InvoicingSettingsPage),
+      },
+      {
         path: 'my/subscription',
         canActivate: [permissionGuard],
         data: { permission: Perm.SubscriptionRead },

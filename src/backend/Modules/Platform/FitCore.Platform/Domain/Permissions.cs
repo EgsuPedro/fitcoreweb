@@ -124,6 +124,16 @@ public static class Permissions
     public const string SubscriptionRead = "subscription.read";
     public const string SubscriptionManage = "subscription.manage";
 
+    // Facturación electrónica del SRI (Fase 9). «billing» ya significa cobros de suscripción de la plataforma, por eso el prefijo es «invoicing».
+    public const string InvoicingRead = "invoicing.read";
+    public const string InvoicingIssue = "invoicing.issue";
+    public const string InvoicingSend = "invoicing.send";
+    public const string InvoicingVoid = "invoicing.void";
+    public const string InvoicingCreditNote = "invoicing.credit-note";
+    public const string InvoicingConfigure = "invoicing.configure";
+    public const string InvoicingDownload = "invoicing.download";
+    public const string InvoicingResendEmail = "invoicing.resend-email";
+
     public const string MembersAccess = "members.access";
     public const string MeRead = "me.read";
 
@@ -140,6 +150,14 @@ public static class Permissions
         new(PlatformBillingManage, "platform", "Emitir y anular facturas internas, registrar pagos, intentos fallidos y reembolsos de cobros comerciales (solo equipo de plataforma)"),
         new(PlatformSubscriptionsRead, "platform", "Consultar las suscripciones comerciales de los gimnasios, su estado y su historial (solo equipo de plataforma)"),
         new(PlatformSubscriptionsManage, "platform", "Asignar planes, activar, suspender y reactivar suscripciones comerciales de los gimnasios (solo equipo de plataforma)"),
+        new(InvoicingRead, "invoicing", "Ver el panel y el listado de comprobantes electrónicos, su estado y su historial"),
+        new(InvoicingIssue, "invoicing", "Emitir facturas electrónicas a partir de una venta o un cobro"),
+        new(InvoicingSend, "invoicing", "Reintentar la transmisión de un comprobante al SRI y consultar su autorización"),
+        new(InvoicingVoid, "invoicing", "Registrar la anulación de un comprobante (el trámite oficial se hace en el portal del SRI)"),
+        new(InvoicingCreditNote, "invoicing", "Emitir notas de crédito sobre facturas autorizadas"),
+        new(InvoicingConfigure, "invoicing", "Configurar los datos tributarios, los puntos de emisión, el ambiente y el certificado de firma electrónica del gimnasio"),
+        new(InvoicingDownload, "invoicing", "Descargar el XML y el RIDE (PDF) de los comprobantes (contienen datos personales)"),
+        new(InvoicingResendEmail, "invoicing", "Reenviar por correo al cliente el XML y el RIDE de un comprobante autorizado"),
         new(PlatformLeadsRead, "platform", "Consultar las solicitudes de contacto y demostración del sitio comercial (solo equipo de plataforma)"),
         new(PlatformLeadsManage, "platform", "Marcar como atendidas las solicitudes de contacto y demostración del sitio comercial (solo equipo de plataforma)"),
         new(PlatformPlansManage, "platform", "Crear y modificar planes comerciales, sus precios, límites y funcionalidades (solo equipo de plataforma)"),

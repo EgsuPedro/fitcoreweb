@@ -10,6 +10,7 @@
     <ProjectReference Include="..\..\src\backend\Modules\Classes\FitCore.Classes\FitCore.Classes.csproj" />
     <ProjectReference Include="..\..\src\backend\Modules\Analytics\FitCore.Analytics\FitCore.Analytics.csproj" />
     <ProjectReference Include="..\..\src\backend\Modules\Subscriptions\FitCore.Subscriptions\FitCore.Subscriptions.csproj" />
+    <ProjectReference Include="..\..\src\backend\Modules\Invoicing\FitCore.Invoicing\FitCore.Invoicing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.11.0" />

@@ -17,7 +17,7 @@ Pruebas actuales: ver el informe de la Fase 5 (cifras de la última regresión c
 ## Pendiente de la Fase 1/2
 | Tema | Nota |
 |---|---|
-| Recuperación de contraseña | Aplazada por decisión del usuario; requiere proveedor de correo (puerto `IEmailSender` + flujo con token de un solo uso) |
+| Recuperación de contraseña | **En curso en la Fase 8** (bloques 2 y 5): puerto `IEmailSender` + SMTP + tokens de un solo uso |
 | Pantallas: editar datos del gimnasio y cambiar la propia contraseña | El backend ya lo soporta |
 | Tipos de la API en CI | Regenerar y fallar si hay diferencias |
 | Accesibilidad | Revisión automatizada (axe) |
@@ -26,9 +26,18 @@ Pruebas actuales: ver el informe de la Fase 5 (cifras de la última regresión c
 | Auditoría en producción | Particionado, retención, envío a almacenamiento externo y cadena de hashes (ver `architecture.md`) |
 | Caché de permisos | Hoy una consulta por solicitud; medir antes de optimizar |
 
-## Siguientes fases
+## Fase en curso
 | Fase | Contenido |
 |---|---|
-| 6 en adelante | Canales externos de avisos (correo/SMS/WhatsApp/push, cuando haya proveedor), inventario y punto de venta, reportes, facturación electrónica SRI (firma XML directa tras un puerto), pasarela de tarjeta (puerto, en espera), app móvil Flutter. Pendientes heredados: WhatsApp real (cuenta de Meta), recuperación de contraseña (proveedor de correo), comparación de sesiones lado a lado, asignación nutricionista–alumno |
+| 8 | **Sitio comercial, registro de gimnasios y onboarding** ([ADR 0013](adr/0013-sitio-comercial-registro-y-onboarding.md)): correo SMTP, planes públicos, registro con verificación, recuperación de clave, asistente de configuración, invitaciones, sitio público prerenderizado y panel del propietario. Bloque 1 (diagnóstico y diseño) hecho. |
+
+## Pendientes que NO se olvidan (por orden de prioridad acordado el 2026-10-29)
+| Pendiente | Qué falta para empezar |
+|---|---|
+| **Facturación electrónica del SRI** | Certificado de firma (.p12), RUC, códigos de establecimiento y punto de emisión, acceso al ambiente de pruebas del SRI y el régimen del gimnasio (RIMPE «negocio popular» emite nota de venta, no factura). El logo del gimnasio y la numeración/IVA ya están listos. |
+| **Nómina** | Definir el alcance: sueldos, comisiones por clase o alumno, IESS, décimos, roles de pago, o solo un reporte de pagos al personal. |
+| **App móvil (Flutter)** | Decidir entre versión web instalable (PWA) y Flutter para tiendas; definir el alcance (portal del alumno, entrenadores). El backend ya es apto para móvil. |
+| Hosting estable de la demo | Un VPS pequeño siguiendo [despliegue.md](despliegue.md); respaldos descargados fuera del servidor y un monitor de disponibilidad. |
+| Otros | GIF de Fiti más liviano (MP4/WebM), avisos por WhatsApp/SMS, cobro automático con proveedor de pagos real, inventario y punto de venta, CAPTCHA, verificar el CI de GitHub, tolerar la cookie de sesión anterior unos segundos al recargar durante una renovación. |
 
 El orden de las fases 4 en adelante se reconfirma con el usuario al terminar cada fase.

@@ -109,6 +109,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 
 **Marca del gimnasio** ([identidad visual](docs/identidad-visual.md)): paleta FIT360 (teal y naranja suave), tipografía Inter, mascota Fiti; cada gimnasio carga su **logo** (PNG o JPG ≤ 1 MB, sin metadatos) que aparece en el menú y en los **libros de Excel** de los reportes (formato por defecto de las exportaciones; CSV sigue disponible). El mismo contrato servirá para los comprobantes.
 
+**Fase 8** (en curso) (sitio comercial, registro de gimnasios y onboarding, [ADR 0013](docs/adr/0013-sitio-comercial-registro-y-onboarding.md)): sitio público prerenderizado, registro del propietario con verificación de correo, recuperación de clave, asistente de configuración e invitaciones de empleados. Correo por SMTP real (sin simulaciones). Bloque 1 (diagnóstico y diseño) hecho.
+
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
 - [Arquitectura](docs/architecture.md): estructura, auditoría, primer administrador, configuración y ambientes

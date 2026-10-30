@@ -115,6 +115,28 @@ Detalle en el [ADR 0008](adr/0008-modulo-commercial.md). Todos se agregan al Pro
 | `platform.metrics.read` | Solo plataforma (Fase 7): métricas agregadas del producto SaaS (`GET /platform/metrics`): MRR contratado, cobrado, mora, conversión |
 | `platform.subscriptions.read` | Solo plataforma (Fase 7): consultar la suscripción comercial de un gimnasio, su historial y el listado de suscripciones (`GET /platform/tenants/{id}/subscription`, `…/history`, `GET /platform/subscriptions`) |
 | `platform.subscriptions.manage` | Solo plataforma (Fase 7): asignar un plan, activar una prueba, suspender y reactivar comercialmente (`POST …/subscription`, `…/activate`, `…/suspend`, `…/reactivate`). Distinta de `platform.tenants.manage`, que suspende administrativamente (cierra el acceso) |
+| `platform.leads.read` | Solo plataforma (Fase 8): ver las solicitudes de contacto y demostración del sitio público (`GET /platform/contact-requests`). Nunca se concede desde la API de un gimnasio |
+| `platform.leads.manage` | Solo plataforma (Fase 8): marcar como atendida o reabrir una solicitud (`PATCH /platform/contact-requests/{id}`) |
 | `platform.plans.manage` | Solo plataforma (Fase 7): crear y editar planes comerciales (precio, periodicidad, prueba, gracia, límites y funciones; cada cambio comercial crea una versión) y activarlos o desactivarlos. Se concede por defecto al rol `AdministradorPlataforma` (todos los `platform.*`, incluidos los futuros) y no se puede conceder a roles de ningún gimnasio |
 
 Endpoints nuevos: `GET/POST /members`, `GET/PUT /members/{id}`, `PATCH /members/{id}/status`, `GET/POST /membership-plans`, `GET/PUT /membership-plans/{id}`, `GET/POST /promotions`, `GET/PUT /promotions/{id}`, `GET/PUT /commercial-settings`, `GET /tax-rates/current`, `GET/POST /platform/tax-rates`, `GET/POST /memberships`, `GET /memberships/expiring`, `GET /memberships/{id}`, `GET /memberships/{id}/events`, `POST /memberships/{id}/renew|freeze|reactivate|cancel`, `GET/POST /payment-obligations`, `GET /payment-obligations/{id}`, `POST /payment-obligations/{id}/void`, `GET/POST /payments`, `GET /payments/{id}`, `GET /payments/{id}/receipt`, `POST /payments/{id}/confirm` `POST /payments/{id}/reverse`, `GET/POST /cash-registers`, `PUT /cash-registers/{id}`, `POST /cash-registers/{id}/open\|close\|movements`, `GET /cash-registers/{id}/movements\|sessions[/{sessionId}]` `GET /receivables/summary`, `GET /attendance`, `GET /attendance/{id}`, `POST /attendance/validate-access`, `POST /attendance/check-in`, `POST /attendance/check-out` , `POST /members/{id}/qr-token`, `PUT /members/{id}/whatsapp-consent`, `GET /notifications`, `GET/PUT /notification-settings`, `POST /members/{id}/access`, `POST /members/{id}/access/reset`, `PATCH /members/{id}/access`, `GET /me/member`, `GET /me/memberships`, `GET /me/payments`, `GET /me/attendance`, `GET /trainers`, `GET /trainers/me`, `GET/POST /trainers`, `GET/PUT /trainers/{id}`, `PATCH /trainers/{id}/status`, `GET/PUT /trainers/{id}/availability`, `GET/POST /trainers/{id}/members`, `POST /trainers/{id}/members/{memberId}/unassign`, `GET /members/{id}/trainer-assignments` y `GET/POST /members/{id}/trainer-notes`, `GET/POST /exercises`, `GET/PUT /exercises/{id}`, `PATCH /exercises/{id}/status`, `POST /exercises/{id}/duplicate` y `GET/POST /platform/exercises`, `PUT /platform/exercises/{id}`, `PATCH /platform/exercises/{id}/status`.
+## Fase 8 — rutas públicas, asistente e invitaciones
+**Rutas sin sesión** (`AllowAnonymous`, con límite de frecuencia por IP; ninguna devuelve datos privados de un gimnasio):
+
+| Ruta | Para qué | Protecciones |
+|---|---|---|
+| `GET /public/plans`, `GET /public/plans/{code}` | Catálogo público (solo planes publicados, activos y no heredados) | `public-read` (120/min), sin identificadores internos ni versiones, 404 idéntico para inexistente/oculto/inactivo |
+| `POST /public/registrations`, `…/verify-email`, `…/resend-verification` | Registro con confirmación de correo | `public-register` (10/min), respuesta siempre 202, tope por correo, precio/moneda rechazados, token de un solo uso |
+| `POST /public/invitations/preview`, `…/accept` | Ver y aceptar una invitación de personal | `public-register`, el gimnasio sale del enlace, respuesta idéntica para enlace malo |
+| `POST /public/contact`, `POST /public/demo-requests` | Formularios del sitio | `public-register`, campo trampa, 3/hora por correo, consentimiento versionado |
+| `POST /auth/forgot-password`, `POST /auth/reset-password` | Recuperar la contraseña | `auth-recovery` (10/min), respuesta siempre 202, 3/hora por cuenta, no aplica al gimnasio de plataforma |
+
+**Con sesión del gimnasio:**
+
+| Ruta | Permiso |
+|---|---|
+| `GET /onboarding` | `organization.read` |
+| `PUT /onboarding/profile`, `PUT /onboarding/branch`, `POST /onboarding/steps/{settings\|team}/{complete\|skip}`, `POST /onboarding/complete` | `organization.update` |
+| `GET /invitations` | `users.read` |
+| `POST /invitations`, `…/{id}/revoke`, `…/{id}/resend` | `users.create` (además, el rol y las sucursales se validan como al crear un usuario: no se puede dar más de lo que se puede conceder) |
+| `PATCH /platform/plans/{id}/visibility` | `platform.plans.manage` |

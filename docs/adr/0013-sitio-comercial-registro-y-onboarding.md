@@ -1,6 +1,6 @@
 # ADR 0013 — Sitio comercial, registro de gimnasios y onboarding
 
-Estado: **aceptado el 2026-10-30** (bloque 1). Corresponde a la «FASE 7» del prompt del usuario (nuestra numeración: **Fase 8**). Amplía las fases 3 (alta de gimnasios, usuarios, roles) y 7 ([ADR 0012](0012-modulo-subscriptions.md): planes y suscripciones). No reconstruye autenticación, tenants, permisos ni suscripciones: los reutiliza.
+Estado: **aceptado el 2026-10-30; implementado y cerrado en el bloque 10** (ver [informe de la Fase 8](../informe-fase-8.md)). Corresponde a la «FASE 7» del prompt del usuario (nuestra numeración: **Fase 8**). Amplía las fases 3 (alta de gimnasios, usuarios, roles) y 7 ([ADR 0012](0012-modulo-subscriptions.md): planes y suscripciones). No reconstruye autenticación, tenants, permisos ni suscripciones: los reutiliza.
 
 ## Decisiones confirmadas (2026-10-30)
 1. **Sitio público dentro de la misma app Angular, con páginas públicas prerenderizadas** (HTML estático para inicio, funcionalidades, planes, nosotros, preguntas frecuentes y contacto), de modo que Google y las vistas previas de WhatsApp/redes vean título, descripción e imagen. Los planes se cargan en vivo desde la API. *Plan B declarado:* si el prerenderizado de Angular diera problemas, se publica sin él (metaetiquetas por ruta) y se informa; el resto no cambia.
@@ -70,7 +70,7 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 | 7 | Invitaciones de empleados y límites de usuarios | Hecho |
 | 8 | Sitio público Angular (inicio, funcionalidades, planes, nosotros, preguntas, contacto), SEO y prerenderizado; contacto y demostraciones | Hecho |
 | 9 | Pantallas de registro, verificación, recuperación e invitación; panel del propietario | Hecho |
-| 10 | Pruebas (las 20 obligatorias), revisión de seguridad, accesibilidad y rendimiento, documentación e informe | Pendiente |
+| 10 | Pruebas (las 20 obligatorias), revisión de seguridad, accesibilidad y rendimiento, documentación e informe | Hecho |
 
 ## Fuera de esta fase (anotado, no olvidado)
 Facturación electrónica del SRI, nómina, app móvil (Flutter), avisos por WhatsApp/SMS, cobro automático con proveedor de pagos, inventario y punto de venta, CAPTCHA, verificación de correo de usuarios creados por el personal. Ver [hoja de ruta](../implementation-roadmap.md).

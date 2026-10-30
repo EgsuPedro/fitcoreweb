@@ -213,6 +213,49 @@ public class OnboardingTests(ApiFixture api)
         Assert.Equal("0", await ScalarAsync("SELECT count(*)::text FROM organizations.branches WHERE tenant_id = @t", ("t", tenant.Id)));
     }
 
+    private async Task<TestTenant> PendingTenantWithBranchLimitAsync(long branches)
+    {
+        using var platform = await TestApi.PlatformClientAsync(api);
+        var code = $"onb-{Guid.NewGuid():N}"[..18];
+        await JsonAsync(await platform.PostAsJsonAsync("/api/v1/platform/plans", new
+        {
+            code, name = "Plan con tope de sucursales", isActive = true, currency = "USD", billingPeriod = "Monthly", price = 10m, trialDays = 0, features = new[] { "members" },
+            limits = new object[]
+            {
+                new { code = "branches", value = branches }, new { code = "internal_users", value = 5L },
+                new { code = "members", value = (long?)null }, new { code = "storage_mb", value = 500L }
+            }
+        }), HttpStatusCode.Created);
+        var slug = NewSlug();
+        var created = await JsonAsync(await platform.PostAsJsonAsync("/api/v1/platform/tenants", new
+        {
+            slug, name = $"Gimnasio {slug}", timeZone = "America/Guayaquil", locale = "es-EC", ownerEmail = $"owner@{slug}.test",
+            ownerFullName = "Dueño", ownerPassword = TestApi.OwnerPassword, planCode = code, startTrial = false
+        }), HttpStatusCode.Created);
+        var id = created.GetProperty("id").GetGuid();
+        await ExecAsync("UPDATE organizations.tenants SET setup_status = 'PendingSetup' WHERE id = @t", ("t", id));
+        var owner = TestApi.Authenticated(api, await TestApi.LoginAsync(api, slug, $"owner@{slug}.test", TestApi.OwnerPassword));
+        return new TestTenant(id, slug, $"owner@{slug}.test", TestApi.OwnerPassword, owner);
+    }
+
+    [Fact]
+    public async Task The_main_branch_step_respects_the_plan_branch_limit()
+    {
+        var blocked = await PendingTenantWithBranchLimitAsync(0);
+        var allowed = await PendingTenantWithBranchLimitAsync(1);
+
+        var refused = await blocked.Owner.PutAsJsonAsync("/api/v1/onboarding/branch", Branch());
+        var first = await allowed.Owner.PutAsJsonAsync("/api/v1/onboarding/branch", Branch());
+        var again = await allowed.Owner.PutAsJsonAsync("/api/v1/onboarding/branch", Branch(name: "Renombrada"));
+
+        Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode);
+        Assert.Equal("subscription.limit_reached", (await JsonAsync(refused, HttpStatusCode.Conflict)).GetProperty("code").GetString());
+        Assert.Equal("0", await ScalarAsync("SELECT count(*)::text FROM organizations.branches WHERE tenant_id = @t", ("t", blocked.Id)));
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, again.StatusCode); // repetir el paso actualiza: no necesita una plaza más
+        Assert.Equal("1", await ScalarAsync("SELECT count(*)::text FROM organizations.branches WHERE tenant_id = @t", ("t", allowed.Id)));
+    }
+
     // ---- pasos opcionales y cierre ----------------------------------------------------------------------------------------------
 
     [Fact]

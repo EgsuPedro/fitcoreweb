@@ -9,6 +9,16 @@ PostgreSQL 17. Un solo `DbContext` (`PlatformDbContext`) para el módulo Platfor
 | organizations | `tenants` | Gimnasio: nombre, slug único, estado, zona horaria, idioma, contacto | (es la raíz) | No |
 | organizations | `branches` | Sucursal: código único por tenant, código de establecimiento SRI, ubicación, estado | Sí | Sí |
 | organizations | `tenant_logos` | Constancia del logo de cada gimnasio (uno por gimnasio): clave del archivo en el almacén privado, tipo (`image/png` o `image/jpeg`), peso (≤ 1 MB), SHA-256 (versión), medidas (32–2000 px) y quién lo cambió. El archivo no está en la base. RLS forzada por gimnasio; CHECK de tipo, peso, medidas y hash; FK al gimnasio. | Sí | Sí |
+| organizations | `pending_registrations` | Fase 8: solicitud de registro previa al gimnasio (correo, clave **hasheada** que se borra al terminar, nombre, identificador reservado, plan, versiones legales aceptadas, estado Pending/Provisioning/Verified/Expired/Superseded/Rejected/Failed, vencimiento 24 h). Sin RLS (aún no hay gimnasio); la API nunca la expone. | No | No |
+| organizations | `trial_claims` | Fase 8: una prueba gratuita por propietario (correo normalizado único). FK al gimnasio. | (global) | No |
+| organizations | `legal_acceptances` | Fase 8: aceptación de términos y de privacidad por usuario, con versión y fecha. RLS forzada por gimnasio. | Sí | Sí |
+| organizations | `tenant_onboarding` | Fase 8: avance del asistente de configuración (cuándo se hizo u omitió cada paso, cuándo terminó). RLS forzada. | Sí | Sí |
+| organizations | `contact_requests` | Fase 8: solicitudes de contacto y demostración del sitio público (nombre, correo, teléfono y gimnasio opcionales, mensaje ≤ 1000, versión de privacidad, estado New/Attended). Sin IP ni dispositivo. Se purgan a los 180 días. Sin RLS: solo las ve plataforma. | No | No |
+| organizations | `tenants.setup_status` / `contact_email` / `contact_phone` / `country`, `branches.phone` / `hours` | Fase 8: estado de configuración (`PendingSetup`/`Ready`, independiente del estado administrativo y de la suscripción) y datos de contacto. | — | — |
+| identity | `account_tokens` | Fase 8: tokens de un solo uso (confirmar correo, recuperar clave, invitación) guardados como **SHA-256**; propósito, sujeto, gimnasio, vencimiento, usado, revocado. Consumir es una sola sentencia atómica. Sin RLS (se consumen antes de saber el gimnasio). | Opcional | No |
+| identity | `invitations` | Fase 8: invitaciones de personal (correo normalizado, rol, sucursales `uuid[]`, estado Pending/Accepted/Revoked, vencimiento 7 días). Una pendiente por correo y gimnasio. RLS forzada. | Sí | Sí |
+| messaging | `emails` | Fase 8: cola de correo saliente con reintentos (Pending/Sending/Sent/Failed, intentos, siguiente intento, candado). Los cuerpos con enlaces se borran al enviar o fallar. Sin RLS: la procesa el Worker entre gimnasios. | No | No |
+| subscriptions | `plans.is_public` | Fase 8: el plan se ofrece en el sitio público (explícito; ningún plan se publica solo). | — | — |
 | identity | `app_users` | Usuarios (Identity). Correo único **por tenant**, bloqueo, estado activo | Sí | Sí |
 | identity | `app_roles` | Roles por tenant, indicador "todas las sucursales" | Sí | Sí |
 | identity | `user_roles` | Usuario ↔ rol (FK compuestas con tenant) | Sí | Sí |

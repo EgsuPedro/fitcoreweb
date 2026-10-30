@@ -16,7 +16,7 @@ import { Lang, SUPPORTED_LANGS, setLang } from '../../core/i18n/transloco';
     <header class="pub-header">
       <div class="pub-wrap pub-bar">
         <a class="pub-brand" routerLink="/" [attr.aria-label]="'site.brandHome' | transloco">
-          <img src="brand/logo.png" alt="FIT360" width="120" height="48" />
+          <img src="brand/logo-header.webp" alt="FIT360" width="44" height="38" />
         </a>
         <button type="button" class="btn pub-menu-toggle" [attr.aria-expanded]="open()" aria-controls="pub-nav" (click)="open.set(!open())">
           {{ (open() ? 'site.menuClose' : 'site.menuOpen') | transloco }}
@@ -48,7 +48,7 @@ import { Lang, SUPPORTED_LANGS, setLang } from '../../core/i18n/transloco';
     <footer class="pub-footer">
       <div class="pub-wrap pub-footer-grid">
         <div>
-          <img src="brand/logo.png" alt="FIT360" width="96" height="38" loading="lazy" />
+          <img src="brand/logo-header.webp" alt="FIT360" width="44" height="38" loading="lazy" />
           <p class="muted">{{ 'site.footer.tagline' | transloco }}</p>
         </div>
         <nav [attr.aria-label]="'site.footer.explore' | transloco">

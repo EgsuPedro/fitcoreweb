@@ -37,7 +37,7 @@ export const STEPS = ['register', 'confirm', 'setup'] as const;
           </div>
           <p class="muted">{{ 'site.home.note' | transloco }}</p>
         </div>
-        <img class="pub-hero-art" src="brand/fiti.png" alt="" width="360" height="640" decoding="async" />
+        <img class="pub-hero-art" src="brand/fiti-hero.webp" alt="" width="360" height="468" decoding="async" />
       </div>
     </section>
 

@@ -39,7 +39,8 @@ docs/adr/                        Decisiones de arquitectura
 dotnet build FitCore.sln
 dotnet test FitCore.sln                       # ~1,5 min: levanta PostgreSQL con Testcontainers
 
-# Entorno completo (PostgreSQL + API + Worker + Web)
+# Entorno completo (PostgreSQL + API + Worker + Web + Mailpit)
+# Web http://localhost:8081 · API http://localhost:8080 · buzón de correos de desarrollo (Mailpit) http://localhost:8025
 Copy-Item infra/compose/.env.example infra/compose/.env   # cambie TODOS los valores
 docker compose -f infra/compose/docker-compose.dev.yml --env-file infra/compose/.env up --build
 
@@ -109,7 +110,7 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 
 **Marca del gimnasio** ([identidad visual](docs/identidad-visual.md)): paleta FIT360 (teal y naranja suave), tipografía Inter, mascota Fiti; cada gimnasio carga su **logo** (PNG o JPG ≤ 1 MB, sin metadatos) que aparece en el menú y en los **libros de Excel** de los reportes (formato por defecto de las exportaciones; CSV sigue disponible). El mismo contrato servirá para los comprobantes.
 
-**Fase 8** (en curso) (sitio comercial, registro de gimnasios y onboarding, [ADR 0013](docs/adr/0013-sitio-comercial-registro-y-onboarding.md)): sitio público prerenderizado, registro del propietario con verificación de correo, recuperación de clave, asistente de configuración e invitaciones de empleados. Correo por SMTP real (sin simulaciones). Bloque 1 (diagnóstico y diseño) hecho.
+**Fase 8** (completa) (sitio comercial, registro de gimnasios y onboarding, [ADR 0013](docs/adr/0013-sitio-comercial-registro-y-onboarding.md), [informe](docs/informe-fase-8.md)): sitio público prerenderizado con SEO (inicio, funcionalidades, planes del catálogo real, nosotros, preguntas, contacto y demostración), registro del propietario con confirmación por correo y prueba gratuita única, recuperación de contraseña, asistente de configuración persistente, invitaciones de personal con las plazas del plan, resumen del propietario y pantalla de solicitudes comerciales para la plataforma. **Correo real por SMTP** (cola con reintentos; Mailpit en desarrollo, sin simulaciones). Textos legales en **borrador** pendiente de revisión legal.
 
 ## Documentación
 - [Guía de ejecución y validación manual](docs/execution-guide.md): levantar, datos y usuarios de demostración (`scripts/demo-seed.ps1`), qué comprobar
@@ -125,6 +126,8 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 - [Guía de pruebas de la Fase 6](docs/guia-pruebas-fase-6.md): validación manual con datos de práctica
 - [Informe de la Fase 7](docs/informe-fase-7.md): suscripciones SaaS, límites, cobros comerciales, panel, portal, proveedor de pagos, pruebas, seguridad y pendientes
 - [Guía de pruebas de la Fase 7](docs/guia-pruebas-fase-7.md): validación manual con datos
+- [Informe de la Fase 8](docs/informe-fase-8.md): sitio comercial, registro, correo, onboarding, invitaciones, las 20 pruebas obligatorias, seguridad, accesibilidad y pendientes
+- [Guía de pruebas de la Fase 8](docs/guia-pruebas-fase-8.md): validación manual con Mailpit
 - [Despliegue](docs/despliegue.md): subir una demo pública (máquina gratuita, HTTPS, actualización desde git, copias de seguridad)
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación

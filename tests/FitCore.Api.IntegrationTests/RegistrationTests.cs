@@ -399,6 +399,31 @@ public partial class RegistrationTests(ApiFixture api)
     }
 
     [Fact]
+    public async Task Extra_fields_trying_to_grant_platform_roles_or_the_platform_gym_are_ignored_and_the_owner_gets_only_the_owner_role()
+    {
+        using var client = api.CreateClient();
+        var plan = await PlanAsync();
+        var email = NewEmail();
+        var slug = NewSlug();
+        // Asignación masiva (mass assignment): campos que el formulario no define y que jamás deben tener efecto.
+        var body = Body(email, slug, plan, new()
+        {
+            ["role"] = "AdministradorPlataforma", ["roles"] = new[] { "AdministradorPlataforma" }, ["roleIds"] = new[] { Guid.NewGuid() },
+            ["isPlatformAdmin"] = true, ["permissions"] = new[] { "platform.tenants.manage" }, ["tenantId"] = Guid.NewGuid(), ["accountKind"] = "Member"
+        });
+        Assert.Equal(HttpStatusCode.Accepted, (await client.PostAsJsonAsync("/api/v1/public/registrations", body)).StatusCode);
+
+        Assert.Equal(HttpStatusCode.OK, (await VerifyAsync(client, (await TokenFromEmailAsync(email))!)).StatusCode);
+
+        var tenantId = Guid.Parse((await ScalarAsync("SELECT id::text FROM organizations.tenants WHERE slug = @s", ("s", slug)))!);
+        Assert.Equal("Propietario", await ScalarAsync(
+            "SELECT string_agg(r.name, ',') FROM identity.user_roles ur JOIN identity.app_roles r ON r.id = ur.role_id JOIN identity.app_users u ON u.id = ur.user_id WHERE u.tenant_id = @t", ("t", tenantId)));
+        Assert.Equal(0, await CountAsync("SELECT count(*) FROM identity.role_permissions WHERE tenant_id = @t AND permission_code LIKE 'platform.%'", ("t", tenantId)));
+        Assert.Equal(1, await CountAsync("SELECT count(*) FROM organizations.tenants WHERE slug = 'platform'"));
+        Assert.Equal("Staff", await ScalarAsync("SELECT account_kind FROM identity.app_users WHERE tenant_id = @t", ("t", tenantId)));
+    }
+
+    [Fact]
     public async Task Legal_acceptance_is_recorded_with_its_version_and_date()
     {
         var (_, slug, _, token) = await RegisteredAsync();

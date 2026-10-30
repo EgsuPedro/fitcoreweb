@@ -17,10 +17,11 @@ public sealed record BranchDto(
     string? SriEstablishmentCode,
     string? Address,
     bool IsActive,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    string? Phone = null)
 {
     public static BranchDto From(Branch b) =>
-        new(b.Id, b.Code, b.Name, b.TimeZone, b.SriEstablishmentCode, b.Address, b.IsActive, b.CreatedAt);
+        new(b.Id, b.Code, b.Name, b.TimeZone, b.SriEstablishmentCode, b.Address, b.IsActive, b.CreatedAt, b.Phone);
 }
 
 public sealed record CreateBranchRequest(string Code, string Name, string TimeZone, string? SriEstablishmentCode, string? Address);

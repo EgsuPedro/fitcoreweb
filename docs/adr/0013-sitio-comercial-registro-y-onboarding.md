@@ -66,7 +66,7 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 | 3 | Planes públicos (`is_public`, endpoints, límites de frecuencia, pantalla de plataforma) | Hecho |
 | 4 | Registro del propietario y creación transaccional del gimnasio (con verificación y prueba única) | Hecho |
 | 5 | Recuperación de contraseña y reenvíos | Hecho |
-| 6 | Onboarding persistente (backend y asistente Angular) | Pendiente |
+| 6 | Onboarding persistente (backend y asistente Angular) | Hecho |
 | 7 | Invitaciones de empleados y límites de usuarios | Pendiente |
 | 8 | Sitio público Angular (inicio, funcionalidades, planes, nosotros, preguntas, contacto), SEO y prerenderizado; contacto y demostraciones | Pendiente |
 | 9 | Pantallas de registro, verificación, recuperación e invitación; panel del propietario | Pendiente |
@@ -92,3 +92,12 @@ Facturación electrónica del SRI, nómina, app móvil (Flutter), avisos por Wha
 - **Al restablecer** (una transacción): valida la política de contraseñas, guarda el hash, renueva el sello de seguridad, levanta el bloqueo por intentos, quita «debe cambiar contraseña», **cierra todas las sesiones**, revoca otros enlaces pendientes, audita y encola un aviso «se cambió su contraseña». Si la contraseña nueva no cumple la política el enlace **no se gasta**.
 - **Sin correo configurado** responde `503 auth.recovery_email_unavailable` (la persona debe pedirlo a su administrador).
 - Ni la contraseña ni el token aparecen en la auditoría ni en los registros (hay una prueba que lo verifica).
+
+## Bloque 6 — cómo quedó el asistente de configuración (implementación)
+- **Estado en el servidor** (`organizations.tenant_onboarding`, RLS forzada): cuándo se hizo u omitió cada paso y cuándo terminó. `GET /onboarding` lo crea la primera vez; un gimnasio anterior al asistente (ya `Ready`) nace con el asistente cerrado y no se le exige nada.
+- **Endpoints** (permiso `organization.update` para escribir, `organization.read` para ver): `GET /onboarding`, `PUT /onboarding/profile`, `PUT /onboarding/branch`, `POST /onboarding/steps/{settings|team}/{complete|skip}`, `POST /onboarding/complete`.
+- **Pasos:** «datos del gimnasio» (nombre, correo y teléfono de contacto, país, zona horaria, idioma; logo opcional por el endpoint de marca ya existente) y «sucursal principal» (nombre, dirección, teléfono, horario semanal validado) son **obligatorios**. «Reglas de acceso» y «equipo» son opcionales. Terminar exige solo los dos obligatorios y deja lo no resuelto como «omitido». Repetir un paso actualiza, nunca duplica; la sucursal principal es la **primera** del gimnasio (se crea con código `PRINCIPAL` solo si no hay ninguna) y respeta el límite de sucursales del plan.
+- **Cambio frente al diseño:** el paso de reglas de acceso no usa un contrato nuevo en BuildingBlocks; la pantalla llama al endpoint de configuración comercial que ya existe y el servidor solo registra que el paso se revisó. Es más simple y no acopla módulos.
+- **No bloquea el uso:** un gimnasio `PendingSetup` sigue usando todo lo habilitado; solo ve un aviso («Continuar configuración») si tiene permiso para completarlo. `GET /auth/me` informa `setupStatus`.
+- **Datos nuevos:** `tenants.contact_email/contact_phone/country` y `branches.phone/hours` (migración `AddOnboarding`).
+- **Pendiente:** el paso «equipo» solo explica dónde invitar; el formulario de invitaciones llega con el bloque 7.

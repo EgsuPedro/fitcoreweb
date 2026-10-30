@@ -157,6 +157,54 @@ namespace FitCore.Platform.Persistence.Migrations
                     b.ToTable("emails", "messaging");
                 });
 
+            modelBuilder.Entity("FitCore.Platform.Application.Onboarding.TenantOnboarding", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("BranchCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("branch_completed_at");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTimeOffset?>("ProfileCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("profile_completed_at");
+
+                    b.Property<DateTimeOffset?>("SettingsCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("settings_completed_at");
+
+                    b.Property<DateTimeOffset?>("SettingsSkippedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("settings_skipped_at");
+
+                    b.Property<DateTimeOffset?>("TeamCompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("team_completed_at");
+
+                    b.Property<DateTimeOffset?>("TeamSkippedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("team_skipped_at");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("TenantId")
+                        .HasName("pk_tenant_onboarding");
+
+                    b.ToTable("tenant_onboarding", "organizations");
+                });
+
             modelBuilder.Entity("FitCore.Platform.Application.Registration.LegalAcceptance", b =>
                 {
                     b.Property<Guid>("Id")
@@ -362,6 +410,11 @@ namespace FitCore.Platform.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<string>("Hours")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("hours");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -371,6 +424,11 @@ namespace FitCore.Platform.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
 
                     b.Property<string>("SriEstablishmentCode")
                         .HasMaxLength(3)
@@ -413,6 +471,25 @@ namespace FitCore.Platform.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("contact_email");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("contact_phone");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(2)
+                        .HasColumnType("character(2)")
+                        .HasDefaultValue("EC")
+                        .HasColumnName("country")
+                        .IsFixedLength();
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")

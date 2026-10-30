@@ -720,6 +720,10 @@
       "logo_invalid_type": "El logo debe ser una imagen PNG o JPG válida.",
       "logo_invalid_size": "El logo debe medir entre 32 y 2000 píxeles por lado.",
       "logo_not_found": "El gimnasio no tiene logo."
+    },
+    "onboarding": {
+      "incomplete": "Faltan pasos obligatorios: los datos del gimnasio y la sucursal principal.",
+      "unknown_step": "Ese paso no existe o no se puede resolver así."
     }
   },
   "enums": {
@@ -3109,6 +3113,81 @@
       "size": "La imagen pesa más de 1 MB.",
       "dimensions": "La imagen debe medir entre 32 y 2000 píxeles por lado.",
       "unreadable": "No se pudo leer la imagen."
+    }
+  },
+  "onboarding": {
+    "title": "Configuración inicial",
+    "subtitle": "Cuatro pasos cortos para dejar su gimnasio listo. Puede cerrar sesión y retomarlo cuando quiera.",
+    "stepsLabel": "Pasos de la configuración",
+    "steps": {
+      "profile": "Su gimnasio",
+      "branch": "Sucursal principal",
+      "settings": "Reglas de acceso",
+      "team": "Equipo",
+      "finish": "Resumen"
+    },
+    "status": {
+      "Done": "Hecho",
+      "Skipped": "Omitido (puede hacerlo después)",
+      "Pending": "Pendiente"
+    },
+    "days": {
+      "0": "Domingo",
+      "1": "Lunes",
+      "2": "Martes",
+      "3": "Miércoles",
+      "4": "Jueves",
+      "5": "Viernes",
+      "6": "Sábado"
+    },
+    "saveContinue": "Guardar y continuar",
+    "continue": "Continuar",
+    "back": "Atrás",
+    "skip": "Omitir por ahora",
+    "invalidForm": "Revise los campos marcados.",
+    "banner": "Su gimnasio está pendiente de configuración. Puede seguir usando el sistema mientras la termina.",
+    "bannerAction": "Continuar configuración",
+    "profile": {
+      "title": "Datos de su gimnasio",
+      "intro": "Con estos datos se identifican su gimnasio, sus reportes y, más adelante, sus comprobantes.",
+      "name": "Nombre del gimnasio",
+      "email": "Correo de contacto",
+      "phone": "Teléfono de contacto",
+      "country": "País",
+      "countryHint": "Código de 2 letras, por ejemplo EC.",
+      "timeZone": "Zona horaria",
+      "locale": "Idioma",
+      "currency": "Moneda: {{currency}}",
+      "logo": "Logo (opcional)",
+      "logoHint": "Aparecerá en sus reportes y exportaciones. Puede cambiarlo cuando quiera en «Marca»."
+    },
+    "branch": {
+      "title": "Su sucursal principal",
+      "intro": "Dónde atiende y en qué horario. Más sucursales se agregan después, desde Sucursales.",
+      "name": "Nombre de la sucursal",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "hours": "Horario de atención",
+      "closed": "Cerrado",
+      "opens": "Abre",
+      "closes": "Cierra",
+      "hoursInvalid": "En los días abiertos la apertura debe ser anterior al cierre."
+    },
+    "settings": {
+      "title": "Reglas de acceso con deuda",
+      "intro": "Qué pasa cuando un alumno tiene un pago pendiente. Puede cambiarlo cuando quiera en Configuración comercial."
+    },
+    "team": {
+      "title": "Su equipo",
+      "intro": "Podrá invitar a recepcionistas, entrenadores y administradores desde la sección Usuarios cuando termine esta configuración."
+    },
+    "finish": {
+      "title": "Resumen",
+      "missing": "Faltan los datos del gimnasio o la sucursal principal. Vuelva a esos pasos para terminar.",
+      "action": "Terminar configuración",
+      "done": "¡Listo! Su gimnasio quedó configurado.",
+      "goHome": "Ir al inicio",
+      "toast": "Configuración terminada."
     }
   }
 }

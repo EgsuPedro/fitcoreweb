@@ -213,4 +213,8 @@ export type ProviderEvent = Schemas['ProviderEventDto'];
 
 // Marca del gimnasio (logo) y formato de las exportaciones.
 export type Branding = Schemas['BrandingDto'];
+export type Onboarding = Schemas['OnboardingDto'];
+export type OnboardingProfileRequest = Schemas['OnboardingProfileRequest'];
+export type OnboardingBranchRequest = Schemas['OnboardingBranchRequest'];
+export type DayHours = Schemas['DayHoursDto'];
 export type ExportFormatKey = Schemas['ExportFormat'];

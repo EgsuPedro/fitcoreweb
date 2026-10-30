@@ -14,6 +14,9 @@ import type {
   OrganizationDetail,
   AvailablePlan,
   Branding,
+  Onboarding,
+  OnboardingBranchRequest,
+  OnboardingProfileRequest,
   MySubscription,
   NewSubscriptionRequest,
   PlatformRequest,
@@ -415,6 +418,22 @@ export class ApiService {
   branding(): Observable<Branding> {
     return this.get('/tenant/branding');
   }
+  onboarding(): Observable<Onboarding> {
+    return this.get('/onboarding');
+  }
+  saveOnboardingProfile(body: OnboardingProfileRequest): Observable<Onboarding> {
+    return this.http.put<Onboarding>(`${API_BASE}/onboarding/profile`, body);
+  }
+  saveOnboardingBranch(body: OnboardingBranchRequest): Observable<Onboarding> {
+    return this.http.put<Onboarding>(`${API_BASE}/onboarding/branch`, body);
+  }
+  resolveOnboardingStep(step: 'settings' | 'team', skip: boolean): Observable<Onboarding> {
+    return this.http.post<Onboarding>(`${API_BASE}/onboarding/steps/${step}/${skip ? 'skip' : 'complete'}`, {});
+  }
+  completeOnboarding(): Observable<Onboarding> {
+    return this.http.post<Onboarding>(`${API_BASE}/onboarding/complete`, {});
+  }
+
   brandingLogo(): Observable<Blob> {
     return this.http.get(`${API_BASE}/tenant/branding/logo`, { responseType: 'blob' });
   }

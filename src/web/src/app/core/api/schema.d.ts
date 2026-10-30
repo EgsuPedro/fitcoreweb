@@ -740,6 +740,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/forgot-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ForgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ResetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/refresh": {
         parameters: {
             query?: never;
@@ -3412,6 +3444,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/onboarding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetOnboarding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SaveOnboardingProfile"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/branch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SaveOnboardingBranch"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/steps/{step}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CompleteOnboardingStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/steps/{step}/skip": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SkipOnboardingStep"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/onboarding/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["CompleteOnboarding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -4092,6 +4220,8 @@ export interface components {
             isActive: boolean;
             /** Format: date-time */
             createdAt: string;
+            /** @default null */
+            phone: string | null;
         };
         BranchEvolutionDto: {
             /** Format: uuid */
@@ -4746,6 +4876,13 @@ export interface components {
             /** Format: int32 */
             notLogged: number;
         };
+        DayHoursDto: {
+            /** Format: int32 */
+            day: number;
+            closed: boolean;
+            open: string | null;
+            close: string | null;
+        };
         /** @enum {unknown} */
         DayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
         DebtorDto: {
@@ -5045,6 +5182,10 @@ export interface components {
             kpis: components["schemas"]["KpiDto"][];
             methods: components["schemas"]["PaymentMethodShareDto"][];
         } | null;
+        ForgotPasswordRequest: {
+            tenantSlug: string;
+            email: string;
+        };
         FreezeRequest: {
             reason: string | null;
         };
@@ -5684,6 +5825,8 @@ export interface components {
             allBranches: boolean;
             /** @default false */
             mustChangePassword: boolean;
+            /** @default Ready */
+            setupStatus: string;
         };
         MethodRowDto: {
             method: string;
@@ -6304,6 +6447,56 @@ export interface components {
             confirmed: number;
             /** Format: double */
             occupancyPercent: number | null;
+        };
+        OnboardingBranchDto: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            timeZone: string;
+            hours: components["schemas"]["DayHoursDto"][];
+        } | null;
+        OnboardingBranchRequest: {
+            name: string;
+            address: string | null;
+            phone: string | null;
+            timeZone: string;
+            hours: components["schemas"]["DayHoursDto"][];
+        };
+        OnboardingDto: {
+            setupStatus: string;
+            completed: boolean;
+            currentStep: string;
+            canComplete: boolean;
+            steps: components["schemas"]["OnboardingStepDto"][];
+            profile: components["schemas"]["OnboardingProfileDto"];
+            branch: components["schemas"]["OnboardingBranchDto"];
+        };
+        OnboardingProfileDto: {
+            name: string;
+            contactEmail: string | null;
+            contactPhone: string | null;
+            country: string;
+            timeZone: string;
+            locale: string;
+            currency: string;
+            hasLogo: boolean;
+        };
+        OnboardingProfileRequest: {
+            name: string;
+            contactEmail: string | null;
+            contactPhone: string | null;
+            country: string;
+            timeZone: string;
+            locale: string;
+        };
+        OnboardingStepDto: {
+            code: string;
+            required: boolean;
+            status: string;
+            /** Format: date-time */
+            at: string | null;
         };
         OpenCashRequest: {
             /** Format: double */
@@ -6976,6 +7169,10 @@ export interface components {
             pageSize: number;
             /** Format: int32 */
             totalCount: number;
+        };
+        PasswordRecoveryAccepted: {
+            /** @default check_email */
+            status: string;
         };
         PayInvoiceRequest: {
             /** Format: double */
@@ -7722,6 +7919,10 @@ export interface components {
             offeredAt: string | null;
             /** Format: date-time */
             offerExpiresAt: string | null;
+        };
+        ResetPasswordRequest: {
+            token: string;
+            newPassword: string;
         };
         ResolveSubscriptionRequest: {
             note: string | null;
@@ -9869,6 +10070,52 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TokenResponse"];
                 };
+            };
+        };
+    };
+    ForgotPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasswordRecoveryAccepted"];
+                };
+            };
+        };
+    };
+    ResetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -15059,6 +15306,138 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BrandingDto"];
+                };
+            };
+        };
+    };
+    GetOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingDto"];
+                };
+            };
+        };
+    };
+    SaveOnboardingProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OnboardingProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingDto"];
+                };
+            };
+        };
+    };
+    SaveOnboardingBranch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OnboardingBranchRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingDto"];
+                };
+            };
+        };
+    };
+    CompleteOnboardingStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                step: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingDto"];
+                };
+            };
+        };
+    };
+    SkipOnboardingStep: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                step: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingDto"];
+                };
+            };
+        };
+    };
+    CompleteOnboarding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OnboardingDto"];
                 };
             };
         };

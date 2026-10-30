@@ -42,6 +42,14 @@ public sealed partial class Tenant : Entity<Guid>, IAuditable
     /// <summary>Los gimnasios creados por la plataforma o anteriores al onboarding nacen «Ready»; los del registro público, «PendingSetup». No bloquea el uso.</summary>
     public TenantSetupStatus SetupStatus { get; private set; } = TenantSetupStatus.Ready;
 
+    /// <summary>Datos de contacto del gimnasio (los pide el asistente de configuración). Opcionales para los gimnasios anteriores a él.</summary>
+    public string? ContactEmail { get; private set; }
+
+    public string? ContactPhone { get; private set; }
+
+    /// <summary>País en ISO 3166-1 alfa-2.</summary>
+    public string Country { get; private set; } = "EC";
+
     public bool IsActive => Status == TenantStatus.Active;
 
     public static bool IsValidSlug(string slug) => SlugPattern().IsMatch(slug);
@@ -66,6 +74,13 @@ public sealed partial class Tenant : Entity<Guid>, IAuditable
         Name = name.Trim();
         TimeZone = timeZone;
         Locale = locale;
+    }
+
+    public void UpdateContact(string? contactEmail, string? contactPhone, string country)
+    {
+        ContactEmail = string.IsNullOrWhiteSpace(contactEmail) ? null : contactEmail.Trim();
+        ContactPhone = string.IsNullOrWhiteSpace(contactPhone) ? null : contactPhone.Trim();
+        Country = country.Trim().ToUpperInvariant();
     }
 
     public void MarkPendingSetup() => SetupStatus = TenantSetupStatus.PendingSetup;

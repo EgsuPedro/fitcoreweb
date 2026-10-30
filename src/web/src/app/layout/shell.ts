@@ -5,13 +5,14 @@ import { BrandingService } from '../core/branding.service';
 import { SessionService } from '../core/auth/session.service';
 import { Lang, SUPPORTED_LANGS, setLang } from '../core/i18n/transloco';
 import { InboxBell } from '../features/inbox/inbox-bell';
+import { SetupBanner } from '../features/onboarding/setup-banner';
 import { SubscriptionBanner } from '../features/subscription/subscription-banner';
 import { Toasts } from '../shared/toast';
 import { NAV_ITEMS, visibleNavItems } from './nav';
 
 @Component({
   selector: 'fc-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, Toasts, InboxBell, SubscriptionBanner],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslocoPipe, Toasts, InboxBell, SubscriptionBanner, SetupBanner],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="shell" [class.nav-open]="navOpen()">
@@ -87,6 +88,7 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
         </header>
 
         <main class="content" id="content">
+          <fc-setup-banner />
           <fc-subscription-banner />
           <router-outlet />
         </main>

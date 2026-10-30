@@ -35,6 +35,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<FitCore.Platform.Application.Registration.PendingRegistration> PendingRegistrations => Set<FitCore.Platform.Application.Registration.PendingRegistration>();
     public DbSet<FitCore.Platform.Application.Registration.TrialClaim> TrialClaims => Set<FitCore.Platform.Application.Registration.TrialClaim>();
     public DbSet<FitCore.Platform.Application.Registration.LegalAcceptance> LegalAcceptances => Set<FitCore.Platform.Application.Registration.LegalAcceptance>();
+    public DbSet<FitCore.Platform.Application.Onboarding.TenantOnboarding> Onboardings => Set<FitCore.Platform.Application.Onboarding.TenantOnboarding>();
     public DbSet<FitCore.Platform.Application.AccountTokens.AccountToken> AccountTokens => Set<FitCore.Platform.Application.AccountTokens.AccountToken>();
 
     // Guid.Empty nunca coincide con un tenant real: sin tenant activo no se ve ninguna fila.
@@ -152,6 +153,13 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.HasIndex(x => new { x.TenantId, x.UserId });
         });
 
+        builder.Entity<FitCore.Platform.Application.Onboarding.TenantOnboarding>(b =>
+        {
+            b.ToTable("tenant_onboarding", OrganizationsSchema);
+            b.HasKey(x => x.TenantId);
+            b.Property(x => x.TenantId).ValueGeneratedNever();
+        });
+
         builder.Entity<Tenant>(b =>
         {
             b.ToTable("tenants", OrganizationsSchema);
@@ -162,6 +170,9 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.Property(t => t.DefaultCurrency).HasMaxLength(3).IsRequired();
             b.Property(t => t.Locale).HasMaxLength(10).IsRequired();
             b.Property(t => t.Status).HasConversion<string>().HasMaxLength(20);
+            b.Property(t => t.ContactEmail).HasMaxLength(256);
+            b.Property(t => t.ContactPhone).HasMaxLength(30);
+            b.Property(t => t.Country).HasMaxLength(2).IsFixedLength().HasDefaultValue("EC");
             b.Property(t => t.SetupStatus).HasConversion<string>().HasMaxLength(20).HasDefaultValue(TenantSetupStatus.Ready);
             b.HasIndex(t => t.Slug).IsUnique();
             AddXminConcurrency(b);
@@ -177,6 +188,8 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.Property(x => x.TimeZone).HasMaxLength(64).IsRequired();
             b.Property(x => x.SriEstablishmentCode).HasMaxLength(3).IsFixedLength();
             b.Property(x => x.Address).HasMaxLength(300);
+            b.Property(x => x.Phone).HasMaxLength(30);
+            b.Property(x => x.Hours).HasMaxLength(1000);
             b.HasIndex(x => new { x.TenantId, x.Code }).IsUnique();
             b.HasOne<Tenant>().WithMany().HasForeignKey(x => x.TenantId).OnDelete(DeleteBehavior.Restrict);
             AddXminConcurrency(b);

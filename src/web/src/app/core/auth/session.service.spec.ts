@@ -24,6 +24,7 @@ const me: Me = {
   branchIds: [],
   allBranches: true,
   mustChangePassword: false,
+  setupStatus: 'Ready',
 };
 
 describe('SessionService', () => {

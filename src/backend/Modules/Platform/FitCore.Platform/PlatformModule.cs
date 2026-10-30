@@ -74,6 +74,7 @@ public static class PlatformModule
         services.AddScoped<IMemberAccountService, MemberAccountService>();
         services.AddScoped<RoleAdministration>();
         services.AddScoped<TenantProvisioningService>();
+        services.AddScoped<FitCore.Platform.Application.Onboarding.OnboardingStore>();
         services.AddEmailQueue(configuration);
 
         services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>(includeInternalTypes: true);

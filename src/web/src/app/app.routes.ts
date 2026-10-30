@@ -166,6 +166,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/audit/audit').then((m) => m.Audit),
       },
       {
+        path: 'onboarding',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.OrganizationUpdate },
+        loadComponent: () => import('./features/onboarding/onboarding').then((m) => m.OnboardingPage),
+      },
+      {
         path: 'branding',
         canActivate: [permissionGuard],
         data: { permission: Perm.BrandingManage },

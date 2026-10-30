@@ -720,6 +720,10 @@
       "logo_invalid_type": "The logo must be a valid PNG or JPG image.",
       "logo_invalid_size": "The logo must be 32 to 2000 pixels per side.",
       "logo_not_found": "The gym has no logo."
+    },
+    "onboarding": {
+      "incomplete": "Mandatory steps are missing: the gym details and the main branch.",
+      "unknown_step": "That step does not exist or cannot be resolved that way."
     }
   },
   "enums": {
@@ -3109,6 +3113,81 @@
       "size": "The image is larger than 1 MB.",
       "dimensions": "The image must be 32 to 2000 pixels per side.",
       "unreadable": "The image could not be read."
+    }
+  },
+  "onboarding": {
+    "title": "Initial setup",
+    "subtitle": "Four short steps to get your gym ready. You can sign out and pick it up again any time.",
+    "stepsLabel": "Setup steps",
+    "steps": {
+      "profile": "Your gym",
+      "branch": "Main branch",
+      "settings": "Access rules",
+      "team": "Team",
+      "finish": "Summary"
+    },
+    "status": {
+      "Done": "Done",
+      "Skipped": "Skipped (you can do it later)",
+      "Pending": "Pending"
+    },
+    "days": {
+      "0": "Sunday",
+      "1": "Monday",
+      "2": "Tuesday",
+      "3": "Wednesday",
+      "4": "Thursday",
+      "5": "Friday",
+      "6": "Saturday"
+    },
+    "saveContinue": "Save and continue",
+    "continue": "Continue",
+    "back": "Back",
+    "skip": "Skip for now",
+    "invalidForm": "Check the highlighted fields.",
+    "banner": "Your gym is pending setup. You can keep using the system while you finish it.",
+    "bannerAction": "Continue setup",
+    "profile": {
+      "title": "Your gym details",
+      "intro": "These details identify your gym, your reports and, later, your invoices.",
+      "name": "Gym name",
+      "email": "Contact email",
+      "phone": "Contact phone",
+      "country": "Country",
+      "countryHint": "2-letter code, for example EC.",
+      "timeZone": "Time zone",
+      "locale": "Language",
+      "currency": "Currency: {{currency}}",
+      "logo": "Logo (optional)",
+      "logoHint": "It appears on your reports and exports. You can change it any time under “Brand”."
+    },
+    "branch": {
+      "title": "Your main branch",
+      "intro": "Where you operate and your opening hours. You can add more branches later under Branches.",
+      "name": "Branch name",
+      "address": "Address",
+      "phone": "Phone",
+      "hours": "Opening hours",
+      "closed": "Closed",
+      "opens": "Opens",
+      "closes": "Closes",
+      "hoursInvalid": "On open days the opening time must be before the closing time."
+    },
+    "settings": {
+      "title": "Access rules when a payment is due",
+      "intro": "What happens when a member has an outstanding payment. You can change it any time under Commercial settings."
+    },
+    "team": {
+      "title": "Your team",
+      "intro": "You will be able to invite receptionists, trainers and administrators from the Users section once this setup is finished."
+    },
+    "finish": {
+      "title": "Summary",
+      "missing": "The gym details or the main branch are missing. Go back to those steps to finish.",
+      "action": "Finish setup",
+      "done": "Done! Your gym is set up.",
+      "goHome": "Go to home",
+      "toast": "Setup finished."
     }
   }
 }

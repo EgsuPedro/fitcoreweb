@@ -39,7 +39,8 @@ public sealed record MeResponse(
     IReadOnlyList<string> Permissions,
     IReadOnlyList<Guid> BranchIds,
     bool AllBranches,
-    bool MustChangePassword = false);
+    bool MustChangePassword = false,
+    string SetupStatus = "Ready");
 
 public sealed class LoginRequestValidator : AbstractValidator<LoginRequest>
 {
@@ -294,7 +295,8 @@ internal sealed class MeHandler(PlatformDbContext db, IAccessContext access) : I
 
         var current = actor.Value;
         var user = await db.Users.AsNoTracking().FirstAsync(u => u.Id == current.UserId, cancellationToken);
-        var slug = await db.Tenants.AsNoTracking().Where(t => t.Id == current.TenantId).Select(t => t.Slug).FirstAsync(cancellationToken);
+        var tenantInfo = await db.Tenants.AsNoTracking().Where(t => t.Id == current.TenantId).Select(t => new { t.Slug, t.SetupStatus }).FirstAsync(cancellationToken);
+        var slug = tenantInfo.Slug;
         var roles = await db.UserRoles
             .Where(ur => ur.UserId == current.UserId)
             .Join(db.Roles, ur => ur.RoleId, r => r.Id, (_, r) => r.Name!)
@@ -311,6 +313,7 @@ internal sealed class MeHandler(PlatformDbContext db, IAccessContext access) : I
             [.. current.Permissions.Order()],
             [.. current.BranchIds],
             current.AllBranches,
-            current.MustChangePassword);
+            current.MustChangePassword,
+            tenantInfo.SetupStatus.ToString());
     }
 }

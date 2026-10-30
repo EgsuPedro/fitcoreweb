@@ -1637,3 +1637,99 @@ fieldset.field {
     }
   }
 }
+
+// ---------- Asistente de configuración inicial ----------
+.alert.alert-info {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.alert.alert-success {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.setup-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.wizard-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+
+  li {
+    flex: 1 1 8rem;
+  }
+}
+
+.wizard-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wizard-steps .current .wizard-step {
+  border-color: var(--accent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.wizard-steps .done .wizard-num {
+  background: var(--ok);
+  color: #fff;
+}
+
+.wizard-num {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-size: 0.85rem;
+}
+
+.hours-grid {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.hours-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+
+  &.has-problem {
+    background: var(--danger-soft);
+  }
+
+  input[type='time'] {
+    width: 7.5rem;
+  }
+}
+
+.hours-day {
+  width: 6rem;
+  font-weight: 600;
+}

@@ -98,6 +98,11 @@ export class SessionService {
     this.status.set('anonymous');
   }
 
+  /** Vuelve a pedir el perfil (por ejemplo, tras terminar la configuración inicial, que cambia el estado del gimnasio). */
+  refreshProfile(): Observable<Me> {
+    return this.loadProfile();
+  }
+
   private loadProfile(): Observable<Me> {
     // El interceptor adjunta el token que acaba de guardarse.
     return this.http.get<Me>(`${API_BASE}/auth/me`).pipe(

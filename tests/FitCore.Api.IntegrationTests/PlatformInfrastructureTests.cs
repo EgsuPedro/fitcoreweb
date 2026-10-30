@@ -56,7 +56,7 @@ public class PlatformInfrastructureTests(ApiFixture api)
         await connection.OpenAsync();
 
         var applied = await ScalarAsync<long>(connection, "SELECT count(*) FROM \"__EFMigrationsHistory\"");
-        Assert.Equal(7, applied); // InitialCore, AddRowLevelSecurity, AddMustChangePassword, AddAccountKind, AddTenantLogos, AddEmailQueueAndAccountTokens, AddPublicRegistration
+        Assert.Equal(8, applied); // InitialCore, AddRowLevelSecurity, AddMustChangePassword, AddAccountKind, AddTenantLogos, AddEmailQueueAndAccountTokens, AddPublicRegistration, AddOnboarding
 
         string[] tables =
         [

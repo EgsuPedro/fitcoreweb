@@ -19,6 +19,11 @@ public sealed class Branch : Entity<Guid>, ITenantOwned, IAuditable
     public string? SriEstablishmentCode { get; private set; }
 
     public string? Address { get; private set; }
+
+    public string? Phone { get; private set; }
+
+    /// <summary>Horario semanal en JSON (lista de días con apertura y cierre). Lo valida la capa de aplicación.</summary>
+    public string? Hours { get; private set; }
     public bool IsActive { get; private set; } = true;
     public DateTimeOffset CreatedAt { get; private set; }
 
@@ -40,6 +45,12 @@ public sealed class Branch : Entity<Guid>, ITenantOwned, IAuditable
             Address = address?.Trim(),
             CreatedAt = now
         };
+
+    public void UpdateContact(string? phone, string? hours)
+    {
+        Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+        Hours = hours;
+    }
 
     public void Update(string name, string timeZone, string? sriEstablishmentCode, string? address, bool isActive)
     {

@@ -74,10 +74,24 @@ public static class PlatformModule
         services.AddScoped<IMemberAccountService, MemberAccountService>();
         services.AddScoped<RoleAdministration>();
         services.AddScoped<TenantProvisioningService>();
+        services.AddEmailQueue(configuration);
 
         services.AddValidatorsFromAssemblyContaining<LoginRequestValidator>(includeInternalTypes: true);
         services.AddHandlersFromAssembly(typeof(PlatformModule).Assembly);
 
+        return services;
+    }
+}
+
+public static class EmailQueueRegistration
+{
+    /// <summary>Cola de correo, tokens de cuenta y dirección pública. La API los usa para encolar; el Worker, para enviar.</summary>
+    public static IServiceCollection AddEmailQueue(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<FitCore.Platform.Application.Email.PublicSiteOptions>(
+            configuration.GetSection(FitCore.Platform.Application.Email.PublicSiteOptions.SectionName));
+        services.AddScoped<FitCore.Platform.Application.Email.EmailQueue>();
+        services.AddScoped<FitCore.Platform.Application.AccountTokens.AccountTokenService>();
         return services;
     }
 }

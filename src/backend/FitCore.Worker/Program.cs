@@ -33,6 +33,8 @@ builder.Services.AddSerilog((services, configuration) =>
 builder.Services.AddSingleton<IClock, SystemClock>();
 builder.Services.AddDispatcher();
 builder.Services.AddPlatformPersistence(builder.Configuration);
+builder.Services.AddEmailQueue(builder.Configuration);
+builder.Services.AddSmtpEmail(builder.Configuration);
 builder.Services.AddCommercialPersistence(builder.Configuration);
 builder.Services.AddWhatsAppNotifications(builder.Configuration);
 builder.Services.AddClassesPersistence(builder.Configuration);
@@ -43,6 +45,7 @@ builder.Services.AddSubscriptionsPersistence(builder.Configuration);
 // Jobs: la outbox publica los eventos de dominio. Los siguientes (cuotas recurrentes, vencimientos,
 // recordatorios) se registran aquí por módulo cuando existan.
 builder.Services.AddHostedService<OutboxProcessor>();
+builder.Services.AddHostedService<FitCore.Platform.Application.Email.EmailQueueProcessor>();
 builder.Services.AddHostedService<ExpiryNotificationWorker>();
 builder.Services.AddHostedService<WaitlistWorker>();
 builder.Services.AddHostedService<NotificationWorker>();

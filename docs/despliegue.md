@@ -114,6 +114,6 @@ Falta o conviene hacer:
 - **Alertas:** un monitor externo gratuito (UptimeRobot, Better Stack) que consulte `https://SU_DOMINIO/` cada 5 minutos y avise por correo.
 - **Actualizaciones del sistema operativo:** `sudo apt-get install -y unattended-upgrades`.
 - **SSH:** deshabilitar contraseñas (en Oracle ya viene solo con clave) y, si puede, restringir el 22 a su IP.
-- **Correo de recuperación de clave y avisos externos:** aún no existen (no hay proveedor); el administrador restablece claves.
+- **Correo:** el sistema ya envía por SMTP (variables `SMTP_*` de `.env.prod`; sin `SMTP_HOST` no envía nada). Falta elegir proveedor y verificar SPF/DKIM del dominio para que no caiga en spam.
 - **Restauración probada y copias fuera de la máquina** antes de tener clientes reales.
 - **Cobros:** sin proveedor de pagos configurado, los pagos comerciales se registran a mano.

@@ -73,6 +73,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUser, HttpCurrentUser>();
 builder.Services.AddScoped<IRequestInfo, HttpRequestInfo>();
 // Almacén de archivos privados (fotos de progreso). La carpeta no se publica: los archivos solo salen por la API tras autorizar.
+builder.Services.AddSmtpEmail(builder.Configuration);
 builder.Services.AddLocalFileStore(builder.Configuration["FileStorage:RootPath"] is { Length: > 0 } filesRoot
     ? filesRoot
     : Path.Combine(AppContext.BaseDirectory, "data", "files"));

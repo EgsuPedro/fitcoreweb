@@ -31,6 +31,8 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+    public DbSet<FitCore.Platform.Application.Email.QueuedEmail> QueuedEmails => Set<FitCore.Platform.Application.Email.QueuedEmail>();
+    public DbSet<FitCore.Platform.Application.AccountTokens.AccountToken> AccountTokens => Set<FitCore.Platform.Application.AccountTokens.AccountToken>();
 
     // Guid.Empty nunca coincide con un tenant real: sin tenant activo no se ve ninguna fila.
     private Guid CurrentTenantId => tenantContext.TenantId ?? Guid.Empty;
@@ -240,6 +242,31 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.Property(x => x.Payload).HasColumnType("jsonb").IsRequired();
             b.Property(x => x.Error).HasMaxLength(2000);
             b.HasIndex(x => x.OccurredAt).HasFilter("processed_at IS NULL");
+        });
+
+        builder.Entity<FitCore.Platform.Application.Email.QueuedEmail>(b =>
+        {
+            b.ToTable("emails", MessagingSchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.ToAddress).HasMaxLength(320).IsRequired();
+            b.Property(x => x.Template).HasMaxLength(60).IsRequired();
+            b.Property(x => x.Subject).HasMaxLength(300).IsRequired();
+            b.Property(x => x.Status).HasMaxLength(20).IsRequired();
+            b.Property(x => x.LastError).HasMaxLength(200);
+            b.HasIndex(x => new { x.Status, x.NextAttemptAt });
+            b.HasIndex(x => x.CreatedAt);
+        });
+
+        // Sin RLS: se consumen antes de saber a qué gimnasio pertenecen. Solo guardan el hash del token.
+        builder.Entity<FitCore.Platform.Application.AccountTokens.AccountToken>(b =>
+        {
+            b.ToTable("account_tokens", IdentitySchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Purpose).HasMaxLength(40).IsRequired();
+            b.Property(x => x.TokenHash).HasMaxLength(64).IsRequired();
+            b.HasIndex(x => x.TokenHash).IsUnique();
+            b.HasIndex(x => new { x.Purpose, x.SubjectId });
+            b.HasIndex(x => x.ExpiresAt);
         });
     }
 

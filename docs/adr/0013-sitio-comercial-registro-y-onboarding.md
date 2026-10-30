@@ -62,7 +62,7 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 | # | Bloque | Estado |
 |---|---|---|
 | 1 | Diagnóstico y ADR 0013 | Hecho |
-| 2 | Correo: puerto `IEmailSender`, SMTP real, cola con reintentos, plantillas es/en, Mailpit, tokens de cuenta | Pendiente |
+| 2 | Correo: puerto `IEmailSender`, SMTP real, cola con reintentos, plantillas es/en, Mailpit, tokens de cuenta | Hecho |
 | 3 | Planes públicos (`is_public`, endpoints, límites de frecuencia, pantalla de plataforma) | Pendiente |
 | 4 | Registro del propietario y creación transaccional del gimnasio (con verificación y prueba única) | Pendiente |
 | 5 | Recuperación de contraseña y reenvíos | Pendiente |

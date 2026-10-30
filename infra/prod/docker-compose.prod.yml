@@ -84,6 +84,15 @@ services:
       Network__TrustedProxies__0: 10.0.0.0/8
       Network__TrustedProxies__1: 172.16.0.0/12
       Network__TrustedProxies__2: 192.168.0.0/16
+      # Correo saliente (SMTP genérico). Sin SMTP_HOST el registro público responde que el correo no está disponible.
+      Email__Smtp__Host: ${SMTP_HOST:-}
+      Email__Smtp__Port: ${SMTP_PORT:-587}
+      Email__Smtp__Security: ${SMTP_SECURITY:-Auto}
+      Email__Smtp__User: ${SMTP_USER:-}
+      Email__Smtp__Password: ${SMTP_PASSWORD:-}
+      Email__Smtp__From: ${SMTP_FROM:-}
+      Email__Smtp__FromName: FIT360
+      PublicSite__BaseUrl: https://${DOMAIN}
     volumes:
       # Archivos privados (fotos de progreso, logos, exportaciones). Entra en las copias de seguridad.
       - fitcore_files:/var/lib/fitcore/files
@@ -107,6 +116,14 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Production
       ConnectionStrings__Default: *db-app
+      Email__Smtp__Host: ${SMTP_HOST:-}
+      Email__Smtp__Port: ${SMTP_PORT:-587}
+      Email__Smtp__Security: ${SMTP_SECURITY:-Auto}
+      Email__Smtp__User: ${SMTP_USER:-}
+      Email__Smtp__Password: ${SMTP_PASSWORD:-}
+      Email__Smtp__From: ${SMTP_FROM:-}
+      Email__Smtp__FromName: FIT360
+      PublicSite__BaseUrl: https://${DOMAIN}
     depends_on:
       migrate:
         condition: service_completed_successfully

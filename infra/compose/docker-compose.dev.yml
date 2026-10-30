@@ -28,6 +28,12 @@ services:
       timeout: 3s
       retries: 10
 
+  # Buzón de desarrollo: recibe los correos reales que envía el sistema por SMTP y los muestra en http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "${MAILPIT_UI_PORT:-8025}:8025"
+
   api:
     build:
       context: ../..
@@ -50,6 +56,15 @@ services:
       Network__TrustedProxies__0: 10.0.0.0/8
       Network__TrustedProxies__1: 172.16.0.0/12
       Network__TrustedProxies__2: 192.168.0.0/16
+      # Correo: en desarrollo se entrega a Mailpit (buzón local, interfaz en http://localhost:8025). Nada sale a internet.
+      Email__Smtp__Host: ${SMTP_HOST:-mailpit}
+      Email__Smtp__Port: ${SMTP_PORT:-1025}
+      Email__Smtp__Security: ${SMTP_SECURITY:-None}
+      Email__Smtp__User: ${SMTP_USER:-}
+      Email__Smtp__Password: ${SMTP_PASSWORD:-}
+      Email__Smtp__From: ${SMTP_FROM:-no-reply@fit360.local}
+      Email__Smtp__FromName: FIT360
+      PublicSite__BaseUrl: ${PUBLIC_SITE_URL:-http://localhost:8081}
     volumes:
       # Fotos de progreso: privadas, solo accesibles desde la API. Incluir este volumen en las copias de seguridad.
       - fitcore_files:/var/lib/fitcore/files
@@ -76,6 +91,14 @@ services:
     environment:
       DOTNET_ENVIRONMENT: Development
       ConnectionStrings__Default: *db-app
+      Email__Smtp__Host: ${SMTP_HOST:-mailpit}
+      Email__Smtp__Port: ${SMTP_PORT:-1025}
+      Email__Smtp__Security: ${SMTP_SECURITY:-None}
+      Email__Smtp__User: ${SMTP_USER:-}
+      Email__Smtp__Password: ${SMTP_PASSWORD:-}
+      Email__Smtp__From: ${SMTP_FROM:-no-reply@fit360.local}
+      Email__Smtp__FromName: FIT360
+      PublicSite__BaseUrl: ${PUBLIC_SITE_URL:-http://localhost:8081}
     depends_on:
       postgres:
         condition: service_healthy

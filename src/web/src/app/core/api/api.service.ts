@@ -224,6 +224,10 @@ export class ApiService {
     return this.http.patch<CommercialPlan>(`${API_BASE}/platform/plans/${id}/status`, { isActive });
   }
 
+  setCommercialPlanVisibility(id: string, isPublic: boolean): Observable<CommercialPlan> {
+    return this.http.patch<CommercialPlan>(`${API_BASE}/platform/plans/${id}/visibility`, { isPublic });
+  }
+
   organizations(query: Query = {}): Observable<Paged<OrganizationSummary>> {
     return this.get('/platform/organizations', query);
   }

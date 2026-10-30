@@ -53,6 +53,12 @@ internal static class PlansEndpoints
             .Produces<PlanDto>()
             .WithName("SetCommercialPlanStatus");
 
+        plans.MapPatch("/{id:guid}/visibility", async (Guid id, SetPlanVisibilityRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SetPlanVisibilityCommand(id, request.IsPublic), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.PlatformPlansManage)
+            .Produces<PlanDto>()
+            .WithName("SetCommercialPlanVisibility");
+
         return routes;
     }
 }

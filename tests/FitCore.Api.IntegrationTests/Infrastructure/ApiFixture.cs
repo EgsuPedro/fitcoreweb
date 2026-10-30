@@ -73,6 +73,7 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("Subscriptions:Payments:ProviderCode", "testpay");
             builder.UseSetting("Subscriptions:Payments:WebhookSecret", WebhookSecret);
             builder.UseSetting("RateLimiting:SessionPermitPerMinute", "100000");
+            builder.UseSetting("RateLimiting:PublicReadPermitPerMinute", "100000");
             builder.UseSetting("FileStorage:RootPath", FilesRoot);
         });
 

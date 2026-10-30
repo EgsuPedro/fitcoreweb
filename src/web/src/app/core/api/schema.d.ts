@@ -2964,6 +2964,54 @@ export interface paths {
         patch: operations["SetCommercialPlanStatus"];
         trace?: never;
     };
+    "/api/v1/platform/plans/{id}/visibility": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetCommercialPlanVisibility"];
+        trace?: never;
+    };
+    "/api/v1/public/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListPublicPlans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/plans/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetPublicPlan"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/tenants/{id}/subscription": {
         parameters: {
             query?: never;
@@ -7118,6 +7166,7 @@ export interface components {
             description: string | null;
             rules: string | null;
             isActive: boolean;
+            isPublic: boolean;
             current: components["schemas"]["PlanVersionDto2"];
             versions: components["schemas"]["PlanVersionDto2"][];
             /** Format: date-time */
@@ -7221,6 +7270,7 @@ export interface components {
             name: string;
             description: string | null;
             isActive: boolean;
+            isPublic: boolean;
             current: components["schemas"]["PlanVersionDto2"];
             /** Format: int32 */
             versionCount: number;
@@ -7393,6 +7443,32 @@ export interface components {
             /** Format: int32 */
             toleranceSeconds: number;
             rotationInProgress: boolean;
+        };
+        PublicFeatureDto: {
+            code: string;
+            name: string;
+            description: string;
+        };
+        PublicLimitDto: {
+            code: string;
+            name: string;
+            unit: string;
+            /** Format: int64 */
+            value: number | null;
+        };
+        PublicPlanDto: {
+            code: string;
+            name: string;
+            description: string | null;
+            currency: string;
+            billingPeriod: string;
+            /** Format: double */
+            price: number;
+            /** Format: int32 */
+            trialDays: number;
+            selfService: boolean;
+            features: components["schemas"]["PublicFeatureDto"][];
+            limits: components["schemas"]["PublicLimitDto"][];
         };
         QrTokenDto: {
             token: string;
@@ -7817,6 +7893,9 @@ export interface components {
         };
         SetPlanStatusRequest2: {
             isActive: boolean;
+        };
+        SetPlanVisibilityRequest: {
+            isPublic: boolean;
         };
         SetRequest: {
             /** Format: int32 */
@@ -14134,6 +14213,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PlanDto2"];
+                };
+            };
+        };
+    };
+    SetCommercialPlanVisibility: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPlanVisibilityRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlanDto2"];
+                };
+            };
+        };
+    };
+    ListPublicPlans: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPlanDto"][];
+                };
+            };
+        };
+    };
+    GetPublicPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicPlanDto"];
                 };
             };
         };

@@ -10,4 +10,7 @@ internal static class RateLimitPolicies
 
     /// <summary>Webhooks del proveedor de pagos: llegan de pocas IP y a ritmo bajo; el límite frena a quien intente adivinar firmas.</summary>
     public const string Webhooks = "webhooks";
+
+    /// <summary>Lectura pública del sitio comercial (planes): sin sesión, por eso se limita por IP.</summary>
+    public const string PublicRead = "public-read";
 }

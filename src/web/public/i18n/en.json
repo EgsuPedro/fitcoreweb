@@ -399,7 +399,8 @@
       "not_found": "The commercial plan does not exist.",
       "not_sellable": "The plan is not available for sale on this date or branch.",
       "scope_not_allowed": "You cannot manage plans of branches outside your scope.",
-      "code_taken": "A commercial plan with that code already exists."
+      "code_taken": "A commercial plan with that code already exists.",
+      "not_publishable": "Only an active, sellable plan can be shown on the public site."
     },
     "promotions": {
       "apply_not_allowed": "You do not have permission to apply promotions.",
@@ -2617,6 +2618,13 @@
       "free": "Free: renews itself, no charge",
       "deactivate": "Deactivate",
       "activate": "Activate",
+      "visibility": "Public site",
+      "published": "Published",
+      "hidden": "Hidden",
+      "publish": "Publish",
+      "hide": "Hide",
+      "publishedToast": "Plan published on the commercial site.",
+      "hiddenToast": "Plan hidden from the commercial site.",
       "empty": "There are no commercial plans yet.",
       "versionHint": "A change to price, period, trial, grace, features or limits creates a new version: those who already subscribed keep theirs.",
       "code": "Code",

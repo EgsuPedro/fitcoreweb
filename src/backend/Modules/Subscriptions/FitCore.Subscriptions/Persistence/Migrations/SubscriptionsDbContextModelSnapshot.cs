@@ -157,6 +157,12 @@ namespace FitCore.Subscriptions.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
+                    b.Property<bool>("IsPublic")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_public");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(120)

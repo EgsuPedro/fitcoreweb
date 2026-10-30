@@ -67,6 +67,12 @@ public sealed partial class Plan : IAuditable
     /// <summary>Un plan inactivo no se puede asignar a suscripciones nuevas; las existentes siguen con él.</summary>
     public bool IsActive { get; private set; }
 
+    /// <summary>
+    /// Se ofrece en el sitio comercial. Lo decide el equipo de plataforma de forma explícita: ningún plan activo se publica solo.
+    /// Un plan público que se desactiva deja de mostrarse sin perder la marca.
+    /// </summary>
+    public bool IsPublic { get; private set; }
+
     public DateTimeOffset CreatedAt { get; init; }
     public Guid? CreatedBy { get; init; }
     public DateTimeOffset? UpdatedAt { get; private set; }
@@ -109,6 +115,12 @@ public sealed partial class Plan : IAuditable
     public void SetActive(bool active, Guid? actor, DateTimeOffset now)
     {
         IsActive = active;
+        Touch(actor, now);
+    }
+
+    public void SetPublic(bool isPublic, Guid? actor, DateTimeOffset now)
+    {
+        IsPublic = isPublic;
         Touch(actor, now);
     }
 

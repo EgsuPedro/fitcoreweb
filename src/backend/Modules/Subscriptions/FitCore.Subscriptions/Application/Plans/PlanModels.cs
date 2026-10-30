@@ -26,18 +26,18 @@ public sealed record PlanVersionDto(
 
 /// <summary>Resumen para listados: el plan con sus condiciones vigentes.</summary>
 public sealed record PlanSummaryDto(
-    Guid Id, string Code, string Name, string? Description, bool IsActive, PlanVersionDto Current, int VersionCount, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt)
+    Guid Id, string Code, string Name, string? Description, bool IsActive, bool IsPublic, PlanVersionDto Current, int VersionCount, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt)
 {
     internal static PlanSummaryDto From(Plan p) =>
-        new(p.Id, p.Code, p.Name, p.Description, p.IsActive, PlanVersionDto.From(p.Current), p.Versions.Count, p.CreatedAt, p.UpdatedAt);
+        new(p.Id, p.Code, p.Name, p.Description, p.IsActive, p.IsPublic, PlanVersionDto.From(p.Current), p.Versions.Count, p.CreatedAt, p.UpdatedAt);
 }
 
 public sealed record PlanDto(
-    Guid Id, string Code, string Name, string? Description, string? Rules, bool IsActive,
+    Guid Id, string Code, string Name, string? Description, string? Rules, bool IsActive, bool IsPublic,
     PlanVersionDto Current, IReadOnlyList<PlanVersionDto> Versions, DateTimeOffset CreatedAt, DateTimeOffset? UpdatedAt)
 {
     internal static PlanDto From(Plan p) => new(
-        p.Id, p.Code, p.Name, p.Description, p.Rules, p.IsActive, PlanVersionDto.From(p.Current),
+        p.Id, p.Code, p.Name, p.Description, p.Rules, p.IsActive, p.IsPublic, PlanVersionDto.From(p.Current),
         [.. p.Versions.OrderByDescending(v => v.Number).Select(PlanVersionDto.From)], p.CreatedAt, p.UpdatedAt);
 }
 
@@ -61,6 +61,8 @@ public sealed record UpdatePlanRequest(
 
 public sealed record SetPlanStatusRequest(bool IsActive);
 
+public sealed record SetPlanVisibilityRequest(bool IsPublic);
+
 public sealed record ListPlansQuery(PageRequest Page, string? Search, bool? IsActive) : IQuery<PagedResult<PlanSummaryDto>>;
 
 public sealed record GetPlanQuery(Guid Id) : IQuery<PlanDto>;
@@ -73,6 +75,8 @@ public sealed record UpdatePlanCommand(Guid Id, UpdatePlanRequest Request) : ICo
 
 public sealed record SetPlanStatusCommand(Guid Id, bool IsActive) : ICommand<PlanDto>;
 
+public sealed record SetPlanVisibilityCommand(Guid Id, bool IsPublic) : ICommand<PlanDto>;
+
 /// <summary>Valores válidos para armar un plan: funciones, límites, periodicidades y monedas.</summary>
 public sealed record PlanCatalogDto(
     IReadOnlyList<FeatureCatalogDto> Features, IReadOnlyList<LimitCatalogDto> Limits, IReadOnlyList<string> BillingPeriods, IReadOnlyList<string> Currencies);
@@ -84,6 +88,7 @@ public sealed record LimitCatalogDto(string Code, string Name, string Descriptio
 internal static class PlanErrors
 {
     public static readonly Error NotFound = Error.NotFound("plans.not_found", "Plan comercial no encontrado.");
+    public static readonly Error NotPublishable = Error.Conflict("plans.not_publishable", "Solo un plan activo y vendible puede mostrarse en el sitio público.");
     public static readonly Error CodeTaken = Error.Conflict("plans.code_taken", "Ya existe un plan comercial con ese código.");
 }
 

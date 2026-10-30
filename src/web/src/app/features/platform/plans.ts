@@ -60,6 +60,7 @@ import { emptyToNull, isFree, parseAmount, parseLimit } from './platform-math';
             <th scope="col" class="num">{{ 'platform.plans.trial' | transloco }}</th>
             <th scope="col" class="num">{{ 'platform.plans.version' | transloco }}</th>
             <th scope="col">{{ 'common.status' | transloco }}</th>
+            <th scope="col">{{ 'platform.plans.visibility' | transloco }}</th>
             <th scope="col"></th>
           </tr>
         </thead>
@@ -72,13 +73,15 @@ import { emptyToNull, isFree, parseAmount, parseLimit } from './platform-math';
               <td class="num">{{ p.current.trialDays }}</td>
               <td class="num">v{{ p.current.number }}</td>
               <td><fc-badge [tone]="p.isActive ? 'ok' : 'off'">{{ (p.isActive ? 'common.active' : 'common.inactive') | transloco }}</fc-badge></td>
+              <td><fc-badge [tone]="p.isPublic ? 'ok' : 'off'">{{ (p.isPublic ? 'platform.plans.published' : 'platform.plans.hidden') | transloco }}</fc-badge></td>
               <td class="row-actions">
                 <button type="button" class="btn" (click)="openEdit(p)">{{ 'common.edit' | transloco }}</button>
                 <button type="button" class="btn" (click)="toggle(p)">{{ (p.isActive ? 'platform.plans.deactivate' : 'platform.plans.activate') | transloco }}</button>
+                <button type="button" class="btn" (click)="toggleVisibility(p)">{{ (p.isPublic ? 'platform.plans.hide' : 'platform.plans.publish') | transloco }}</button>
               </td>
             </tr>
           } @empty {
-            <tr><td colspan="7" class="empty">{{ (list.loading() ? 'common.loading' : 'platform.plans.empty') | transloco }}</td></tr>
+            <tr><td colspan="8" class="empty">{{ (list.loading() ? 'common.loading' : 'platform.plans.empty') | transloco }}</td></tr>
           }
         </tbody>
       </table>
@@ -257,6 +260,17 @@ export class PlatformPlans implements OnInit {
         this.saving.set(false);
         this.formError.set(this.errors.message(err));
       },
+    });
+  }
+
+  protected toggleVisibility(plan: CommercialPlanSummary): void {
+    this.error.set(null);
+    this.api.setCommercialPlanVisibility(plan.id, !plan.isPublic).subscribe({
+      next: () => {
+        this.toast.success(plan.isPublic ? 'platform.plans.hiddenToast' : 'platform.plans.publishedToast');
+        this.list.load();
+      },
+      error: (err: unknown) => this.error.set(this.errors.message(err)),
     });
   }
 

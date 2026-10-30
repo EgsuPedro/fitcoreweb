@@ -399,7 +399,8 @@
       "not_found": "El plan comercial no existe.",
       "not_sellable": "El plan no está disponible para la venta en esta fecha o sucursal.",
       "scope_not_allowed": "No puede administrar planes de sucursales fuera de su alcance.",
-      "code_taken": "Ya existe un plan comercial con ese código."
+      "code_taken": "Ya existe un plan comercial con ese código.",
+      "not_publishable": "Solo un plan activo y vendible puede mostrarse en el sitio público."
     },
     "promotions": {
       "apply_not_allowed": "No tiene permiso para aplicar promociones.",
@@ -2617,6 +2618,13 @@
       "free": "Gratuito: se renueva solo, sin cobro",
       "deactivate": "Desactivar",
       "activate": "Activar",
+      "visibility": "Sitio público",
+      "published": "Publicado",
+      "hidden": "Oculto",
+      "publish": "Publicar",
+      "hide": "Ocultar",
+      "publishedToast": "Plan publicado en el sitio comercial.",
+      "hiddenToast": "Plan oculto del sitio comercial.",
       "empty": "Aún no hay planes comerciales.",
       "versionHint": "Un cambio de precio, periodicidad, prueba, gracia, funciones o límites crea una versión nueva: quien ya contrató conserva la suya.",
       "code": "Código",

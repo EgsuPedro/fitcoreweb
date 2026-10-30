@@ -134,6 +134,7 @@ internal sealed class PlanConfiguration : IEntityTypeConfiguration<Plan>
         b.Property(x => x.Name).HasMaxLength(120).IsRequired();
         b.Property(x => x.Description).HasMaxLength(1000);
         b.Property(x => x.Rules).HasMaxLength(2000);
+        b.Property(x => x.IsPublic).HasDefaultValue(false);
         b.HasIndex(x => x.Code).IsUnique();
         b.HasMany(x => x.Versions).WithOne().HasForeignKey(v => v.PlanId).OnDelete(DeleteBehavior.Restrict);
         b.Navigation(x => x.Versions).AutoInclude();

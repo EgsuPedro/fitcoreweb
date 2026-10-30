@@ -114,3 +114,25 @@ internal sealed class SetPlanStatusHandler(SubscriptionsDbContext db, IClock clo
         return PlanDto.From(plan);
     }
 }
+
+internal sealed class SetPlanVisibilityHandler(SubscriptionsDbContext db, IClock clock, ICurrentUser currentUser) : ICommandHandler<SetPlanVisibilityCommand, PlanDto>
+{
+    public async Task<Result<PlanDto>> HandleAsync(SetPlanVisibilityCommand command, CancellationToken cancellationToken)
+    {
+        var plan = await db.Plans.FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
+        if (plan is null)
+        {
+            return PlanErrors.NotFound;
+        }
+
+        // Publicar exige un plan vendible (activo y no heredado). Ocultarlo siempre se puede.
+        if (command.IsPublic && !Portal.PortalStore.IsSellable(plan))
+        {
+            return PlanErrors.NotPublishable;
+        }
+
+        plan.SetPublic(command.IsPublic, currentUser.UserId, clock.UtcNow);
+        await db.SaveChangesAsync(cancellationToken);
+        return PlanDto.From(plan);
+    }
+}

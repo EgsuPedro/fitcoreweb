@@ -128,6 +128,7 @@ Errores en `application/problem+json` con un `code` estable; validación con 422
 - [Guía de pruebas de la Fase 7](docs/guia-pruebas-fase-7.md): validación manual con datos
 - [Informe de la Fase 8](docs/informe-fase-8.md): sitio comercial, registro, correo, onboarding, invitaciones, las 20 pruebas obligatorias, seguridad, accesibilidad y pendientes
 - [Guía de pruebas de la Fase 8](docs/guia-pruebas-fase-8.md): validación manual con Mailpit
+- [Plan de pruebas desde pantalla de la Fase 8](docs/plan-pruebas-pantalla-fase-8.md): casos con datos exactos y resultado esperado (usa `scripts/fase8-planes-prueba.ps1`)
 - [Despliegue](docs/despliegue.md): subir una demo pública (máquina gratuita, HTTPS, actualización desde git, copias de seguridad)
 - [Hoja de ruta](docs/implementation-roadmap.md): estado, pendientes y fases siguientes
 - [ADR](docs/adr/): decisiones y su justificación

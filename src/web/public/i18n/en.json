@@ -3669,7 +3669,7 @@
     "issuer": {
       "title": "Issuer data",
       "ruc": "RUC",
-      "rucInvalid": "Enter a 13-digit RUC.",
+      "rucInvalid": "Enter a 13-digit RUC ending in 001.",
       "legalName": "Legal name",
       "tradeName": "Trade name",
       "headOffice": "Head office address",

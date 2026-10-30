@@ -137,7 +137,7 @@ public static class IssuerReadiness
         var checks = new List<ReadinessCheck>
         {
             new("issuer_profile", issuer is not null && !string.IsNullOrWhiteSpace(issuer.LegalName) && !string.IsNullOrWhiteSpace(issuer.HeadOfficeAddress), true),
-            new("ruc_valid", issuer is not null && EcuadorIds.IsValidRuc(issuer.Ruc), true),
+            new("ruc_valid", issuer is not null && IsValidIssuerRuc(issuer.Ruc), true),
             new("regime_allows_electronic_invoice", issuer is null || issuer.TaxRegime != TaxRegime.RimpeNegocioPopular, true),
             new("emission_point", points.Any(p => p.IsActive && EmissionPoint.IsValidCode(p.EstablishmentCode) && EmissionPoint.IsValidCode(p.PointCode)
                                                   && !string.IsNullOrWhiteSpace(p.EstablishmentAddress)), true),
@@ -151,6 +151,9 @@ public static class IssuerReadiness
         };
         return checks;
     }
+
+    /// <summary>RUC válido y terminado en 001: el esquema del SRI (<c>numeroRuc</c>) solo admite <c>[0-9]{10}001</c> para el emisor.</summary>
+    public static bool IsValidIssuerRuc(string ruc) => EcuadorIds.IsValidRuc(ruc) && ruc.EndsWith("001", StringComparison.Ordinal);
 
     /// <summary>Se puede emitir solo si pasan todas las comprobaciones bloqueantes.</summary>
     public static bool CanIssue(IEnumerable<ReadinessCheck> checks) => checks.Where(c => c.Blocking).All(c => c.Ok);

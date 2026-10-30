@@ -21,6 +21,7 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
     internal DbSet<InvoiceTax> InvoiceTaxes => Set<InvoiceTax>();
     internal DbSet<InvoicePayment> InvoicePayments => Set<InvoicePayment>();
     internal DbSet<InvoiceEvent> InvoiceEvents => Set<InvoiceEvent>();
+    internal DbSet<InvoiceDocument> InvoiceDocuments => Set<InvoiceDocument>();
     internal DbSet<EmissionSequence> EmissionSequences => Set<EmissionSequence>();
     internal DbSet<BranchRef> Branches => Set<BranchRef>();
 
@@ -118,6 +119,7 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.HasMany(x => x.Taxes).WithOne().HasForeignKey(x => x.InvoiceId);
             b.HasMany(x => x.Payments).WithOne().HasForeignKey(x => x.InvoiceId);
             b.HasMany<InvoiceEvent>().WithOne().HasForeignKey(e => e.InvoiceId);
+            b.HasMany<InvoiceDocument>().WithOne().HasForeignKey(d => d.InvoiceId);
             b.HasIndex(x => new { x.TenantId, x.SourceType, x.SourceId, x.DocumentType }).IsUnique();
             b.HasIndex(x => x.AccessKey).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.EmissionPointId, x.DocumentType, x.Environment, x.Sequential }).IsUnique();
@@ -181,6 +183,18 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.Property(x => x.ToStatus).HasConversion<string>().HasMaxLength(20);
             b.Property(x => x.Detail).HasMaxLength(500);
             b.HasIndex(x => new { x.InvoiceId, x.At });
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
+
+        modelBuilder.Entity<InvoiceDocument>(b =>
+        {
+            b.ToTable("invoice_documents");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.Kind).HasConversion<string>().HasMaxLength(20);
+            b.Property(x => x.Content).HasColumnType("text").IsRequired();
+            b.Property(x => x.Sha256).HasMaxLength(64).IsFixedLength().IsRequired();
+            b.HasIndex(x => new { x.InvoiceId, x.Kind }).IsUnique();
             b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
         });
 

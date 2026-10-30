@@ -63,9 +63,10 @@ public sealed record InvoiceDto(
     InvoiceCalculationDto Calculation,
     string Currency,
     DateTimeOffset CreatedAt,
-    IReadOnlyList<InvoiceEventDto> Events)
+    IReadOnlyList<InvoiceEventDto> Events,
+    IReadOnlyList<InvoiceDocumentDto> Documents)
 {
-    internal static InvoiceDto From(Invoice i, IReadOnlyList<InvoiceEvent> events) => new(
+    internal static InvoiceDto From(Invoice i, IReadOnlyList<InvoiceEvent> events, IReadOnlyList<InvoiceDocumentDto> documents) => new(
         i.Id,
         i.DocumentType.ToString(),
         i.Number,
@@ -87,7 +88,8 @@ public sealed record InvoiceDto(
             i.SubtotalWithoutTaxes, i.TotalDiscount, i.TotalTax, i.Total, i.RoundingDifference),
         i.Currency,
         i.CreatedAt,
-        [.. events.OrderBy(e => e.At).Select(e => new InvoiceEventDto(e.Type, e.FromStatus?.ToString(), e.ToStatus.ToString(), e.Detail, e.ActorId, e.At))]);
+        [.. events.OrderBy(e => e.At).Select(e => new InvoiceEventDto(e.Type, e.FromStatus?.ToString(), e.ToStatus.ToString(), e.Detail, e.ActorId, e.At))],
+        documents);
 }
 
 public sealed record InvoiceListItemDto(
@@ -161,7 +163,7 @@ internal sealed class IssueInvoiceHandler(IAccessContext access, InvoicePlanner 
         var p = plan.Value;
         if (p.ExistingInvoiceId is { } existingId)
         {
-            return new IssueInvoiceResult(await LoadAsync(existingId, cancellationToken), Created: false);
+            return new IssueInvoiceResult(await InvoiceReader.ReadAsync(db, existingId, cancellationToken), Created: false);
         }
 
         if (!p.CanIssue || p.Calculation is null || p.Buyer.Buyer is null || p.Point is null || p.Issuer is null)
@@ -268,7 +270,7 @@ internal sealed class IssueInvoiceHandler(IAccessContext access, InvoicePlanner 
             await db.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
-            return new IssueInvoiceResult(await LoadAsync(invoice.Id, cancellationToken), Created: true);
+            return new IssueInvoiceResult(await InvoiceReader.ReadAsync(db, invoice.Id, cancellationToken), Created: true);
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         {
@@ -283,15 +285,21 @@ internal sealed class IssueInvoiceHandler(IAccessContext access, InvoicePlanner 
                 throw;
             }
 
-            return new IssueInvoiceResult(await LoadAsync(existing.Value, cancellationToken), Created: false);
+            return new IssueInvoiceResult(await InvoiceReader.ReadAsync(db, existing.Value, cancellationToken), Created: false);
         }
     }
+}
 
-    private async Task<InvoiceDto> LoadAsync(Guid id, CancellationToken cancellationToken)
+/// <summary>Lee un comprobante con su detalle, su historial y la lista (sin contenido) de sus documentos. Quien llama ya comprobó que puede verlo.</summary>
+internal static class InvoiceReader
+{
+    public static async Task<InvoiceDto> ReadAsync(InvoicingDbContext db, Guid id, CancellationToken cancellationToken)
     {
         var invoice = await db.Invoices.AsNoTracking().Include(i => i.Lines).Include(i => i.Taxes).Include(i => i.Payments).AsSplitQuery().SingleAsync(i => i.Id == id, cancellationToken);
         var events = await db.InvoiceEvents.AsNoTracking().Where(e => e.InvoiceId == id).ToListAsync(cancellationToken);
-        return InvoiceDto.From(invoice, events);
+        var documents = await db.InvoiceDocuments.AsNoTracking().Where(d => d.InvoiceId == id).OrderBy(d => d.Kind)
+            .Select(d => new InvoiceDocumentDto(d.Kind.ToString(), d.Sha256, d.SizeBytes, d.CreatedAt)).ToListAsync(cancellationToken);
+        return InvoiceDto.From(invoice, events, documents);
     }
 }
 
@@ -305,16 +313,8 @@ internal sealed class GetInvoiceHandler(IAccessContext access, InvoicingDbContex
             return actor.Error;
         }
 
-        var invoice = await db.Invoices.AsNoTracking().VisibleTo(actor.Value)
-            .Include(i => i.Lines).Include(i => i.Taxes).Include(i => i.Payments).AsSplitQuery()
-            .FirstOrDefaultAsync(i => i.Id == query.Id, cancellationToken);
-        if (invoice is null)
-        {
-            return InvoiceErrors.NotFound;
-        }
-
-        var events = await db.InvoiceEvents.AsNoTracking().Where(e => e.InvoiceId == invoice.Id).ToListAsync(cancellationToken);
-        return InvoiceDto.From(invoice, events);
+        var visible = await db.Invoices.AsNoTracking().VisibleTo(actor.Value).AnyAsync(i => i.Id == query.Id, cancellationToken);
+        return visible ? await InvoiceReader.ReadAsync(db, query.Id, cancellationToken) : InvoiceErrors.NotFound;
     }
 }
 

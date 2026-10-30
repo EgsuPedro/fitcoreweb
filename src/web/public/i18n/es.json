@@ -3669,7 +3669,7 @@
     "issuer": {
       "title": "Datos del emisor",
       "ruc": "RUC",
-      "rucInvalid": "Escriba un RUC de 13 dígitos.",
+      "rucInvalid": "Escriba un RUC de 13 dígitos que termine en 001.",
       "legalName": "Razón social",
       "tradeName": "Nombre comercial",
       "headOffice": "Dirección de la matriz",

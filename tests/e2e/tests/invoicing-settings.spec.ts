@@ -72,7 +72,7 @@ test.describe.serial('configuración de facturación electrónica', () => {
     await page.getByLabel('Dirección de la matriz').fill('Av. Amazonas N24-03 y Colón, Quito');
     await page.getByLabel(/^Correo del emisor/).fill('facturas@gimnasio.test');
     await page.getByRole('button', { name: 'Guardar', exact: true }).first().click();
-    await expect(page.getByText('Escriba un RUC de 13 dígitos.')).toBeVisible();
+    await expect(page.getByText('Escriba un RUC de 13 dígitos que termine en 001.')).toBeVisible();
 
     await page.getByLabel(/^RUC/).fill(ruc);
     await page.getByRole('button', { name: 'Guardar', exact: true }).first().click();

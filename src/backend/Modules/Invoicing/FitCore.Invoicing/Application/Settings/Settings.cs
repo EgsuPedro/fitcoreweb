@@ -80,7 +80,8 @@ public sealed class SaveIssuerRequestValidator : AbstractValidator<SaveIssuerReq
 {
     public SaveIssuerRequestValidator()
     {
-        RuleFor(x => x.Ruc).NotEmpty().Must(r => EcuadorIds.IsValidRuc(EcuadorIds.Normalize(r))).WithMessage("El RUC no es válido (13 dígitos, termina en 001 o el número de establecimiento).");
+        RuleFor(x => x.Ruc).NotEmpty().Must(r => IssuerReadiness.IsValidIssuerRuc(EcuadorIds.Normalize(r)))
+            .WithMessage("El RUC no es válido: debe tener 13 dígitos y terminar en 001 (el XSD del SRI solo admite RUC de emisor terminados en 001).");
         RuleFor(x => x.LegalName).NotEmpty().MaximumLength(300);
         RuleFor(x => x.TradeName).MaximumLength(300);
         RuleFor(x => x.HeadOfficeAddress).NotEmpty().MaximumLength(300);
@@ -88,8 +89,10 @@ public sealed class SaveIssuerRequestValidator : AbstractValidator<SaveIssuerReq
         RuleFor(x => x.Environment).IsInEnum();
         RuleFor(x => x.CardPaymentMethod).IsInEnum();
         RuleFor(x => x.NotificationEmail).EmailAddress().MaximumLength(256).When(x => !string.IsNullOrWhiteSpace(x.NotificationEmail));
-        RuleFor(x => x.SpecialTaxpayerNumber).MaximumLength(13).Matches("^[0-9A-Za-z]+$").When(x => !string.IsNullOrWhiteSpace(x.SpecialTaxpayerNumber));
-        RuleFor(x => x.WithholdingAgentNumber).MaximumLength(13).Matches("^[0-9A-Za-z]+$").When(x => !string.IsNullOrWhiteSpace(x.WithholdingAgentNumber));
+        RuleFor(x => x.SpecialTaxpayerNumber).Length(3, 13).Matches("^[0-9A-Za-z]+$").When(x => !string.IsNullOrWhiteSpace(x.SpecialTaxpayerNumber))
+            .WithMessage("La resolución de contribuyente especial lleva de 3 a 13 letras o números.");
+        RuleFor(x => x.WithholdingAgentNumber).MaximumLength(8).Matches("^[0-9]+$").When(x => !string.IsNullOrWhiteSpace(x.WithholdingAgentNumber))
+            .WithMessage("La resolución de agente de retención lleva hasta 8 dígitos.");
         RuleFor(x => x.ConfirmProduction).Equal(true).When(x => x.Environment == SriEnvironment.Production)
             .WithMessage("Para pasar a producción confirme que entiende que los comprobantes tendrán validez tributaria.");
     }

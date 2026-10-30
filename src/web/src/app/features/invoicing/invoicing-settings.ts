@@ -12,10 +12,10 @@ import { Confirm } from '../../shared/confirm';
 import { Modal } from '../../shared/modal';
 import { ToastService } from '../../shared/toast';
 
-/** Mismo algoritmo que el servidor (módulo 10 y 11 del RUC ecuatoriano): solo para avisar antes de enviar; el servidor decide. */
+/** Aviso previo, no la validación: 13 dígitos terminados en 001 (el esquema del SRI solo admite RUC de emisor así). El servidor aplica además los módulos 10 y 11. */
 export function looksLikeRuc(value: string): boolean {
   const ruc = value.replace(/[\s-]/g, '');
-  return /^\d{13}$/.test(ruc) && ruc.slice(10) !== '000';
+  return /^\d{10}001$/.test(ruc);
 }
 
 /**

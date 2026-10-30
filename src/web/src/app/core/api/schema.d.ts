@@ -3828,6 +3828,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoicing/invoices/{id}/sign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SignInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/invoices/{id}/xml": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DownloadInvoiceXml"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -5780,6 +5812,14 @@ export interface components {
             /** Format: double */
             roundingDifference: number;
         };
+        InvoiceDocumentDto: {
+            kind: string;
+            sha256: string;
+            /** Format: int32 */
+            sizeBytes: number;
+            /** Format: date-time */
+            createdAt: string;
+        };
         InvoiceDto: {
             /** Format: uuid */
             id: string;
@@ -5846,6 +5886,7 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             events: components["schemas"]["InvoiceEventDto"][];
+            documents: components["schemas"]["InvoiceDocumentDto"][];
         };
         InvoiceEventDto: {
             type: string;
@@ -16639,6 +16680,50 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["InvoiceDto2"];
                 };
+            };
+        };
+    };
+    SignInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
+                };
+            };
+        };
+    };
+    DownloadInvoiceXml: {
+        parameters: {
+            query?: {
+                signed?: boolean;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

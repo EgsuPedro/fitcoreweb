@@ -368,7 +368,8 @@ public class InvoicingInvoicesTests(ApiFixture api)
         Assert.Equal("FC130", await Try("DELETE FROM invoicing.invoice_taxes WHERE invoice_id = @i"));
         Assert.Equal("FC130", await Try("DELETE FROM invoicing.invoice_payments WHERE invoice_id = @i"));
         Assert.Equal("FC130", await Try("DELETE FROM invoicing.invoice_events WHERE invoice_id = @i"));
-        Assert.Null(await Try("UPDATE invoicing.invoices SET status = 'SignedDocument', updated_at = now() WHERE id = @i"));
+        // El estado no puede saltar a «firmado» sin su XML firmado (ver InvoicingSigningTests); un cambio de estado válido sí se permite.
+        Assert.Equal("FC131", await Try("UPDATE invoicing.invoices SET status = 'SignedDocument', updated_at = now() WHERE id = @i"));
     }
 
     [Fact]

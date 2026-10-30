@@ -139,6 +139,31 @@ public sealed class InvoicePayment
     public decimal Amount { get; init; }
 }
 
+public enum InvoiceDocumentKind
+{
+    /// <summary>XML del comprobante sin firmar, tal como lo armó el sistema.</summary>
+    Xml = 1,
+
+    /// <summary>XML con la firma XAdES-BES: el que se envía al SRI y el que el cliente conserva.</summary>
+    SignedXml = 2
+}
+
+/// <summary>Un documento generado del comprobante (XML y XML firmado). Inmutable: contiene datos personales y es la constancia de lo que se firmó; se entrega solo con permiso y de forma auditada.</summary>
+public sealed class InvoiceDocument
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid InvoiceId { get; init; }
+    public InvoiceDocumentKind Kind { get; init; }
+    public string Content { get; init; } = string.Empty;
+
+    /// <summary>SHA-256 (hex) del contenido en UTF-8: permite comprobar que el documento guardado es el que se firmó y se envió.</summary>
+    public string Sha256 { get; init; } = string.Empty;
+
+    public int SizeBytes { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
+}
+
 /// <summary>Historial inmutable del comprobante: quién hizo qué y cuándo.</summary>
 public sealed class InvoiceEvent
 {

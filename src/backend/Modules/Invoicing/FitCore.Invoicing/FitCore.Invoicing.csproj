@@ -16,5 +16,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.22" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.22" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Xml/Schemas/*.xsd" />
   </ItemGroup>
 </Project>

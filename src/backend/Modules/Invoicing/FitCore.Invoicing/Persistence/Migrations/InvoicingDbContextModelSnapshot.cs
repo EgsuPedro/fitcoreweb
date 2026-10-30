@@ -345,6 +345,56 @@ namespace FitCore.Invoicing.Persistence.Migrations
                     b.ToTable("invoices", "invoicing");
                 });
 
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character(64)")
+                        .HasColumnName("sha256")
+                        .IsFixedLength();
+
+                    b.Property<int>("SizeBytes")
+                        .HasColumnType("integer")
+                        .HasColumnName("size_bytes");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_documents");
+
+                    b.HasIndex("InvoiceId", "Kind")
+                        .IsUnique()
+                        .HasDatabaseName("ix_invoice_documents_invoice_id_kind");
+
+                    b.ToTable("invoice_documents", "invoicing");
+                });
+
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -901,6 +951,16 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         {
                             t.ExcludeFromMigrations();
                         });
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceDocument", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_documents_invoices_invoice_id");
                 });
 
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEvent", b =>

@@ -42,6 +42,21 @@ internal static class InvoicingSourcesEndpoints
             .Produces<InvoiceDto>()
             .WithName("GetInvoice");
 
+        // Firma el comprobante (XML + XAdES-BES). Idempotente: si ya está firmado devuelve el mismo comprobante. Se exige el permiso de envío; el flujo automático llegará con el Worker.
+        invoices.MapPost("/{id:guid}/sign", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SignInvoiceCommand(id), ct)).ToHttp(r => Results.Ok(r.Invoice)))
+            .RequirePermission(Permissions.InvoicingSend)
+            .Produces<InvoiceDto>()
+            .WithName("SignInvoice");
+
+        // El XML contiene datos personales: se entrega solo con permiso, sin enlaces públicos y dejando constancia en el historial del comprobante.
+        invoices.MapGet("/{id:guid}/xml", async (Guid id, bool? signed, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DownloadInvoiceXmlCommand(id, signed ?? true), ct)).ToHttp(f =>
+                    Results.File(System.Text.Encoding.UTF8.GetBytes(f.Content), "application/xml", f.FileName)))
+            .RequirePermission(Permissions.InvoicingDownload)
+            .Produces(StatusCodes.Status200OK, contentType: "application/xml")
+            .WithName("DownloadInvoiceXml");
+
         invoices.MapGet("/", async (int? page, int? pageSize, InvoiceStatus? status, string? q, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new ListInvoicesQuery(page ?? 1, pageSize ?? 20, status, q), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.InvoicingRead)

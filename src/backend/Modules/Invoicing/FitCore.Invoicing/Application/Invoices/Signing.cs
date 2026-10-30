@@ -25,8 +25,8 @@ public sealed record SignInvoiceResult(InvoiceDto Invoice, bool WasSigned);
 
 public sealed record SignInvoiceCommand(Guid Id) : ICommand<SignInvoiceResult>;
 
-/// <summary>Descarga el XML del comprobante. <c>SignedVersion</c>: <c>true</c> (por defecto) el firmado, <c>false</c> el original sin firma.</summary>
-public sealed record DownloadInvoiceXmlCommand(Guid Id, bool SignedVersion = true) : ICommand<InvoiceXmlFile>;
+/// <summary>Descarga uno de los XML del comprobante: el firmado (por defecto), el original sin firma o el autorizado por el SRI.</summary>
+public sealed record DownloadInvoiceXmlCommand(Guid Id, InvoiceDocumentKind Kind = InvoiceDocumentKind.SignedXml) : ICommand<InvoiceXmlFile>;
 
 public sealed record InvoiceXmlFile(string FileName, string Content);
 
@@ -38,25 +38,19 @@ public static class SigningErrors
     public static readonly Error DocumentNotFound = Error.NotFound("invoicing.document_not_found", "El comprobante todavía no tiene ese documento.");
 }
 
-// ---- Casos de uso -----------------------------------------------------------------------------------------------------------------
+// ---- Servicio ---------------------------------------------------------------------------------------------------------------------
 
 /// <summary>
-/// Genera el XML del comprobante, lo valida contra el XSD oficial, lo firma con el certificado del gimnasio (XAdES-BES), verifica la firma antes de guardar y lo deja «firmado». Es idempotente:
-/// firmar un comprobante ya firmado no cambia nada. El certificado y su contraseña se descifran solo aquí, en memoria, y se descartan.
+/// Genera el XML del comprobante, lo valida contra el XSD oficial, lo firma con el certificado del gimnasio (XAdES-BES), verifica la firma antes de guardar y lo deja «firmado». Lo usan la API (a pedido) y
+/// el Worker (en la transmisión). Es idempotente y seguro ante concurrencia: firmar lo ya firmado no cambia nada. El certificado y su contraseña se descifran solo aquí, en memoria, y se descartan.
+/// El llamador ya comprobó que puede operar sobre el comprobante.
 /// </summary>
-internal sealed class SignInvoiceHandler(IAccessContext access, InvoicingDbContext db, ISecretProtector protector, IClock clock, ILogger<SignInvoiceHandler> logger)
-    : ICommandHandler<SignInvoiceCommand, SignInvoiceResult>
+internal sealed class InvoiceSigner(InvoicingDbContext db, ISecretProtector protector, IClock clock, ILogger<InvoiceSigner> logger)
 {
-    public async Task<Result<SignInvoiceResult>> HandleAsync(SignInvoiceCommand command, CancellationToken cancellationToken)
+    /// <returns><c>true</c> si esta llamada lo firmó; <c>false</c> si ya no estaba pendiente de firma.</returns>
+    public async Task<Result<bool>> SignAsync(Guid invoiceId, Guid? actorId, CancellationToken cancellationToken)
     {
-        var actor = await access.RequireAccessAsync(cancellationToken);
-        if (actor.IsFailure)
-        {
-            return actor.Error;
-        }
-
-        var invoice = await db.Invoices.VisibleTo(actor.Value).Include(i => i.Lines).Include(i => i.Taxes).Include(i => i.Payments).AsSplitQuery()
-            .FirstOrDefaultAsync(i => i.Id == command.Id, cancellationToken);
+        var invoice = await db.Invoices.Include(i => i.Lines).Include(i => i.Taxes).Include(i => i.Payments).AsSplitQuery().FirstOrDefaultAsync(i => i.Id == invoiceId, cancellationToken);
         if (invoice is null)
         {
             return InvoiceErrors.NotFound;
@@ -64,7 +58,7 @@ internal sealed class SignInvoiceHandler(IAccessContext access, InvoicingDbConte
 
         if (invoice.Status != InvoiceStatus.PendingSignature)
         {
-            return new SignInvoiceResult(await InvoiceReader.ReadAsync(db, invoice.Id, cancellationToken), WasSigned: false);
+            return false;
         }
 
         var now = clock.UtcNow;
@@ -130,44 +124,54 @@ internal sealed class SignInvoiceHandler(IAccessContext access, InvoicingDbConte
 
         try
         {
-            await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
-
-            // Se serializa por comprobante: quien llega segundo espera aquí el candado de la fila y, al entrar, ve el estado ya actualizado. Sin esto, dos solicitudes simultáneas insertaban
-            // sus dos documentos en órdenes distintos y PostgreSQL abortaba una por interbloqueo (40P01) sobre el índice único.
-            await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM invoicing.invoices WHERE id = {invoice.Id} FOR UPDATE", cancellationToken);
-            await db.Entry(invoice).ReloadAsync(cancellationToken);
-            if (invoice.Status != InvoiceStatus.PendingSignature)
+            // Dentro de la transacción en curso del llamador, o en una propia.
+            var own = db.Database.CurrentTransaction is null ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+            await using (own)
             {
-                await transaction.RollbackAsync(cancellationToken);
-                return new SignInvoiceResult(await InvoiceReader.ReadAsync(db, invoice.Id, cancellationToken), WasSigned: false);
+                // Se serializa por comprobante: quien llega segundo espera aquí el candado de la fila y, al entrar, ve el estado ya actualizado. Sin esto, dos solicitudes simultáneas insertaban
+                // sus dos documentos en órdenes distintos y PostgreSQL abortaba una por interbloqueo (40P01) sobre el índice único.
+                await db.Database.ExecuteSqlInterpolatedAsync($"SELECT 1 FROM invoicing.invoices WHERE id = {invoice.Id} FOR UPDATE", cancellationToken);
+                await db.Entry(invoice).ReloadAsync(cancellationToken);
+                if (invoice.Status != InvoiceStatus.PendingSignature)
+                {
+                    if (own is not null)
+                    {
+                        await own.RollbackAsync(cancellationToken);
+                    }
+
+                    return false;
+                }
+
+                // Primero los documentos y después el cambio de estado: la base exige que exista el XML firmado antes de aceptar el estado «firmado».
+                db.InvoiceDocuments.Add(NewDocument(invoice, InvoiceDocumentKind.Xml, xml, now));
+                db.InvoiceDocuments.Add(NewDocument(invoice, InvoiceDocumentKind.SignedXml, signedXml, now));
+                await db.SaveChangesAsync(cancellationToken);
+
+                invoice.Status = InvoiceStatus.SignedDocument;
+                invoice.UpdatedAt = now;
+                db.InvoiceEvents.Add(new InvoiceEvent
+                {
+                    Id = Guid.CreateVersion7(), TenantId = invoice.TenantId, InvoiceId = invoice.Id, Type = "Signed", FromStatus = InvoiceStatus.PendingSignature, ToStatus = InvoiceStatus.SignedDocument,
+                    Detail = $"Firma XAdES-BES con el certificado {thumbprint[..12]}", ActorId = actorId, At = now
+                });
+                await db.SaveChangesAsync(cancellationToken);
+                if (own is not null)
+                {
+                    await own.CommitAsync(cancellationToken);
+                }
             }
-
-            // Primero los documentos y después el cambio de estado: la base exige que exista el XML firmado antes de aceptar el estado «firmado».
-            db.InvoiceDocuments.Add(NewDocument(invoice, InvoiceDocumentKind.Xml, xml, now));
-            db.InvoiceDocuments.Add(NewDocument(invoice, InvoiceDocumentKind.SignedXml, signedXml, now));
-            await db.SaveChangesAsync(cancellationToken);
-
-            invoice.Status = InvoiceStatus.SignedDocument;
-            invoice.UpdatedAt = now;
-            db.InvoiceEvents.Add(new InvoiceEvent
-            {
-                Id = Guid.CreateVersion7(), TenantId = invoice.TenantId, InvoiceId = invoice.Id, Type = "Signed", FromStatus = InvoiceStatus.PendingSignature, ToStatus = InvoiceStatus.SignedDocument,
-                Detail = $"Firma XAdES-BES con el certificado {thumbprint[..12]}", ActorId = actor.Value.UserId, At = now
-            });
-            await db.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
         }
         catch (DbUpdateException ex) when (ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation })
         {
-            // Otra solicitud lo firmó al mismo tiempo: su resultado es el válido.
+            // Otra instancia lo firmó al mismo tiempo: su resultado es el válido.
             db.ChangeTracker.Clear();
-            return new SignInvoiceResult(await InvoiceReader.ReadAsync(db, command.Id, cancellationToken), WasSigned: false);
+            return false;
         }
 
-        return new SignInvoiceResult(await InvoiceReader.ReadAsync(db, invoice.Id, cancellationToken), WasSigned: true);
+        return true;
     }
 
-    private static InvoiceDocument NewDocument(Invoice invoice, InvoiceDocumentKind kind, string content, DateTimeOffset now)
+    internal static InvoiceDocument NewDocument(Invoice invoice, InvoiceDocumentKind kind, string content, DateTimeOffset now)
     {
         var bytes = Encoding.UTF8.GetBytes(content);
         return new InvoiceDocument
@@ -178,7 +182,35 @@ internal sealed class SignInvoiceHandler(IAccessContext access, InvoicingDbConte
     }
 }
 
-/// <summary>Entrega el XML (firmado o no) con permiso de descarga y deja constancia en el historial del comprobante: contiene datos personales y no hay enlaces públicos.</summary>
+// ---- Casos de uso -----------------------------------------------------------------------------------------------------------------
+
+internal sealed class SignInvoiceHandler(IAccessContext access, InvoicingDbContext db, InvoiceSigner signer) : ICommandHandler<SignInvoiceCommand, SignInvoiceResult>
+{
+    public async Task<Result<SignInvoiceResult>> HandleAsync(SignInvoiceCommand command, CancellationToken cancellationToken)
+    {
+        var actor = await access.RequireAccessAsync(cancellationToken);
+        if (actor.IsFailure)
+        {
+            return actor.Error;
+        }
+
+        if (!await db.Invoices.AsNoTracking().VisibleTo(actor.Value).AnyAsync(i => i.Id == command.Id, cancellationToken))
+        {
+            return InvoiceErrors.NotFound;
+        }
+
+        var signed = await signer.SignAsync(command.Id, actor.Value.UserId, cancellationToken);
+        if (signed.IsFailure)
+        {
+            return signed.Error;
+        }
+
+        db.ChangeTracker.Clear();
+        return new SignInvoiceResult(await InvoiceReader.ReadAsync(db, command.Id, cancellationToken), signed.Value);
+    }
+}
+
+/// <summary>Entrega el XML (firmado, original o autorizado) con permiso de descarga y deja constancia en el historial del comprobante: contiene datos personales y no hay enlaces públicos.</summary>
 internal sealed class DownloadInvoiceXmlHandler(IAccessContext access, InvoicingDbContext db, IClock clock) : ICommandHandler<DownloadInvoiceXmlCommand, InvoiceXmlFile>
 {
     public async Task<Result<InvoiceXmlFile>> HandleAsync(DownloadInvoiceXmlCommand command, CancellationToken cancellationToken)
@@ -195,7 +227,7 @@ internal sealed class DownloadInvoiceXmlHandler(IAccessContext access, Invoicing
             return InvoiceErrors.NotFound;
         }
 
-        var kind = command.SignedVersion ? InvoiceDocumentKind.SignedXml : InvoiceDocumentKind.Xml;
+        var kind = command.Kind;
         var document = await db.InvoiceDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.InvoiceId == invoice.Id && d.Kind == kind, cancellationToken);
         if (document is null)
         {
@@ -209,6 +241,7 @@ internal sealed class DownloadInvoiceXmlHandler(IAccessContext access, Invoicing
         });
         await db.SaveChangesAsync(cancellationToken);
 
-        return new InvoiceXmlFile($"{invoice.AccessKey}{(command.SignedVersion ? string.Empty : "-sin-firma")}.xml", document.Content);
+        var suffix = kind switch { InvoiceDocumentKind.Xml => "-sin-firma", InvoiceDocumentKind.AuthorizedXml => "-autorizado", _ => string.Empty };
+        return new InvoiceXmlFile($"{invoice.AccessKey}{suffix}.xml", document.Content);
     }
 }

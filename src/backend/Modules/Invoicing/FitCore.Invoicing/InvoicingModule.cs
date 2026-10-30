@@ -28,6 +28,7 @@ public static class InvoicingModule
 
         services.Configure<InvoicingOptions>(configuration.GetSection(InvoicingOptions.SectionName));
         services.AddSingleton<ISecretProtector, AesGcmSecretProtector>();
+        services.AddInvoiceTransmission(configuration);
         return services;
     }
 
@@ -40,6 +41,28 @@ public static class InvoicingModule
         services.AddSingleton<IModuleInitializer, InvoicingInitializer>();
         services.AddValidatorsFromAssemblyContaining<SaveIssuerRequestValidator>(includeInternalTypes: true);
         services.AddHandlersFromAssembly(typeof(InvoicingModule).Assembly);
+        return services;
+    }
+}
+
+public static class InvoicingTransmissionModule
+{
+    /// <summary>
+    /// Firma, cliente del SRI y ejecutor de la cola de transmisión. Los usan la API (que solo pone en cola) y el Worker (que firma, envía y consulta). El cliente del SRI es sustituible por una versión
+    /// simulada en las pruebas: <c>ISriGateway</c>.
+    /// </summary>
+    public static IServiceCollection AddInvoiceTransmission(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<Sri.SriOptions>(configuration.GetSection(Sri.SriOptions.SectionName));
+        services.AddHttpClient<Domain.ISriGateway, Sri.SriSoapGateway>((provider, client) =>
+        {
+            var sri = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<Sri.SriOptions>>().Value;
+            client.Timeout = TimeSpan.FromSeconds(Math.Clamp(sri.RequestTimeoutSeconds, 5, 120));
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("FIT360/1.0");
+        }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+        services.AddScoped<Application.Invoices.InvoiceSigner>();
+        services.AddScoped<Application.Invoices.InvoiceTransmitter>();
+        services.AddSingleton<Application.Invoices.InvoiceTransmissionRunner>();
         return services;
     }
 }

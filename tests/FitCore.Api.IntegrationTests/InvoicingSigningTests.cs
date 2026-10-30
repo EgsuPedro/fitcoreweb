@@ -158,7 +158,7 @@ public class InvoicingSigningTests(ApiFixture api)
         Assert.Equal("invoicing.document_not_found", before.Body.GetProperty("code").GetString());
 
         await SignAsync(gym.Tenant.Owner, id);
-        var plain = await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml?signed=false");
+        var plain = await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml?kind=Xml");
 
         Assert.DoesNotContain("Signature", plain, StringComparison.Ordinal);
         Assert.Empty(InvoiceXmlValidator.Validate(plain));
@@ -187,7 +187,7 @@ public class InvoicingSigningTests(ApiFixture api)
         await SignAsync(gym.Tenant.Owner, id);
 
         await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml");
-        await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml?signed=false");
+        await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml?kind=Xml");
 
         Assert.Equal("2", await ScalarAsync("SELECT count(*)::text FROM invoicing.invoice_events WHERE invoice_id = @i AND type = 'XmlDownloaded' AND actor_id IS NOT NULL", ("i", id)));
     }

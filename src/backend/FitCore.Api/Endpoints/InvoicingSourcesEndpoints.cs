@@ -49,9 +49,16 @@ internal static class InvoicingSourcesEndpoints
             .Produces<InvoiceDto>()
             .WithName("SignInvoice");
 
+        // Pone el comprobante en la cola del SRI: el Worker lo firma si falta, lo envía y consulta su autorización, con reintentos. Idempotente; reactiva uno devuelto o estacionado.
+        invoices.MapPost("/{id:guid}/submit", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SubmitInvoiceCommand(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InvoicingSend)
+            .Produces<InvoiceDto>()
+            .WithName("SubmitInvoice");
+
         // El XML contiene datos personales: se entrega solo con permiso, sin enlaces públicos y dejando constancia en el historial del comprobante.
-        invoices.MapGet("/{id:guid}/xml", async (Guid id, bool? signed, IDispatcher dispatcher, CancellationToken ct) =>
-                (await dispatcher.SendAsync(new DownloadInvoiceXmlCommand(id, signed ?? true), ct)).ToHttp(f =>
+        invoices.MapGet("/{id:guid}/xml", async (Guid id, InvoiceDocumentKind? kind, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DownloadInvoiceXmlCommand(id, kind ?? InvoiceDocumentKind.SignedXml), ct)).ToHttp(f =>
                     Results.File(System.Text.Encoding.UTF8.GetBytes(f.Content), "application/xml", f.FileName)))
             .RequirePermission(Permissions.InvoicingDownload)
             .Produces(StatusCodes.Status200OK, contentType: "application/xml")

@@ -130,6 +130,8 @@ services:
       Email__Smtp__From: ${SMTP_FROM:-}
       Email__Smtp__FromName: FIT360
       PublicSite__BaseUrl: https://${DOMAIN}
+      # El Worker firma y transmite los comprobantes al SRI: necesita la misma clave maestra que la API para abrir el certificado.
+      Invoicing__MasterKey: ${INVOICING_MASTER_KEY:-}
     depends_on:
       migrate:
         condition: service_completed_successfully

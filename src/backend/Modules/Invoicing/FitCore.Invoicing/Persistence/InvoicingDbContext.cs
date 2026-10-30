@@ -23,6 +23,8 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
     internal DbSet<InvoiceEvent> InvoiceEvents => Set<InvoiceEvent>();
     internal DbSet<InvoiceDocument> InvoiceDocuments => Set<InvoiceDocument>();
     internal DbSet<EmissionSequence> EmissionSequences => Set<EmissionSequence>();
+    internal DbSet<InvoiceTransmission> Transmissions => Set<InvoiceTransmission>();
+    internal DbSet<InvoiceSriAttempt> SriAttempts => Set<InvoiceSriAttempt>();
     internal DbSet<BranchRef> Branches => Set<BranchRef>();
 
     // Guid.Empty nunca coincide con un gimnasio real: sin tenant activo no se ve ninguna fila.
@@ -115,11 +117,14 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.Property(x => x.Total).HasPrecision(14, 2);
             b.Property(x => x.RoundingDifference).HasPrecision(14, 2);
             b.Ignore(x => x.Number);
+            b.Property(x => x.AuthorizationNumber).HasMaxLength(49);
             b.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.InvoiceId);
             b.HasMany(x => x.Taxes).WithOne().HasForeignKey(x => x.InvoiceId);
             b.HasMany(x => x.Payments).WithOne().HasForeignKey(x => x.InvoiceId);
             b.HasMany<InvoiceEvent>().WithOne().HasForeignKey(e => e.InvoiceId);
             b.HasMany<InvoiceDocument>().WithOne().HasForeignKey(d => d.InvoiceId);
+            b.HasMany<InvoiceSriAttempt>().WithOne().HasForeignKey(a => a.InvoiceId);
+            b.HasOne<InvoiceTransmission>().WithOne().HasForeignKey<InvoiceTransmission>(t => t.InvoiceId);
             b.HasIndex(x => new { x.TenantId, x.SourceType, x.SourceId, x.DocumentType }).IsUnique();
             b.HasIndex(x => x.AccessKey).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.EmissionPointId, x.DocumentType, x.Environment, x.Sequential }).IsUnique();
@@ -195,6 +200,31 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.Property(x => x.Content).HasColumnType("text").IsRequired();
             b.Property(x => x.Sha256).HasMaxLength(64).IsFixedLength().IsRequired();
             b.HasIndex(x => new { x.InvoiceId, x.Kind }).IsUnique();
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
+
+        modelBuilder.Entity<InvoiceTransmission>(b =>
+        {
+            b.ToTable("invoice_transmissions");
+            b.HasKey(x => x.InvoiceId);
+            b.Property(x => x.InvoiceId).ValueGeneratedNever();
+            b.Property(x => x.LastError).HasMaxLength(60);
+            b.HasIndex(x => x.NextAttemptAt).HasFilter("NOT parked");
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
+
+        modelBuilder.Entity<InvoiceSriAttempt>(b =>
+        {
+            b.ToTable("invoice_sri_attempts");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.Operation).HasConversion<string>().HasMaxLength(20);
+            b.Property(x => x.Environment).HasConversion<string>().HasMaxLength(20);
+            b.Property(x => x.Outcome).HasMaxLength(20).IsRequired();
+            b.Property(x => x.SriState).HasMaxLength(60);
+            b.Property(x => x.ErrorCode).HasMaxLength(60);
+            b.Property(x => x.Messages).HasColumnType("jsonb");
+            b.HasIndex(x => new { x.InvoiceId, x.At });
             b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
         });
 

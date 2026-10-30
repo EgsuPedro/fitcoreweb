@@ -3,6 +3,7 @@ using FitCore.Application.Core;
 using FitCore.Classes;
 using FitCore.Commercial;
 using FitCore.Infrastructure.Core;
+using FitCore.Invoicing;
 using FitCore.Platform;
 using FitCore.Platform.Persistence;
 using FitCore.SharedKernel;
@@ -41,6 +42,7 @@ builder.Services.AddClassesPersistence(builder.Configuration);
 builder.Services.AddWaitlistMaintenance();
 builder.Services.AddClassNotifications();
 builder.Services.AddSubscriptionsPersistence(builder.Configuration);
+builder.Services.AddInvoicingPersistence(builder.Configuration);
 
 // Jobs: la outbox publica los eventos de dominio. Los siguientes (cuotas recurrentes, vencimientos,
 // recordatorios) se registran aquí por módulo cuando existan.
@@ -50,6 +52,7 @@ builder.Services.AddHostedService<ExpiryNotificationWorker>();
 builder.Services.AddHostedService<WaitlistWorker>();
 builder.Services.AddHostedService<NotificationWorker>();
 builder.Services.AddHostedService<SubscriptionWorker>();
+builder.Services.AddHostedService<InvoiceTransmissionWorker>();
 builder.Services.AddHostedService<HeartbeatService>();
 
 await builder.Build().RunAsync();

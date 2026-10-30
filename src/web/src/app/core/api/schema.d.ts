@@ -3844,6 +3844,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoicing/invoices/{id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SubmitInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/invoicing/invoices/{id}/xml": {
         parameters: {
             query?: never;
@@ -5762,6 +5778,11 @@ export interface components {
             /** Format: date-time */
             expiresAt: string;
         };
+        InvoiceAuthorizationDto: {
+            number: string;
+            /** Format: date-time */
+            authorizedAt: string;
+        } | null;
         InvoiceBuyerDto: {
             idTypeCode: string;
             idType: string;
@@ -5887,6 +5908,9 @@ export interface components {
             createdAt: string;
             events: components["schemas"]["InvoiceEventDto"][];
             documents: components["schemas"]["InvoiceDocumentDto"][];
+            authorization: components["schemas"]["InvoiceAuthorizationDto"];
+            transmission: components["schemas"]["InvoiceTransmissionDto"];
+            sriAttempts: components["schemas"]["InvoiceSriAttemptDto"][];
         };
         InvoiceEventDto: {
             type: string;
@@ -6008,6 +6032,17 @@ export interface components {
             paidAt: string;
             reference: string | null;
         };
+        InvoiceSriAttemptDto: {
+            operation: string;
+            outcome: string;
+            sriState: string | null;
+            errorCode: string | null;
+            /** Format: int32 */
+            durationMs: number;
+            messages: components["schemas"]["SriMessageDto"][];
+            /** Format: date-time */
+            at: string;
+        };
         InvoiceSummaryDto: {
             /** Format: uuid */
             id: string;
@@ -6047,6 +6082,20 @@ export interface components {
             /** Format: double */
             amount: number;
         };
+        InvoiceTransmissionDto: {
+            parked: boolean;
+            /** Format: int32 */
+            attempts: number;
+            /** Format: int32 */
+            polls: number;
+            lastError: string | null;
+            /** Format: date-time */
+            nextAttemptAt: string;
+            /** Format: date-time */
+            firstAttemptAt: string;
+            /** Format: date-time */
+            lastAttemptAt: string | null;
+        } | null;
         InvoicingSettingsDto: {
             issuer: components["schemas"]["IssuerDto"];
             emissionPoints: components["schemas"]["EmissionPointDto"][];
@@ -6065,6 +6114,8 @@ export interface components {
              * @default null
              */
             emissionPointId: string | null;
+            /** @default false */
+            submit: boolean;
         };
         IssuerDto: {
             ruc: string;
@@ -8939,6 +8990,12 @@ export interface components {
         };
         /** @enum {unknown} */
         SriEnvironment: "Test" | "Production";
+        SriMessageDto: {
+            id: string | null;
+            text: string | null;
+            detail: string | null;
+            type: string | null;
+        };
         SubscriptionAlertDto: {
             code: string;
             severity: string;
@@ -16705,10 +16762,32 @@ export interface operations {
             };
         };
     };
+    SubmitInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
+                };
+            };
+        };
+    };
     DownloadInvoiceXml: {
         parameters: {
             query?: {
-                signed?: boolean;
+                kind?: "Xml" | "SignedXml" | "AuthorizedXml" | null;
             };
             header?: never;
             path: {

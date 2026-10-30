@@ -86,6 +86,11 @@ public sealed class Invoice : ITenantOwned, IAuditable
     public Guid? CreatedBy { get; init; }
     public DateTimeOffset? UpdatedAt { get; set; }
 
+    /// <summary>Número de autorización que entrega el SRI (en el esquema offline coincide con la clave de acceso). Se fija una sola vez, al autorizarse.</summary>
+    public string? AuthorizationNumber { get; set; }
+
+    public DateTimeOffset? AuthorizedAt { get; set; }
+
     public List<InvoiceLine> Lines { get; init; } = [];
     public List<InvoiceTax> Taxes { get; init; } = [];
     public List<InvoicePayment> Payments { get; init; } = [];
@@ -145,7 +150,10 @@ public enum InvoiceDocumentKind
     Xml = 1,
 
     /// <summary>XML con la firma XAdES-BES: el que se envía al SRI y el que el cliente conserva.</summary>
-    SignedXml = 2
+    SignedXml = 2,
+
+    /// <summary>Respuesta de autorización del SRI (<c>&lt;autorizacion&gt;</c> con el comprobante firmado dentro): el documento tributario válido que se conserva y se entrega al cliente.</summary>
+    AuthorizedXml = 3
 }
 
 /// <summary>Un documento generado del comprobante (XML y XML firmado). Inmutable: contiene datos personales y es la constancia de lo que se firmó; se entrega solo con permiso y de forma auditada.</summary>
@@ -175,6 +183,65 @@ public sealed class InvoiceEvent
     public InvoiceStatus ToStatus { get; init; }
     public string? Detail { get; init; }
     public Guid? ActorId { get; init; }
+    public DateTimeOffset At { get; init; }
+}
+
+/// <summary>
+/// Trabajo de transmisión de un comprobante al SRI (una fila mientras está en curso; se borra al terminar). Es una cola con concesión: el Worker «reclama» las filas vencidas con
+/// <c>locked_until</c> y varias instancias no procesan la misma. <c>NextAttemptAt</c> nulo = estacionado (requiere que una persona lo reactive).
+/// </summary>
+public sealed class InvoiceTransmission
+{
+    public Guid InvoiceId { get; init; }
+    public Guid TenantId { get; init; }
+    public DateTimeOffset NextAttemptAt { get; set; }
+    public bool Parked { get; set; }
+
+    /// <summary>Intentos fallidos seguidos (no se cuentan las consultas de autorización pendientes).</summary>
+    public int Attempts { get; set; }
+
+    /// <summary>Consultas de autorización ya hechas sin respuesta definitiva; fija la espera de la siguiente.</summary>
+    public int Polls { get; set; }
+
+    public DateTimeOffset FirstAttemptAt { get; set; }
+    public DateTimeOffset? LastAttemptAt { get; set; }
+
+    /// <summary>Último fallo como código estable (<c>sri_timeout</c>, <c>sri_http_503</c>…), nunca texto del SRI ni datos del comprobante.</summary>
+    public string? LastError { get; set; }
+
+    public DateTimeOffset? LockedUntil { get; set; }
+    public Guid? RequestedBy { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
+}
+
+public enum SriOperation
+{
+    Reception = 1,
+    Authorization = 2
+}
+
+/// <summary>Constancia inmutable de cada intercambio con el SRI: qué se pidió, qué contestó (estado y mensajes) y cuánto tardó. No guarda el XML.</summary>
+public sealed class InvoiceSriAttempt
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid InvoiceId { get; init; }
+    public SriOperation Operation { get; init; }
+    public SriEnvironment Environment { get; init; }
+
+    /// <summary>Resultado: Received, Returned, Authorized, NotAuthorized, Processing, NotFound, Unknown o Unavailable.</summary>
+    public string Outcome { get; init; } = string.Empty;
+
+    public string? SriState { get; init; }
+
+    /// <summary>Código de fallo transitorio cuando el SRI no respondió.</summary>
+    public string? ErrorCode { get; init; }
+
+    public int DurationMs { get; init; }
+
+    /// <summary>Mensajes del SRI como JSON (<c>[{id,text,detail,type}]</c>).</summary>
+    public string Messages { get; init; } = "[]";
+
     public DateTimeOffset At { get; init; }
 }
 

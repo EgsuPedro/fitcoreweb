@@ -106,6 +106,8 @@ services:
       Email__Smtp__From: ${SMTP_FROM:-no-reply@fit360.local}
       Email__Smtp__FromName: FIT360
       PublicSite__BaseUrl: ${PUBLIC_SITE_URL:-http://localhost:8081}
+      # El Worker firma y transmite los comprobantes al SRI: necesita la misma clave maestra que la API para abrir el certificado. NUNCA al repositorio.
+      Invoicing__MasterKey: ${INVOICING_MASTER_KEY:-}
     depends_on:
       postgres:
         condition: service_healthy

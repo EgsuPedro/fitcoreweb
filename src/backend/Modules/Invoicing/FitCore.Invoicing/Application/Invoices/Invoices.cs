@@ -64,9 +64,13 @@ public sealed record InvoiceDto(
     string Currency,
     DateTimeOffset CreatedAt,
     IReadOnlyList<InvoiceEventDto> Events,
-    IReadOnlyList<InvoiceDocumentDto> Documents)
+    IReadOnlyList<InvoiceDocumentDto> Documents,
+    InvoiceAuthorizationDto? Authorization,
+    InvoiceTransmissionDto? Transmission,
+    IReadOnlyList<InvoiceSriAttemptDto> SriAttempts)
 {
-    internal static InvoiceDto From(Invoice i, IReadOnlyList<InvoiceEvent> events, IReadOnlyList<InvoiceDocumentDto> documents) => new(
+    internal static InvoiceDto From(
+        Invoice i, IReadOnlyList<InvoiceEvent> events, IReadOnlyList<InvoiceDocumentDto> documents, InvoiceTransmission? transmission, IReadOnlyList<InvoiceSriAttempt> attempts) => new(
         i.Id,
         i.DocumentType.ToString(),
         i.Number,
@@ -89,14 +93,19 @@ public sealed record InvoiceDto(
         i.Currency,
         i.CreatedAt,
         [.. events.OrderBy(e => e.At).Select(e => new InvoiceEventDto(e.Type, e.FromStatus?.ToString(), e.ToStatus.ToString(), e.Detail, e.ActorId, e.At))],
-        documents);
+        documents,
+        i.AuthorizationNumber is { } number && i.AuthorizedAt is { } at ? new InvoiceAuthorizationDto(number, at) : null,
+        transmission is null ? null : new InvoiceTransmissionDto(transmission.Parked, transmission.Attempts, transmission.Polls, transmission.LastError, transmission.NextAttemptAt, transmission.FirstAttemptAt, transmission.LastAttemptAt),
+        [.. attempts.OrderByDescending(a => a.At).Select(a => new InvoiceSriAttemptDto(
+            a.Operation.ToString(), a.Outcome, a.SriState, a.ErrorCode, a.DurationMs,
+            System.Text.Json.JsonSerializer.Deserialize<List<SriMessageDto>>(a.Messages, System.Text.Json.JsonSerializerOptions.Web) ?? [], a.At))]);
 }
 
 public sealed record InvoiceListItemDto(
     Guid Id, string Number, string DocumentType, DateOnly IssueDate, string Status, string Environment, string BuyerName, string BuyerIdNumber, decimal Total, string SourceReference, Guid BranchId);
 
-/// <summary>Pide facturar una venta. <c>BuyerIdType</c> permite elegir el tipo de identificación (por ejemplo, consumidor final); <c>EmissionPointId</c>, un punto de emisión distinto del que corresponde por defecto.</summary>
-public sealed record IssueInvoiceRequest(string SourceType, Guid SourceId, SriBuyerIdType? BuyerIdType = null, Guid? EmissionPointId = null);
+/// <summary>Pide facturar una venta. <c>BuyerIdType</c> permite elegir el tipo de identificación (por ejemplo, consumidor final); <c>EmissionPointId</c>, un punto de emisión distinto del que corresponde por defecto; <c>Submit</c>, ponerlo en la cola del SRI en el mismo acto (firma, envío y consulta los hace el Worker).</summary>
+public sealed record IssueInvoiceRequest(string SourceType, Guid SourceId, SriBuyerIdType? BuyerIdType = null, Guid? EmissionPointId = null, bool Submit = false);
 
 /// <summary><c>Created</c> es falso cuando la venta ya estaba facturada: emitir dos veces la misma venta devuelve el mismo comprobante.</summary>
 public sealed record IssueInvoiceResult(InvoiceDto Invoice, bool Created);
@@ -268,6 +277,12 @@ internal sealed class IssueInvoiceHandler(IAccessContext access, InvoicePlanner 
                 Detail = $"Origen {invoice.SourceType} {invoice.SourceReference}"
             });
             await db.SaveChangesAsync(cancellationToken);
+            if (r.Submit)
+            {
+                await TransmissionQueue.EnqueueAsync(db, invoice, actor.Value.UserId, now, cancellationToken);
+                await db.SaveChangesAsync(cancellationToken);
+            }
+
             await transaction.CommitAsync(cancellationToken);
 
             return new IssueInvoiceResult(await InvoiceReader.ReadAsync(db, invoice.Id, cancellationToken), Created: true);
@@ -299,7 +314,9 @@ internal static class InvoiceReader
         var events = await db.InvoiceEvents.AsNoTracking().Where(e => e.InvoiceId == id).ToListAsync(cancellationToken);
         var documents = await db.InvoiceDocuments.AsNoTracking().Where(d => d.InvoiceId == id).OrderBy(d => d.Kind)
             .Select(d => new InvoiceDocumentDto(d.Kind.ToString(), d.Sha256, d.SizeBytes, d.CreatedAt)).ToListAsync(cancellationToken);
-        return InvoiceDto.From(invoice, events, documents);
+        var transmission = await db.Transmissions.AsNoTracking().FirstOrDefaultAsync(t => t.InvoiceId == id, cancellationToken);
+        var attempts = await db.SriAttempts.AsNoTracking().Where(a => a.InvoiceId == id).OrderByDescending(a => a.At).Take(20).ToListAsync(cancellationToken);
+        return InvoiceDto.From(invoice, events, documents, transmission, attempts);
     }
 }
 

@@ -122,6 +122,15 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("accounting_required");
 
+                    b.Property<string>("AuthorizationNumber")
+                        .HasMaxLength(49)
+                        .HasColumnType("character varying(49)")
+                        .HasColumnName("authorization_number");
+
+                    b.Property<DateTimeOffset?>("AuthorizedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("authorized_at");
+
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uuid")
                         .HasColumnName("branch_id");
@@ -576,6 +585,70 @@ namespace FitCore.Invoicing.Persistence.Migrations
                     b.ToTable("invoice_payments", "invoicing");
                 });
 
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceSriAttempt", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<int>("DurationMs")
+                        .HasColumnType("integer")
+                        .HasColumnName("duration_ms");
+
+                    b.Property<string>("Environment")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("environment");
+
+                    b.Property<string>("ErrorCode")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("error_code");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<string>("Messages")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("messages");
+
+                    b.Property<string>("Operation")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("operation");
+
+                    b.Property<string>("Outcome")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("outcome");
+
+                    b.Property<string>("SriState")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("sri_state");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_sri_attempts");
+
+                    b.HasIndex("InvoiceId", "At")
+                        .HasDatabaseName("ix_invoice_sri_attempts_invoice_id_at");
+
+                    b.ToTable("invoice_sri_attempts", "invoicing");
+                });
+
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceTax", b =>
                 {
                     b.Property<Guid>("Id")
@@ -625,6 +698,67 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .HasDatabaseName("ix_invoice_taxes_invoice_id_tax_code_rate_code");
 
                     b.ToTable("invoice_taxes", "invoicing");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceTransmission", b =>
+                {
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("FirstAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("first_attempt_at");
+
+                    b.Property<DateTimeOffset?>("LastAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_attempt_at");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("last_error");
+
+                    b.Property<DateTimeOffset?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_until");
+
+                    b.Property<DateTimeOffset>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
+
+                    b.Property<bool>("Parked")
+                        .HasColumnType("boolean")
+                        .HasColumnName("parked");
+
+                    b.Property<int>("Polls")
+                        .HasColumnType("integer")
+                        .HasColumnName("polls");
+
+                    b.Property<Guid?>("RequestedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requested_by");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("InvoiceId")
+                        .HasName("pk_invoice_transmissions");
+
+                    b.HasIndex("NextAttemptAt")
+                        .HasDatabaseName("ix_invoice_transmissions_next_attempt_at")
+                        .HasFilter("NOT parked");
+
+                    b.ToTable("invoice_transmissions", "invoicing");
                 });
 
             modelBuilder.Entity("FitCore.Invoicing.Domain.IssuerProfile", b =>
@@ -993,6 +1127,16 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .HasConstraintName("fk_invoice_payments_invoices_invoice_id");
                 });
 
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceSriAttempt", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_sri_attempts_invoices_invoice_id");
+                });
+
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceTax", b =>
                 {
                     b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
@@ -1001,6 +1145,16 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_invoice_taxes_invoices_invoice_id");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceTransmission", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithOne()
+                        .HasForeignKey("FitCore.Invoicing.Domain.InvoiceTransmission", "InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_transmissions_invoices_invoice_id");
                 });
 
             modelBuilder.Entity("FitCore.Invoicing.Domain.Invoice", b =>

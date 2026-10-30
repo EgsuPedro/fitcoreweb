@@ -61,6 +61,10 @@ public sealed class ApiFixture : IAsyncLifetime
     public HttpClient CreateClientWithServices(Action<IServiceCollection> configure) =>
         _factory!.WithWebHostBuilder(builder => builder.ConfigureServices(configure)).CreateClient();
 
+    /// <summary>Otra instancia de la API (misma base) con servicios sustituidos, de la que se pueden resolver servicios (por ejemplo, el ejecutor de la cola con un SRI simulado). Quien la pide la desecha.</summary>
+    public WebApplicationFactory<Program> CreateHostWithServices(Action<IServiceCollection> configure) =>
+        _factory!.WithWebHostBuilder(builder => builder.ConfigureServices(configure));
+
     public async Task InitializeAsync()
     {
         await _container.StartAsync();

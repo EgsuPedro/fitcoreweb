@@ -16,6 +16,12 @@ public sealed class InvoicingOptions
 
     /// <summary>Versión de la clave maestra; se guarda con cada secreto para poder rotarla sin perder los anteriores.</summary>
     public int MasterKeyVersion { get; set; } = 1;
+
+    /// <summary>
+    /// Monto máximo (USD, con impuestos) de una venta a consumidor final. Lo fija la normativa tributaria y puede cambiar: por eso es configuración y no una constante.
+    /// Por encima de este valor hay que identificar al comprador.
+    /// </summary>
+    public decimal FinalConsumerMaxAmount { get; set; } = 50m;
 }
 
 /// <summary>Cifra y descifra secretos (certificado y contraseña). Todo secreto queda atado a su contexto (gimnasio y propósito): copiarlo a otra fila no lo descifra.</summary>

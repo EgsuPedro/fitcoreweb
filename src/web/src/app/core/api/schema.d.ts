@@ -3780,6 +3780,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoicing/sources/obligations/{id}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PreviewObligationInvoice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -5677,6 +5693,16 @@ export interface components {
             /** Format: date-time */
             expiresAt: string;
         };
+        InvoiceBuyerDto: {
+            idTypeCode: string;
+            idType: string;
+            idNumber: string;
+            legalName: string;
+            address: string | null;
+            email: string | null;
+            phone: string | null;
+            isFinalConsumer: boolean;
+        } | null;
         InvoiceDto: {
             /** Format: uuid */
             id: string;
@@ -5717,6 +5743,58 @@ export interface components {
             notice: string;
             payment: components["schemas"]["SubscriptionPaymentDto"];
             attempts: components["schemas"]["PaymentAttemptDto"][];
+        };
+        InvoiceIssueDto: {
+            code: string;
+            blocking: boolean;
+        };
+        InvoicePreviewDto: {
+            sourceType: string;
+            /** Format: uuid */
+            sourceId: string;
+            reference: string;
+            /** Format: date */
+            issueDate: string;
+            currency: string;
+            sourceStatus: string;
+            buyer: components["schemas"]["InvoiceBuyerDto"];
+            lines: components["schemas"]["InvoicePreviewLineDto"][];
+            payments: components["schemas"]["InvoicePreviewPaymentDto"][];
+            /** Format: double */
+            payableTotal: number;
+            /** Format: double */
+            paidTotal: number;
+            /** Format: double */
+            finalConsumerMaxAmount: number;
+            issuerReady: boolean;
+            issues: components["schemas"]["InvoiceIssueDto"][];
+            canIssue: boolean;
+        };
+        InvoicePreviewLineDto: {
+            description: string;
+            /** Format: double */
+            quantity: number;
+            /** Format: double */
+            grossAmount: number;
+            /** Format: double */
+            discountAmount: number;
+            /** Format: double */
+            payableAmount: number;
+            /** Format: double */
+            subtotal: number;
+            /** Format: double */
+            taxAmount: number;
+            taxKind: string;
+            /** Format: double */
+            taxPercent: number;
+        };
+        InvoicePreviewPaymentDto: {
+            method: string;
+            /** Format: double */
+            amount: number;
+            /** Format: date-time */
+            paidAt: string;
+            reference: string | null;
         };
         InvoiceSummaryDto: {
             /** Format: uuid */
@@ -16247,6 +16325,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    PreviewObligationInvoice: {
+        parameters: {
+            query?: {
+                buyerIdType?: "Ruc" | "Cedula" | "Passport" | "FinalConsumer" | "Foreign" | null;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicePreviewDto"];
                 };
             };
         };

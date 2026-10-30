@@ -55,6 +55,7 @@ public static class CommercialModule
         services.AddWhatsAppNotifications(configuration);
 
         services.AddSingleton<IModuleInitializer, CommercialInitializer>();
+        services.AddScoped<IInvoiceSourceProvider, FitCore.Commercial.Application.Billing.CommercialInvoiceSourceProvider>();
         services.AddValidatorsFromAssemblyContaining<CreateMemberRequestValidator>(includeInternalTypes: true);
         services.AddHandlersFromAssembly(typeof(CommercialModule).Assembly);
 

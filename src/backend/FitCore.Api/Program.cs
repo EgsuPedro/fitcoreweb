@@ -224,6 +224,7 @@ v1.MapOnboardingEndpoints();
 v1.MapInvitationEndpoints();
 v1.MapContactRequestEndpoints();
 v1.MapInvoicingSettingsEndpoints();
+v1.MapInvoicingSourcesEndpoints();
 v1.MapOrganizationsEndpoints();
 v1.MapMySubscriptionEndpoints();
 

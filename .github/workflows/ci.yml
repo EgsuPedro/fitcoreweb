@@ -70,10 +70,11 @@ jobs:
           PLATFORM_ADMIN_EMAIL=admin@fitcore.ci
           PLATFORM_ADMIN_PASSWORD=Ci-$(openssl rand -hex 8)-Aa1
           LOGIN_RATE_LIMIT=500
+          REGISTER_RATE_LIMIT=500
           EOF
-      - name: API + PostgreSQL
+      - name: API, Worker, correo de pruebas (Mailpit), PostgreSQL y web
         run: |
-          docker compose -f infra/compose/docker-compose.dev.yml --env-file infra/compose/.env up -d --build postgres api
+          docker compose -f infra/compose/docker-compose.dev.yml --env-file infra/compose/.env up -d --build postgres mailpit api worker web
           for i in $(seq 1 60); do
             curl -fsS http://localhost:8080/health/ready && break
             sleep 2
@@ -88,6 +89,9 @@ jobs:
       - name: Pruebas end-to-end (navegador real contra API + base de datos reales)
         run: npx playwright test
         working-directory: tests/e2e
+        env:
+          # Contra la web compilada (nginx + páginas prerenderizadas), como en producción.
+          E2E_BASE_URL: http://localhost:8081
       - name: Registros de la API si falló
         if: failure()
         run: docker compose -f infra/compose/docker-compose.dev.yml --env-file infra/compose/.env logs api --tail 200

@@ -6,10 +6,11 @@ import { NAV_ITEMS, visibleNavItems } from '../../layout/nav';
 import { Perm } from '../../core/auth/permissions';
 import { MascotCard } from '../../shared/mascot-card';
 import { MyPortal } from '../portal/my-portal';
+import { OwnerPanel } from './owner-panel';
 
 @Component({
   selector: 'fc-home',
-  imports: [RouterLink, TranslocoPipe, MyPortal, MascotCard],
+  imports: [RouterLink, TranslocoPipe, MyPortal, MascotCard, OwnerPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (isStudent()) {
@@ -21,6 +22,8 @@ import { MyPortal } from '../portal/my-portal';
             <h1>{{ 'home.welcome' | transloco: { name: session.user()?.fullName } }}</h1>
             <p class="muted">{{ 'home.tenant' | transloco: { tenant: session.user()?.tenantSlug } }}</p>
           </header>
+
+          <fc-owner-panel />
 
           <section class="card">
             <h2>{{ 'home.access' | transloco }}</h2>

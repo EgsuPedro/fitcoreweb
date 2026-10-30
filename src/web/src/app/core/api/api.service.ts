@@ -14,11 +14,15 @@ import type {
   OrganizationDetail,
   AvailablePlan,
   Branding,
+  AcceptedInvitation,
   ContactRequestBody,
   ContactRequestItem,
   CreateInvitationRequest,
   Invitation,
+  InvitationPreview,
   Onboarding,
+  RegisterGymRequest,
+  VerifiedRegistration,
   PublicPlan,
   OnboardingBranchRequest,
   OnboardingProfileRequest,
@@ -423,6 +427,28 @@ export class ApiService {
   branding(): Observable<Branding> {
     return this.get('/tenant/branding');
   }
+  registerGym(body: RegisterGymRequest): Observable<unknown> {
+    return this.http.post(`${API_BASE}/public/registrations`, body);
+  }
+  verifyEmail(token: string): Observable<VerifiedRegistration> {
+    return this.http.post<VerifiedRegistration>(`${API_BASE}/public/registrations/verify-email`, { token });
+  }
+  resendVerification(email: string): Observable<unknown> {
+    return this.http.post(`${API_BASE}/public/registrations/resend-verification`, { email });
+  }
+  forgotPassword(tenantSlug: string, email: string): Observable<unknown> {
+    return this.http.post(`${API_BASE}/auth/forgot-password`, { tenantSlug, email });
+  }
+  resetPassword(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${API_BASE}/auth/reset-password`, { token, newPassword });
+  }
+  previewInvitation(token: string): Observable<InvitationPreview> {
+    return this.http.post<InvitationPreview>(`${API_BASE}/public/invitations/preview`, { token });
+  }
+  acceptInvitation(token: string, fullName: string, password: string): Observable<AcceptedInvitation> {
+    return this.http.post<AcceptedInvitation>(`${API_BASE}/public/invitations/accept`, { token, fullName, password });
+  }
+
   publicPlans(): Observable<PublicPlan[]> {
     return this.get('/public/plans');
   }

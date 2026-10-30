@@ -216,6 +216,11 @@ export type Branding = Schemas['BrandingDto'];
 export type Onboarding = Schemas['OnboardingDto'];
 export type Invitation = Schemas['InvitationDto'];
 export type PublicPlan = Schemas['PublicPlanDto'];
+/** El navegador nunca envía precio, importe ni moneda (el servidor los rechaza): esos campos se omiten del tipo. */
+export type RegisterGymRequest = Omit<Schemas['RegisterGymRequest'], 'timeZone' | 'price' | 'amount' | 'currency'>;
+export type VerifiedRegistration = Schemas['VerifiedRegistrationDto'];
+export type InvitationPreview = Schemas['InvitationPreviewDto'];
+export type AcceptedInvitation = Schemas['AcceptedInvitationDto'];
 export type ContactRequestBody = Schemas['ContactRequestBody'];
 export type ContactRequestItem = Schemas['ContactRequestDto'];
 export type CreateInvitationRequest = Schemas['CreateInvitationRequest'];

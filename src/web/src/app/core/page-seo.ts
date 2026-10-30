@@ -8,7 +8,7 @@ import { Seo } from './seo.service';
  * Pone el título, la descripción y los datos de compartir de la página actual, y los vuelve a poner al cambiar de idioma (cuando el idioma nuevo ya cargó: por eso se usan los flujos
  * `selectTranslate` y no una traducción inmediata). Se llama una vez desde el constructor de la página. `structured` arma los datos estructurados (JSON-LD) ya traducidos.
  */
-export function pageSeo(path: string, titleKey: string, descriptionKey: string, structured?: (t: TranslocoService) => unknown): void {
+export function pageSeo(path: string, titleKey: string, descriptionKey: string, structured?: (t: TranslocoService) => unknown, options?: { index?: boolean }): void {
   const seo = inject(Seo);
   const transloco = inject(TranslocoService);
   const destroyRef = inject(DestroyRef);
@@ -16,7 +16,7 @@ export function pageSeo(path: string, titleKey: string, descriptionKey: string, 
   combineLatest([transloco.selectTranslate(titleKey), transloco.selectTranslate(descriptionKey)])
     .pipe(takeUntilDestroyed(destroyRef))
     .subscribe(([title, description]) => {
-      seo.set({ title, description, path });
+      seo.set({ title, description, path, index: options?.index ?? true });
       seo.jsonLd(structured ? structured(transloco) : null);
     });
   destroyRef.onDestroy(() => seo.jsonLd(null));

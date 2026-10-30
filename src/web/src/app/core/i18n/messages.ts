@@ -41,6 +41,11 @@ export class ErrorMessages {
     return this.transloco.translate(key, params);
   }
 
+  /** Código estable de negocio del error (por ejemplo «registration.slug_taken»), o nulo si no lo trae. */
+  code(error: unknown): string | null {
+    return this.problemOf(error)?.code ?? null;
+  }
+
   problemOf(error: unknown): ProblemDetails | null {
     if (error instanceof HttpErrorResponse && error.error && typeof error.error === 'object') {
       return error.error as ProblemDetails;

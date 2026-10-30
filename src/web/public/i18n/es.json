@@ -56,7 +56,10 @@
     "submit": "Iniciar sesión",
     "submitting": "Ingresando…",
     "required": "Complete el gimnasio, el correo y la contraseña.",
-    "passwordChanged": "Contraseña cambiada. Inicie sesión con la nueva."
+    "passwordChanged": "Contraseña cambiada. Inicie sesión con la nueva.",
+    "forgot": "¿Olvidó su contraseña?",
+    "create": "Crear mi gimnasio",
+    "site": "Volver al sitio"
   },
   "nav": {
     "label": "Menú principal",
@@ -118,6 +121,20 @@
       "title": "¡Qué bueno verte, {{ name }}!",
       "text": "Soy Fiti, tu compañero de entrenamiento. Revisa las cifras y los avisos de hoy para empezar el día con ventaja.",
       "action": "Empezar"
+    },
+    "owner": {
+      "title": "Resumen de su gimnasio",
+      "setup": "Configuración inicial",
+      "setupDone": "Completa",
+      "setupEdit": "Revisar o cambiar los datos",
+      "setupProgress": "{{done}} de {{total}} pasos obligatorios hechos",
+      "plan": "Su plan",
+      "trialUntil": "Prueba gratuita hasta el {{date}}",
+      "nextDue": "Próximo cobro: {{date}}",
+      "planView": "Ver mi suscripción",
+      "team": "Equipo",
+      "pending": "{{count}} invitaciones pendientes",
+      "noInvitations": "Aún no ha invitado a nadie."
     }
   },
   "status": {
@@ -275,7 +292,9 @@
       "unauthenticated": "Debe iniciar sesión.",
       "forbidden": "No tiene permiso para realizar esta acción.",
       "all_branches_required": "Solo quienes acceden a todas las sucursales pueden hacer esto.",
-      "password_change_failed": "No se pudo cambiar la contraseña. Verifique la contraseña actual y los requisitos."
+      "password_change_failed": "No se pudo cambiar la contraseña. Verifique la contraseña actual y los requisitos.",
+      "recovery_email_unavailable": "El envío de correo no está disponible por ahora. Intente más tarde o pida a su administrador que restablezca su contraseña.",
+      "reset_token_invalid": "El enlace no es válido, ya se usó o venció. Solicite uno nuevo."
     },
     "branches": {
       "not_found": "Sucursal no encontrada.",
@@ -738,7 +757,15 @@
       "role_unavailable": "El rol de esta invitación ya no existe. Pida una nueva."
     },
     "registration": {
-      "legal_version_mismatch": "Los términos o la política de privacidad cambiaron. Recargue la página y acéptelos de nuevo."
+      "legal_version_mismatch": "Los términos o la política de privacidad cambiaron. Recargue la página y acéptelos de nuevo.",
+      "email_unavailable": "El envío de correo no está disponible por ahora. Intente más tarde.",
+      "plan_unavailable": "El plan elegido no está disponible. Elija otro.",
+      "plan_requires_sales": "Este plan se contrata con el equipo comercial. Escríbanos desde la página de contacto.",
+      "slug_taken": "Ese identificador ya está en uso. Elija otro.",
+      "token_invalid": "El enlace no es válido o ya se usó. Solicite uno nuevo.",
+      "expired": "El enlace venció. Solicite uno nuevo.",
+      "trial_already_used": "Este correo ya aprovechó la prueba gratuita. Escríbanos desde la página de contacto para ver las opciones.",
+      "provisioning_failed": "No pudimos terminar de crear su gimnasio. Nuestro equipo fue avisado; escríbanos desde la página de contacto."
     }
   },
   "enums": {
@@ -3515,18 +3542,81 @@
       "sentText": "Le responderemos al correo que indicó.",
       "backHome": "Volver al inicio"
     },
-    "register": {
-      "seoTitle": "Crear mi gimnasio",
-      "seoDescription": "Cree la cuenta de su gimnasio en FIT360.",
-      "title": "Crear mi gimnasio",
-      "lead": "El registro en línea se habilita en breve. Mientras tanto, solicite una demostración y le damos acceso."
-    },
     "legal": {
       "termsTitle": "Términos y condiciones",
       "privacyTitle": "Política de privacidad",
       "seoDescription": "Texto legal de FIT360 (borrador pendiente de revisión legal).",
       "draft": "BORRADOR: este texto está pendiente de revisión legal y no es asesoría jurídica. Está disponible solo en español.",
       "version": "Versión: {{version}}"
+    },
+    "password": {
+      "hint": "Mínimo 10 caracteres, con mayúscula, minúscula y número.",
+      "invalid": "La contraseña no cumple los requisitos.",
+      "mismatch": "Las contraseñas no coinciden.",
+      "show": "Mostrar contraseña"
+    },
+    "signup": {
+      "seoTitle": "Crear mi gimnasio",
+      "seoDescription": "Cree la cuenta de su gimnasio en FIT360: elija un plan, confirme su correo y configure su gimnasio.",
+      "title": "Crear mi gimnasio",
+      "lead": "Cree su cuenta, confirme su correo y configure su gimnasio con un asistente corto.",
+      "noPlans": "Por ahora no hay planes que se puedan contratar en línea.",
+      "plan": "Plan",
+      "planHint": "El precio y las condiciones son los del catálogo. Ver",
+      "ownerName": "Su nombre",
+      "email": "Correo electrónico",
+      "gymName": "Nombre del gimnasio",
+      "slug": "Identificador del gimnasio",
+      "slugHint": "Con él usted y su equipo inician sesión. Letras minúsculas, números y guiones (3 a 40).",
+      "slugInvalid": "Use 3 a 40 caracteres: minúsculas, números y guiones.",
+      "password": "Contraseña",
+      "accept": "Acepto los",
+      "and": "y la",
+      "acceptRequired": "Debe aceptar los términos y la política de privacidad.",
+      "submit": "Crear mi gimnasio",
+      "noCharge": "Registrarse no activa ningún cobro: un plan de pago se coordina con nuestro equipo.",
+      "sentTitle": "Revise su correo",
+      "sentText": "Enviamos un enlace de confirmación a {{email}}. Ábralo para terminar de crear su gimnasio.",
+      "sentHint": "El enlace sirve una sola vez y vence en 24 horas. Si no lo ve, revise la carpeta de correo no deseado.",
+      "resend": "Reenviar el correo",
+      "resendWait": "Reenviar en {{seconds}} s",
+      "resent": "Si hay un registro pendiente para ese correo, enviamos un enlace nuevo."
+    },
+    "verify": {
+      "title": "Confirmación del correo",
+      "seoDescription": "Confirme su correo para terminar de crear su gimnasio.",
+      "working": "Confirmando su correo…",
+      "doneTitle": "¡Su gimnasio está creado!",
+      "doneText": "Ya puede iniciar sesión en «{{gym}}» con el correo y la contraseña que eligió.",
+      "trial": "Su plan {{plan}} empieza con {{days}} días de prueba gratis.",
+      "gym": "Identificador del gimnasio",
+      "signIn": "Iniciar sesión",
+      "resendIntro": "Escriba su correo y le enviamos un enlace nuevo.",
+      "resent": "Si hay un registro pendiente para ese correo, enviamos un enlace nuevo."
+    },
+    "forgot": {
+      "title": "Recuperar mi contraseña",
+      "seoDescription": "Pida un enlace para elegir una contraseña nueva.",
+      "lead": "Escriba el identificador de su gimnasio y su correo. Si existe la cuenta, le enviamos un enlace para elegir una contraseña nueva.",
+      "submit": "Enviarme el enlace",
+      "sent": "Si los datos corresponden a una cuenta, enviamos un enlace a su correo. Vence en 1 hora y sirve una sola vez."
+    },
+    "reset": {
+      "title": "Elegir una contraseña nueva",
+      "seoDescription": "Elija una contraseña nueva para su cuenta.",
+      "password": "Contraseña nueva",
+      "confirm": "Repita la contraseña",
+      "submit": "Guardar contraseña",
+      "done": "Listo: su contraseña se cambió y se cerraron las sesiones abiertas. Ya puede iniciar sesión.",
+      "askAgain": "Pedir un enlace nuevo"
+    },
+    "invite": {
+      "title": "Aceptar invitación",
+      "seoDescription": "Cree su cuenta para unirse al equipo de un gimnasio en FIT360.",
+      "lead": "Lo invitaron a unirse a «{{gym}}» con el rol {{role}}.",
+      "forEmail": "Invitación para {{email}}.",
+      "submit": "Crear mi cuenta",
+      "done": "¡Listo! Su cuenta está creada. Ya puede iniciar sesión."
     }
   }
 }

@@ -2079,3 +2079,38 @@ fieldset.field {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+// ---------- Resumen del gimnasio (inicio del propietario) ----------
+.owner-panel h2 {
+  margin: 0 0 0.6rem;
+}
+
+.owner-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  margin-bottom: 1rem;
+}
+
+.owner-tile {
+  margin: 0;
+
+  h3 {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+  }
+
+  progress {
+    width: 100%;
+    margin-bottom: 0.6rem;
+  }
+}
+
+.login-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  justify-content: center;
+  margin: 1rem 0 0;
+  font-size: 0.92rem;
+}

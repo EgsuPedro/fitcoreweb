@@ -56,7 +56,10 @@
     "submit": "Sign in",
     "submitting": "Signing in…",
     "required": "Enter the gym, email and password.",
-    "passwordChanged": "Password changed. Sign in with the new one."
+    "passwordChanged": "Password changed. Sign in with the new one.",
+    "forgot": "Forgot your password?",
+    "create": "Create my gym",
+    "site": "Back to the site"
   },
   "nav": {
     "label": "Main menu",
@@ -118,6 +121,20 @@
       "title": "Great to see you, {{ name }}!",
       "text": "I'm Fiti, your training buddy. Check today's figures and notices to start the day ahead.",
       "action": "Get started"
+    },
+    "owner": {
+      "title": "Your gym at a glance",
+      "setup": "Initial setup",
+      "setupDone": "Complete",
+      "setupEdit": "Review or change the details",
+      "setupProgress": "{{done}} of {{total}} mandatory steps done",
+      "plan": "Your plan",
+      "trialUntil": "Free trial until {{date}}",
+      "nextDue": "Next charge: {{date}}",
+      "planView": "View my subscription",
+      "team": "Team",
+      "pending": "{{count}} pending invitations",
+      "noInvitations": "You have not invited anyone yet."
     }
   },
   "status": {
@@ -275,7 +292,9 @@
       "unauthenticated": "You must sign in.",
       "forbidden": "You do not have permission to do this.",
       "all_branches_required": "Only users with access to all branches can do this.",
-      "password_change_failed": "The password could not be changed. Check the current password and the requirements."
+      "password_change_failed": "The password could not be changed. Check the current password and the requirements.",
+      "recovery_email_unavailable": "Email sending is unavailable right now. Try again later or ask your administrator to reset your password.",
+      "reset_token_invalid": "The link is not valid, was already used or has expired. Ask for a new one."
     },
     "branches": {
       "not_found": "Branch not found.",
@@ -738,7 +757,15 @@
       "role_unavailable": "The role of this invitation no longer exists. Ask for a new one."
     },
     "registration": {
-      "legal_version_mismatch": "The terms or the privacy policy changed. Reload the page and accept them again."
+      "legal_version_mismatch": "The terms or the privacy policy changed. Reload the page and accept them again.",
+      "email_unavailable": "Email sending is unavailable right now. Try again later.",
+      "plan_unavailable": "The chosen plan is not available. Pick another one.",
+      "plan_requires_sales": "This plan is arranged with the sales team. Write to us from the contact page.",
+      "slug_taken": "That identifier is already in use. Choose another.",
+      "token_invalid": "The link is not valid or was already used. Ask for a new one.",
+      "expired": "The link has expired. Ask for a new one.",
+      "trial_already_used": "This email already used the free trial. Write to us from the contact page to see the options.",
+      "provisioning_failed": "We could not finish creating your gym. Our team was notified; write to us from the contact page."
     }
   },
   "enums": {
@@ -3515,18 +3542,81 @@
       "sentText": "We will reply to the email you gave.",
       "backHome": "Back to home"
     },
-    "register": {
-      "seoTitle": "Create my gym",
-      "seoDescription": "Create your gym’s account on FIT360.",
-      "title": "Create my gym",
-      "lead": "Online sign-up is being enabled shortly. In the meantime, request a demo and we will give you access."
-    },
     "legal": {
       "termsTitle": "Terms and conditions",
       "privacyTitle": "Privacy policy",
       "seoDescription": "FIT360 legal text (draft pending legal review).",
       "draft": "DRAFT: this text is pending legal review and is not legal advice. It is available in Spanish only.",
       "version": "Version: {{version}}"
+    },
+    "password": {
+      "hint": "At least 10 characters, with an uppercase letter, a lowercase letter and a number.",
+      "invalid": "The password does not meet the requirements.",
+      "mismatch": "The passwords do not match.",
+      "show": "Show password"
+    },
+    "signup": {
+      "seoTitle": "Create my gym",
+      "seoDescription": "Create your gym’s account on FIT360: pick a plan, confirm your email and set up your gym.",
+      "title": "Create my gym",
+      "lead": "Create your account, confirm your email and set up your gym with a short wizard.",
+      "noPlans": "There are no plans that can be purchased online right now.",
+      "plan": "Plan",
+      "planHint": "Price and terms are the ones in the catalog. See",
+      "ownerName": "Your name",
+      "email": "Email",
+      "gymName": "Gym name",
+      "slug": "Gym identifier",
+      "slugHint": "You and your team sign in with it. Lowercase letters, numbers and hyphens (3 to 40).",
+      "slugInvalid": "Use 3 to 40 characters: lowercase letters, numbers and hyphens.",
+      "password": "Password",
+      "accept": "I accept the",
+      "and": "and the",
+      "acceptRequired": "You must accept the terms and the privacy policy.",
+      "submit": "Create my gym",
+      "noCharge": "Signing up does not start any charge: a paid plan is arranged with our team.",
+      "sentTitle": "Check your email",
+      "sentText": "We sent a confirmation link to {{email}}. Open it to finish creating your gym.",
+      "sentHint": "The link works once and expires in 24 hours. If you cannot see it, check your spam folder.",
+      "resend": "Resend the email",
+      "resendWait": "Resend in {{seconds}} s",
+      "resent": "If there is a pending sign-up for that email, we sent a new link."
+    },
+    "verify": {
+      "title": "Email confirmation",
+      "seoDescription": "Confirm your email to finish creating your gym.",
+      "working": "Confirming your email…",
+      "doneTitle": "Your gym is created!",
+      "doneText": "You can now sign in to “{{gym}}” with the email and password you chose.",
+      "trial": "Your {{plan}} plan starts with a {{days}}-day free trial.",
+      "gym": "Gym identifier",
+      "signIn": "Sign in",
+      "resendIntro": "Enter your email and we will send you a new link.",
+      "resent": "If there is a pending sign-up for that email, we sent a new link."
+    },
+    "forgot": {
+      "title": "Recover my password",
+      "seoDescription": "Ask for a link to choose a new password.",
+      "lead": "Enter your gym identifier and your email. If the account exists, we will send you a link to choose a new password.",
+      "submit": "Send me the link",
+      "sent": "If the details match an account, we sent a link to its email. It expires in 1 hour and works once."
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "seoDescription": "Choose a new password for your account.",
+      "password": "New password",
+      "confirm": "Repeat the password",
+      "submit": "Save password",
+      "done": "Done: your password was changed and open sessions were closed. You can now sign in.",
+      "askAgain": "Ask for a new link"
+    },
+    "invite": {
+      "title": "Accept invitation",
+      "seoDescription": "Create your account to join a gym’s team on FIT360.",
+      "lead": "You were invited to join “{{gym}}” with the {{role}} role.",
+      "forEmail": "Invitation for {{email}}.",
+      "submit": "Create my account",
+      "done": "Done! Your account is created. You can now sign in."
     }
   }
 }

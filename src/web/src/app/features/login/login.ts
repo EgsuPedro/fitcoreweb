@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ErrorMessages } from '../../core/i18n/messages';
 import { Lang, SUPPORTED_LANGS, setLang } from '../../core/i18n/transloco';
@@ -27,7 +27,7 @@ function rememberTenant(slug: string): void {
 
 @Component({
   selector: 'fc-login',
-  imports: [ReactiveFormsModule, TranslocoPipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <main class="login-page">
@@ -70,6 +70,12 @@ function rememberTenant(slug: string): void {
           </button>
         </form>
 
+        <p class="login-links">
+          <a routerLink="/olvide-mi-clave" [queryParams]="{ gimnasio: form.controls.tenantSlug.value || null }">{{ 'login.forgot' | transloco }}</a>
+          <a routerLink="/registro">{{ 'login.create' | transloco }}</a>
+          <a routerLink="/">{{ 'login.site' | transloco }}</a>
+        </p>
+
         <div class="login-lang">
           @for (lang of langs; track lang) {
             <button type="button" class="btn btn-ghost" [class.active]="activeLang() === lang" (click)="changeLang(lang)">
@@ -101,10 +107,16 @@ export class Login {
   protected readonly reason = signal<string | null>(this.route.snapshot.queryParamMap.get('reason'));
 
   protected readonly form = this.fb.nonNullable.group({
-    tenantSlug: [rememberedTenant(), [Validators.required]],
+    tenantSlug: [this.prefilledTenant() ?? rememberedTenant(), [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
   });
+
+  /** Identificador que traen los enlaces de «ya puede iniciar sesión» (`?gimnasio=`); solo si tiene la forma válida. */
+  private prefilledTenant(): string | null {
+    const value = this.route.snapshot.queryParamMap.get('gimnasio');
+    return value && /^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$/.test(value) ? value : null;
+  }
 
   protected submit(): void {
     if (this.form.invalid) {

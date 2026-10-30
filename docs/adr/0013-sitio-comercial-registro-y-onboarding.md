@@ -69,7 +69,7 @@ Páginas con título, descripción, Open Graph y canonical propios; `robots.txt`
 | 6 | Onboarding persistente (backend y asistente Angular) | Hecho |
 | 7 | Invitaciones de empleados y límites de usuarios | Hecho |
 | 8 | Sitio público Angular (inicio, funcionalidades, planes, nosotros, preguntas, contacto), SEO y prerenderizado; contacto y demostraciones | Hecho |
-| 9 | Pantallas de registro, verificación, recuperación e invitación; panel del propietario | Pendiente |
+| 9 | Pantallas de registro, verificación, recuperación e invitación; panel del propietario | Hecho |
 | 10 | Pruebas (las 20 obligatorias), revisión de seguridad, accesibilidad y rendimiento, documentación e informe | Pendiente |
 
 ## Fuera de esta fase (anotado, no olvidado)
@@ -120,3 +120,12 @@ Facturación electrónica del SRI, nómina, app móvil (Flutter), avisos por Wha
 - **Pantalla de plataforma:** «Solicitudes comerciales» (`/platform/leads`; permisos nuevos `platform.leads.read` y `platform.leads.manage`, solo plataforma): listar, filtrar por estado y tipo, marcar atendida o reabrir.
 - **Textos legales:** `features/public/legal-texts.ts` con la versión `2026-10-30-borrador` (debe coincidir con `Legal:*` del servidor) y las páginas marcadas **«BORRADOR pendiente de revisión legal»**; solo en español. El usuario o su abogado deben reemplazarlos antes de abrir al público.
 - **Accesibilidad y celular:** enlace «saltar al contenido», navegación por teclado, menú plegable con `aria-expanded`, FAQ con `<details>`, sin desplazamiento horizontal a 360 px (probado).
+
+## Bloque 9 — cómo quedaron las pantallas de cuenta (implementación)
+- **Pantallas públicas** (dentro del marco del sitio): `/registro` (plan, nombre, correo, gimnasio, identificador sugerido desde el nombre, contraseña con la misma política del servidor, aceptación de términos y privacidad con su versión; tras enviar, «Revise su correo» con reenvío y espera de 60 s), `/verificar-correo`, `/olvide-mi-clave`, `/restablecer-clave` y `/aceptar-invitacion`. Solo `/registro` se prerenderiza; las de enlace son de navegador y llevan `noindex`.
+- **El token se quita de la barra de direcciones apenas se lee** (`replaceUrl`): no queda en el historial ni en un «referer»; vive solo en memoria mientras se usa. Cada enlace sirve una vez; si falla, la pantalla dice por qué y ofrece pedir otro (verificación) o habla con ventas (prueba ya usada, identificador ocupado).
+- **Registro:** solo ofrece los planes que se pueden contratar por registro (prueba o precio 0); el navegador jamás envía precio ni moneda. Un identificador ocupado se marca en su campo. El inicio de sesión recibe `?gimnasio=` para llegar con el identificador ya escrito (solo si tiene la forma válida) y tiene enlaces a «¿Olvidó su contraseña?», «Crear mi gimnasio» y «Volver al sitio».
+- **Aceptar invitación:** primero muestra el gimnasio, el rol y el correo (sin gastar el enlace); luego nombre y contraseña con confirmación.
+- **Resumen del propietario** (inicio, solo con `organization.update`): progreso de la configuración inicial, plan y estado de la suscripción (prueba o próximo cobro) e invitaciones pendientes. Cada tarjeta se oculta si falta el permiso o falla su consulta.
+- **Límites de frecuencia configurables:** `RateLimiting:RegisterPermitPerMinute` y `RecoveryPermitPerMinute` (compose: `REGISTER_RATE_LIMIT`, por defecto 10); las pruebas end-to-end lo suben.
+- **Integración continua:** el job e2e ahora levanta también Worker, Mailpit y la web compilada y prueba contra `http://localhost:8081` (necesitan correo real y las páginas prerenderizadas). **Sin verificar:** no hay `gh` ni se ha ejecutado el flujo en GitHub.

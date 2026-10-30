@@ -80,6 +80,8 @@ services:
       Subscriptions__Payments__ProviderCode: ${PAYMENT_PROVIDER_CODE:-webhook}
       Subscriptions__Payments__WebhookSecret: ${PAYMENT_WEBHOOK_SECRET:-}
       RateLimiting__LoginPermitPerMinute: ${LOGIN_RATE_LIMIT:-20}
+      RateLimiting__RegisterPermitPerMinute: ${REGISTER_RATE_LIMIT:-10}
+      RateLimiting__RecoveryPermitPerMinute: ${REGISTER_RATE_LIMIT:-10}
       # Solo se confía en X-Forwarded-For / X-Forwarded-Proto cuando vienen de las redes privadas de Docker (ahí está Caddy).
       Network__TrustedProxies__0: 10.0.0.0/8
       Network__TrustedProxies__1: 172.16.0.0/12

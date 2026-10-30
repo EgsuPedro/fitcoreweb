@@ -224,27 +224,3 @@ export class PublicContact {
     return this.route.snapshot.queryParamMap.get('tipo') === 'ventas' && plan ? `Quiero información sobre el plan ${plan.slice(0, 40)}.` : '';
   }
 }
-
-/** El registro en línea llega con el siguiente bloque de esta fase; mientras tanto se ofrece el camino real: la solicitud de demostración. */
-@Component({
-  selector: 'fc-public-register-soon',
-  imports: [RouterLink, TranslocoPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <section class="pub-section">
-      <div class="pub-wrap pub-narrow">
-        <h1>{{ 'site.register.title' | transloco }}</h1>
-        <p class="pub-lead">{{ 'site.register.lead' | transloco }}</p>
-        <div class="pub-cta">
-          <a class="btn btn-primary btn-lg" routerLink="/contacto" [queryParams]="{ tipo: 'demo' }">{{ 'site.home.ctaDemo' | transloco }}</a>
-          <a class="btn btn-lg" routerLink="/planes">{{ 'site.home.seePlans' | transloco }}</a>
-        </div>
-      </div>
-    </section>
-  `,
-})
-export class PublicRegisterSoon {
-  constructor() {
-    pageSeo('/registro', 'site.register.seoTitle', 'site.register.seoDescription');
-  }
-}

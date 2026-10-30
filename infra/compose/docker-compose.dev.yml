@@ -52,6 +52,9 @@ services:
       Subscriptions__Payments__WebhookSecret: ${PAYMENT_WEBHOOK_SECRET:-}
       # Límite de intentos de acceso por minuto y por IP. Las pruebas end-to-end inician muchas sesiones desde una sola IP: en CI se sube.
       RateLimiting__LoginPermitPerMinute: ${LOGIN_RATE_LIMIT:-20}
+      # Registro, confirmación, recuperación de contraseña, invitaciones y contacto (por IP y por minuto). Las pruebas end-to-end los usan mucho desde una sola IP.
+      RateLimiting__RegisterPermitPerMinute: ${REGISTER_RATE_LIMIT:-10}
+      RateLimiting__RecoveryPermitPerMinute: ${REGISTER_RATE_LIMIT:-10}
       # Redes privadas de Docker: solo ahí se confía en X-Forwarded-For (lo envía el nginx del servicio web).
       Network__TrustedProxies__0: 10.0.0.0/8
       Network__TrustedProxies__1: 172.16.0.0/12

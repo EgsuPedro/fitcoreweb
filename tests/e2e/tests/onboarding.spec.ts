@@ -71,7 +71,7 @@ test.describe.serial('configuración inicial del gimnasio', () => {
 
   test('un gimnasio recién registrado ve el aviso y el asistente empieza por los datos del gimnasio', async () => {
     await expect(page.getByText('Su gimnasio está pendiente de configuración.')).toBeVisible();
-    await page.getByRole('link', { name: 'Continuar configuración' }).click();
+    await page.locator('.setup-banner').getByRole('link', { name: 'Continuar configuración' }).click();
     await expect(page.getByRole('heading', { name: 'Configuración inicial', level: 1 })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Datos de su gimnasio' })).toBeVisible();
   });

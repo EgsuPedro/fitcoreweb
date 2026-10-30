@@ -1,5 +1,6 @@
 using FitCore.Api.Infrastructure;
 using FitCore.Application.Core;
+using FitCore.Platform.Application.Contact;
 using FitCore.Platform.Application.Invitations;
 using FitCore.Platform.Application.Registration;
 using FitCore.Subscriptions.Application.Public;
@@ -70,6 +71,23 @@ internal static class PublicEndpoints
             .WithValidation<ResendVerificationRequest>()
             .Produces<RegistrationAccepted>(StatusCodes.Status202Accepted)
             .WithName("ResendRegistrationVerification");
+
+        // Contacto y demostraciones: respuesta siempre igual (202), con campo trampa, límite por IP y por correo. Sin CAPTCHA (punto de extensión pendiente).
+        group.MapPost("/contact", async (ContactRequestBody request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SubmitContactCommand(ContactKinds.Contact, request), ct)).ToHttp(r => Results.Json(r, statusCode: StatusCodes.Status202Accepted)))
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.Register)
+            .WithValidation<ContactRequestBody>()
+            .Produces<ContactReceived>(StatusCodes.Status202Accepted)
+            .WithName("SubmitContact");
+
+        group.MapPost("/demo-requests", async (ContactRequestBody request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SubmitContactCommand(ContactKinds.Demo, request), ct)).ToHttp(r => Results.Json(r, statusCode: StatusCodes.Status202Accepted)))
+            .AllowAnonymous()
+            .RequireRateLimiting(RateLimitPolicies.Register)
+            .WithValidation<ContactRequestBody>()
+            .Produces<ContactReceived>(StatusCodes.Status202Accepted)
+            .WithName("SubmitDemoRequest");
 
         // Invitaciones de personal: ver de qué es el enlace y aceptarlo. El gimnasio sale del enlace, nunca del cuerpo.
         group.MapPost("/invitations/preview", async (PreviewInvitationRequest request, IDispatcher dispatcher, CancellationToken ct) =>

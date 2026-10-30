@@ -101,7 +101,8 @@
     "mySubscription": "Mi suscripción",
     "platformRequests": "Solicitudes de gimnasios",
     "branding": "Logo del gimnasio",
-    "invitations": "Invitaciones"
+    "invitations": "Invitaciones",
+    "platformLeads": "Solicitudes comerciales"
   },
   "home": {
     "welcome": "Hola, {{ name }}",
@@ -735,6 +736,9 @@
       "resend_too_soon": "Espere un minuto antes de reenviar, o se alcanzó el máximo de reenvíos.",
       "token_invalid": "La invitación no es válida, ya se usó o venció. Pida una nueva.",
       "role_unavailable": "El rol de esta invitación ya no existe. Pida una nueva."
+    },
+    "registration": {
+      "legal_version_mismatch": "Los términos o la política de privacidad cambiaron. Recargue la página y acéptelos de nuevo."
     }
   },
   "enums": {
@@ -2901,6 +2905,27 @@
         "billing.payment_not_found": "No se encontró el pago que se reembolsa.",
         "billing.refund_amount_invalid": "El reembolso supera lo pagado o no es válido."
       }
+    },
+    "leads": {
+      "title": "Solicitudes comerciales",
+      "subtitle": "Mensajes y demostraciones pedidas desde el sitio público. Se eliminan solos a los 180 días.",
+      "kind": "Tipo",
+      "received": "Recibida",
+      "who": "Persona",
+      "message": "Mensaje",
+      "empty": "Aún no hay solicitudes.",
+      "attend": "Marcar atendida",
+      "reopen": "Reabrir",
+      "attended": "Solicitud marcada como atendida.",
+      "reopened": "Solicitud reabierta.",
+      "status": {
+        "New": "Nueva",
+        "Attended": "Atendida"
+      },
+      "kinds": {
+        "Contact": "Contacto",
+        "Demo": "Demostración"
+      }
     }
   },
   "mySubscription": {
@@ -3225,5 +3250,283 @@
     "resent": "Invitación reenviada.",
     "revoked": "Invitación revocada.",
     "invalidForm": "Revise el correo y el rol."
+  },
+  "site": {
+    "skip": "Saltar al contenido",
+    "brandHome": "FIT360, ir al inicio",
+    "navLabel": "Navegación principal",
+    "menuOpen": "Menú",
+    "menuClose": "Cerrar menú",
+    "nav": {
+      "home": "Inicio",
+      "features": "Funcionalidades",
+      "plans": "Planes y precios",
+      "about": "Nosotros",
+      "faq": "Preguntas frecuentes",
+      "contact": "Contacto",
+      "login": "Iniciar sesión",
+      "register": "Crear mi gimnasio"
+    },
+    "footer": {
+      "tagline": "El sistema para administrar su gimnasio en un solo lugar.",
+      "explore": "Explorar",
+      "legal": "Legal",
+      "terms": "Términos y condiciones",
+      "privacy": "Política de privacidad",
+      "copy": "© FIT360. Hecho para gimnasios de Ecuador y la región."
+    },
+    "home": {
+      "seoTitle": "FIT360",
+      "seoDescription": "FIT360 es el sistema para administrar su gimnasio: alumnos, membresías, cobros, asistencia, clases, rutinas, nutrición y reportes en un solo lugar.",
+      "title": "Administre su gimnasio en un solo lugar",
+      "lead": "Alumnos, membresías, cobros, asistencia, clases, rutinas y reportes. Todo conectado, para que usted se dedique a hacer crecer su gimnasio.",
+      "ctaRegister": "Crear mi gimnasio",
+      "ctaDemo": "Solicitar una demostración",
+      "note": "Cada gimnasio tiene sus datos separados de los demás. Los planes y sus condiciones se muestran antes de contratar.",
+      "cardsTitle": "Lo que ya puede hacer con FIT360",
+      "allFeatures": "Ver todas las funcionalidades",
+      "cards": {
+        "members": {
+          "title": "Alumnos y membresías",
+          "text": "Registre a sus alumnos, venda membresías con descuentos y controle vencimientos desde un solo lugar."
+        },
+        "billing": {
+          "title": "Cobros y caja",
+          "text": "Cobros en efectivo, saldos pendientes y cierre de caja por sucursal, con IVA configurable."
+        },
+        "attendance": {
+          "title": "Asistencia",
+          "text": "Registre la entrada de sus alumnos y defina qué pasa cuando tienen un pago pendiente."
+        },
+        "classes": {
+          "title": "Clases y reservas",
+          "text": "Horario de clases, reservas con cupo, lista de espera y avisos a sus alumnos."
+        },
+        "wellness": {
+          "title": "Entrenamiento y nutrición",
+          "text": "Rutinas, planes de alimentación, evaluaciones y fotos de progreso, con el consentimiento del alumno."
+        },
+        "reports": {
+          "title": "Reportes y Excel",
+          "text": "Panel de indicadores, reportes financieros, de alumnos y de operación, con exportación a Excel y su logo."
+        }
+      },
+      "stepsTitle": "Empezar es simple",
+      "steps": {
+        "register": {
+          "title": "Cree su cuenta",
+          "text": "Indique su correo, el nombre de su gimnasio y elija un plan."
+        },
+        "confirm": {
+          "title": "Confirme su correo",
+          "text": "Le enviamos un enlace de un solo uso para verificar que el correo es suyo."
+        },
+        "setup": {
+          "title": "Configure su gimnasio",
+          "text": "Un asistente corto le pide los datos de su gimnasio y su sucursal principal. Puede retomarlo cuando quiera."
+        }
+      },
+      "finalTitle": "¿Listo para probarlo?",
+      "finalText": "Vea los planes disponibles o escríbanos y le mostramos el sistema.",
+      "seePlans": "Ver planes y precios",
+      "talk": "Hablar con el equipo"
+    },
+    "features": {
+      "seoTitle": "Funcionalidades",
+      "seoDescription": "Todo lo que FIT360 ya ofrece a su gimnasio: alumnos, cobros, asistencia, clases, entrenamiento, nutrición, reportes, roles y seguridad.",
+      "title": "Funcionalidades",
+      "lead": "Esto es lo que FIT360 hace hoy. Lo que todavía no existe está marcado como «Próximamente».",
+      "members": {
+        "title": "Alumnos y membresías",
+        "items": {
+          "profiles": "Ficha de cada alumno con sus datos de contacto.",
+          "memberships": "Planes de membresía, inscripciones, descuentos y promociones con tope.",
+          "portal": "Acceso del alumno a su propia información y a sus clases."
+        }
+      },
+      "billing": {
+        "title": "Cobros y caja",
+        "items": {
+          "payments": "Registro de pagos y reglas de activación de la membresía según lo pagado.",
+          "receivables": "Saldos pendientes, vencimientos y seguimiento de deudas.",
+          "cash": "Apertura y cierre de caja por sucursal.",
+          "promotions": "Promociones con vigencia, límites y descuentos máximos definidos por usted."
+        }
+      },
+      "attendance": {
+        "title": "Asistencia",
+        "items": {
+          "checkin": "Registro de entrada de los alumnos por sucursal.",
+          "debtRule": "Usted decide si un alumno con deuda entra, no entra o entra con un pago mínimo.",
+          "history": "Historial de asistencia por alumno y por sucursal."
+        }
+      },
+      "classes": {
+        "title": "Clases y reservas",
+        "items": {
+          "schedule": "Horario semanal de clases con instructor, sala y cupo.",
+          "reservations": "Reservas de los alumnos con control de cupo y de cancelaciones.",
+          "waitlist": "Lista de espera que asigna el cupo liberado en orden.",
+          "notices": "Avisos a los alumnos sobre sus reservas y cambios de clase."
+        }
+      },
+      "wellness": {
+        "title": "Entrenamiento y nutrición",
+        "items": {
+          "routines": "Catálogo de ejercicios y rutinas asignadas a cada alumno.",
+          "nutrition": "Planes de alimentación y registro de comidas.",
+          "assessments": "Evaluaciones físicas y objetivos con seguimiento de la evolución.",
+          "photos": "Fotos de progreso privadas, solo con el consentimiento del alumno."
+        }
+      },
+      "reports": {
+        "title": "Reportes y exportaciones",
+        "items": {
+          "dashboard": "Panel con los indicadores principales de su gimnasio.",
+          "financial": "Reportes financieros, de alumnos y de operación.",
+          "excel": "Exportación a Excel con el logo de su gimnasio, y a CSV.",
+          "branches": "Comparación entre sucursales."
+        }
+      },
+      "team": {
+        "title": "Equipo, roles y sucursales",
+        "items": {
+          "roles": "Roles y permisos: cada persona ve solo lo que necesita.",
+          "branches": "Varias sucursales, cada una con su horario y su responsable.",
+          "invitations": "Invitaciones por correo para sumar a su equipo.",
+          "audit": "Registro de auditoría de los cambios importantes."
+        }
+      },
+      "security": {
+        "title": "Seguridad y privacidad",
+        "items": {
+          "isolation": "Los datos de cada gimnasio están aislados de los de los demás, también dentro de la base de datos.",
+          "consent": "Los datos de salud solo se muestran a quien corresponde y con consentimiento.",
+          "sessions": "Sesiones protegidas, bloqueo por intentos fallidos y recuperación de contraseña por correo."
+        }
+      },
+      "soonTitle": "Próximamente",
+      "soonLead": "En el plan de trabajo, sin fecha comprometida todavía.",
+      "soonBadge": "Próximamente",
+      "soon": {
+        "sri": "Facturación electrónica del SRI.",
+        "payroll": "Nómina del personal.",
+        "mobile": "Aplicación móvil.",
+        "whatsapp": "Avisos por WhatsApp y SMS.",
+        "payments": "Cobro automático del plan con tarjeta."
+      }
+    },
+    "plans": {
+      "seoTitle": "Planes y precios",
+      "seoDescription": "Planes de FIT360 con su precio, sus límites y lo que incluye cada uno, tal como están hoy en nuestro catálogo.",
+      "title": "Planes y precios",
+      "lead": "Estos son los planes disponibles hoy. El precio, los límites y las funciones salen directamente de nuestro catálogo.",
+      "empty": "Estamos preparando nuestros planes. Escríbanos y le contamos las opciones.",
+      "error": "No pudimos cargar los planes en este momento. Intente de nuevo en unos minutos o escríbanos.",
+      "free": "Gratis",
+      "period": {
+        "Monthly": "mes",
+        "Quarterly": "trimestre",
+        "Yearly": "año"
+      },
+      "trial": "{{days}} días de prueba gratis",
+      "includes": "Incluye",
+      "unlimited": "Sin límite",
+      "start": "Empezar",
+      "sales": "Hablar con ventas",
+      "note": "La prueba gratuita se otorga una sola vez por propietario. Los planes de pago se coordinan con nuestro equipo."
+    },
+    "about": {
+      "seoTitle": "Nosotros",
+      "seoDescription": "Qué es FIT360, para quién lo hacemos y los principios con los que lo construimos.",
+      "title": "Nosotros",
+      "lead": "FIT360 es un sistema pensado para que los gimnasios administren su día a día sin hojas de cálculo.",
+      "whatTitle": "Qué hacemos",
+      "what": "Construimos una plataforma en línea para gimnasios: reúne alumnos, membresías, cobros, asistencia, clases, entrenamiento y reportes. Está pensada para la realidad de Ecuador: dólares, IVA configurable y, más adelante, facturación electrónica del SRI.",
+      "principlesTitle": "Con qué principios la construimos",
+      "p1": "Cada gimnasio es dueño de sus datos y están separados de los de los demás.",
+      "p2": "Decimos con claridad lo que el sistema hace hoy y lo que todavía no.",
+      "p3": "Los datos de salud de los alumnos se tratan con consentimiento y acceso restringido."
+    },
+    "faq": {
+      "seoTitle": "Preguntas frecuentes",
+      "seoDescription": "Respuestas a las preguntas más comunes sobre FIT360: planes, prueba gratuita, datos, facturación electrónica y soporte.",
+      "title": "Preguntas frecuentes",
+      "lead": "Las dudas más comunes antes de empezar.",
+      "more": "¿No encuentra su respuesta? Escríbanos desde",
+      "what": {
+        "q": "¿Qué es FIT360?",
+        "a": "Es un sistema en línea para administrar un gimnasio: alumnos, membresías, cobros, asistencia, clases, rutinas, nutrición y reportes."
+      },
+      "price": {
+        "q": "¿Cuánto cuesta?",
+        "a": "Depende del plan. Los precios, los límites y lo que incluye cada plan están en la página de Planes y precios, tal como están en nuestro catálogo."
+      },
+      "trial": {
+        "q": "¿Hay prueba gratuita?",
+        "a": "Algunos planes incluyen un período de prueba gratuito. Se otorga una sola vez por propietario y registrarse nunca activa un plan de pago por sí solo."
+      },
+      "data": {
+        "q": "¿Quién puede ver los datos de mi gimnasio?",
+        "a": "Solo las personas de su gimnasio a las que usted dé acceso, según su rol. Los datos de cada gimnasio están separados de los demás."
+      },
+      "health": {
+        "q": "¿Cómo se tratan los datos de salud de los alumnos?",
+        "a": "Las evaluaciones, la nutrición y las fotos de progreso son datos sensibles: solo las ven las personas autorizadas y con el consentimiento del alumno."
+      },
+      "sri": {
+        "q": "¿Emite facturas electrónicas del SRI?",
+        "a": "Todavía no. Está en nuestro plan de trabajo, sin fecha comprometida."
+      },
+      "mobile": {
+        "q": "¿Hay una aplicación móvil?",
+        "a": "Todavía no. El sistema está pensado para verse bien en el celular desde el navegador."
+      },
+      "support": {
+        "q": "¿Cómo recibo ayuda?",
+        "a": "Escríbanos desde la página de contacto o solicite una demostración y le respondemos por correo."
+      },
+      "languages": {
+        "q": "¿En qué idiomas está disponible?",
+        "a": "En español y en inglés. Puede cambiar el idioma en cualquier momento desde la parte superior."
+      }
+    },
+    "contact": {
+      "seoTitle": "Contacto",
+      "seoDescription": "Escriba al equipo de FIT360 o solicite una demostración del sistema para su gimnasio.",
+      "title": "Contacto",
+      "lead": "Cuéntenos de su gimnasio y le respondemos por correo.",
+      "kind": "Motivo",
+      "kindContact": "Tengo una consulta",
+      "kindDemo": "Quiero una demostración",
+      "name": "Nombre",
+      "email": "Correo electrónico",
+      "phone": "Teléfono (opcional)",
+      "gym": "Nombre del gimnasio (opcional)",
+      "message": "Mensaje",
+      "required": "Este campo es obligatorio.",
+      "emailInvalid": "Escriba un correo válido.",
+      "phoneInvalid": "Escriba un teléfono válido.",
+      "messageInvalid": "Escriba un mensaje de entre 10 y 1000 caracteres.",
+      "consent": "Acepto el tratamiento de mis datos para que me respondan, según la",
+      "consentRequired": "Debe aceptar la política de privacidad para enviar el formulario.",
+      "send": "Enviar",
+      "sentTitle": "¡Gracias! Recibimos su mensaje.",
+      "sentText": "Le responderemos al correo que indicó.",
+      "backHome": "Volver al inicio"
+    },
+    "register": {
+      "seoTitle": "Crear mi gimnasio",
+      "seoDescription": "Cree la cuenta de su gimnasio en FIT360.",
+      "title": "Crear mi gimnasio",
+      "lead": "El registro en línea se habilita en breve. Mientras tanto, solicite una demostración y le damos acceso."
+    },
+    "legal": {
+      "termsTitle": "Términos y condiciones",
+      "privacyTitle": "Política de privacidad",
+      "seoDescription": "Texto legal de FIT360 (borrador pendiente de revisión legal).",
+      "draft": "BORRADOR: este texto está pendiente de revisión legal y no es asesoría jurídica. Está disponible solo en español.",
+      "version": "Versión: {{version}}"
+    }
   }
 }

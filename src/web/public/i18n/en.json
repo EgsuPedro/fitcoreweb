@@ -101,7 +101,8 @@
     "mySubscription": "My subscription",
     "platformRequests": "Gym requests",
     "branding": "Gym logo",
-    "invitations": "Invitations"
+    "invitations": "Invitations",
+    "platformLeads": "Sales requests"
   },
   "home": {
     "welcome": "Hello, {{ name }}",
@@ -735,6 +736,9 @@
       "resend_too_soon": "Wait a minute before resending, or the resend limit was reached.",
       "token_invalid": "The invitation is not valid, was already used or has expired. Ask for a new one.",
       "role_unavailable": "The role of this invitation no longer exists. Ask for a new one."
+    },
+    "registration": {
+      "legal_version_mismatch": "The terms or the privacy policy changed. Reload the page and accept them again."
     }
   },
   "enums": {
@@ -2901,6 +2905,27 @@
         "billing.payment_not_found": "The refunded payment was not found.",
         "billing.refund_amount_invalid": "The refund exceeds what was paid or is not valid."
       }
+    },
+    "leads": {
+      "title": "Sales requests",
+      "subtitle": "Messages and demo requests from the public site. They are deleted automatically after 180 days.",
+      "kind": "Type",
+      "received": "Received",
+      "who": "Person",
+      "message": "Message",
+      "empty": "There are no requests yet.",
+      "attend": "Mark as attended",
+      "reopen": "Reopen",
+      "attended": "Request marked as attended.",
+      "reopened": "Request reopened.",
+      "status": {
+        "New": "New",
+        "Attended": "Attended"
+      },
+      "kinds": {
+        "Contact": "Contact",
+        "Demo": "Demo"
+      }
     }
   },
   "mySubscription": {
@@ -3225,5 +3250,283 @@
     "resent": "Invitation resent.",
     "revoked": "Invitation revoked.",
     "invalidForm": "Check the email and the role."
+  },
+  "site": {
+    "skip": "Skip to content",
+    "brandHome": "FIT360, go to home",
+    "navLabel": "Main navigation",
+    "menuOpen": "Menu",
+    "menuClose": "Close menu",
+    "nav": {
+      "home": "Home",
+      "features": "Features",
+      "plans": "Plans & pricing",
+      "about": "About us",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "login": "Sign in",
+      "register": "Create my gym"
+    },
+    "footer": {
+      "tagline": "The system to run your gym in one place.",
+      "explore": "Explore",
+      "legal": "Legal",
+      "terms": "Terms and conditions",
+      "privacy": "Privacy policy",
+      "copy": "© FIT360. Built for gyms in Ecuador and the region."
+    },
+    "home": {
+      "seoTitle": "FIT360",
+      "seoDescription": "FIT360 is the system to run your gym: members, memberships, payments, attendance, classes, workouts, nutrition and reports in one place.",
+      "title": "Run your gym in one place",
+      "lead": "Members, memberships, payments, attendance, classes, workouts and reports. Everything connected, so you can focus on growing your gym.",
+      "ctaRegister": "Create my gym",
+      "ctaDemo": "Request a demo",
+      "note": "Each gym has its data kept apart from the others. Plans and their terms are shown before you buy.",
+      "cardsTitle": "What you can already do with FIT360",
+      "allFeatures": "See all features",
+      "cards": {
+        "members": {
+          "title": "Members and memberships",
+          "text": "Register your members, sell memberships with discounts and track expirations in one place."
+        },
+        "billing": {
+          "title": "Payments and cash",
+          "text": "Cash payments, outstanding balances and cash close per branch, with configurable VAT."
+        },
+        "attendance": {
+          "title": "Attendance",
+          "text": "Record your members’ check-ins and decide what happens when they have a payment due."
+        },
+        "classes": {
+          "title": "Classes and bookings",
+          "text": "Class schedule, bookings with capacity, waitlist and notices to your members."
+        },
+        "wellness": {
+          "title": "Training and nutrition",
+          "text": "Workouts, meal plans, assessments and progress photos, with the member’s consent."
+        },
+        "reports": {
+          "title": "Reports and Excel",
+          "text": "Indicators dashboard, financial, member and operations reports, with Excel export carrying your logo."
+        }
+      },
+      "stepsTitle": "Getting started is simple",
+      "steps": {
+        "register": {
+          "title": "Create your account",
+          "text": "Enter your email, your gym’s name and choose a plan."
+        },
+        "confirm": {
+          "title": "Confirm your email",
+          "text": "We send you a single-use link to verify the email is yours."
+        },
+        "setup": {
+          "title": "Set up your gym",
+          "text": "A short wizard asks for your gym’s details and main branch. You can pick it up again any time."
+        }
+      },
+      "finalTitle": "Ready to try it?",
+      "finalText": "See the available plans or write to us and we will show you the system.",
+      "seePlans": "See plans & pricing",
+      "talk": "Talk to the team"
+    },
+    "features": {
+      "seoTitle": "Features",
+      "seoDescription": "Everything FIT360 already offers your gym: members, payments, attendance, classes, training, nutrition, reports, roles and security.",
+      "title": "Features",
+      "lead": "This is what FIT360 does today. Anything that does not exist yet is marked “Coming soon”.",
+      "members": {
+        "title": "Members and memberships",
+        "items": {
+          "profiles": "A profile for each member with their contact details.",
+          "memberships": "Membership plans, enrollments, discounts and capped promotions.",
+          "portal": "Members can see their own information and classes."
+        }
+      },
+      "billing": {
+        "title": "Payments and cash",
+        "items": {
+          "payments": "Payment records and membership activation rules based on what was paid.",
+          "receivables": "Outstanding balances, due dates and debt follow-up.",
+          "cash": "Cash register opening and closing per branch.",
+          "promotions": "Promotions with validity, limits and maximum discounts that you define."
+        }
+      },
+      "attendance": {
+        "title": "Attendance",
+        "items": {
+          "checkin": "Member check-in per branch.",
+          "debtRule": "You decide whether a member with debt gets in, does not, or gets in with a minimum payment.",
+          "history": "Attendance history per member and per branch."
+        }
+      },
+      "classes": {
+        "title": "Classes and bookings",
+        "items": {
+          "schedule": "Weekly class schedule with instructor, room and capacity.",
+          "reservations": "Member bookings with capacity and cancellation control.",
+          "waitlist": "A waitlist that assigns a freed spot in order.",
+          "notices": "Notices to members about their bookings and class changes."
+        }
+      },
+      "wellness": {
+        "title": "Training and nutrition",
+        "items": {
+          "routines": "Exercise catalog and workouts assigned to each member.",
+          "nutrition": "Meal plans and food logging.",
+          "assessments": "Physical assessments and goals with progress tracking.",
+          "photos": "Private progress photos, only with the member’s consent."
+        }
+      },
+      "reports": {
+        "title": "Reports and exports",
+        "items": {
+          "dashboard": "A dashboard with your gym’s main indicators.",
+          "financial": "Financial, member and operations reports.",
+          "excel": "Excel export carrying your gym’s logo, and CSV.",
+          "branches": "Branch comparison."
+        }
+      },
+      "team": {
+        "title": "Team, roles and branches",
+        "items": {
+          "roles": "Roles and permissions: each person sees only what they need.",
+          "branches": "Several branches, each with its own hours and manager.",
+          "invitations": "Email invitations to add your team.",
+          "audit": "Audit log of important changes."
+        }
+      },
+      "security": {
+        "title": "Security and privacy",
+        "items": {
+          "isolation": "Each gym’s data is isolated from the others’, also inside the database.",
+          "consent": "Health data is shown only to the right people and with consent.",
+          "sessions": "Protected sessions, lockout after failed attempts and password recovery by email."
+        }
+      },
+      "soonTitle": "Coming soon",
+      "soonLead": "On our roadmap, with no committed date yet.",
+      "soonBadge": "Coming soon",
+      "soon": {
+        "sri": "SRI electronic invoicing (Ecuador).",
+        "payroll": "Staff payroll.",
+        "mobile": "Mobile app.",
+        "whatsapp": "WhatsApp and SMS notices.",
+        "payments": "Automatic plan billing by card."
+      }
+    },
+    "plans": {
+      "seoTitle": "Plans & pricing",
+      "seoDescription": "FIT360 plans with their price, limits and what each one includes, exactly as they are in our catalog today.",
+      "title": "Plans & pricing",
+      "lead": "These are the plans available today. Price, limits and features come straight from our catalog.",
+      "empty": "We are preparing our plans. Write to us and we will tell you the options.",
+      "error": "We could not load the plans right now. Try again in a few minutes or write to us.",
+      "free": "Free",
+      "period": {
+        "Monthly": "month",
+        "Quarterly": "quarter",
+        "Yearly": "year"
+      },
+      "trial": "{{days}}-day free trial",
+      "includes": "Includes",
+      "unlimited": "Unlimited",
+      "start": "Get started",
+      "sales": "Talk to sales",
+      "note": "The free trial is granted once per owner. Paid plans are arranged with our team."
+    },
+    "about": {
+      "seoTitle": "About us",
+      "seoDescription": "What FIT360 is, who we build it for and the principles we build it by.",
+      "title": "About us",
+      "lead": "FIT360 is a system designed so gyms can run their day to day without spreadsheets.",
+      "whatTitle": "What we do",
+      "what": "We build an online platform for gyms: it brings together members, memberships, payments, attendance, classes, training and reports. It is designed for the reality of Ecuador: US dollars, configurable VAT and, later, SRI electronic invoicing.",
+      "principlesTitle": "The principles we build it by",
+      "p1": "Each gym owns its data and it is kept apart from the others’.",
+      "p2": "We say clearly what the system does today and what it does not yet.",
+      "p3": "Members’ health data is handled with consent and restricted access."
+    },
+    "faq": {
+      "seoTitle": "FAQ",
+      "seoDescription": "Answers to the most common questions about FIT360: plans, free trial, data, electronic invoicing and support.",
+      "title": "Frequently asked questions",
+      "lead": "The most common questions before you start.",
+      "more": "Cannot find your answer? Write to us from",
+      "what": {
+        "q": "What is FIT360?",
+        "a": "It is an online system to run a gym: members, memberships, payments, attendance, classes, workouts, nutrition and reports."
+      },
+      "price": {
+        "q": "How much does it cost?",
+        "a": "It depends on the plan. Prices, limits and what each plan includes are on the Plans & pricing page, exactly as they are in our catalog."
+      },
+      "trial": {
+        "q": "Is there a free trial?",
+        "a": "Some plans include a free trial period. It is granted once per owner, and signing up never activates a paid plan by itself."
+      },
+      "data": {
+        "q": "Who can see my gym’s data?",
+        "a": "Only the people at your gym that you give access to, according to their role. Each gym’s data is kept apart from the others’."
+      },
+      "health": {
+        "q": "How is members’ health data handled?",
+        "a": "Assessments, nutrition and progress photos are sensitive data: only authorized people see them, and with the member’s consent."
+      },
+      "sri": {
+        "q": "Does it issue SRI electronic invoices?",
+        "a": "Not yet. It is on our roadmap, with no committed date."
+      },
+      "mobile": {
+        "q": "Is there a mobile app?",
+        "a": "Not yet. The system is designed to look good on a phone from the browser."
+      },
+      "support": {
+        "q": "How do I get help?",
+        "a": "Write to us from the contact page or request a demo and we reply by email."
+      },
+      "languages": {
+        "q": "Which languages is it available in?",
+        "a": "Spanish and English. You can switch language at any time from the top of the page."
+      }
+    },
+    "contact": {
+      "seoTitle": "Contact",
+      "seoDescription": "Write to the FIT360 team or request a demo of the system for your gym.",
+      "title": "Contact",
+      "lead": "Tell us about your gym and we will reply by email.",
+      "kind": "Reason",
+      "kindContact": "I have a question",
+      "kindDemo": "I want a demo",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone (optional)",
+      "gym": "Gym name (optional)",
+      "message": "Message",
+      "required": "This field is required.",
+      "emailInvalid": "Enter a valid email.",
+      "phoneInvalid": "Enter a valid phone number.",
+      "messageInvalid": "Write a message of 10 to 1000 characters.",
+      "consent": "I agree to the processing of my data so you can reply, according to the",
+      "consentRequired": "You must accept the privacy policy to send the form.",
+      "send": "Send",
+      "sentTitle": "Thank you! We received your message.",
+      "sentText": "We will reply to the email you gave.",
+      "backHome": "Back to home"
+    },
+    "register": {
+      "seoTitle": "Create my gym",
+      "seoDescription": "Create your gym’s account on FIT360.",
+      "title": "Create my gym",
+      "lead": "Online sign-up is being enabled shortly. In the meantime, request a demo and we will give you access."
+    },
+    "legal": {
+      "termsTitle": "Terms and conditions",
+      "privacyTitle": "Privacy policy",
+      "seoDescription": "FIT360 legal text (draft pending legal review).",
+      "draft": "DRAFT: this text is pending legal review and is not legal advice. It is available in Spanish only.",
+      "version": "Version: {{version}}"
+    }
   }
 }

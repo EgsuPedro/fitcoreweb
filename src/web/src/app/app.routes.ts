@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Perm } from './core/auth/permissions';
-import { authGuard, guestGuard, permissionGuard } from './core/auth/guards';
+import { authGuard, guestGuard, permissionGuard, hasPathMatch, signedInMatch, visitorMatch } from './core/auth/guards';
 
 export const routes: Routes = [
   {
@@ -15,8 +15,32 @@ export const routes: Routes = [
     loadComponent: () => import('./features/account/change-password').then((m) => m.ChangePassword),
     title: 'FIT360',
   },
+  // Sitio comercial (público). La portada «/» es para visitantes; quien inició sesión ve su panel en la misma dirección.
   {
     path: '',
+    pathMatch: 'full',
+    canMatch: [visitorMatch],
+    loadComponent: () => import('./features/public/public-layout').then((m) => m.PublicLayout),
+    children: [{ path: '', loadComponent: () => import('./features/public/public-pages').then((m) => m.PublicHome) }],
+  },
+  {
+    path: '',
+    canMatch: [hasPathMatch],
+    loadComponent: () => import('./features/public/public-layout').then((m) => m.PublicLayout),
+    children: [
+      { path: 'funcionalidades', loadComponent: () => import('./features/public/public-pages').then((m) => m.PublicFeatures) },
+      { path: 'planes', loadComponent: () => import('./features/public/public-plans-contact').then((m) => m.PublicPlans) },
+      { path: 'nosotros', loadComponent: () => import('./features/public/public-pages').then((m) => m.PublicAbout) },
+      { path: 'preguntas-frecuentes', loadComponent: () => import('./features/public/public-pages').then((m) => m.PublicFaq) },
+      { path: 'contacto', loadComponent: () => import('./features/public/public-plans-contact').then((m) => m.PublicContact) },
+      { path: 'registro', loadComponent: () => import('./features/public/public-plans-contact').then((m) => m.PublicRegisterSoon) },
+      { path: 'terminos', data: { privacy: false }, loadComponent: () => import('./features/public/public-pages').then((m) => m.PublicLegal) },
+      { path: 'privacidad', data: { privacy: true }, loadComponent: () => import('./features/public/public-pages').then((m) => m.PublicLegal) },
+    ],
+  },
+  {
+    path: '',
+    canMatch: [signedInMatch],
     canActivate: [authGuard],
     loadComponent: () => import('./layout/shell').then((m) => m.Shell),
     children: [
@@ -208,6 +232,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/platform/organization-detail').then((m) => m.PlatformOrganization),
       },
       {
+        path: 'platform/leads',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.PlatformLeadsRead },
+        loadComponent: () => import('./features/platform/leads').then((m) => m.PlatformLeads),
+      },
+      {
         path: 'platform/plans',
         canActivate: [permissionGuard],
         data: { permission: Perm.PlatformPlansRead },
@@ -301,4 +331,6 @@ export const routes: Routes = [
       { path: '**', loadComponent: () => import('./features/status/status-pages').then((m) => m.NotFound) },
     ],
   },
+  // Un visitante sin sesión que pide una dirección del panel va al inicio de sesión (y vuelve a ella después).
+  { path: '**', canActivate: [authGuard], loadComponent: () => import('./features/status/status-pages').then((m) => m.NotFound) },
 ];

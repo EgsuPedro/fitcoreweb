@@ -11,6 +11,8 @@ public static class Permissions
     public const string PlatformExercisesManage = "platform.exercises.manage";
     public const string PlatformPlansRead = "platform.plans.read";
     public const string PlatformPlansManage = "platform.plans.manage";
+    public const string PlatformLeadsRead = "platform.leads.read";
+    public const string PlatformLeadsManage = "platform.leads.manage";
     public const string PlatformSubscriptionsRead = "platform.subscriptions.read";
     public const string PlatformSubscriptionsManage = "platform.subscriptions.manage";
     public const string PlatformBillingRead = "platform.billing.read";
@@ -138,6 +140,8 @@ public static class Permissions
         new(PlatformBillingManage, "platform", "Emitir y anular facturas internas, registrar pagos, intentos fallidos y reembolsos de cobros comerciales (solo equipo de plataforma)"),
         new(PlatformSubscriptionsRead, "platform", "Consultar las suscripciones comerciales de los gimnasios, su estado y su historial (solo equipo de plataforma)"),
         new(PlatformSubscriptionsManage, "platform", "Asignar planes, activar, suspender y reactivar suscripciones comerciales de los gimnasios (solo equipo de plataforma)"),
+        new(PlatformLeadsRead, "platform", "Consultar las solicitudes de contacto y demostración del sitio comercial (solo equipo de plataforma)"),
+        new(PlatformLeadsManage, "platform", "Marcar como atendidas las solicitudes de contacto y demostración del sitio comercial (solo equipo de plataforma)"),
         new(PlatformPlansManage, "platform", "Crear y modificar planes comerciales, sus precios, límites y funcionalidades (solo equipo de plataforma)"),
         new(OrganizationRead, "organization", "Ver datos del gimnasio"),
         new(BrandingManage, "organization", "Cambiar o quitar el logo del gimnasio que aparece en reportes, exportaciones y comprobantes"),

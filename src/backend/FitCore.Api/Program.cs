@@ -220,6 +220,7 @@ v1.MapWebhookEndpoints();
 v1.MapBrandingEndpoints();
 v1.MapOnboardingEndpoints();
 v1.MapInvitationEndpoints();
+v1.MapContactRequestEndpoints();
 v1.MapOrganizationsEndpoints();
 v1.MapMySubscriptionEndpoints();
 

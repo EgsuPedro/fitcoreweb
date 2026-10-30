@@ -35,6 +35,7 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
     public DbSet<FitCore.Platform.Application.Registration.PendingRegistration> PendingRegistrations => Set<FitCore.Platform.Application.Registration.PendingRegistration>();
     public DbSet<FitCore.Platform.Application.Registration.TrialClaim> TrialClaims => Set<FitCore.Platform.Application.Registration.TrialClaim>();
     public DbSet<FitCore.Platform.Application.Registration.LegalAcceptance> LegalAcceptances => Set<FitCore.Platform.Application.Registration.LegalAcceptance>();
+    public DbSet<FitCore.Platform.Application.Contact.ContactRequest> ContactRequests => Set<FitCore.Platform.Application.Contact.ContactRequest>();
     public DbSet<FitCore.Platform.Application.Invitations.Invitation> Invitations => Set<FitCore.Platform.Application.Invitations.Invitation>();
     public DbSet<FitCore.Platform.Application.Onboarding.TenantOnboarding> Onboardings => Set<FitCore.Platform.Application.Onboarding.TenantOnboarding>();
     public DbSet<FitCore.Platform.Application.AccountTokens.AccountToken> AccountTokens => Set<FitCore.Platform.Application.AccountTokens.AccountToken>();
@@ -152,6 +153,25 @@ public sealed class PlatformDbContext(DbContextOptions<PlatformDbContext> option
             b.Property(x => x.Document).HasMaxLength(30).IsRequired();
             b.Property(x => x.Version).HasMaxLength(60).IsRequired();
             b.HasIndex(x => new { x.TenantId, x.UserId });
+        });
+
+        // Sin RLS: la solicitud llega de un visitante sin gimnasio. La API nunca la expone fuera del equipo de plataforma.
+        builder.Entity<FitCore.Platform.Application.Contact.ContactRequest>(b =>
+        {
+            b.ToTable("contact_requests", OrganizationsSchema);
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.Kind).HasMaxLength(20).IsRequired();
+            b.Property(x => x.Name).HasMaxLength(120).IsRequired();
+            b.Property(x => x.Email).HasMaxLength(256).IsRequired();
+            b.Property(x => x.EmailNormalized).HasMaxLength(256).IsRequired();
+            b.Property(x => x.Phone).HasMaxLength(30);
+            b.Property(x => x.GymName).HasMaxLength(200);
+            b.Property(x => x.Message).HasMaxLength(1000).IsRequired();
+            b.Property(x => x.PrivacyVersion).HasMaxLength(60).IsRequired();
+            b.Property(x => x.Status).HasMaxLength(20).IsRequired();
+            b.HasIndex(x => new { x.Status, x.CreatedAt });
+            b.HasIndex(x => new { x.EmailNormalized, x.CreatedAt });
         });
 
         builder.Entity<FitCore.Platform.Application.Invitations.Invitation>(b =>

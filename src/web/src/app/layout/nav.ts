@@ -47,6 +47,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { labelKey: 'nav.globalExercises', path: '/platform/exercises', icon: '♜', permission: Perm.PlatformExercisesManage },
   { labelKey: 'nav.platformMetrics', path: '/platform/metrics', icon: '◔', permission: Perm.PlatformMetricsRead },
   { labelKey: 'nav.platformOrganizations', path: '/platform/organizations', icon: '▣', permission: Perm.PlatformOrganizationsRead },
+  { labelKey: 'nav.platformLeads', path: '/platform/leads', icon: '✎', permission: Perm.PlatformLeadsRead },
   { labelKey: 'nav.platformPlans', path: '/platform/plans', icon: '☷', permission: Perm.PlatformPlansRead },
   { labelKey: 'nav.platformBilling', path: '/platform/billing', icon: '$', permission: Perm.PlatformBillingRead },
   { labelKey: 'nav.platformRequests', path: '/platform/requests', icon: '✉', permission: Perm.PlatformSubscriptionsRead },

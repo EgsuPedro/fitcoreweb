@@ -3092,6 +3092,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SubmitContact"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/demo-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["SubmitDemoRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/invitations/preview": {
         parameters: {
             query?: never;
@@ -3618,6 +3650,38 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/contact-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["ListContactRequests"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/platform/contact-requests/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["SetContactRequestAttended"];
         trace?: never;
     };
     "/api/v1/platform/organizations": {
@@ -4743,6 +4807,38 @@ export interface components {
         CompleteSessionRequest: {
             /** @default false */
             markPendingAsNoShow: boolean;
+        };
+        ContactReceived: {
+            /** @default received */
+            status: string;
+        };
+        ContactRequestBody: {
+            name: string;
+            email: string;
+            phone: string | null;
+            gymName: string | null;
+            message: string;
+            acceptPrivacy: boolean;
+            privacyVersion: string;
+            /** @default null */
+            website: string | null;
+            /** @default es */
+            locale: string | null;
+        };
+        ContactRequestDto: {
+            /** Format: uuid */
+            id: string;
+            kind: string;
+            name: string;
+            email: string;
+            phone: string | null;
+            gymName: string | null;
+            message: string;
+            status: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            attendedAt: string | null;
         };
         CountRowDto: {
             key: string;
@@ -6890,6 +6986,15 @@ export interface components {
             /** Format: int32 */
             totalCount: number;
         };
+        PagedResultOfContactRequestDto: {
+            items: components["schemas"]["ContactRequestDto"][];
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+            /** Format: int32 */
+            totalCount: number;
+        };
         PagedResultOfExerciseDto: {
             items: components["schemas"]["ExerciseDto"][];
             /** Format: int32 */
@@ -8263,6 +8368,9 @@ export interface components {
         };
         SetAvailabilityRequest: {
             slots: components["schemas"]["AvailabilitySlotRequest"][] | null;
+        };
+        SetContactAttendedRequest: {
+            attended: boolean;
         };
         SetDto: {
             /** Format: int32 */
@@ -14817,6 +14925,54 @@ export interface operations {
             };
         };
     };
+    SubmitContact: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactRequestBody"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactReceived"];
+                };
+            };
+        };
+    };
+    SubmitDemoRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContactRequestBody"];
+            };
+        };
+        responses: {
+            /** @description Accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactReceived"];
+                };
+            };
+        };
+    };
     PreviewInvitation: {
         parameters: {
             query?: never;
@@ -15693,6 +15849,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InvitationDto"];
+                };
+            };
+        };
+    };
+    ListContactRequests: {
+        parameters: {
+            query?: {
+                status?: string;
+                kind?: string;
+                page?: number;
+                pageSize?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PagedResultOfContactRequestDto"];
+                };
+            };
+        };
+    };
+    SetContactRequestAttended: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetContactAttendedRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ContactRequestDto"];
                 };
             };
         };

@@ -5,6 +5,7 @@ import { BrandingService } from '../core/branding.service';
 import { SessionService } from '../core/auth/session.service';
 import { Lang, SUPPORTED_LANGS, setLang } from '../core/i18n/transloco';
 import { InboxBell } from '../features/inbox/inbox-bell';
+import { Seo } from '../core/seo.service';
 import { SetupBanner } from '../features/onboarding/setup-banner';
 import { SubscriptionBanner } from '../features/subscription/subscription-banner';
 import { Toasts } from '../shared/toast';
@@ -98,6 +99,8 @@ import { NAV_ITEMS, visibleNavItems } from './nav';
   `,
 })
 export class Shell implements OnInit {
+  private readonly seo = inject(Seo);
+
   protected readonly session = inject(SessionService);
   protected readonly brand = inject(BrandingService);
   private readonly router = inject(Router);
@@ -109,6 +112,8 @@ export class Shell implements OnInit {
   protected readonly items = computed(() => visibleNavItems(NAV_ITEMS, (permission) => this.session.has(permission)));
 
   ngOnInit(): void {
+    // El panel es privado: los buscadores no lo indexan.
+    this.seo.noIndex();
     this.brand.refresh();
   }
 

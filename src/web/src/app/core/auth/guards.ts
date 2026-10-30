@@ -1,5 +1,6 @@
-import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID, inject } from '@angular/core';
+import { CanActivateFn, CanMatchFn, Router } from '@angular/router';
 import { SessionService } from './session.service';
 
 /** Exige sesión. Al recargar la página recupera la sesión con la cookie de refresh antes de decidir. */
@@ -37,3 +38,22 @@ export const permissionGuard: CanActivateFn = (route) => {
   const required = route.data['permission'] as string | undefined;
   return !required || session.has(required) || router.createUrlTree(['/forbidden']);
 };
+
+/** ¿Hay sesión? La recupera con la cookie de refresh. En el prerenderizado (servidor) nunca la hay, así que se genera la versión pública. */
+async function isSignedIn(): Promise<boolean> {
+  if (!isPlatformBrowser(inject(PLATFORM_ID))) {
+    return false;
+  }
+  const session = inject(SessionService);
+  await session.restore();
+  return session.isAuthenticated();
+}
+
+/** «/» muestra el panel a quien inició sesión y el sitio comercial a los visitantes: esta ruta es la del panel. */
+export const signedInMatch: CanMatchFn = () => isSignedIn();
+
+/** Contraparte de signedInMatch: la portada pública solo se ofrece a quien no tiene sesión. */
+export const visitorMatch: CanMatchFn = async () => !(await isSignedIn());
+
+/** Las páginas públicas internas (planes, contacto…) solo existen con una ruta: la dirección vacía («/») es del panel o de la portada, nunca de un marco vacío. */
+export const hasPathMatch: CanMatchFn = (_route, segments) => segments.length > 0;

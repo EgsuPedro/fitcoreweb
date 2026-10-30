@@ -139,6 +139,7 @@ public sealed class EmailQueueProcessor(IServiceScopeFactory scopes, IClock cloc
         var tokens = await scope.ServiceProvider.GetRequiredService<AccountTokens.AccountTokenService>()
             .PurgeAsync(TimeSpan.FromDays(7), cancellationToken);
         var registrations = await Registration.RegistrationMaintenance.RunAsync(db, clock, cancellationToken);
+        registrations += await Contact.ContactMaintenance.PurgeAsync(db, clock, cancellationToken);
         if (deleted + tokens + registrations > 0)
         {
             logger.LogInformation(

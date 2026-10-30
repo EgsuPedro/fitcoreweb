@@ -81,6 +81,88 @@ namespace FitCore.Platform.Persistence.Migrations
                     b.ToTable("account_tokens", "identity");
                 });
 
+            modelBuilder.Entity("FitCore.Platform.Application.Contact.ContactRequest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("AttendedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("attended_at");
+
+                    b.Property<Guid?>("AttendedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("attended_by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("EmailNormalized")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email_normalized");
+
+                    b.Property<string>("GymName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("gym_name");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("message");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PrivacyVersion")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("privacy_version");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_contact_requests");
+
+                    b.HasIndex("EmailNormalized", "CreatedAt")
+                        .HasDatabaseName("ix_contact_requests_email_normalized_created_at");
+
+                    b.HasIndex("Status", "CreatedAt")
+                        .HasDatabaseName("ix_contact_requests_status_created_at");
+
+                    b.ToTable("contact_requests", "organizations");
+                });
+
             modelBuilder.Entity("FitCore.Platform.Application.Email.QueuedEmail", b =>
                 {
                     b.Property<Guid>("Id")

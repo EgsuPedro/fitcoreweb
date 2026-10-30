@@ -5,6 +5,7 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { ErrorMessages } from '../../core/i18n/messages';
 import { Lang, SUPPORTED_LANGS, setLang } from '../../core/i18n/transloco';
 import { SessionService } from '../../core/auth/session.service';
+import { Seo } from '../../core/seo.service';
 
 const TENANT_KEY = 'fc_tenant';
 
@@ -81,6 +82,11 @@ function rememberTenant(slug: string): void {
   `,
 })
 export class Login {
+  private readonly seo = inject(Seo);
+
+  constructor() {
+    this.seo.noIndex();
+  }
   private readonly fb = inject(FormBuilder);
   private readonly session = inject(SessionService);
   private readonly router = inject(Router);

@@ -114,6 +114,7 @@ Falta o conviene hacer:
 - **Alertas:** un monitor externo gratuito (UptimeRobot, Better Stack) que consulte `https://SU_DOMINIO/` cada 5 minutos y avise por correo.
 - **Actualizaciones del sistema operativo:** `sudo apt-get install -y unattended-upgrades`.
 - **SSH:** deshabilitar contraseñas (en Oracle ya viene solo con clave) y, si puede, restringir el 22 a su IP.
+- **Sitio público:** en producción el build de la web recibe `SITE_URL=https://DOMINIO` (ya lo pasa el compose) para las direcciones canónicas, `robots.txt` y `sitemap.xml`. Los textos legales son un borrador: reemplácelos antes de abrir al público (`src/web/src/app/features/public/legal-texts.ts` y `Legal__*`). `CONTACT_NOTIFY_EMAIL` avisa al equipo comercial de cada contacto.
 - **Correo:** el sistema ya envía por SMTP (variables `SMTP_*` de `.env.prod`; sin `SMTP_HOST` no envía nada). Falta elegir proveedor y verificar SPF/DKIM del dominio para que no caiga en spam.
 - **Restauración probada y copias fuera de la máquina** antes de tener clientes reales.
 - **Cobros:** sin proveedor de pagos configurado, los pagos comerciales se registran a mano.

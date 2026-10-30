@@ -14,9 +14,12 @@ import type {
   OrganizationDetail,
   AvailablePlan,
   Branding,
+  ContactRequestBody,
+  ContactRequestItem,
   CreateInvitationRequest,
   Invitation,
   Onboarding,
+  PublicPlan,
   OnboardingBranchRequest,
   OnboardingProfileRequest,
   MySubscription,
@@ -420,6 +423,19 @@ export class ApiService {
   branding(): Observable<Branding> {
     return this.get('/tenant/branding');
   }
+  publicPlans(): Observable<PublicPlan[]> {
+    return this.get('/public/plans');
+  }
+  submitContact(kind: 'contact' | 'demo', body: ContactRequestBody): Observable<unknown> {
+    return this.http.post(`${API_BASE}/public/${kind === 'demo' ? 'demo-requests' : 'contact'}`, body);
+  }
+  contactRequests(query: Query = {}): Observable<Paged<ContactRequestItem>> {
+    return this.get('/platform/contact-requests', query);
+  }
+  setContactRequestAttended(id: string, attended: boolean): Observable<ContactRequestItem> {
+    return this.http.patch<ContactRequestItem>(`${API_BASE}/platform/contact-requests/${id}`, { attended });
+  }
+
   invitations(): Observable<Invitation[]> {
     return this.get('/invitations');
   }

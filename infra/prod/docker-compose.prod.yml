@@ -93,6 +93,8 @@ services:
       Email__Smtp__From: ${SMTP_FROM:-}
       Email__Smtp__FromName: FIT360
       PublicSite__BaseUrl: https://${DOMAIN}
+      # Aviso al equipo comercial cuando llega un contacto o una demostración (vacío = solo queda en la pantalla de plataforma).
+      Contact__NotifyEmail: ${CONTACT_NOTIFY_EMAIL:-}
     volumes:
       # Archivos privados (fotos de progreso, logos, exportaciones). Entra en las copias de seguridad.
       - fitcore_files:/var/lib/fitcore/files
@@ -133,6 +135,8 @@ services:
     build:
       context: ../..
       dockerfile: infra/docker/Web.Dockerfile
+      args:
+        SITE_URL: https://${DOMAIN}
     restart: unless-stopped
     logging: *logging
 

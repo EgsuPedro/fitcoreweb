@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { ApplicationConfig, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -16,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     // Carga el idioma antes de mostrar nada y mantiene <html lang> sincronizado con el idioma activo.
     provideAppInitializer(() => {
       const transloco = inject(TranslocoService);
+      const document = inject(DOCUMENT);
       const lang = initialLang();
       transloco.langChanges$.subscribe((active) => (document.documentElement.lang = active));
       transloco.setActiveLang(lang);

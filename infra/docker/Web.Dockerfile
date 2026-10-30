@@ -4,7 +4,10 @@ WORKDIR /app
 COPY src/web/package.json src/web/package-lock.json ./
 RUN npm ci
 COPY src/web/ ./
-RUN npx ng build --configuration production
+# Dirección pública (para canónicas, Open Graph y sitemap). Sin ella quedan relativas.
+ARG SITE_URL=
+ENV SITE_URL=$SITE_URL
+RUN npx ng build --configuration production && node scripts/finalize-seo.mjs
 
 FROM nginx:1.29-alpine AS final
 COPY infra/docker/nginx.conf /etc/nginx/conf.d/default.conf

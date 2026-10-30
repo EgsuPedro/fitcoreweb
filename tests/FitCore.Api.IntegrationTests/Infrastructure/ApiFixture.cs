@@ -84,6 +84,7 @@ public sealed class ApiFixture : IAsyncLifetime
             builder.UseSetting("Email:Smtp:Host", "smtp.test.invalid");
             builder.UseSetting("Email:Smtp:From", "no-reply@fit360.test");
             builder.UseSetting("PublicSite:BaseUrl", "https://fit360.test");
+            builder.UseSetting("Contact:NotifyEmail", "ventas@fit360.test");
             builder.UseSetting("FileStorage:RootPath", FilesRoot);
         });
 

@@ -89,6 +89,8 @@ public static class EmailQueueRegistration
     /// <summary>Cola de correo, tokens de cuenta y dirección pública. La API los usa para encolar; el Worker, para enviar.</summary>
     public static IServiceCollection AddEmailQueue(this IServiceCollection services, IConfiguration configuration)
     {
+        services.Configure<FitCore.Platform.Application.Contact.ContactOptions>(
+            configuration.GetSection(FitCore.Platform.Application.Contact.ContactOptions.SectionName));
         services.Configure<FitCore.Platform.Application.Registration.LegalOptions>(
             configuration.GetSection(FitCore.Platform.Application.Registration.LegalOptions.SectionName));
         services.Configure<FitCore.Platform.Application.Email.PublicSiteOptions>(

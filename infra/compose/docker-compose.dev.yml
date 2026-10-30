@@ -65,6 +65,8 @@ services:
       Email__Smtp__From: ${SMTP_FROM:-no-reply@fit360.local}
       Email__Smtp__FromName: FIT360
       PublicSite__BaseUrl: ${PUBLIC_SITE_URL:-http://localhost:8081}
+      # Aviso al equipo comercial cuando llega un contacto o una demostración (vacío = solo queda en la pantalla de plataforma).
+      Contact__NotifyEmail: ${CONTACT_NOTIFY_EMAIL:-}
     volumes:
       # Fotos de progreso: privadas, solo accesibles desde la API. Incluir este volumen en las copias de seguridad.
       - fitcore_files:/var/lib/fitcore/files

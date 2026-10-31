@@ -45,6 +45,12 @@ public sealed record InvoiceEventDto(string Type, string? FromStatus, string ToS
 
 public sealed record InvoiceIssuerDto(string Ruc, string LegalName, string? TradeName, string HeadOfficeAddress, string EstablishmentAddress, string TaxRegime, bool AccountingRequired, string? SpecialTaxpayerNumber, string? WithholdingAgentNumber);
 
+/// <summary>De una nota de crédito: la factura que modifica y el motivo.</summary>
+public sealed record CreditNoteInfoDto(Guid ModifiedInvoiceId, string ModifiedNumber, DateOnly ModifiedIssueDate, string Reason);
+
+/// <summary>De una factura: una nota de crédito emitida sobre ella.</summary>
+public sealed record CreditNoteSummaryDto(Guid Id, string Number, string Status, DateOnly IssueDate, decimal Total, string Reason);
+
 public sealed record InvoiceDto(
     Guid Id,
     string DocumentType,
@@ -68,10 +74,13 @@ public sealed record InvoiceDto(
     InvoiceAuthorizationDto? Authorization,
     InvoiceTransmissionDto? Transmission,
     IReadOnlyList<InvoiceSriAttemptDto> SriAttempts,
-    IReadOnlyList<InvoiceEmailDto> Emails)
+    IReadOnlyList<InvoiceEmailDto> Emails,
+    CreditNoteInfoDto? CreditNote,
+    IReadOnlyList<CreditNoteSummaryDto> CreditNotes,
+    decimal CreditedTotal)
 {
     internal static InvoiceDto From(
-        Invoice i, IReadOnlyList<InvoiceEvent> events, IReadOnlyList<InvoiceDocumentDto> documents, InvoiceTransmission? transmission, IReadOnlyList<InvoiceSriAttempt> attempts, IReadOnlyList<InvoiceEmail> emails) => new(
+        Invoice i, IReadOnlyList<InvoiceEvent> events, IReadOnlyList<InvoiceDocumentDto> documents, InvoiceTransmission? transmission, IReadOnlyList<InvoiceSriAttempt> attempts, IReadOnlyList<InvoiceEmail> emails, IReadOnlyList<Invoice> creditNotes) => new(
         i.Id,
         i.DocumentType.ToString(),
         i.Number,
@@ -100,11 +109,16 @@ public sealed record InvoiceDto(
         [.. attempts.OrderByDescending(a => a.At).Select(a => new InvoiceSriAttemptDto(
             a.Operation.ToString(), a.Outcome, a.SriState, a.ErrorCode, a.DurationMs,
             System.Text.Json.JsonSerializer.Deserialize<List<SriMessageDto>>(a.Messages, System.Text.Json.JsonSerializerOptions.Web) ?? [], a.At))],
-        [.. emails.OrderByDescending(e => e.CreatedAt).Select(e => new InvoiceEmailDto(e.Id, e.ToAddress, e.Status.ToString(), e.Attempts, e.LastError, e.RequestedBy is null, e.CreatedAt, e.SentAt))]);
+        [.. emails.OrderByDescending(e => e.CreatedAt).Select(e => new InvoiceEmailDto(e.Id, e.ToAddress, e.Status.ToString(), e.Attempts, e.LastError, e.RequestedBy is null, e.CreatedAt, e.SentAt))],
+        i.ModifiedInvoiceId is { } modified && i.ModifiedDocumentNumber is { } modifiedNumber && i.ModifiedIssueDate is { } modifiedDate && i.ModificationReason is { } reason
+            ? new CreditNoteInfoDto(modified, modifiedNumber, modifiedDate, reason)
+            : null,
+        [.. creditNotes.OrderByDescending(n => n.CreatedAt).Select(n => new CreditNoteSummaryDto(n.Id, n.Number, n.Status.ToString(), n.IssueDate, n.Total, n.ModificationReason ?? string.Empty))],
+        creditNotes.Where(n => n.Status is not (InvoiceStatus.Discarded or InvoiceStatus.NotAuthorized)).Sum(n => n.Total));
 }
 
 public sealed record InvoiceListItemDto(
-    Guid Id, string Number, string DocumentType, DateOnly IssueDate, string Status, string Environment, string BuyerName, string BuyerIdNumber, decimal Total, string SourceReference, Guid BranchId);
+    Guid Id, string Number, string DocumentType, DateOnly IssueDate, string Status, string Environment, string BuyerName, string BuyerIdNumber, decimal Total, string SourceReference, Guid BranchId, string? ModifiedNumber = null);
 
 /// <summary>Pide facturar una venta. <c>BuyerIdType</c> permite elegir el tipo de identificación (por ejemplo, consumidor final); <c>EmissionPointId</c>, un punto de emisión distinto del que corresponde por defecto; <c>Submit</c>, ponerlo en la cola del SRI en el mismo acto (firma, envío y consulta los hace el Worker).</summary>
 public sealed record IssueInvoiceRequest(string SourceType, Guid SourceId, SriBuyerIdType? BuyerIdType = null, Guid? EmissionPointId = null, bool Submit = false);
@@ -116,7 +130,7 @@ public sealed record IssueInvoiceCommand(IssueInvoiceRequest Request) : ICommand
 
 public sealed record GetInvoiceQuery(Guid Id) : IQuery<InvoiceDto>;
 
-public sealed record ListInvoicesQuery(int Page, int PageSize, InvoiceStatus? Status, string? Search) : IQuery<PagedResult<InvoiceListItemDto>>;
+public sealed record ListInvoicesQuery(int Page, int PageSize, InvoiceStatus? Status, string? Search, InvoiceDocumentType? DocumentType = null) : IQuery<PagedResult<InvoiceListItemDto>>;
 
 public static class InvoiceErrors
 {
@@ -319,7 +333,10 @@ internal static class InvoiceReader
         var transmission = await db.Transmissions.AsNoTracking().FirstOrDefaultAsync(t => t.InvoiceId == id, cancellationToken);
         var attempts = await db.SriAttempts.AsNoTracking().Where(a => a.InvoiceId == id).OrderByDescending(a => a.At).Take(20).ToListAsync(cancellationToken);
         var emails = await db.InvoiceEmails.AsNoTracking().Where(e => e.InvoiceId == id).OrderByDescending(e => e.CreatedAt).Take(20).ToListAsync(cancellationToken);
-        return InvoiceDto.From(invoice, events, documents, transmission, attempts, emails);
+        var creditNotes = invoice.DocumentType == InvoiceDocumentType.Invoice
+            ? await db.Invoices.AsNoTracking().Where(n => n.ModifiedInvoiceId == id).ToListAsync(cancellationToken)
+            : new List<Invoice>();
+        return InvoiceDto.From(invoice, events, documents, transmission, attempts, emails, creditNotes);
     }
 }
 
@@ -359,6 +376,11 @@ internal sealed partial class ListInvoicesHandler(IAccessContext access, Invoici
             invoices = invoices.Where(i => i.Status == status);
         }
 
+        if (query.DocumentType is { } documentType)
+        {
+            invoices = invoices.Where(i => i.DocumentType == documentType);
+        }
+
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
             var term = query.Search.Trim();
@@ -380,7 +402,7 @@ internal sealed partial class ListInvoicesHandler(IAccessContext access, Invoici
         var total = await invoices.CountAsync(cancellationToken);
         var rows = await invoices.OrderByDescending(i => i.IssueDate).ThenByDescending(i => i.Sequential).Skip((page - 1) * size).Take(size).ToListAsync(cancellationToken);
         var items = rows.Select(i => new InvoiceListItemDto(
-            i.Id, i.Number, i.DocumentType.ToString(), i.IssueDate, i.Status.ToString(), i.Environment.ToString(), i.BuyerName, i.BuyerIdNumber, i.Total, i.SourceReference, i.BranchId)).ToList();
+            i.Id, i.Number, i.DocumentType.ToString(), i.IssueDate, i.Status.ToString(), i.Environment.ToString(), i.BuyerName, i.BuyerIdNumber, i.Total, i.SourceReference, i.BranchId, i.ModifiedDocumentNumber)).ToList();
         return new PagedResult<InvoiceListItemDto>(items, page, size, total);
     }
 }

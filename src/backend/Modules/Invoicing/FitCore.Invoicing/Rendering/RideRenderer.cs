@@ -65,10 +65,10 @@ public static class RideRenderer
     {
         EnsureFonts();
         using var document = new PdfDocument();
-        document.Info.Title = $"Factura {model.DocumentNumber}";
+        document.Info.Title = $"{model.DocumentName} {model.DocumentNumber}";
         document.Info.Author = model.IssuerLegalName;
         document.Info.Creator = "FIT360";
-        document.Info.Subject = $"Representación impresa de la factura electrónica {model.DocumentNumber} (clave de acceso {model.AccessKey})";
+        document.Info.Subject = $"Representación impresa de {(model.DocumentName == "Factura" ? "la factura" : "la nota de crédito")} electrónica {model.DocumentNumber} (clave de acceso {model.AccessKey})";
 
         var painter = new Painter(document, model);
         painter.Draw();
@@ -198,7 +198,7 @@ public static class RideRenderer
             var x = rightX + Pad;
             var ry = top + Pad;
             Text($"R.U.C.: {model.IssuerRuc}", _title, x, ref ry, 16);
-            Text("FACTURA", _title, x, ref ry, 16);
+            Text(model.DocumentTitle, _title, x, ref ry, 16);
             Text($"No. {model.DocumentNumber}", _bold, x, ref ry, 14);
             Text("NÚMERO DE AUTORIZACIÓN", _bold, x, ref ry, 12);
             foreach (var l in authLines)
@@ -264,6 +264,11 @@ public static class RideRenderer
                 rows.Add(("Dirección:", model.BuyerAddress));
             }
 
+            foreach (var field in model.ModifiedDocument ?? [])
+            {
+                rows.Add((field.Label, field.Value));
+            }
+
             const double labelWidth = 175;
             var height = (2 * Pad) + rows.Sum(r => Math.Max(1, Wrap(r.Value, _normal, ContentWidth - labelWidth - (2 * Pad)).Count) * Line);
             EnsureSpace(height);
@@ -309,7 +314,7 @@ public static class RideRenderer
                 if (_y + height > PageHeight - Margin - 30)
                 {
                     NewPage();
-                    _gfx.DrawString($"Factura {model.DocumentNumber} (continuación)", _bold, Ink, new XPoint(Margin, _y + 8));
+                    _gfx.DrawString($"{model.DocumentName} {model.DocumentNumber} (continuación)", _bold, Ink, new XPoint(Margin, _y + 8));
                     _y += 16;
                     DrawTableHeader();
                 }
@@ -376,7 +381,7 @@ public static class RideRenderer
             var additionalHeight = model.AdditionalInfo.Count == 0
                 ? 0
                 : 16 + (2 * Pad) + model.AdditionalInfo.Sum(f => Wrap($"{f.Label}: {f.Value}", _small, leftWidth - (2 * Pad)).Count * 10);
-            var paymentHeight = 16 + (model.Payments.Count * 15) + 4;
+            var paymentHeight = model.Payments.Count == 0 ? 0 : 16 + (model.Payments.Count * 15) + 4;
             var leftHeight = additionalHeight + (additionalHeight > 0 ? 8 : 0) + paymentHeight;
             var rightHeight = model.Totals.Count * 15;
             EnsureSpace(Math.Max(leftHeight, rightHeight) + 4);
@@ -404,19 +409,22 @@ public static class RideRenderer
             }
 
             const double valueWidth = 90;
-            _gfx.DrawRectangle(Border, HeaderFill, Margin, y, leftWidth - valueWidth, 16);
-            _gfx.DrawRectangle(Border, HeaderFill, Margin + leftWidth - valueWidth, y, valueWidth, 16);
-            _gfx.DrawString("Forma de pago", _bold, Ink, new XPoint(Margin + Pad, y + 11));
-            _gfx.DrawString("Valor", _bold, Ink, new XPoint(Margin + leftWidth - valueWidth + Pad, y + 11));
-            y += 16;
-            foreach (var payment in model.Payments)
+            if (model.Payments.Count > 0)
             {
-                _gfx.DrawRectangle(Border, Margin, y, leftWidth - valueWidth, 15);
-                _gfx.DrawRectangle(Border, Margin + leftWidth - valueWidth, y, valueWidth, 15);
-                _gfx.DrawString(Fit(payment.Label, _small, leftWidth - valueWidth - (2 * Pad)), _small, Ink, new XPoint(Margin + Pad, y + 10));
-                var w = _gfx.MeasureString(payment.Value, _small).Width;
-                _gfx.DrawString(payment.Value, _small, Ink, new XPoint(Margin + leftWidth - Pad - w, y + 10));
-                y += 15;
+                _gfx.DrawRectangle(Border, HeaderFill, Margin, y, leftWidth - valueWidth, 16);
+                _gfx.DrawRectangle(Border, HeaderFill, Margin + leftWidth - valueWidth, y, valueWidth, 16);
+                _gfx.DrawString("Forma de pago", _bold, Ink, new XPoint(Margin + Pad, y + 11));
+                _gfx.DrawString("Valor", _bold, Ink, new XPoint(Margin + leftWidth - valueWidth + Pad, y + 11));
+                y += 16;
+                foreach (var payment in model.Payments)
+                {
+                    _gfx.DrawRectangle(Border, Margin, y, leftWidth - valueWidth, 15);
+                    _gfx.DrawRectangle(Border, Margin + leftWidth - valueWidth, y, valueWidth, 15);
+                    _gfx.DrawString(Fit(payment.Label, _small, leftWidth - valueWidth - (2 * Pad)), _small, Ink, new XPoint(Margin + Pad, y + 10));
+                    var w = _gfx.MeasureString(payment.Value, _small).Width;
+                    _gfx.DrawString(payment.Value, _small, Ink, new XPoint(Margin + leftWidth - Pad - w, y + 10));
+                    y += 15;
+                }
             }
 
             // Derecha: totales por tarifa.
@@ -452,7 +460,7 @@ public static class RideRenderer
             for (var i = 0; i < total; i++)
             {
                 using var gfx = XGraphics.FromPdfPage(document.Pages[i], XGraphicsPdfPageOptions.Append);
-                var text = $"Factura {model.DocumentNumber} · Representación impresa (RIDE) generada por FIT360 · Página {i + 1} de {total}";
+                var text = $"{model.DocumentName} {model.DocumentNumber} · Representación impresa (RIDE) generada por FIT360 · Página {i + 1} de {total}";
                 var w = gfx.MeasureString(text, _small).Width;
                 gfx.DrawString(text, _small, Muted, new XPoint((PageWidth - w) / 2, PageHeight - 16));
             }

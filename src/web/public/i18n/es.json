@@ -801,7 +801,19 @@
       "certificate_unreadable": "No se pudo abrir el certificado guardado: revise la clave maestra de facturación o vuelva a cargar el certificado.",
       "xml_invalid": "El XML del comprobante no cumple el esquema del SRI; no se firmó. Se registró el detalle para soporte.",
       "signature_invalid": "La firma generada no pasó la verificación local; no se guardó. Se registró el detalle para soporte.",
-      "provider_ruc_invalid": "El RUC del proveedor del sistema no es válido: no se pueden firmar comprobantes hasta corregirlo."
+      "provider_ruc_invalid": "El RUC del proveedor del sistema no es válido: no se pueden firmar comprobantes hasta corregirlo.",
+      "credit_note_requires_authorized": "Solo se puede emitir una nota de crédito sobre una factura autorizada por el SRI.",
+      "invoice_fully_credited": "La factura ya está acreditada por completo.",
+      "credit_line_not_found": "Una de las líneas no pertenece a la factura.",
+      "credit_line_repeated": "Una línea se indicó más de una vez.",
+      "credit_line_exhausted": "Una de las líneas ya está acreditada por completo.",
+      "credit_amount_invalid": "El importe a acreditar debe ser mayor que cero y tener como máximo dos decimales.",
+      "credit_amount_exceeds": "El importe a acreditar supera lo que queda de esa línea.",
+      "credit_amount_too_small": "El importe a acreditar es demasiado pequeño para facturarlo.",
+      "credit_note_buyer_required": "La factura se hizo a consumidor final: indique a quién se le emite la nota de crédito (el SRI exige identificar al receptor).",
+      "credit_note_buyer_not_allowed": "La nota de crédito va al mismo comprador de la factura: solo se indica comprador cuando la factura fue a consumidor final.",
+      "credit_note_buyer_invalid": "Los datos del receptor no son válidos: revise el tipo y el número de identificación y el nombre.",
+      "credit_note_point_unavailable": "El punto de emisión de la factura ya no está activo: actívelo para emitir la nota de crédito."
     }
   },
   "enums": {
@@ -1071,6 +1083,10 @@
       "Sending": "Enviando",
       "Sent": "Enviado",
       "Failed": "Falló"
+    },
+    "invoiceDocumentType": {
+      "Invoice": "Factura",
+      "CreditNote": "Nota de crédito"
     }
   },
   "members": {
@@ -3749,7 +3765,9 @@
       "sequenceIntro": "Punto {{ point }}: el último número emitido en el ambiente actual es {{ current }}. El siguiente comprobante llevará el que sigue.",
       "sequenceLabel": "Último secuencial que el SRI ya tiene registrado",
       "sequenceHint": "Úselo si ese punto ya emitió comprobantes en otro sistema o en pruebas anteriores: si el SRI ya conoce un número, devuelve el comprobante con el error 45. Solo puede subir, nunca bajar.",
-      "sequenceInvalid": "Escriba un número entero entre 0 y 999999998."
+      "sequenceInvalid": "Escriba un número entero entre 0 y 999999998.",
+      "lastCreditNoteSequential": "Última nota de crédito",
+      "sequenceType": "Tipo de comprobante"
     },
     "certificate": {
       "title": "Certificado de firma electrónica",
@@ -3805,7 +3823,10 @@
         "attentionHint": "Devueltas o no autorizadas",
         "emailsFailed": "Correos fallidos",
         "emailsFailedHint": "No se pudieron entregar al comprador"
-      }
+      },
+      "modifies": "modifica la factura {{ number }}",
+      "documentType": "Tipo de comprobante",
+      "allTypes": "Todos los tipos"
     },
     "issue": {
       "action": "Facturar",
@@ -3939,7 +3960,8 @@
         "EmailQueued": "Correo en cola",
         "EmailSent": "Correo enviado",
         "EmailFailed": "Correo fallido",
-        "Discarded": "Descartada"
+        "Discarded": "Descartada",
+        "CreditNoteIssued": "Nota de crédito emitida"
       },
       "sendEmailHelp": "Se enviará el XML autorizado y el RIDE adjuntos.",
       "sendEmailConfirm": "Enviar",
@@ -3950,7 +3972,41 @@
       "discardHelp": "El comprobante queda como descartado (no se borra) y la venta podrá facturarse de nuevo con un número nuevo. El número del descartado no se reutiliza.",
       "discardReason": "Motivo",
       "discardHint": "Entre 10 y 300 caracteres. Queda en el historial.",
-      "discardConfirm": "Descartar"
+      "discardConfirm": "Descartar",
+      "creditNoteTitle": "Nota de crédito {{ number }}",
+      "issueCreditNote": "Emitir nota de crédito",
+      "reissueCreditNote": "Emitir otra nota de crédito",
+      "modifies": "Comprobante que modifica",
+      "reason": "Motivo",
+      "creditNotes": "Notas de crédito",
+      "creditedOf": "Acreditado"
+    },
+    "creditNote": {
+      "back": "Volver a la factura",
+      "title": "Emitir nota de crédito",
+      "subtitle": "Una nota de crédito corrige una factura ya autorizada: devolución, descuento o cobro de más. Se acredita por línea, total o parcialmente.",
+      "invoice": "Factura {{ number }}",
+      "credited": "Acreditado",
+      "remaining": "Por acreditar",
+      "lines": "Qué se acredita",
+      "linesHelp": "Por omisión se acredita todo lo que queda de cada línea. Para acreditar solo una parte, escriba el importe (con IVA incluido). El IVA es siempre el de la factura.",
+      "include": "Incluir",
+      "original": "Facturado",
+      "amount": "A acreditar (con IVA)",
+      "total": "Total de la nota de crédito",
+      "receiver": "Receptor de la nota de crédito",
+      "receiverHelp": "La factura se hizo a consumidor final, pero el SRI exige identificar a quien recibe una nota de crédito. Indique sus datos.",
+      "reason": "Motivo",
+      "reasonHint": "Entre 5 y 300 caracteres. Va escrito en el comprobante que recibe el cliente.",
+      "issueAndSend": "Emitir y enviar al SRI",
+      "help": "Al emitir se asignan el número y la clave de acceso y ya no se pueden modificar. Si el SRI la devuelve podrá descartarla y emitir otra.",
+      "issued": "Nota de crédito emitida",
+      "issuedAndQueued": "Nota de crédito emitida y en cola para el SRI",
+      "issues": {
+        "invoice_not_authorized": "La factura todavía no está autorizada por el SRI.",
+        "invoice_fully_credited": "La factura ya está acreditada por completo.",
+        "emission_point_invalid": "El punto de emisión de la factura ya no está activo."
+      }
     }
   }
 }

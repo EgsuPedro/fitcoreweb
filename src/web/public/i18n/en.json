@@ -801,7 +801,19 @@
       "certificate_unreadable": "The stored certificate could not be opened: check the invoicing master key or upload the certificate again.",
       "xml_invalid": "The document XML does not meet the SRI schema; it was not signed. The detail was logged for support.",
       "signature_invalid": "The generated signature failed the local check; it was not saved. The detail was logged for support.",
-      "provider_ruc_invalid": "The system provider RUC is not valid: documents cannot be signed until it is fixed."
+      "provider_ruc_invalid": "The system provider RUC is not valid: documents cannot be signed until it is fixed.",
+      "credit_note_requires_authorized": "A credit note can only be issued on an invoice authorized by the SRI.",
+      "invoice_fully_credited": "The invoice is already fully credited.",
+      "credit_line_not_found": "One of the lines does not belong to the invoice.",
+      "credit_line_repeated": "A line was given more than once.",
+      "credit_line_exhausted": "One of the lines is already fully credited.",
+      "credit_amount_invalid": "The amount to credit must be greater than zero and have at most two decimals.",
+      "credit_amount_exceeds": "The amount to credit is more than what is left on that line.",
+      "credit_amount_too_small": "The amount to credit is too small to invoice.",
+      "credit_note_buyer_required": "The invoice was made to a final consumer: say who the credit note is issued to (the SRI requires the receiver to be identified).",
+      "credit_note_buyer_not_allowed": "The credit note goes to the same buyer as the invoice: a buyer is only given when the invoice was made to a final consumer.",
+      "credit_note_buyer_invalid": "The receiver’s details are not valid: check the ID type, the ID number and the name.",
+      "credit_note_point_unavailable": "The invoice’s emission point is no longer active: activate it to issue the credit note."
     }
   },
   "enums": {
@@ -1071,6 +1083,10 @@
       "Sending": "Sending",
       "Sent": "Sent",
       "Failed": "Failed"
+    },
+    "invoiceDocumentType": {
+      "Invoice": "Invoice",
+      "CreditNote": "Credit note"
     }
   },
   "members": {
@@ -3749,7 +3765,9 @@
       "sequenceIntro": "Point {{ point }}: the last number issued in the current environment is {{ current }}. The next document will use the one after it.",
       "sequenceLabel": "Last sequential the SRI already has registered",
       "sequenceHint": "Use it if this point already issued documents in another system or in earlier tests: when the SRI already knows a number it returns the document with error 45. It can only go up, never down.",
-      "sequenceInvalid": "Enter a whole number between 0 and 999999998."
+      "sequenceInvalid": "Enter a whole number between 0 and 999999998.",
+      "lastCreditNoteSequential": "Last credit note",
+      "sequenceType": "Document type"
     },
     "certificate": {
       "title": "Electronic signing certificate",
@@ -3805,7 +3823,10 @@
         "attentionHint": "Returned or not authorized",
         "emailsFailed": "Failed emails",
         "emailsFailedHint": "Could not be delivered to the buyer"
-      }
+      },
+      "modifies": "modifies invoice {{ number }}",
+      "documentType": "Document type",
+      "allTypes": "All types"
     },
     "issue": {
       "action": "Invoice",
@@ -3939,7 +3960,8 @@
         "EmailQueued": "Email queued",
         "EmailSent": "Email sent",
         "EmailFailed": "Email failed",
-        "Discarded": "Discarded"
+        "Discarded": "Discarded",
+        "CreditNoteIssued": "Credit note issued"
       },
       "sendEmailHelp": "The authorized XML and the RIDE will be attached.",
       "sendEmailConfirm": "Send",
@@ -3950,7 +3972,41 @@
       "discardHelp": "The document stays as discarded (it is not deleted) and the sale can be invoiced again with a new number. The discarded number is not reused.",
       "discardReason": "Reason",
       "discardHint": "Between 10 and 300 characters. It is kept in the history.",
-      "discardConfirm": "Discard"
+      "discardConfirm": "Discard",
+      "creditNoteTitle": "Credit note {{ number }}",
+      "issueCreditNote": "Issue credit note",
+      "reissueCreditNote": "Issue another credit note",
+      "modifies": "Document it modifies",
+      "reason": "Reason",
+      "creditNotes": "Credit notes",
+      "creditedOf": "Credited"
+    },
+    "creditNote": {
+      "back": "Back to the invoice",
+      "title": "Issue credit note",
+      "subtitle": "A credit note corrects an invoice that was already authorized: a return, a discount or an overcharge. It is credited per line, in full or in part.",
+      "invoice": "Invoice {{ number }}",
+      "credited": "Credited",
+      "remaining": "Left to credit",
+      "lines": "What is credited",
+      "linesHelp": "By default everything left on each line is credited. To credit only part of it, type the amount (VAT included). The VAT is always the invoice’s.",
+      "include": "Include",
+      "original": "Invoiced",
+      "amount": "To credit (with VAT)",
+      "total": "Credit note total",
+      "receiver": "Credit note receiver",
+      "receiverHelp": "The invoice was made to a final consumer, but the SRI requires the receiver of a credit note to be identified. Enter their details.",
+      "reason": "Reason",
+      "reasonHint": "Between 5 and 300 characters. It is written on the document the customer receives.",
+      "issueAndSend": "Issue and send to the SRI",
+      "help": "Issuing assigns the number and access key, which can no longer be changed. If the SRI returns it you can discard it and issue another.",
+      "issued": "Credit note issued",
+      "issuedAndQueued": "Credit note issued and queued for the SRI",
+      "issues": {
+        "invoice_not_authorized": "The invoice is not yet authorized by the SRI.",
+        "invoice_fully_credited": "The invoice is already fully credited.",
+        "emission_point_invalid": "The invoice’s emission point is no longer active."
+      }
     }
   }
 }

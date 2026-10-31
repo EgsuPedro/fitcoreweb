@@ -3956,6 +3956,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoicing/invoices/{id}/credit-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["PreviewCreditNote"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/credit-notes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["IssueCreditNote"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -4511,6 +4543,11 @@ export interface components {
             outcome: components["schemas"]["AttendanceOutcome"];
             notes: string | null;
         };
+        /**
+         * @default Auto
+         * @enum {unknown}
+         */
+        AttendanceGrouping: "Auto" | "Day" | "Week" | "Month";
         /** @enum {unknown} */
         AttendanceOutcome: "Attended" | "NoShow";
         AttendancePointDto: {
@@ -4537,6 +4574,11 @@ export interface components {
             /** Format: int32 */
             visits: number;
         };
+        /**
+         * @default Summary
+         * @enum {unknown}
+         */
+        AttendanceView: "Summary" | "Members";
         AuditLogDto: {
             /** Format: int64 */
             id: number;
@@ -4585,6 +4627,11 @@ export interface components {
             /** Format: int32 */
             overdueCount: number;
         };
+        /**
+         * @default Members
+         * @enum {unknown}
+         */
+        BalanceView: "Members" | "Obligations";
         /** @enum {unknown} */
         BillingPeriod: "Monthly" | "Quarterly" | "Yearly";
         BillingSummaryDto: {
@@ -5324,6 +5371,78 @@ export interface components {
             notes: string | null;
             exercises: components["schemas"]["SessionExerciseRequest"][] | null;
         };
+        CreditableLineDto: {
+            /** Format: uuid */
+            lineId: string;
+            /** Format: int32 */
+            lineNumber: number;
+            description: string;
+            /** Format: double */
+            taxPercent: number;
+            /** Format: double */
+            originalAmount: number;
+            /** Format: double */
+            creditedAmount: number;
+            /** Format: double */
+            remainingAmount: number;
+        };
+        /** @default null */
+        CreditNoteBuyerRequest: {
+            idType: components["schemas"]["SriBuyerIdType"];
+            idNumber: string;
+            legalName: string;
+            /** @default null */
+            email: string | null;
+            /** @default null */
+            address: string | null;
+            /** @default null */
+            phone: string | null;
+        } | null;
+        CreditNoteInfoDto: {
+            /** Format: uuid */
+            modifiedInvoiceId: string;
+            modifiedNumber: string;
+            /** Format: date */
+            modifiedIssueDate: string;
+            reason: string;
+        } | null;
+        CreditNoteLineRequest: {
+            /** Format: uuid */
+            lineId: string;
+            /**
+             * Format: double
+             * @default null
+             */
+            amount: number | null;
+        };
+        CreditNotePreviewDto: {
+            /** Format: uuid */
+            invoiceId: string;
+            number: string;
+            status: string;
+            buyerName: string;
+            buyerIsFinalConsumer: boolean;
+            /** Format: double */
+            total: number;
+            /** Format: double */
+            creditedTotal: number;
+            /** Format: double */
+            remainingTotal: number;
+            lines: components["schemas"]["CreditableLineDto"][];
+            issues: components["schemas"]["InvoiceIssueDto"][];
+            canIssue: boolean;
+        };
+        CreditNoteSummaryDto: {
+            /** Format: uuid */
+            id: string;
+            number: string;
+            status: string;
+            /** Format: date */
+            issueDate: string;
+            /** Format: double */
+            total: number;
+            reason: string;
+        };
         DashboardDto: {
             currency: string;
             timeZone: string;
@@ -5442,6 +5561,11 @@ export interface components {
             isActive: boolean;
             /** Format: int32 */
             lastSequential: number;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            lastCreditNoteSequential: number;
         };
         EndAssignmentRequest: {
             reason: string;
@@ -5926,6 +6050,11 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
         };
+        /**
+         * @default Invoice
+         * @enum {unknown}
+         */
+        InvoiceDocumentType: "Invoice" | "CreditNote";
         InvoiceDto: {
             /** Format: uuid */
             id: string;
@@ -5997,6 +6126,10 @@ export interface components {
             transmission: components["schemas"]["InvoiceTransmissionDto"];
             sriAttempts: components["schemas"]["InvoiceSriAttemptDto"][];
             emails: components["schemas"]["InvoiceEmailDto"][];
+            creditNote: components["schemas"]["CreditNoteInfoDto"];
+            creditNotes: components["schemas"]["CreditNoteSummaryDto"][];
+            /** Format: double */
+            creditedTotal: number;
         };
         InvoiceEmailDto: {
             /** Format: uuid */
@@ -6073,6 +6206,8 @@ export interface components {
             sourceReference: string;
             /** Format: uuid */
             branchId: string;
+            /** @default null */
+            modifiedNumber: string | null;
         };
         InvoicePaymentDto: {
             methodCode: string;
@@ -6220,6 +6355,16 @@ export interface components {
             monthAuthorizedCount: number;
             /** Format: double */
             monthAuthorizedTotal: number;
+        };
+        IssueCreditNoteRequest: {
+            /** Format: uuid */
+            invoiceId: string;
+            reason: string;
+            /** @default null */
+            lines: components["schemas"]["CreditNoteLineRequest"][] | null;
+            buyer?: components["schemas"]["CreditNoteBuyerRequest"];
+            /** @default false */
+            submit: boolean;
         };
         IssueInvoiceRequest: {
             sourceType: string;
@@ -6605,6 +6750,11 @@ export interface components {
             actorId: string | null;
             details: string | null;
         };
+        /**
+         * @default Any
+         * @enum {unknown}
+         */
+        MembershipKind: "Any" | "New" | "Renewal" | "Reincorporation";
         MembershipRowDto: {
             /** Format: uuid */
             membershipId: string;
@@ -6940,6 +7090,16 @@ export interface components {
          * @default null
          * @enum {unknown}
          */
+        NullableOfActivityType: "Yoga" | "Spinning" | "Functional" | "Zumba" | "Pilates" | "Stretching" | "Boxing" | "Dance" | "Other" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfAttendanceMethod: "Manual" | "Qr" | "Device" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
         NullableOfAttendanceOutcome: "Attended" | "NoShow" | null;
         /**
          * @default null
@@ -6948,6 +7108,21 @@ export interface components {
         NullableOfBalanceView: "Members" | "Obligations" | null;
         /** @enum {unknown|null} */
         NullableOfBodyFatMethod: "Caliper" | "Bioimpedance" | "Dexa" | "Other" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfCashMovementType: "CashPayment" | "PaymentReversal" | "ManualIn" | "ManualOut" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfCashSessionStatus: "Open" | "Closed" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfClassLevel: "AllLevels" | "Beginner" | "Intermediate" | "Advanced" | null;
         /**
          * @default null
          * @enum {unknown}
@@ -6967,6 +7142,17 @@ export interface components {
         NullableOfGoalMetric: "WeightKg" | "WaistCm" | "HipCm" | "ChestCm" | "ArmCm" | "ThighCm" | "BodyFatPercent" | "SessionsPerWeek" | null;
         /**
          * @default null
+         * @enum {unknown}
+         */
+        NullableOfGoalStatus: "Active" | "Achieved" | "Abandoned" | null;
+        /** @enum {unknown} */
+        NullableOfInvoiceDocumentKind: "Xml" | "SignedXml" | "AuthorizedXml" | null;
+        /** @enum {unknown} */
+        NullableOfInvoiceDocumentType: "Invoice" | "CreditNote" | null;
+        /** @enum {unknown} */
+        NullableOfInvoiceStatus: "PendingSignature" | "SignedDocument" | "PendingSubmission" | "Received" | "Processing" | "Authorized" | "NotAuthorized" | "Rejected" | "Voided" | "Discarded" | null;
+        /**
+         * @default null
          * @enum {unknown|null}
          */
         NullableOfMembershipKind: "Any" | "New" | "Renewal" | "Reincorporation" | null;
@@ -6974,7 +7160,47 @@ export interface components {
          * @default null
          * @enum {unknown}
          */
+        NullableOfMembershipStatus: "PendingPayment" | "Active" | "Frozen" | "Cancelled" | "Expired" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfMemberStatus: "Active" | "Inactive" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
         NullableOfMuscleGroup: "Chest" | "Back" | "Shoulders" | "Biceps" | "Triceps" | "Forearms" | "Core" | "Quadriceps" | "Hamstrings" | "Glutes" | "Calves" | "FullBody" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfNotificationStatus: "Pending" | "Sent" | "Failed" | "Sending" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfNotificationType: "StaffExpiringSoon" | "MemberDueDay" | "MemberAfterDue" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfNotificationType2: "ReservationConfirmed" | "WaitlistJoined" | "WaitlistOffer" | "WaitlistOfferExpired" | "ReservationCancelledByGym" | "SessionCancelled" | "SessionRescheduled" | "ClassReminder" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfObligationStatus: "Pending" | "PartiallyPaid" | "Paid" | "Voided" | "Overdue" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfPaymentMethod: "Cash" | "BankTransfer" | "Card" | "Other" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfPaymentStatus: "PendingVerification" | "Confirmed" | "Reversed" | null;
         /**
          * @default null
          * @enum {unknown|null}
@@ -6989,12 +7215,34 @@ export interface components {
          * @default null
          * @enum {unknown}
          */
+        NullableOfPromotionStatus: "Active" | "Scheduled" | "Expired" | "Exhausted" | "Inactive" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
         NullableOfReservationStatus: "Confirmed" | "Waitlisted" | "Offered" | "Cancelled" | "Expired" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfSeriesStatus: "Active" | "Cancelled" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfSessionStatus: "Scheduled" | "Cancelled" | "Completed" | null;
         /**
          * @default null
          * @enum {unknown|null}
          */
         NullableOfSriBuyerIdType: "Ruc" | "Cedula" | "Passport" | "FinalConsumer" | "Foreign" | null;
+        /** @enum {unknown} */
+        NullableOfSriBuyerIdType2: "Ruc" | "Cedula" | "Passport" | "FinalConsumer" | "Foreign" | null;
+        /**
+         * @default null
+         * @enum {unknown}
+         */
+        NullableOfTrainerStatus: "Active" | "Inactive" | null;
         NutritionAdherenceDto: {
             /** Format: date */
             from: string;
@@ -8123,6 +8371,11 @@ export interface components {
             methods: components["schemas"]["MethodRowDto"][];
             otherDetails: string[];
         };
+        /**
+         * @default Confirmed
+         * @enum {unknown}
+         */
+        PaymentStatusFilter: "Confirmed" | "PendingVerification" | "Reversed" | "All";
         PeriodDto: {
             /** Format: date */
             from: string;
@@ -9093,6 +9346,7 @@ export interface components {
         SetSequenceRequest: {
             /** Format: int32 */
             lastIssued: number;
+            documentType?: components["schemas"]["InvoiceDocumentType"];
         };
         SetTrainerStatusRequest: {
             isActive: boolean;
@@ -9112,6 +9366,8 @@ export interface components {
             date: string;
             reason: string;
         };
+        /** @enum {unknown} */
+        SriBuyerIdType: "Ruc" | "Cedula" | "Passport" | "FinalConsumer" | "Foreign";
         /** @enum {unknown} */
         SriEnvironment: "Test" | "Production";
         SriMessageDto: {
@@ -9970,8 +10226,8 @@ export interface operations {
     ListNotifications: {
         parameters: {
             query?: {
-                status?: "Pending" | "Sent" | "Failed" | "Sending" | null;
-                type?: "StaffExpiringSoon" | "MemberDueDay" | "MemberAfterDue" | null;
+                status?: components["schemas"]["NullableOfNotificationStatus"];
+                type?: components["schemas"]["NullableOfNotificationType"];
                 branchId?: string;
                 memberId?: string;
                 page?: number;
@@ -10560,7 +10816,7 @@ export interface operations {
     ListGoals: {
         parameters: {
             query?: {
-                status?: "Active" | "Achieved" | "Abandoned" | null;
+                status?: components["schemas"]["NullableOfGoalStatus"];
             };
             header?: never;
             path: {
@@ -11489,7 +11745,7 @@ export interface operations {
         parameters: {
             query?: {
                 search?: string;
-                status?: "Active" | "Inactive" | null;
+                status?: components["schemas"]["NullableOfMemberStatus"];
                 branchId?: string;
                 page?: number;
                 pageSize?: number;
@@ -11803,7 +12059,7 @@ export interface operations {
         parameters: {
             query?: {
                 search?: string;
-                status?: "Active" | "Scheduled" | "Expired" | "Exhausted" | "Inactive" | null;
+                status?: components["schemas"]["NullableOfPromotionStatus"];
                 planId?: string;
                 page?: number;
                 pageSize?: number;
@@ -11903,7 +12159,7 @@ export interface operations {
                 memberId?: string;
                 branchId?: string;
                 planId?: string;
-                status?: "PendingPayment" | "Active" | "Frozen" | "Cancelled" | "Expired" | null;
+                status?: components["schemas"]["NullableOfMembershipStatus"];
                 search?: string;
                 page?: number;
                 pageSize?: number;
@@ -12124,7 +12380,7 @@ export interface operations {
                 memberId?: string;
                 membershipId?: string;
                 branchId?: string;
-                status?: "Pending" | "PartiallyPaid" | "Paid" | "Voided" | "Overdue" | null;
+                status?: components["schemas"]["NullableOfObligationStatus"];
                 search?: string;
                 page?: number;
                 pageSize?: number;
@@ -12223,8 +12479,8 @@ export interface operations {
             query?: {
                 memberId?: string;
                 branchId?: string;
-                method?: "Cash" | "BankTransfer" | "Card" | "Other" | null;
-                status?: "PendingVerification" | "Confirmed" | "Reversed" | null;
+                method?: components["schemas"]["NullableOfPaymentMethod"];
+                status?: components["schemas"]["NullableOfPaymentStatus"];
                 from?: string;
                 to?: string;
                 search?: string;
@@ -12506,7 +12762,7 @@ export interface operations {
         parameters: {
             query?: {
                 sessionId?: string;
-                type?: "CashPayment" | "PaymentReversal" | "ManualIn" | "ManualOut" | null;
+                type?: components["schemas"]["NullableOfCashMovementType"];
                 page?: number;
                 pageSize?: number;
             };
@@ -12560,7 +12816,7 @@ export interface operations {
     ListCashSessions: {
         parameters: {
             query?: {
-                status?: "Open" | "Closed" | null;
+                status?: components["schemas"]["NullableOfCashSessionStatus"];
                 from?: string;
                 to?: string;
                 page?: number;
@@ -12613,7 +12869,7 @@ export interface operations {
             query?: {
                 memberId?: string;
                 branchId?: string;
-                method?: "Manual" | "Qr" | "Device" | null;
+                method?: components["schemas"]["NullableOfAttendanceMethod"];
                 open?: boolean;
                 exception?: boolean;
                 from?: string;
@@ -12870,7 +13126,7 @@ export interface operations {
         parameters: {
             query?: {
                 search?: string;
-                status?: "Active" | "Inactive" | null;
+                status?: components["schemas"]["NullableOfTrainerStatus"];
                 branchId?: string;
                 page?: number;
                 pageSize?: number;
@@ -13860,8 +14116,8 @@ export interface operations {
         parameters: {
             query?: {
                 search?: string;
-                activity?: "Yoga" | "Spinning" | "Functional" | "Zumba" | "Pilates" | "Stretching" | "Boxing" | "Dance" | "Other" | null;
-                level?: "AllLevels" | "Beginner" | "Intermediate" | "Advanced" | null;
+                activity?: components["schemas"]["NullableOfActivityType"];
+                level?: components["schemas"]["NullableOfClassLevel"];
                 branchId?: string;
                 instructorId?: string;
                 isActive?: boolean;
@@ -13992,7 +14248,7 @@ export interface operations {
                 branchId?: string;
                 instructorId?: string;
                 seriesId?: string;
-                status?: "Scheduled" | "Cancelled" | "Completed" | null;
+                status?: components["schemas"]["NullableOfSessionStatus"];
                 page?: number;
                 pageSize?: number;
             };
@@ -14116,7 +14372,7 @@ export interface operations {
             query?: {
                 classId?: string;
                 branchId?: string;
-                status?: "Active" | "Cancelled" | null;
+                status?: components["schemas"]["NullableOfSeriesStatus"];
                 page?: number;
                 pageSize?: number;
             };
@@ -14660,7 +14916,7 @@ export interface operations {
         parameters: {
             query?: {
                 unreadOnly?: boolean;
-                type?: "ReservationConfirmed" | "WaitlistJoined" | "WaitlistOffer" | "WaitlistOfferExpired" | "ReservationCancelledByGym" | "SessionCancelled" | "SessionRescheduled" | "ClassReminder" | null;
+                type?: components["schemas"]["NullableOfNotificationType2"];
                 page?: number;
                 pageSize?: number;
             };
@@ -14870,7 +15126,7 @@ export interface operations {
                 from?: string;
                 to?: string;
                 branchId?: string[];
-                status?: "Confirmed" | "PendingVerification" | "Reversed" | "All";
+                status?: components["schemas"]["PaymentStatusFilter"];
                 method?: string;
                 planId?: string;
                 page?: number;
@@ -14922,7 +15178,7 @@ export interface operations {
         parameters: {
             query?: {
                 branchId?: string[];
-                view?: "Members" | "Obligations";
+                view?: components["schemas"]["BalanceView"];
                 overdueOnly?: boolean;
                 planId?: string;
                 page?: number;
@@ -15034,7 +15290,7 @@ export interface operations {
                 to?: string;
                 branchId?: string[];
                 planId?: string;
-                kind?: "Any" | "New" | "Renewal" | "Reincorporation";
+                kind?: components["schemas"]["MembershipKind"];
                 page?: number;
                 pageSize?: number;
             };
@@ -15145,8 +15401,8 @@ export interface operations {
                 from?: string;
                 to?: string;
                 branchId?: string[];
-                grouping?: "Auto" | "Day" | "Week" | "Month";
-                view?: "Summary" | "Members";
+                grouping?: components["schemas"]["AttendanceGrouping"];
+                view?: components["schemas"]["AttendanceView"];
                 page?: number;
                 pageSize?: number;
             };
@@ -16788,7 +17044,7 @@ export interface operations {
     PreviewObligationInvoice: {
         parameters: {
             query?: {
-                buyerIdType?: "Ruc" | "Cedula" | "Passport" | "FinalConsumer" | "Foreign" | null;
+                buyerIdType?: components["schemas"]["NullableOfSriBuyerIdType2"];
                 emissionPointId?: string;
             };
             header?: never;
@@ -16815,8 +17071,9 @@ export interface operations {
             query?: {
                 page?: number;
                 pageSize?: number;
-                status?: "PendingSignature" | "SignedDocument" | "PendingSubmission" | "Received" | "Processing" | "Authorized" | "NotAuthorized" | "Rejected" | "Voided" | "Discarded" | null;
+                status?: components["schemas"]["NullableOfInvoiceStatus"];
                 q?: string;
+                documentType?: components["schemas"]["NullableOfInvoiceDocumentType"];
             };
             header?: never;
             path?: never;
@@ -16937,7 +17194,7 @@ export interface operations {
     DownloadInvoiceXml: {
         parameters: {
             query?: {
-                kind?: "Xml" | "SignedXml" | "AuthorizedXml" | null;
+                kind?: components["schemas"]["NullableOfInvoiceDocumentKind"];
             };
             header?: never;
             path: {
@@ -17039,6 +17296,52 @@ export interface operations {
         responses: {
             /** @description OK */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
+                };
+            };
+        };
+    };
+    PreviewCreditNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreditNotePreviewDto"];
+                };
+            };
+        };
+    };
+    IssueCreditNote: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueCreditNoteRequest"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };

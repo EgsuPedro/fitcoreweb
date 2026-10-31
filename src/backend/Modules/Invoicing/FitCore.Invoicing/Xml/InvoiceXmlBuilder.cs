@@ -32,7 +32,7 @@ public static class InvoiceXmlBuilder
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + root.ToString(SaveOptions.DisableFormatting);
     }
 
-    private static XElement InfoTributaria(Invoice i)
+    internal static XElement InfoTributaria(Invoice i)
     {
         var e = new XElement("infoTributaria",
             new XElement("ambiente", SriCatalogs.EnvironmentCode(i.Environment)),
@@ -42,7 +42,7 @@ public static class InvoiceXmlBuilder
         e.Add(
             new XElement("ruc", i.IssuerRuc),
             new XElement("claveAcceso", i.AccessKey),
-            new XElement("codDoc", SriCatalogs.InvoiceDocumentCode),
+            new XElement("codDoc", SriCatalogs.DocumentCode(i.DocumentType)),
             new XElement("estab", i.EstablishmentCode),
             new XElement("ptoEmi", i.PointCode),
             new XElement("secuencial", i.Sequential.ToString("D9", CultureInfo.InvariantCulture)),
@@ -117,7 +117,7 @@ public static class InvoiceXmlBuilder
         return fields.Count == 0 ? null : new XElement("infoAdicional", fields);
     }
 
-    private static void Optional(XElement parent, string name, string? value)
+    internal static void Optional(XElement parent, string name, string? value)
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
@@ -125,10 +125,10 @@ public static class InvoiceXmlBuilder
         }
     }
 
-    private static string Money(decimal value) => value.ToString("0.00", CultureInfo.InvariantCulture);
+    internal static string Money(decimal value) => value.ToString("0.00", CultureInfo.InvariantCulture);
 
     /// <summary>Cantidad y precio unitario admiten hasta 6 decimales; se escriben con al menos 2.</summary>
-    private static string Decimal(decimal value) => value.ToString("0.00####", CultureInfo.InvariantCulture);
+    internal static string Decimal(decimal value) => value.ToString("0.00####", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Texto apto para el XML: sin caracteres de control (no válidos en XML 1.0), sin saltos de línea (los patrones del XSD son <c>[^\n]*</c>) y con los espacios recogidos.

@@ -119,6 +119,8 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.Property(x => x.RoundingDifference).HasPrecision(14, 2);
             b.Ignore(x => x.Number);
             b.Property(x => x.AuthorizationNumber).HasMaxLength(49);
+            b.Property(x => x.ModifiedDocumentNumber).HasMaxLength(17);
+            b.Property(x => x.ModificationReason).HasMaxLength(300);
             b.HasMany(x => x.Lines).WithOne().HasForeignKey(x => x.InvoiceId);
             b.HasMany(x => x.Taxes).WithOne().HasForeignKey(x => x.InvoiceId);
             b.HasMany(x => x.Payments).WithOne().HasForeignKey(x => x.InvoiceId);
@@ -126,7 +128,9 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.HasMany<InvoiceDocument>().WithOne().HasForeignKey(d => d.InvoiceId);
             b.HasMany<InvoiceSriAttempt>().WithOne().HasForeignKey(a => a.InvoiceId);
             b.HasOne<InvoiceTransmission>().WithOne().HasForeignKey<InvoiceTransmission>(t => t.InvoiceId);
-            b.HasIndex(x => new { x.TenantId, x.SourceType, x.SourceId, x.DocumentType }).HasFilter("status <> 'Discarded'").IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.SourceType, x.SourceId, x.DocumentType }).HasFilter("status <> 'Discarded' AND document_type = 'Invoice'").IsUnique();
+            b.HasIndex(x => x.ModifiedInvoiceId).HasFilter("modified_invoice_id IS NOT NULL");
+            b.HasOne<Invoice>().WithMany().HasForeignKey(x => x.ModifiedInvoiceId).OnDelete(DeleteBehavior.Restrict);
             b.HasIndex(x => x.AccessKey).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.EmissionPointId, x.DocumentType, x.Environment, x.Sequential }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.IssueDate });
@@ -150,6 +154,8 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.Property(x => x.TaxPercent).HasPrecision(5, 2);
             b.Property(x => x.TaxAmount).HasPrecision(14, 2);
             b.HasIndex(x => new { x.InvoiceId, x.LineNumber }).IsUnique();
+            b.HasIndex(x => x.ModifiedLineId).HasFilter("modified_line_id IS NOT NULL");
+            b.HasOne<InvoiceLine>().WithMany().HasForeignKey(x => x.ModifiedLineId).OnDelete(DeleteBehavior.Restrict);
             b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
         });
 

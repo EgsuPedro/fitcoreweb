@@ -152,7 +152,7 @@ public sealed class InvoiceRideService(ITenantBranding branding, ILogger<Invoice
         }
     }
 
-    public static string FileName(Invoice invoice) => $"Factura-{invoice.Number}.pdf";
+    public static string FileName(Invoice invoice) => $"{(invoice.DocumentType == InvoiceDocumentType.CreditNote ? "NotaCredito" : "Factura")}-{invoice.Number}.pdf";
 }
 
 internal sealed class DownloadInvoiceRideHandler(IAccessContext access, InvoicingDbContext db, InvoiceRideService rides, IClock clock) : ICommandHandler<DownloadInvoiceRideCommand, InvoiceRideFile>
@@ -216,10 +216,15 @@ internal sealed class InvoiceEmailDispatcher(InvoicingDbContext db, IEmailSender
     private static EmailMessage Compose(Invoice invoice, string to, string authorizedXml, byte[] pdf)
     {
         var issuer = string.IsNullOrWhiteSpace(invoice.IssuerTradeName) ? invoice.IssuerLegalName : invoice.IssuerTradeName;
+        var isCreditNote = invoice.DocumentType == InvoiceDocumentType.CreditNote;
+        var noun = isCreditNote ? "Nota de crédito" : "Factura";
+        var intro = isCreditNote
+            ? System.FormattableString.Invariant($"{issuer} le envía su nota de crédito electrónica No. {invoice.Number}, por un valor de USD {RideModel.Money(invoice.Total)}, emitida el {invoice.IssueDate:dd/MM/yyyy} y que modifica la factura No. {invoice.ModifiedDocumentNumber}. Motivo: {invoice.ModificationReason}.")
+            : System.FormattableString.Invariant($"{issuer} le envía su factura electrónica No. {invoice.Number}, por un valor de USD {RideModel.Money(invoice.Total)}, emitida el {invoice.IssueDate:dd/MM/yyyy}.");
         var body = new StringBuilder()
             .AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"Hola {invoice.BuyerName},")
             .AppendLine()
-            .AppendLine(System.Globalization.CultureInfo.InvariantCulture, $"{issuer} le envía su factura electrónica No. {invoice.Number}, por un valor de USD {RideModel.Money(invoice.Total)}, emitida el {invoice.IssueDate:dd/MM/yyyy}.")
+            .AppendLine(intro)
             .AppendLine()
             .AppendLine("Adjuntamos el comprobante autorizado por el SRI en dos formatos:")
             .AppendLine("  - La representación impresa (RIDE), en PDF.")
@@ -227,7 +232,7 @@ internal sealed class InvoiceEmailDispatcher(InvoicingDbContext db, IEmailSender
             .AppendLine()
             .AppendLine("Este mensaje se envía automáticamente: no es necesario responderlo.")
             .ToString();
-        return new EmailMessage(to, $"Factura {invoice.Number} de {issuer}", body, null,
+        return new EmailMessage(to, $"{noun} {invoice.Number} de {issuer}", body, null,
         [
             new EmailAttachment(InvoiceRideService.FileName(invoice), "application/pdf", pdf),
             new EmailAttachment($"{invoice.AccessKey}.xml", "application/xml", Encoding.UTF8.GetBytes(authorizedXml))

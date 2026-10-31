@@ -12,6 +12,11 @@ public static class SriCatalogs
     /// <summary>Tabla 3: código del tipo de comprobante «Factura» (etiqueta <c>codDoc</c>).</summary>
     public const string InvoiceDocumentCode = "01";
 
+    /// <summary>Tabla 3: código del tipo de comprobante «Nota de crédito».</summary>
+    public const string CreditNoteDocumentCode = "04";
+
+    public static string DocumentCode(InvoiceDocumentType type) => type == InvoiceDocumentType.CreditNote ? CreditNoteDocumentCode : InvoiceDocumentCode;
+
     /// <summary>Tabla 2: tipo de emisión «Normal».</summary>
     public const string NormalEmissionCode = "1";
 

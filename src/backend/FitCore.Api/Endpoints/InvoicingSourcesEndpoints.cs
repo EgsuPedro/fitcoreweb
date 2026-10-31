@@ -93,8 +93,23 @@ internal static class InvoicingSourcesEndpoints
             .Produces<InvoiceDto>()
             .WithName("ResendInvoiceEmail");
 
-        invoices.MapGet("/", async (int? page, int? pageSize, InvoiceStatus? status, string? q, IDispatcher dispatcher, CancellationToken ct) =>
-                (await dispatcher.QueryAsync(new ListInvoicesQuery(page ?? 1, pageSize ?? 20, status, q), ct)).ToHttp(r => Results.Ok(r)))
+        // Nota de crédito sobre una factura autorizada (total o parcial, por línea). Va al mismo ciclo que la factura: firma, SRI, autorización, RIDE y correo.
+        invoices.MapGet("/{id:guid}/credit-preview", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetCreditNotePreviewQuery(id), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InvoicingCreditNote)
+            .Produces<CreditNotePreviewDto>()
+            .WithName("PreviewCreditNote");
+
+        routes.MapGroup("/invoicing/credit-notes").WithTags("Facturación electrónica · Notas de crédito")
+            .MapPost("/", async (IssueCreditNoteRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new IssueCreditNoteCommand(request), ct)).ToHttp(r => Results.Created($"/api/v1/invoicing/invoices/{r.Id}", r)))
+            .RequirePermission(Permissions.InvoicingCreditNote)
+            .WithValidation<IssueCreditNoteRequest>()
+            .Produces<InvoiceDto>(StatusCodes.Status201Created)
+            .WithName("IssueCreditNote");
+
+        invoices.MapGet("/", async (int? page, int? pageSize, InvoiceStatus? status, string? q, InvoiceDocumentType? documentType, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new ListInvoicesQuery(page ?? 1, pageSize ?? 20, status, q, documentType), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.InvoicingRead)
             .Produces<PagedResult<InvoiceListItemDto>>()
             .WithName("ListInvoices");

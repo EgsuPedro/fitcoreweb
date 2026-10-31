@@ -244,6 +244,24 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .HasColumnType("character varying(300)")
                         .HasColumnName("issuer_trade_name");
 
+                    b.Property<string>("ModificationReason")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("modification_reason");
+
+                    b.Property<string>("ModifiedDocumentNumber")
+                        .HasMaxLength(17)
+                        .HasColumnType("character varying(17)")
+                        .HasColumnName("modified_document_number");
+
+                    b.Property<Guid?>("ModifiedInvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_invoice_id");
+
+                    b.Property<DateOnly?>("ModifiedIssueDate")
+                        .HasColumnType("date")
+                        .HasColumnName("modified_issue_date");
+
                     b.Property<string>("NumericCode")
                         .IsRequired()
                         .HasMaxLength(8)
@@ -340,13 +358,17 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_invoices_access_key");
 
+                    b.HasIndex("ModifiedInvoiceId")
+                        .HasDatabaseName("ix_invoices_modified_invoice_id")
+                        .HasFilter("modified_invoice_id IS NOT NULL");
+
                     b.HasIndex("TenantId", "IssueDate")
                         .HasDatabaseName("ix_invoices_tenant_id_issue_date");
 
                     b.HasIndex("TenantId", "SourceType", "SourceId", "DocumentType")
                         .IsUnique()
                         .HasDatabaseName("ix_invoices_tenant_id_source_type_source_id_document_type")
-                        .HasFilter("status <> 'Discarded'");
+                        .HasFilter("status <> 'Discarded' AND document_type = 'Invoice'");
 
                     b.HasIndex("TenantId", "EmissionPointId", "DocumentType", "Environment", "Sequential")
                         .IsUnique()
@@ -557,6 +579,10 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .HasColumnType("character varying(60)")
                         .HasColumnName("main_code");
 
+                    b.Property<Guid?>("ModifiedLineId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_line_id");
+
                     b.Property<decimal>("Quantity")
                         .HasPrecision(14, 6)
                         .HasColumnType("numeric(14,6)")
@@ -606,6 +632,10 @@ namespace FitCore.Invoicing.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_invoice_lines");
+
+                    b.HasIndex("ModifiedLineId")
+                        .HasDatabaseName("ix_invoice_lines_modified_line_id")
+                        .HasFilter("modified_line_id IS NOT NULL");
 
                     b.HasIndex("InvoiceId", "LineNumber")
                         .IsUnique()
@@ -1156,6 +1186,15 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         });
                 });
 
+            modelBuilder.Entity("FitCore.Invoicing.Domain.Invoice", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany()
+                        .HasForeignKey("ModifiedInvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_invoices_invoices_modified_invoice_id");
+                });
+
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceDocument", b =>
                 {
                     b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
@@ -1194,6 +1233,12 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_invoice_lines_invoices_invoice_id");
+
+                    b.HasOne("FitCore.Invoicing.Domain.InvoiceLine", null)
+                        .WithMany()
+                        .HasForeignKey("ModifiedLineId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_invoice_lines_invoice_lines_modified_line_id");
                 });
 
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoicePayment", b =>

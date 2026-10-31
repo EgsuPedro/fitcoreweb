@@ -31,7 +31,10 @@ import type {
   PlatformRequest,
   SubscriptionNotice,
   InvoicingSettings,
+  IssueCreditNoteRequest,
   SriBuyerIdType,
+  SriCreditNotePreview,
+  SriDocumentType,
   SriDocumentKind,
   SriInvoice,
   SriInvoiceListItem,
@@ -517,8 +520,8 @@ export class ApiService {
     return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}`, body);
   }
   /** Sube el último secuencial usado de un punto de emisión (el SRI ya puede tener números de otro sistema o de pruebas). Solo sube. */
-  setEmissionPointSequence(id: string, lastIssued: number): Observable<InvoicingSettings> {
-    return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}/sequence`, { lastIssued });
+  setEmissionPointSequence(id: string, lastIssued: number, documentType: SriDocumentType = 'Invoice'): Observable<InvoicingSettings> {
+    return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}/sequence`, { lastIssued, documentType });
   }
   // ---- Comprobantes electrónicos del SRI ----------------------------------------------------------------------------------------
   sriInvoicingSummary(): Observable<SriInvoicingSummary> {
@@ -536,6 +539,13 @@ export class ApiService {
   /** Idempotente por venta: facturar dos veces la misma venta devuelve el mismo comprobante. */
   issueSriInvoice(obligationId: string, buyerIdType: SriBuyerIdType | null, submit: boolean): Observable<SriInvoice> {
     return this.http.post<SriInvoice>(`${API_BASE}/invoicing/invoices`, { sourceType: 'obligation', sourceId: obligationId, buyerIdType, submit });
+  }
+  /** Lo que se puede acreditar de una factura autorizada: cada línea con lo ya acreditado y lo que queda. */
+  creditNotePreview(invoiceId: string): Observable<SriCreditNotePreview> {
+    return this.get(`/invoicing/invoices/${invoiceId}/credit-preview`);
+  }
+  issueCreditNote(body: IssueCreditNoteRequest): Observable<SriInvoice> {
+    return this.http.post<SriInvoice>(`${API_BASE}/invoicing/credit-notes`, body);
   }
   submitSriInvoice(id: string): Observable<SriInvoice> {
     return this.http.post<SriInvoice>(`${API_BASE}/invoicing/invoices/${id}/submit`, {});

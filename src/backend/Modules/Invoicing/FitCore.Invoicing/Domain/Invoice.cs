@@ -5,7 +5,10 @@ namespace FitCore.Invoicing.Domain;
 
 public enum InvoiceDocumentType
 {
-    Invoice = 1
+    Invoice = 1,
+
+    /// <summary>Nota de crédito (código 04 del SRI): modifica una factura ya autorizada, total o parcialmente.</summary>
+    CreditNote = 2
 }
 
 /// <summary>
@@ -75,6 +78,12 @@ public sealed class Invoice : ITenantOwned, IAuditable
     public string? BuyerPhone { get; init; }
     public Guid? BuyerPersonId { get; init; }
 
+    // Solo en una nota de crédito: la factura que modifica (copia de su número y fecha, como exige el XML) y el motivo.
+    public Guid? ModifiedInvoiceId { get; init; }
+    public string? ModifiedDocumentNumber { get; init; }
+    public DateOnly? ModifiedIssueDate { get; init; }
+    public string? ModificationReason { get; init; }
+
     // Totales.
     public string Currency { get; init; } = "USD";
     public decimal SubtotalWithoutTaxes { get; init; }
@@ -122,6 +131,9 @@ public sealed class InvoiceLine
     public string TaxRateCode { get; init; } = string.Empty;
     public decimal TaxPercent { get; init; }
     public decimal TaxAmount { get; init; }
+
+    /// <summary>Solo en una nota de crédito: la línea de la factura que se acredita (para saber cuánto queda por acreditar).</summary>
+    public Guid? ModifiedLineId { get; init; }
 }
 
 /// <summary>Total por impuesto y tarifa (<c>totalConImpuestos</c> del XML).</summary>

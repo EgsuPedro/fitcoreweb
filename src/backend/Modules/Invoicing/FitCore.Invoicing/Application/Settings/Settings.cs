@@ -17,9 +17,9 @@ public sealed record IssuerDto(
     string Ruc, string LegalName, string? TradeName, string HeadOfficeAddress, string TaxRegime, bool AccountingRequired,
     string? SpecialTaxpayerNumber, string? WithholdingAgentNumber, string Environment, string EmissionType, string? NotificationEmail, string CardPaymentMethod, DateTimeOffset UpdatedAt);
 
-/// <summary><c>LastSequential</c>: último secuencial de factura asignado por este punto en el ambiente actual del emisor (0 si todavía no se emitió ninguno). El siguiente comprobante lleva el que sigue.</summary>
+/// <summary><c>LastSequential</c> y <c>LastCreditNoteSequential</c>: último secuencial de factura y de nota de crédito asignado por este punto en el ambiente actual del emisor (0 si todavía no se emitió ninguno). Cada tipo de comprobante lleva su propia numeración; el siguiente lleva el que sigue.</summary>
 public sealed record EmissionPointDto(
-    Guid Id, Guid? BranchId, string? BranchName, string EstablishmentCode, string PointCode, string EstablishmentAddress, bool IsActive, int LastSequential);
+    Guid Id, Guid? BranchId, string? BranchName, string EstablishmentCode, string PointCode, string EstablishmentAddress, bool IsActive, int LastSequential, int LastCreditNoteSequential = 0);
 
 /// <summary>Datos públicos del certificado activo. Nunca incluye el archivo, la clave privada ni la contraseña.</summary>
 public sealed record CertificateDto(
@@ -53,7 +53,7 @@ public sealed record SetEmissionPointStatusRequest(bool IsActive);
 /// Indica el último secuencial que el SRI ya tiene registrado para este punto de emisión (por ejemplo, de otro sistema o de pruebas anteriores). El siguiente comprobante será el que sigue.
 /// Solo puede subir: bajarlo repetiría números ya usados.
 /// </summary>
-public sealed record SetSequenceRequest(int LastIssued);
+public sealed record SetSequenceRequest(int LastIssued, InvoiceDocumentType DocumentType = InvoiceDocumentType.Invoice);
 
 public sealed record SetEmissionPointSequenceCommand(Guid Id, SetSequenceRequest Request) : ICommand<InvoicingSettingsDto>;
 
@@ -164,9 +164,8 @@ internal sealed class SettingsReader(InvoicingDbContext db, ISecretProtector pro
         var branches = await db.Branches.AsNoTracking().ToDictionaryAsync(b => b.Id, b => b.Name, cancellationToken);
         var certificate = await db.Certificates.AsNoTracking().FirstOrDefaultAsync(c => c.IsActive, cancellationToken);
         var environment = issuer?.Environment ?? SriEnvironment.Test;
-        var sequences = await db.EmissionSequences.AsNoTracking()
-            .Where(x => x.Environment == environment && x.DocumentType == InvoiceDocumentType.Invoice)
-            .ToDictionaryAsync(x => x.EmissionPointId, x => x.LastValue, cancellationToken);
+        var sequenceRows = await db.EmissionSequences.AsNoTracking().Where(x => x.Environment == environment).ToListAsync(cancellationToken);
+        int Last(Guid pointId, InvoiceDocumentType type) => sequenceRows.FirstOrDefault(x => x.EmissionPointId == pointId && x.DocumentType == type)?.LastValue ?? 0;
 
         bool? matches = certificate?.SubjectRuc is { } subjectRuc && issuer is not null ? subjectRuc == issuer.Ruc : null;
         var checks = IssuerReadiness.Evaluate(issuer, points, certificate, protector.IsConfigured, now, matches);
@@ -176,7 +175,7 @@ internal sealed class SettingsReader(InvoicingDbContext db, ISecretProtector pro
                 issuer.Ruc, issuer.LegalName, issuer.TradeName, issuer.HeadOfficeAddress, issuer.TaxRegime.ToString(), issuer.AccountingRequired,
                 issuer.SpecialTaxpayerNumber, issuer.WithholdingAgentNumber, issuer.Environment.ToString(), issuer.EmissionType.ToString(), issuer.NotificationEmail, issuer.CardPaymentMethod.ToString(), issuer.UpdatedAt),
             [.. points.Select(p => new EmissionPointDto(
-                p.Id, p.BranchId, p.BranchId is { } id ? branches.GetValueOrDefault(id) : null, p.EstablishmentCode, p.PointCode, p.EstablishmentAddress, p.IsActive, sequences.GetValueOrDefault(p.Id)))],
+                p.Id, p.BranchId, p.BranchId is { } id ? branches.GetValueOrDefault(id) : null, p.EstablishmentCode, p.PointCode, p.EstablishmentAddress, p.IsActive, Last(p.Id, InvoiceDocumentType.Invoice), Last(p.Id, InvoiceDocumentType.CreditNote)))],
             certificate is null
                 ? null
                 : new CertificateDto(
@@ -354,11 +353,12 @@ internal sealed class SetEmissionPointSequenceHandler(InvoicingDbContext db, IAc
 
         var tenantId = actor.Value.TenantId;
         var environment = issuer.Environment.ToString();
+        var documentType = command.Request.DocumentType.ToString();
         await using (var transaction = await db.Database.BeginTransactionAsync(cancellationToken))
         {
             await db.Database.ExecuteSqlInterpolatedAsync($"""
                 INSERT INTO invoicing.emission_sequences (tenant_id, emission_point_id, document_type, environment, last_value)
-                VALUES ({tenantId}, {point.Id}, {nameof(InvoiceDocumentType.Invoice)}, {environment}, 0)
+                VALUES ({tenantId}, {point.Id}, {documentType}, {environment}, 0)
                 ON CONFLICT DO NOTHING
                 """, cancellationToken);
 
@@ -366,7 +366,7 @@ internal sealed class SetEmissionPointSequenceHandler(InvoicingDbContext db, IAc
             var rows = await db.EmissionSequences
                 .FromSqlInterpolated($"""
                     SELECT * FROM invoicing.emission_sequences
-                    WHERE tenant_id = {tenantId} AND emission_point_id = {point.Id} AND document_type = {nameof(InvoiceDocumentType.Invoice)} AND environment = {environment}
+                    WHERE tenant_id = {tenantId} AND emission_point_id = {point.Id} AND document_type = {documentType} AND environment = {environment}
                     FOR UPDATE
                     """)
                 .ToListAsync(cancellationToken);

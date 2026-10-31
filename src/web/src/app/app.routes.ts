@@ -225,6 +225,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/invoicing/invoice-detail').then((m) => m.InvoiceDetailPage),
       },
       {
+        path: 'invoicing/credit-notes/new/:invoiceId',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.InvoicingCreditNote },
+        loadComponent: () => import('./features/invoicing/credit-note-issue').then((m) => m.CreditNoteIssuePage),
+      },
+      {
         path: 'invoicing/issue/:obligationId',
         canActivate: [permissionGuard],
         data: { permission: Perm.InvoicingIssue },

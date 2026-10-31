@@ -42,7 +42,10 @@ public sealed record RideModel(
     IReadOnlyList<RideField> AdditionalInfo,
     IReadOnlyList<RideField> Payments,
     IReadOnlyList<RideTotal> Totals,
-    RideLogo? Logo)
+    RideLogo? Logo,
+    string DocumentTitle = "FACTURA",
+    string DocumentName = "Factura",
+    IReadOnlyList<RideField>? ModifiedDocument = null)
 {
     /// <summary>Nombres de la Tabla 24 de la ficha 2.34.</summary>
     private static readonly Dictionary<string, string> PaymentNames = new(StringComparer.Ordinal)
@@ -134,7 +137,17 @@ public sealed record RideModel(
             additional,
             [.. invoice.Payments.Select(p => new RideField($"{p.MethodCode} - {PaymentNames.GetValueOrDefault(p.MethodCode, p.MethodCode)}", Money(p.Amount)))],
             totals,
-            logo);
+            logo,
+            invoice.DocumentType == InvoiceDocumentType.CreditNote ? "NOTA DE CRÉDITO" : "FACTURA",
+            invoice.DocumentType == InvoiceDocumentType.CreditNote ? "Nota de crédito" : "Factura",
+            invoice.DocumentType == InvoiceDocumentType.CreditNote && invoice.ModifiedDocumentNumber is { } modifiedNumber && invoice.ModifiedIssueDate is { } modifiedDate
+                ?
+                [
+                    new RideField("Comprobante que se modifica:", $"FACTURA {modifiedNumber}"),
+                    new RideField("Fecha comprobante modificado:", modifiedDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)),
+                    new RideField("Razón de modificación:", invoice.ModificationReason ?? string.Empty)
+                ]
+                : null);
     }
 
     /// <summary>Importe como en el modelo oficial del RIDE: coma decimal y punto de miles (1.234,50). No usa la cultura del servidor.</summary>

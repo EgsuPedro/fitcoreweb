@@ -76,6 +76,11 @@ export function countOf(summary: SriInvoicingSummary | null, statuses: readonly 
         [attr.aria-label]="'invoicing.invoices.searchHint' | transloco"
         (input)="list.search($any($event.target).value)"
       />
+      <select [attr.aria-label]="'invoicing.invoices.documentType' | transloco" (change)="list.set({ documentType: $any($event.target).value })">
+        <option value="">{{ 'invoicing.invoices.allTypes' | transloco }}</option>
+        <option value="Invoice">{{ 'enums.invoiceDocumentType.Invoice' | transloco }}</option>
+        <option value="CreditNote">{{ 'enums.invoiceDocumentType.CreditNote' | transloco }}</option>
+      </select>
       <select [attr.aria-label]="'common.status' | transloco" [value]="status()" (change)="filter($any($event.target).value)">
         <option value="">{{ 'common.all' | transloco }}</option>
         @for (st of statuses; track st) { <option [value]="st">{{ 'enums.invoiceStatus.' + st | transloco }}</option> }
@@ -103,6 +108,9 @@ export function countOf(summary: SriInvoicingSummary | null, statuses: readonly 
               <td>
                 <a [routerLink]="['/invoicing/invoices', i.id]"><strong>{{ i.number }}</strong></a>
                 @if (i.environment === 'Test') { <fc-badge tone="neutral">{{ 'invoicing.invoices.testBadge' | transloco }}</fc-badge> }
+                @if (i.documentType === 'CreditNote') {
+                  <br /><small class="muted">{{ 'enums.invoiceDocumentType.CreditNote' | transloco }} · {{ 'invoicing.invoices.modifies' | transloco: { number: i.modifiedNumber } }}</small>
+                }
               </td>
               <td>{{ i.issueDate | fcDate }}</td>
               <td>{{ i.buyerName }}<br /><small class="muted">{{ i.buyerIdNumber }}</small></td>

@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { ApiService } from '../../core/api/api.service';
-import type { Branch, EmissionPoint, InvoicingSettings } from '../../core/api/models';
+import type { Branch, EmissionPoint, InvoicingSettings, SriDocumentType } from '../../core/api/models';
 import { Perm } from '../../core/auth/permissions';
 import { SessionService } from '../../core/auth/session.service';
 import { ErrorMessages } from '../../core/i18n/messages';
@@ -142,6 +142,7 @@ export function looksLikeRuc(value: string): boolean {
                 <th scope="col">{{ 'invoicing.points.address' | transloco }}</th>
                 <th scope="col">{{ 'invoicing.points.branch' | transloco }}</th>
                 <th scope="col">{{ 'invoicing.points.lastSequential' | transloco }}</th>
+                <th scope="col">{{ 'invoicing.points.lastCreditNoteSequential' | transloco }}</th>
                 <th scope="col">{{ 'common.status' | transloco }}</th>
                 <th scope="col"></th>
               </tr>
@@ -154,6 +155,7 @@ export function looksLikeRuc(value: string): boolean {
                   <td>{{ p.establishmentAddress }}</td>
                   <td>{{ p.branchName || '—' }}</td>
                   <td>{{ p.lastSequential }}</td>
+                  <td>{{ p.lastCreditNoteSequential }}</td>
                   <td><fc-badge [tone]="p.isActive ? 'ok' : 'off'">{{ (p.isActive ? 'common.active' : 'common.inactive') | transloco }}</fc-badge></td>
                   <td class="row-actions">
                     @if (canConfigure()) {
@@ -257,7 +259,14 @@ export function looksLikeRuc(value: string): boolean {
       <fc-modal [title]="'invoicing.points.sequenceTitle' | transloco" (closed)="sequenceEditor.set(null)">
         <form id="sequence-form" [formGroup]="sequenceForm" (ngSubmit)="saveSequence()" novalidate>
           @if (formError()) { <p class="alert alert-danger" role="alert">{{ formError() }}</p> }
-          <p class="muted">{{ 'invoicing.points.sequenceIntro' | transloco: { point: editor.label, current: editor.current } }}</p>
+          <label class="field">
+            <span>{{ 'invoicing.points.sequenceType' | transloco }}</span>
+            <select [value]="sequenceType()" (change)="changeSequenceType($any($event.target).value)">
+              <option value="Invoice">{{ 'enums.invoiceDocumentType.Invoice' | transloco }}</option>
+              <option value="CreditNote">{{ 'enums.invoiceDocumentType.CreditNote' | transloco }}</option>
+            </select>
+          </label>
+          <p class="muted">{{ 'invoicing.points.sequenceIntro' | transloco: { point: editor.label, current: sequenceType() === 'CreditNote' ? editor.currentCreditNote : editor.current } }}</p>
           <label class="field">
             <span>{{ 'invoicing.points.sequenceLabel' | transloco }}</span>
             <input formControlName="lastIssued" type="number" inputmode="numeric" min="0" max="999999998" step="1" />
@@ -300,7 +309,8 @@ export class InvoicingSettingsPage implements OnInit {
   protected readonly file = signal<File | null>(null);
   protected readonly pointEditor = signal<{ id: string | null } | null>(null);
   protected readonly confirmRetire = signal(false);
-  protected readonly sequenceEditor = signal<{ id: string; label: string; current: number } | null>(null);
+  protected readonly sequenceEditor = signal<{ id: string; label: string; current: number; currentCreditNote: number } | null>(null);
+  protected readonly sequenceType = signal<SriDocumentType>('Invoice');
   protected readonly canConfigure = computed(() => this.session.has(Perm.InvoicingConfigure));
 
   protected readonly issuerForm = this.fb.nonNullable.group({
@@ -413,8 +423,19 @@ export class InvoicingSettingsPage implements OnInit {
 
   protected openSequence(point: EmissionPoint): void {
     this.formError.set(null);
+    this.sequenceType.set('Invoice');
     this.sequenceForm.reset({ lastIssued: point.lastSequential });
-    this.sequenceEditor.set({ id: point.id, label: `${point.establishmentCode}-${point.pointCode}`, current: point.lastSequential });
+    this.sequenceEditor.set({ id: point.id, label: `${point.establishmentCode}-${point.pointCode}`, current: point.lastSequential, currentCreditNote: point.lastCreditNoteSequential });
+  }
+
+  /** Cada tipo de comprobante lleva su propia numeración: al cambiar de tipo se muestra el último número de ese tipo. */
+  protected changeSequenceType(type: string): void {
+    const editor = this.sequenceEditor();
+    if (!editor) {
+      return;
+    }
+    this.sequenceType.set(type as SriDocumentType);
+    this.sequenceForm.reset({ lastIssued: type === 'CreditNote' ? editor.currentCreditNote : editor.current });
   }
 
   protected saveSequence(): void {
@@ -429,7 +450,7 @@ export class InvoicingSettingsPage implements OnInit {
     }
     this.busy.set(true);
     this.formError.set(null);
-    this.api.setEmissionPointSequence(editor.id, Math.trunc(this.sequenceForm.getRawValue().lastIssued)).subscribe({
+    this.api.setEmissionPointSequence(editor.id, Math.trunc(this.sequenceForm.getRawValue().lastIssued), this.sequenceType()).subscribe({
       next: (s) => {
         this.busy.set(false);
         this.sequenceEditor.set(null);

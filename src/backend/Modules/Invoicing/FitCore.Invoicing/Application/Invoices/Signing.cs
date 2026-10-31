@@ -92,8 +92,9 @@ internal sealed class InvoiceSigner(InvoicingDbContext db, ISecretProtector prot
             return SigningErrors.ProviderRucInvalid;
         }
 
-        var xml = InvoiceXmlBuilder.Build(invoice, providerRuc.Length == 0 ? null : providerRuc);
-        var problems = InvoiceXmlValidator.Validate(xml);
+        var provider = providerRuc.Length == 0 ? null : providerRuc;
+        var xml = invoice.DocumentType == InvoiceDocumentType.CreditNote ? CreditNoteXmlBuilder.Build(invoice, provider) : InvoiceXmlBuilder.Build(invoice, provider);
+        var problems = InvoiceXmlValidator.Validate(xml, invoice.DocumentType);
         if (problems.Count > 0)
         {
             logger.LogError("El XML del comprobante {InvoiceId} no cumple el esquema del SRI: {Problems}", invoice.Id, string.Join(" | ", problems));
@@ -125,7 +126,7 @@ internal sealed class InvoiceSigner(InvoicingDbContext db, ISecretProtector prot
 
         // Nada se guarda si la firma no se verifica, o si el documento firmado dejó de cumplir el esquema.
         var check = XadesBesSigner.Verify(signedXml, thumbprint);
-        if (!check.IsValid || InvoiceXmlValidator.Validate(signedXml).Count > 0)
+        if (!check.IsValid || InvoiceXmlValidator.Validate(signedXml, invoice.DocumentType).Count > 0)
         {
             logger.LogError("La firma del comprobante {InvoiceId} no pasó la verificación local: {Problems}", invoice.Id, string.Join(" | ", check.Problems));
             return SigningErrors.SignatureInvalid;

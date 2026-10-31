@@ -64,7 +64,7 @@ export function lastSriMessages(invoice: Pick<SriInvoice, 'sriAttempts'>): { id?
     @if (invoice(); as i) {
       <header class="page-header">
         <div>
-          <h1>{{ 'invoicing.detail.title' | transloco: { number: i.number } }}</h1>
+          <h1>{{ (i.documentType === 'CreditNote' ? 'invoicing.detail.creditNoteTitle' : 'invoicing.detail.title') | transloco: { number: i.number } }}</h1>
           <p>
             <fc-badge [tone]="tone(i.status)">{{ 'enums.invoiceStatus.' + i.status | transloco }}</fc-badge>
             @if (i.environment === 'Test') { <fc-badge tone="neutral">{{ 'invoicing.invoices.testBadge' | transloco }}</fc-badge> }
@@ -78,6 +78,9 @@ export function lastSriMessages(invoice: Pick<SriInvoice, 'sriAttempts'>): { id?
             </button>
           }
           @if (i.status === 'Authorized') {
+            @if (i.documentType === 'Invoice' && can(perm.InvoicingCreditNote) && i.creditedTotal < i.calculation.total) {
+              <a class="btn" [routerLink]="['/invoicing/credit-notes/new', i.id]">{{ 'invoicing.detail.issueCreditNote' | transloco }}</a>
+            }
             @if (can(perm.InvoicingDownload)) {
               <button type="button" class="btn" [disabled]="busy()" (click)="downloadRide()">{{ 'invoicing.detail.ride' | transloco }}</button>
             }
@@ -103,8 +106,11 @@ export function lastSriMessages(invoice: Pick<SriInvoice, 'sriAttempts'>): { id?
         @case ('Discarded') {
           <p class="alert alert-info" role="status">
             {{ 'invoicing.detail.discardedHelp' | transloco }}
-            @if (i.sourceType === 'obligation' && can(perm.InvoicingIssue)) {
+            @if (i.documentType === 'Invoice' && i.sourceType === 'obligation' && can(perm.InvoicingIssue)) {
               <a class="btn" [routerLink]="['/invoicing/issue', i.sourceId]">{{ 'invoicing.detail.reissue' | transloco }}</a>
+            }
+            @if (i.documentType === 'CreditNote' && i.creditNote && can(perm.InvoicingCreditNote)) {
+              <a class="btn" [routerLink]="['/invoicing/credit-notes/new', i.creditNote.modifiedInvoiceId]">{{ 'invoicing.detail.reissueCreditNote' | transloco }}</a>
             }
           </p>
         }
@@ -125,6 +131,17 @@ export function lastSriMessages(invoice: Pick<SriInvoice, 'sriAttempts'>): { id?
               <li><strong>{{ m.id }}</strong> {{ m.text }} @if (m.detail) { <br /><small class="muted">{{ m.detail }}</small> }</li>
             }
           </ul>
+        </section>
+      }
+
+      @if (i.documentType === 'CreditNote' && i.creditNote) {
+        <section class="card section">
+          <h2>{{ 'invoicing.detail.modifies' | transloco }}</h2>
+          <dl class="kv">
+            <dt>{{ 'enums.invoiceDocumentType.Invoice' | transloco }}</dt>
+            <dd><a [routerLink]="['/invoicing/invoices', i.creditNote.modifiedInvoiceId]">{{ i.creditNote.modifiedNumber }}</a> · {{ i.creditNote.modifiedIssueDate | fcDate }}</dd>
+            <dt>{{ 'invoicing.detail.reason' | transloco }}</dt><dd>{{ i.creditNote.reason }}</dd>
+          </dl>
         </section>
       }
 
@@ -190,6 +207,38 @@ export function lastSriMessages(invoice: Pick<SriInvoice, 'sriAttempts'>): { id?
           <p class="muted">{{ 'invoicing.detail.paidWith' | transloco }}: {{ 'enums.paymentMethod.' + p.method | transloco }} · {{ p.amount | fcMoney }}</p>
         }
       </section>
+
+      @if (i.creditNotes.length > 0) {
+        <section class="card section">
+          <h2>{{ 'invoicing.detail.creditNotes' | transloco }}</h2>
+          <p class="muted">{{ 'invoicing.detail.creditedOf' | transloco }}: <strong>{{ i.creditedTotal | fcMoney }}</strong> / {{ i.calculation.total | fcMoney }}</p>
+          <div class="table-card">
+            <table class="table">
+              <caption class="sr-only">{{ 'invoicing.detail.creditNotes' | transloco }}</caption>
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'invoicing.invoices.number' | transloco }}</th>
+                  <th scope="col">{{ 'invoicing.invoices.issueDate' | transloco }}</th>
+                  <th scope="col">{{ 'invoicing.detail.reason' | transloco }}</th>
+                  <th scope="col" class="num">{{ 'invoicing.invoices.total' | transloco }}</th>
+                  <th scope="col">{{ 'common.status' | transloco }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (n of i.creditNotes; track n.id) {
+                  <tr>
+                    <td><a [routerLink]="['/invoicing/invoices', n.id]">{{ n.number }}</a></td>
+                    <td>{{ n.issueDate | fcDate }}</td>
+                    <td>{{ n.reason }}</td>
+                    <td class="num">{{ n.total | fcMoney }}</td>
+                    <td><fc-badge [tone]="tone(n.status)">{{ 'enums.invoiceStatus.' + n.status | transloco }}</fc-badge></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </section>
+      }
 
       @if (i.emails.length > 0 || i.status === 'Authorized') {
         <section class="card section">
@@ -404,7 +453,8 @@ export class InvoiceDetailPage implements OnInit {
 
   protected downloadRide(): void {
     const number = this.invoice()?.number ?? this.id;
-    this.download(this.api.sriInvoiceRide(this.id), `Factura-${number}.pdf`);
+    const prefix = this.invoice()?.documentType === 'CreditNote' ? 'NotaCredito' : 'Factura';
+    this.download(this.api.sriInvoiceRide(this.id), `${prefix}-${number}.pdf`);
   }
 
   protected downloadXml(kind: string): void {

@@ -17,9 +17,12 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.22" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.22" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
+    <PackageReference Include="QRCoder" Version="1.7.0" />
     <PackageReference Include="System.Security.Cryptography.Xml" Version="9.0.22" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Xml/Schemas/*.xsd" />
+    <EmbeddedResource Include="Rendering/Fonts/*.ttf" />
   </ItemGroup>
 </Project>

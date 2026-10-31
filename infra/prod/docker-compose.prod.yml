@@ -136,6 +136,9 @@ services:
       Invoicing__MasterKey: ${INVOICING_MASTER_KEY:-}
       # RUC de la empresa que provee el sistema (Anexo 26 de la ficha técnica 2.34): va como «RUC Proveedor» en la información adicional. Vacío = no se agrega.
       Invoicing__ProviderRuc: ${INVOICING_PROVIDER_RUC:-}
+    volumes:
+      # El RIDE lleva el logo del gimnasio: el Worker lee la misma carpeta de archivos privados que la API.
+      - fitcore_files:/var/lib/fitcore/files
     depends_on:
       migrate:
         condition: service_completed_successfully

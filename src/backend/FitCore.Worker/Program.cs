@@ -36,6 +36,11 @@ builder.Services.AddDispatcher();
 builder.Services.AddPlatformPersistence(builder.Configuration);
 builder.Services.AddEmailQueue(builder.Configuration);
 builder.Services.AddSmtpEmail(builder.Configuration);
+// El RIDE lleva el logo del gimnasio: el Worker lee la misma carpeta de archivos privados que la API (mismo volumen).
+builder.Services.AddScoped<ITenantBranding, FitCore.Platform.Application.Branding.TenantBrandingProvider>();
+builder.Services.AddLocalFileStore(builder.Configuration["FileStorage:RootPath"] is { Length: > 0 } filesRoot
+    ? filesRoot
+    : Path.Combine(AppContext.BaseDirectory, "data", "files"));
 builder.Services.AddCommercialPersistence(builder.Configuration);
 builder.Services.AddWhatsAppNotifications(builder.Configuration);
 builder.Services.AddClassesPersistence(builder.Configuration);
@@ -53,6 +58,7 @@ builder.Services.AddHostedService<WaitlistWorker>();
 builder.Services.AddHostedService<NotificationWorker>();
 builder.Services.AddHostedService<SubscriptionWorker>();
 builder.Services.AddHostedService<InvoiceTransmissionWorker>();
+builder.Services.AddHostedService<InvoiceEmailWorker>();
 builder.Services.AddHostedService<HeartbeatService>();
 
 await builder.Build().RunAsync();

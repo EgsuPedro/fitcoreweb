@@ -67,10 +67,11 @@ public sealed record InvoiceDto(
     IReadOnlyList<InvoiceDocumentDto> Documents,
     InvoiceAuthorizationDto? Authorization,
     InvoiceTransmissionDto? Transmission,
-    IReadOnlyList<InvoiceSriAttemptDto> SriAttempts)
+    IReadOnlyList<InvoiceSriAttemptDto> SriAttempts,
+    IReadOnlyList<InvoiceEmailDto> Emails)
 {
     internal static InvoiceDto From(
-        Invoice i, IReadOnlyList<InvoiceEvent> events, IReadOnlyList<InvoiceDocumentDto> documents, InvoiceTransmission? transmission, IReadOnlyList<InvoiceSriAttempt> attempts) => new(
+        Invoice i, IReadOnlyList<InvoiceEvent> events, IReadOnlyList<InvoiceDocumentDto> documents, InvoiceTransmission? transmission, IReadOnlyList<InvoiceSriAttempt> attempts, IReadOnlyList<InvoiceEmail> emails) => new(
         i.Id,
         i.DocumentType.ToString(),
         i.Number,
@@ -98,7 +99,8 @@ public sealed record InvoiceDto(
         transmission is null ? null : new InvoiceTransmissionDto(transmission.Parked, transmission.Attempts, transmission.Polls, transmission.LastError, transmission.NextAttemptAt, transmission.FirstAttemptAt, transmission.LastAttemptAt),
         [.. attempts.OrderByDescending(a => a.At).Select(a => new InvoiceSriAttemptDto(
             a.Operation.ToString(), a.Outcome, a.SriState, a.ErrorCode, a.DurationMs,
-            System.Text.Json.JsonSerializer.Deserialize<List<SriMessageDto>>(a.Messages, System.Text.Json.JsonSerializerOptions.Web) ?? [], a.At))]);
+            System.Text.Json.JsonSerializer.Deserialize<List<SriMessageDto>>(a.Messages, System.Text.Json.JsonSerializerOptions.Web) ?? [], a.At))],
+        [.. emails.OrderByDescending(e => e.CreatedAt).Select(e => new InvoiceEmailDto(e.Id, e.ToAddress, e.Status.ToString(), e.Attempts, e.LastError, e.RequestedBy is null, e.CreatedAt, e.SentAt))]);
 }
 
 public sealed record InvoiceListItemDto(
@@ -316,7 +318,8 @@ internal static class InvoiceReader
             .Select(d => new InvoiceDocumentDto(d.Kind.ToString(), d.Sha256, d.SizeBytes, d.CreatedAt)).ToListAsync(cancellationToken);
         var transmission = await db.Transmissions.AsNoTracking().FirstOrDefaultAsync(t => t.InvoiceId == id, cancellationToken);
         var attempts = await db.SriAttempts.AsNoTracking().Where(a => a.InvoiceId == id).OrderByDescending(a => a.At).Take(20).ToListAsync(cancellationToken);
-        return InvoiceDto.From(invoice, events, documents, transmission, attempts);
+        var emails = await db.InvoiceEmails.AsNoTracking().Where(e => e.InvoiceId == id).OrderByDescending(e => e.CreatedAt).Take(20).ToListAsync(cancellationToken);
+        return InvoiceDto.From(invoice, events, documents, transmission, attempts, emails);
     }
 }
 

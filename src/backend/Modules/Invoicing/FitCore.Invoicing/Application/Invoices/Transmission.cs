@@ -314,6 +314,13 @@ internal sealed class InvoiceTransmitter(
         invoice.AuthorizedAt = authorization.AuthorizedAt?.ToUniversalTime() ?? now;
         TransmissionQueue.Transition(db, invoice, InvoiceStatus.Authorized, "Authorized", $"Autorizado por el SRI. Ambiente: {authorization.EnvironmentName}", null, now);
         db.Transmissions.Remove(queued);
+
+        // El comprador recibe el XML autorizado y el RIDE por correo apenas se autoriza (el consumidor final no tiene correo). Si el correo falla, el comprobante sigue autorizado.
+        if (invoice.BuyerIdType != SriBuyerIdType.FinalConsumer && InvoiceDelivery.IsValidAddress(invoice.BuyerEmail))
+        {
+            InvoiceDelivery.Enqueue(db, invoice, invoice.BuyerEmail!, null, now);
+        }
+
         await db.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
     }

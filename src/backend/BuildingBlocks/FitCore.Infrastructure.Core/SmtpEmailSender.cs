@@ -57,6 +57,11 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options, ILogger<SmtpE
             return Error.Validation("email.invalid_recipient", "El destinatario no es una dirección de correo válida.");
         }
 
+        if (message.Attachments?.Any(a => string.IsNullOrWhiteSpace(a.FileName) || HasLineBreak(a.FileName) || !ContentType.TryParse(a.ContentType, out _)) == true)
+        {
+            return Error.Validation("email.invalid_attachment", "Un adjunto tiene un nombre o un tipo de contenido no válido.");
+        }
+
         MimeMessage mime;
         try
         {
@@ -96,6 +101,11 @@ public sealed class SmtpEmailSender(IOptions<SmtpOptions> options, ILogger<SmtpE
         mime.Subject = message.Subject;
         mime.Headers.Add("Auto-Submitted", "auto-generated");
         var body = new BodyBuilder { TextBody = message.TextBody, HtmlBody = message.HtmlBody };
+        foreach (var attachment in message.Attachments ?? [])
+        {
+            body.Attachments.Add(attachment.FileName, attachment.Content, ContentType.Parse(attachment.ContentType));
+        }
+
         mime.Body = body.ToMessageBody();
         return mime;
     }

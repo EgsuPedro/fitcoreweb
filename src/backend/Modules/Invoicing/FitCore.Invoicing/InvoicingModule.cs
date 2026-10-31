@@ -63,6 +63,9 @@ public static class InvoicingTransmissionModule
         services.AddScoped<Application.Invoices.InvoiceSigner>();
         services.AddScoped<Application.Invoices.InvoiceTransmitter>();
         services.AddSingleton<Application.Invoices.InvoiceTransmissionRunner>();
+        services.AddScoped<Application.Invoices.InvoiceRideService>();
+        services.AddScoped<Application.Invoices.InvoiceEmailDispatcher>();
+        services.AddSingleton<Application.Invoices.InvoiceEmailRunner>();
         return services;
     }
 }

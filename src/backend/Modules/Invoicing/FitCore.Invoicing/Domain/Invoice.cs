@@ -214,6 +214,40 @@ public sealed class InvoiceTransmission
     public DateTimeOffset CreatedAt { get; init; }
 }
 
+public enum InvoiceEmailStatus
+{
+    Pending = 1,
+    Sending = 2,
+    Sent = 3,
+    Failed = 4
+}
+
+/// <summary>
+/// Envío por correo del XML autorizado y el RIDE de un comprobante. Es una cola con concesión como la del SRI: el Worker reclama las filas vencidas y reintenta con espera creciente. No guarda los adjuntos:
+/// se generan al enviar a partir de los documentos inmutables del comprobante. Una fila por solicitud (el reenvío manual crea otra), así queda constancia de cada envío.
+/// </summary>
+public sealed class InvoiceEmail
+{
+    public Guid Id { get; init; }
+    public Guid TenantId { get; init; }
+    public Guid InvoiceId { get; init; }
+    public string ToAddress { get; init; } = string.Empty;
+    public InvoiceEmailStatus Status { get; set; } = InvoiceEmailStatus.Pending;
+    public int Attempts { get; set; }
+    public DateTimeOffset NextAttemptAt { get; set; }
+    public DateTimeOffset? LockedUntil { get; set; }
+
+    /// <summary>Último fallo como código estable (<c>email.send_failed</c>…), nunca texto del servidor de correo.</summary>
+    public string? LastError { get; set; }
+
+    public DateTimeOffset? SentAt { get; set; }
+
+    /// <summary>Nulo cuando lo encoló el sistema al autorizarse el comprobante.</summary>
+    public Guid? RequestedBy { get; init; }
+
+    public DateTimeOffset CreatedAt { get; init; }
+}
+
 public enum SriOperation
 {
     Reception = 1,

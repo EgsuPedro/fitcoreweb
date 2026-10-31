@@ -25,6 +25,7 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
     internal DbSet<EmissionSequence> EmissionSequences => Set<EmissionSequence>();
     internal DbSet<InvoiceTransmission> Transmissions => Set<InvoiceTransmission>();
     internal DbSet<InvoiceSriAttempt> SriAttempts => Set<InvoiceSriAttempt>();
+    internal DbSet<InvoiceEmail> InvoiceEmails => Set<InvoiceEmail>();
     internal DbSet<BranchRef> Branches => Set<BranchRef>();
 
     // Guid.Empty nunca coincide con un gimnasio real: sin tenant activo no se ve ninguna fila.
@@ -210,6 +211,20 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.Property(x => x.InvoiceId).ValueGeneratedNever();
             b.Property(x => x.LastError).HasMaxLength(60);
             b.HasIndex(x => x.NextAttemptAt).HasFilter("NOT parked");
+            b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
+        });
+
+        modelBuilder.Entity<InvoiceEmail>(b =>
+        {
+            b.ToTable("invoice_emails");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Id).ValueGeneratedNever();
+            b.Property(x => x.ToAddress).HasMaxLength(256).IsRequired();
+            b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            b.Property(x => x.LastError).HasMaxLength(60);
+            b.HasOne<Invoice>().WithMany().HasForeignKey(x => x.InvoiceId);
+            b.HasIndex(x => x.InvoiceId);
+            b.HasIndex(x => x.NextAttemptAt).HasFilter("status IN ('Pending', 'Sending')");
             b.HasQueryFilter(x => x.TenantId == CurrentTenantId);
         });
 

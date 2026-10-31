@@ -64,6 +64,21 @@ internal static class InvoicingSourcesEndpoints
             .Produces(StatusCodes.Status200OK, contentType: "application/xml")
             .WithName("DownloadInvoiceXml");
 
+        // El RIDE (PDF) se genera al pedirlo, con la marca del gimnasio; contiene datos personales: mismo permiso y misma constancia que el XML.
+        invoices.MapGet("/{id:guid}/ride", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DownloadInvoiceRideCommand(id), ct)).ToHttp(f => Results.File(f.Content, "application/pdf", f.FileName)))
+            .RequirePermission(Permissions.InvoicingDownload)
+            .Produces(StatusCodes.Status200OK, contentType: "application/pdf")
+            .WithName("DownloadInvoiceRide");
+
+        // Reenvía por correo el XML autorizado y el RIDE (al comprador o a la dirección indicada). Lo envía el Worker, con reintentos.
+        invoices.MapPost("/{id:guid}/email", async (Guid id, ResendInvoiceEmailRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new ResendInvoiceEmailCommand(id, request.To), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InvoicingResendEmail)
+            .WithValidation<ResendInvoiceEmailRequest>()
+            .Produces<InvoiceDto>()
+            .WithName("ResendInvoiceEmail");
+
         invoices.MapGet("/", async (int? page, int? pageSize, InvoiceStatus? status, string? q, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.QueryAsync(new ListInvoicesQuery(page ?? 1, pageSize ?? 20, status, q), ct)).ToHttp(r => Results.Ok(r)))
             .RequirePermission(Permissions.InvoicingRead)

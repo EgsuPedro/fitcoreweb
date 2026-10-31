@@ -404,6 +404,74 @@ namespace FitCore.Invoicing.Persistence.Migrations
                     b.ToTable("invoice_documents", "invoicing");
                 });
 
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEmail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("InvoiceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("invoice_id");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("last_error");
+
+                    b.Property<DateTimeOffset?>("LockedUntil")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_until");
+
+                    b.Property<DateTimeOffset>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
+
+                    b.Property<Guid?>("RequestedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("requested_by");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("ToAddress")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("to_address");
+
+                    b.HasKey("Id")
+                        .HasName("pk_invoice_emails");
+
+                    b.HasIndex("InvoiceId")
+                        .HasDatabaseName("ix_invoice_emails_invoice_id");
+
+                    b.HasIndex("NextAttemptAt")
+                        .HasDatabaseName("ix_invoice_emails_next_attempt_at")
+                        .HasFilter("status IN ('Pending', 'Sending')");
+
+                    b.ToTable("invoice_emails", "invoicing");
+                });
+
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEvent", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1095,6 +1163,16 @@ namespace FitCore.Invoicing.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_invoice_documents_invoices_invoice_id");
+                });
+
+            modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEmail", b =>
+                {
+                    b.HasOne("FitCore.Invoicing.Domain.Invoice", null)
+                        .WithMany()
+                        .HasForeignKey("InvoiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoice_emails_invoices_invoice_id");
                 });
 
             modelBuilder.Entity("FitCore.Invoicing.Domain.InvoiceEvent", b =>

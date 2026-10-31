@@ -10,5 +10,7 @@ RUN dotnet publish src/backend/FitCore.Worker/FitCore.Worker.csproj -c Release -
 FROM mcr.microsoft.com/dotnet/runtime:9.0 AS final
 WORKDIR /app
 COPY --from=build /app .
+ENV FileStorage__RootPath=/var/lib/fitcore/files
+RUN mkdir -p /var/lib/fitcore/files && chown -R $APP_UID /var/lib/fitcore && chmod -R 700 /var/lib/fitcore
 USER $APP_UID
 ENTRYPOINT ["dotnet", "FitCore.Worker.dll"]

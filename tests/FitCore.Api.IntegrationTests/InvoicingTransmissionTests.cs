@@ -134,7 +134,7 @@ public class InvoicingTransmissionTests(ApiFixture api)
         Assert.Equal(key, Text(invoice.GetProperty("authorization"), "number"));
         Assert.Equal(JsonValueKind.Null, invoice.GetProperty("transmission").ValueKind);
         Assert.Equal(["AuthorizedXml", "SignedXml", "Xml"], invoice.GetProperty("documents").EnumerateArray().Select(d => Text(d, "kind")).Order(StringComparer.Ordinal));
-        Assert.Equal(["Created", "Queued", "Signed", "PendingSubmission", "Received", "XmlDownloaded", "Authorized"], invoice.GetProperty("events").EnumerateArray().Select(e => Text(e, "type")));
+        Assert.Equal(["Created", "Queued", "Signed", "PendingSubmission", "Received", "XmlDownloaded", "Authorized", "EmailQueued"], invoice.GetProperty("events").EnumerateArray().Select(e => Text(e, "type")));
         var authorized = await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml?kind=AuthorizedXml");
         Assert.Contains("<autorizacion>", authorized, StringComparison.Ordinal);
         Assert.Contains(key, authorized, StringComparison.Ordinal);

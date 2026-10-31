@@ -3892,6 +3892,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoicing/invoices/{id}/ride": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["DownloadInvoiceRide"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/invoices/{id}/email": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ResendInvoiceEmail"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/platform/organizations": {
         parameters: {
             query?: never;
@@ -5929,6 +5961,21 @@ export interface components {
             authorization: components["schemas"]["InvoiceAuthorizationDto"];
             transmission: components["schemas"]["InvoiceTransmissionDto"];
             sriAttempts: components["schemas"]["InvoiceSriAttemptDto"][];
+            emails: components["schemas"]["InvoiceEmailDto"][];
+        };
+        InvoiceEmailDto: {
+            /** Format: uuid */
+            id: string;
+            to: string;
+            status: string;
+            /** Format: int32 */
+            attempts: number;
+            lastError: string | null;
+            automatic: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            sentAt: string | null;
         };
         InvoiceEventDto: {
             type: string;
@@ -8652,6 +8699,9 @@ export interface components {
             comparable: components["schemas"]["PeriodDto"];
             branchIds: string[];
             basis: string;
+        };
+        ResendInvoiceEmailRequest: {
+            to: string | null;
         };
         ResendVerificationRequest: {
             email: string;
@@ -16851,6 +16901,52 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    DownloadInvoiceRide: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    ResendInvoiceEmail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResendInvoiceEmailRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
+                };
             };
         };
     };

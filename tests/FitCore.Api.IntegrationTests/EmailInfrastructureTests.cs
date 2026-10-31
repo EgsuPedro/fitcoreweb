@@ -546,4 +546,47 @@ public class EmailInfrastructureTests(ApiFixture api)
         Assert.Contains("https://fit360.test/x?token=abc", detail.GetProperty("Text").GetString());
         Assert.Contains("https://fit360.test/x?token=abc", detail.GetProperty("HTML").GetString());
     }
+
+    /// <summary>Los adjuntos (PDF y XML del comprobante) llegan completos e intactos a un servidor de correo de verdad.</summary>
+    [Fact]
+    public async Task The_smtp_sender_delivers_attachments_intact_to_a_real_mail_server()
+    {
+        await using var mailpit = new ContainerBuilder("axllent/mailpit:v1.21")
+            .WithPortBinding(1025, true)
+            .WithPortBinding(8025, true)
+            .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r.ForPort(8025).ForPath("/livez")))
+            .Build();
+        await mailpit.StartAsync();
+        var sender = SmtpSender(new SmtpOptions { Host = mailpit.Hostname, Port = mailpit.GetMappedPublicPort(1025), Security = "None", From = "no-reply@fit360.test" });
+        var pdf = new byte[] { 0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x37, 0x0a, 0x00, 0xff, 0xfe, 0x80 };
+        var xml = System.Text.Encoding.UTF8.GetBytes("<?xml version=\"1.0\" encoding=\"UTF-8\"?><autorizacion><estado>AUTORIZADO</estado><nota>Peña</nota></autorizacion>");
+
+        var result = await sender.SendAsync(new EmailMessage("ana@cliente.test", "Factura 001-001-000000001", "Adjuntos", null,
+            [new EmailAttachment("Factura-001-001-000000001.pdf", "application/pdf", pdf), new EmailAttachment("clave.xml", "application/xml", xml)]), default);
+
+        Assert.True(result.IsSuccess, result.IsFailure ? result.Error.Code : null);
+        using var http = new HttpClient { BaseAddress = new Uri($"http://{mailpit.Hostname}:{mailpit.GetMappedPublicPort(8025)}") };
+        var list = await http.GetFromJsonAsync<JsonElement>("/api/v1/messages");
+        var id = list.GetProperty("messages")[0].GetProperty("ID").GetString();
+        var detail = await http.GetFromJsonAsync<JsonElement>($"/api/v1/message/{id}");
+        var attachments = detail.GetProperty("Attachments").EnumerateArray().ToList();
+        Assert.Equal(["Factura-001-001-000000001.pdf", "clave.xml"], attachments.Select(a => a.GetProperty("FileName").GetString()));
+        Assert.Equal(pdf, await http.GetByteArrayAsync($"/api/v1/message/{id}/part/{attachments[0].GetProperty("PartID").GetString()}"));
+        Assert.Equal(xml, await http.GetByteArrayAsync($"/api/v1/message/{id}/part/{attachments[1].GetProperty("PartID").GetString()}"));
+    }
+
+    [Theory]
+    [InlineData("", "application/pdf")]
+    [InlineData("a.pdf\r\nBcc: x@y.test", "application/pdf")]
+    [InlineData("a.pdf", "esto no es un tipo")]
+    public async Task The_smtp_sender_rejects_attachments_with_an_unsafe_name_or_type_before_connecting(string name, string type)
+    {
+        // El servidor no existe: si intentara conectar, el error sería de envío, no de validación.
+        var sender = SmtpSender(new SmtpOptions { Host = "no-existe.invalid", From = "no-reply@fit360.test" });
+
+        var result = await sender.SendAsync(new EmailMessage("ana@cliente.test", "Asunto", "Texto", null, [new EmailAttachment(name, type, [1])]), default);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("email.invalid_attachment", result.Error.Code);
+    }
 }

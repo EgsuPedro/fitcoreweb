@@ -17,7 +17,9 @@ public sealed record IssuerDto(
     string Ruc, string LegalName, string? TradeName, string HeadOfficeAddress, string TaxRegime, bool AccountingRequired,
     string? SpecialTaxpayerNumber, string? WithholdingAgentNumber, string Environment, string EmissionType, string? NotificationEmail, string CardPaymentMethod, DateTimeOffset UpdatedAt);
 
-public sealed record EmissionPointDto(Guid Id, Guid? BranchId, string? BranchName, string EstablishmentCode, string PointCode, string EstablishmentAddress, bool IsActive);
+/// <summary><c>LastSequential</c>: último secuencial de factura asignado por este punto en el ambiente actual del emisor (0 si todavía no se emitió ninguno). El siguiente comprobante lleva el que sigue.</summary>
+public sealed record EmissionPointDto(
+    Guid Id, Guid? BranchId, string? BranchName, string EstablishmentCode, string PointCode, string EstablishmentAddress, bool IsActive, int LastSequential);
 
 /// <summary>Datos públicos del certificado activo. Nunca incluye el archivo, la clave privada ni la contraseña.</summary>
 public sealed record CertificateDto(
@@ -47,6 +49,20 @@ public sealed record UpdateEmissionPointRequest(Guid? BranchId, string Establish
 
 public sealed record SetEmissionPointStatusRequest(bool IsActive);
 
+/// <summary>
+/// Indica el último secuencial que el SRI ya tiene registrado para este punto de emisión (por ejemplo, de otro sistema o de pruebas anteriores). El siguiente comprobante será el que sigue.
+/// Solo puede subir: bajarlo repetiría números ya usados.
+/// </summary>
+public sealed record SetSequenceRequest(int LastIssued);
+
+public sealed record SetEmissionPointSequenceCommand(Guid Id, SetSequenceRequest Request) : ICommand<InvoicingSettingsDto>;
+
+public sealed class SetSequenceRequestValidator : AbstractValidator<SetSequenceRequest>
+{
+    public SetSequenceRequestValidator() => RuleFor(x => x.LastIssued).InclusiveBetween(0, 999_999_998)
+        .WithMessage("El secuencial debe estar entre 0 y 999999998 (el secuencial del SRI tiene 9 dígitos).");
+}
+
 public sealed record GetInvoicingSettingsQuery : IQuery<InvoicingSettingsDto>;
 
 public sealed record SaveIssuerCommand(SaveIssuerRequest Request) : ICommand<InvoicingSettingsDto>;
@@ -72,6 +88,7 @@ public static class InvoicingErrors
     public static readonly Error EmissionPointTaken = Error.Conflict("invoicing.emission_point_taken", "Ya existe un punto de emisión con ese establecimiento y código.");
     public static readonly Error BranchNotFound = Error.Validation("invoicing.branch_not_found", "La sucursal indicada no existe.");
     public static readonly Error EstablishmentMismatch = Error.Validation("invoicing.establishment_code_mismatch", "El código de establecimiento no coincide con el que tiene configurado la sucursal.");
+    public static readonly Error SequenceCannotDecrease = Error.Conflict("invoicing.sequence_cannot_decrease", "El secuencial solo puede subir: bajarlo repetiría números que ya se usaron.");
     public static readonly Error IssuerRequired = Error.Validation("invoicing.issuer_required", "Primero guarde los datos del emisor.");
     public const int MaxCertificateBytes = 512 * 1024;
 }
@@ -146,6 +163,10 @@ internal sealed class SettingsReader(InvoicingDbContext db, ISecretProtector pro
         var points = await db.EmissionPoints.AsNoTracking().OrderBy(p => p.EstablishmentCode).ThenBy(p => p.PointCode).ToListAsync(cancellationToken);
         var branches = await db.Branches.AsNoTracking().ToDictionaryAsync(b => b.Id, b => b.Name, cancellationToken);
         var certificate = await db.Certificates.AsNoTracking().FirstOrDefaultAsync(c => c.IsActive, cancellationToken);
+        var environment = issuer?.Environment ?? SriEnvironment.Test;
+        var sequences = await db.EmissionSequences.AsNoTracking()
+            .Where(x => x.Environment == environment && x.DocumentType == InvoiceDocumentType.Invoice)
+            .ToDictionaryAsync(x => x.EmissionPointId, x => x.LastValue, cancellationToken);
 
         bool? matches = certificate?.SubjectRuc is { } subjectRuc && issuer is not null ? subjectRuc == issuer.Ruc : null;
         var checks = IssuerReadiness.Evaluate(issuer, points, certificate, protector.IsConfigured, now, matches);
@@ -155,7 +176,7 @@ internal sealed class SettingsReader(InvoicingDbContext db, ISecretProtector pro
                 issuer.Ruc, issuer.LegalName, issuer.TradeName, issuer.HeadOfficeAddress, issuer.TaxRegime.ToString(), issuer.AccountingRequired,
                 issuer.SpecialTaxpayerNumber, issuer.WithholdingAgentNumber, issuer.Environment.ToString(), issuer.EmissionType.ToString(), issuer.NotificationEmail, issuer.CardPaymentMethod.ToString(), issuer.UpdatedAt),
             [.. points.Select(p => new EmissionPointDto(
-                p.Id, p.BranchId, p.BranchId is { } id ? branches.GetValueOrDefault(id) : null, p.EstablishmentCode, p.PointCode, p.EstablishmentAddress, p.IsActive))],
+                p.Id, p.BranchId, p.BranchId is { } id ? branches.GetValueOrDefault(id) : null, p.EstablishmentCode, p.PointCode, p.EstablishmentAddress, p.IsActive, sequences.GetValueOrDefault(p.Id)))],
             certificate is null
                 ? null
                 : new CertificateDto(
@@ -300,6 +321,67 @@ internal sealed class UpdateEmissionPointHandler(InvoicingDbContext db, IAccessC
         point.BranchId = command.Request.BranchId;
         point.EstablishmentAddress = command.Request.EstablishmentAddress.Trim();
         await db.SaveChangesAsync(cancellationToken);
+        return await reader.ReadAsync(cancellationToken);
+    }
+}
+
+/// <summary>
+/// Sube el último secuencial usado de un punto de emisión, en el ambiente actual del emisor (pruebas y producción llevan numeración aparte). Sirve cuando el SRI ya tiene números de ese
+/// punto (de otro sistema o de pruebas anteriores): un comprobante cuyo secuencial el SRI ya registró se devuelve con el error 45 y su número no se puede cambiar. Es auditado y nunca baja.
+/// </summary>
+internal sealed class SetEmissionPointSequenceHandler(InvoicingDbContext db, IAccessContext access, SettingsReader reader)
+    : ICommandHandler<SetEmissionPointSequenceCommand, InvoicingSettingsDto>
+{
+    public async Task<Result<InvoicingSettingsDto>> HandleAsync(SetEmissionPointSequenceCommand command, CancellationToken cancellationToken)
+    {
+        var actor = await access.RequireConfigurationAsync(cancellationToken);
+        if (actor.IsFailure)
+        {
+            return actor.Error;
+        }
+
+        var point = await db.EmissionPoints.AsNoTracking().FirstOrDefaultAsync(p => p.Id == command.Id, cancellationToken);
+        if (point is null)
+        {
+            return InvoicingErrors.EmissionPointNotFound;
+        }
+
+        var issuer = await db.Issuers.AsNoTracking().FirstOrDefaultAsync(cancellationToken);
+        if (issuer is null)
+        {
+            return InvoicingErrors.IssuerRequired;
+        }
+
+        var tenantId = actor.Value.TenantId;
+        var environment = issuer.Environment.ToString();
+        await using (var transaction = await db.Database.BeginTransactionAsync(cancellationToken))
+        {
+            await db.Database.ExecuteSqlInterpolatedAsync($"""
+                INSERT INTO invoicing.emission_sequences (tenant_id, emission_point_id, document_type, environment, last_value)
+                VALUES ({tenantId}, {point.Id}, {nameof(InvoiceDocumentType.Invoice)}, {environment}, 0)
+                ON CONFLICT DO NOTHING
+                """, cancellationToken);
+
+            // El mismo candado que toma la emisión: quien emite a la vez espera, y después usa el número nuevo.
+            var rows = await db.EmissionSequences
+                .FromSqlInterpolated($"""
+                    SELECT * FROM invoicing.emission_sequences
+                    WHERE tenant_id = {tenantId} AND emission_point_id = {point.Id} AND document_type = {nameof(InvoiceDocumentType.Invoice)} AND environment = {environment}
+                    FOR UPDATE
+                    """)
+                .ToListAsync(cancellationToken);
+            var sequence = rows.Single();
+            if (command.Request.LastIssued < sequence.LastValue)
+            {
+                return InvoicingErrors.SequenceCannotDecrease;
+            }
+
+            sequence.LastValue = command.Request.LastIssued;
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+
+        db.ChangeTracker.Clear();
         return await reader.ReadAsync(cancellationToken);
     }
 }

@@ -783,7 +783,8 @@
       "emission_point_taken": "An emission point with that establishment and code already exists.",
       "branch_not_found": "The selected branch does not exist.",
       "establishment_code_mismatch": "The establishment code does not match the one configured on the branch.",
-      "issuer_required": "Save the issuer data first."
+      "issuer_required": "Save the issuer data first.",
+      "sequence_cannot_decrease": "The sequential can only go up: lowering it would repeat numbers already used."
     }
   },
   "enums": {
@@ -3706,7 +3707,14 @@
       "codeHint": "Three digits, not 000. They cannot be changed after creation.",
       "empty": "There are no emission points yet.",
       "activate": "Activate",
-      "deactivate": "Deactivate"
+      "deactivate": "Deactivate",
+      "lastSequential": "Last sequential",
+      "sequence": "Sequential",
+      "sequenceTitle": "Last sequential used",
+      "sequenceIntro": "Point {{ point }}: the last number issued in the current environment is {{ current }}. The next document will use the one after it.",
+      "sequenceLabel": "Last sequential the SRI already has registered",
+      "sequenceHint": "Use it if this point already issued documents in another system or in earlier tests: when the SRI already knows a number it returns the document with error 45. It can only go up, never down.",
+      "sequenceInvalid": "Enter a whole number between 0 and 999999998."
     },
     "certificate": {
       "title": "Electronic signing certificate",

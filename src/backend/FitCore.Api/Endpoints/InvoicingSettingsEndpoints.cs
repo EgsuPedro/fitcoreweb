@@ -49,6 +49,14 @@ internal static class InvoicingSettingsEndpoints
             .Produces<InvoicingSettingsDto>()
             .WithName("SetEmissionPointStatus");
 
+        // Sube el último secuencial usado de un punto (el SRI ya puede tener números de otro sistema o de pruebas anteriores). Nunca baja.
+        group.MapPut("/emission-points/{id:guid}/sequence", async (Guid id, SetSequenceRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new SetEmissionPointSequenceCommand(id, request), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InvoicingConfigure)
+            .WithValidation<SetSequenceRequest>()
+            .Produces<InvoicingSettingsDto>()
+            .WithName("SetEmissionPointSequence");
+
         // El certificado llega como formulario (archivo + contraseña). Se lee en memoria, se valida, se cifra y se descarta: no se guarda en disco ni en registros.
         group.MapPut("/certificate", async (HttpContext http, IDispatcher dispatcher, CancellationToken ct) =>
             {

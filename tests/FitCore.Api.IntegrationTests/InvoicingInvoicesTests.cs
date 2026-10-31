@@ -517,4 +517,112 @@ public class InvoicingInvoicesTests(ApiFixture api)
         Assert.Equal(issued.GetProperty("id").GetGuid(), after.GetProperty("existingInvoiceId").GetGuid());
         Assert.Contains(after.GetProperty("issues").EnumerateArray(), i => Text(i, "code") == "already_invoiced");
     }
+
+    // ---- último secuencial usado (el SRI ya puede tener números de ese punto) -----------------------------------------------------
+
+    private static async Task<(HttpStatusCode Status, JsonElement Body)> SetSequenceAsync(HttpClient client, Guid pointId, int lastIssued)
+    {
+        var response = await client.PutAsJsonAsync($"/api/v1/invoicing/emission-points/{pointId}/sequence", new { lastIssued });
+        var text = await response.Content.ReadAsStringAsync();
+        return (response.StatusCode, string.IsNullOrEmpty(text) ? default : JsonDocument.Parse(text).RootElement.Clone());
+    }
+
+    private static async Task<(Guid Id, int Last)> FirstPointAsync(HttpClient client)
+    {
+        var settings = await client.GetFromJsonAsync<JsonElement>("/api/v1/invoicing/settings");
+        var point = settings.GetProperty("emissionPoints")[0];
+        return (point.GetProperty("id").GetGuid(), point.GetProperty("lastSequential").GetInt32());
+    }
+
+    [Fact]
+    public async Task Raising_the_last_used_sequential_makes_the_next_invoice_continue_after_it()
+    {
+        var gym = await NewGymAsync();
+        var owner = gym.Tenant.Owner;
+        var (point, initial) = await FirstPointAsync(owner);
+        Assert.Equal(0, initial);
+
+        var raised = await SetSequenceAsync(owner, point, 1000);
+        Assert.Equal(HttpStatusCode.OK, raised.Status);
+        Assert.Equal(1000, raised.Body.GetProperty("emissionPoints")[0].GetProperty("lastSequential").GetInt32());
+
+        var issued = await IssueAsync(owner, (await PaidSaleAsync(owner, gym.Branch, 30m)).ObligationId);
+        Assert.Equal("001-001-000001001", Text(issued.Body, "number"));
+        Assert.Equal(1001, (await FirstPointAsync(owner)).Last);
+        // La clave de acceso lleva el secuencial nuevo.
+        Assert.Equal("000001001", Text(issued.Body, "accessKey").Substring(30, 9));
+    }
+
+    [Fact]
+    public async Task The_sequential_can_only_go_up_and_repeating_the_same_value_is_harmless()
+    {
+        var gym = await NewGymAsync();
+        var owner = gym.Tenant.Owner;
+        var (point, _) = await FirstPointAsync(owner);
+        await SetSequenceAsync(owner, point, 500);
+
+        var same = await SetSequenceAsync(owner, point, 500);
+        var lower = await SetSequenceAsync(owner, point, 499);
+
+        Assert.Equal(HttpStatusCode.OK, same.Status);
+        Assert.Equal(HttpStatusCode.Conflict, lower.Status);
+        Assert.Equal("invoicing.sequence_cannot_decrease", Text(lower.Body, "code"));
+        Assert.Equal(500, (await FirstPointAsync(owner)).Last);
+
+        // Tampoco baja después de emitir: el último número usado ya lo conoce el SRI.
+        await IssueAsync(owner, (await PaidSaleAsync(owner, gym.Branch, 12m)).ObligationId);
+        Assert.Equal(HttpStatusCode.Conflict, (await SetSequenceAsync(owner, point, 500)).Status);
+        Assert.Equal(HttpStatusCode.OK, (await SetSequenceAsync(owner, point, 501)).Status);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(1_000_000_000)]
+    public async Task A_sequential_outside_the_nine_digit_range_is_refused(int value)
+    {
+        var gym = await NewGymAsync();
+        var (point, _) = await FirstPointAsync(gym.Tenant.Owner);
+
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, (await SetSequenceAsync(gym.Tenant.Owner, point, value)).Status);
+        Assert.Equal(HttpStatusCode.NotFound, (await SetSequenceAsync(gym.Tenant.Owner, Guid.NewGuid(), 10)).Status);
+    }
+
+    [Fact]
+    public async Task Test_and_production_keep_separate_sequences_and_the_screen_shows_the_current_ones()
+    {
+        var gym = await NewGymAsync();
+        var owner = gym.Tenant.Owner;
+        var (point, _) = await FirstPointAsync(owner);
+        await SetSequenceAsync(owner, point, 700);
+
+        Assert.Equal(HttpStatusCode.OK, (await owner.PutAsJsonAsync("/api/v1/invoicing/issuer", IssuerBody("Production", confirmProduction: true))).StatusCode);
+        Assert.Equal(0, (await FirstPointAsync(owner)).Last); // producción empieza de cero
+
+        await SetSequenceAsync(owner, point, 20);
+        var real = await IssueAsync(owner, (await PaidSaleAsync(owner, gym.Branch, 15m)).ObligationId);
+        Assert.Equal("001-001-000000021", Text(real.Body, "number"));
+
+        Assert.Equal(HttpStatusCode.OK, (await owner.PutAsJsonAsync("/api/v1/invoicing/issuer", IssuerBody("Test"))).StatusCode);
+        Assert.Equal(700, (await FirstPointAsync(owner)).Last); // pruebas conserva la suya
+    }
+
+    [Fact]
+    public async Task Only_staff_who_can_configure_invoicing_change_the_sequential_and_it_is_audited()
+    {
+        var gym = await NewGymAsync();
+        var owner = gym.Tenant.Owner;
+        var (point, _) = await FirstPointAsync(owner);
+        var cashier = await StaffAsync(gym.Tenant, "Cajero", gym.Branch);
+        var stranger = await NewGymAsync(configured: false);
+        using var anonymous = api.CreateClient();
+
+        Assert.Equal(HttpStatusCode.Unauthorized, (await SetSequenceAsync(anonymous, point, 5)).Status);
+        Assert.Equal(HttpStatusCode.Forbidden, (await SetSequenceAsync(cashier, point, 5)).Status);
+        Assert.Equal(HttpStatusCode.NotFound, (await SetSequenceAsync(stranger.Tenant.Owner, point, 5)).Status);
+        Assert.Equal(0, (await FirstPointAsync(owner)).Last);
+
+        Assert.Equal(HttpStatusCode.OK, (await SetSequenceAsync(owner, point, 5)).Status);
+        var actions = await ScalarAsync("SELECT string_agg(DISTINCT action, ',' ORDER BY action) FROM audit.audit_logs WHERE tenant_id = @t AND action LIKE 'EmissionSequence.%'", ("t", gym.Tenant.Id));
+        Assert.Equal("EmissionSequence.Updated", actions);
+    }
 }

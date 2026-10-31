@@ -510,6 +510,10 @@ export class ApiService {
   updateEmissionPoint(id: string, body: UpdateEmissionPointRequest): Observable<InvoicingSettings> {
     return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}`, body);
   }
+  /** Sube el último secuencial usado de un punto de emisión (el SRI ya puede tener números de otro sistema o de pruebas). Solo sube. */
+  setEmissionPointSequence(id: string, lastIssued: number): Observable<InvoicingSettings> {
+    return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}/sequence`, { lastIssued });
+  }
   setEmissionPointStatus(id: string, isActive: boolean): Observable<InvoicingSettings> {
     return this.http.patch<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}/status`, { isActive });
   }

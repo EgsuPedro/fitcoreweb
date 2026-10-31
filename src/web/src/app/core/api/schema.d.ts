@@ -3764,6 +3764,22 @@ export interface paths {
         patch: operations["SetEmissionPointStatus"];
         trace?: never;
     };
+    "/api/v1/invoicing/emission-points/{id}/sequence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["SetEmissionPointSequence"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/invoicing/certificate": {
         parameters: {
             query?: never;
@@ -5357,6 +5373,8 @@ export interface components {
             pointCode: string;
             establishmentAddress: string;
             isActive: boolean;
+            /** Format: int32 */
+            lastSequential: number;
         };
         EndAssignmentRequest: {
             reason: string;
@@ -8969,6 +8987,10 @@ export interface components {
             durationSeconds: number | null;
             /** Format: double */
             loadKg: number | null;
+        };
+        SetSequenceRequest: {
+            /** Format: int32 */
+            lastIssued: number;
         };
         SetTrainerStatusRequest: {
             isActive: boolean;
@@ -16581,6 +16603,32 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["SetEmissionPointStatusRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSettingsDto"];
+                };
+            };
+        };
+    };
+    SetEmissionPointSequence: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSequenceRequest"];
             };
         };
         responses: {

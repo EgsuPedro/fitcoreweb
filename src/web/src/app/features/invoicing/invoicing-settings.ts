@@ -141,6 +141,7 @@ export function looksLikeRuc(value: string): boolean {
                 <th scope="col">{{ 'invoicing.points.point' | transloco }}</th>
                 <th scope="col">{{ 'invoicing.points.address' | transloco }}</th>
                 <th scope="col">{{ 'invoicing.points.branch' | transloco }}</th>
+                <th scope="col">{{ 'invoicing.points.lastSequential' | transloco }}</th>
                 <th scope="col">{{ 'common.status' | transloco }}</th>
                 <th scope="col"></th>
               </tr>
@@ -152,16 +153,18 @@ export function looksLikeRuc(value: string): boolean {
                   <td>{{ p.pointCode }}</td>
                   <td>{{ p.establishmentAddress }}</td>
                   <td>{{ p.branchName || '—' }}</td>
+                  <td>{{ p.lastSequential }}</td>
                   <td><fc-badge [tone]="p.isActive ? 'ok' : 'off'">{{ (p.isActive ? 'common.active' : 'common.inactive') | transloco }}</fc-badge></td>
                   <td class="row-actions">
                     @if (canConfigure()) {
                       <button type="button" class="btn" (click)="openPoint(p)">{{ 'common.edit' | transloco }}</button>
+                      <button type="button" class="btn" (click)="openSequence(p)">{{ 'invoicing.points.sequence' | transloco }}</button>
                       <button type="button" class="btn" [disabled]="busy()" (click)="togglePoint(p)">{{ (p.isActive ? 'invoicing.points.deactivate' : 'invoicing.points.activate') | transloco }}</button>
                     }
                   </td>
                 </tr>
               } @empty {
-                <tr><td colspan="6" class="empty">{{ 'invoicing.points.empty' | transloco }}</td></tr>
+                <tr><td colspan="7" class="empty">{{ 'invoicing.points.empty' | transloco }}</td></tr>
               }
             </tbody>
           </table>
@@ -250,6 +253,24 @@ export function looksLikeRuc(value: string): boolean {
       </fc-modal>
     }
 
+    @if (sequenceEditor(); as editor) {
+      <fc-modal [title]="'invoicing.points.sequenceTitle' | transloco" (closed)="sequenceEditor.set(null)">
+        <form id="sequence-form" [formGroup]="sequenceForm" (ngSubmit)="saveSequence()" novalidate>
+          @if (formError()) { <p class="alert alert-danger" role="alert">{{ formError() }}</p> }
+          <p class="muted">{{ 'invoicing.points.sequenceIntro' | transloco: { point: editor.label, current: editor.current } }}</p>
+          <label class="field">
+            <span>{{ 'invoicing.points.sequenceLabel' | transloco }}</span>
+            <input formControlName="lastIssued" type="number" inputmode="numeric" min="0" max="999999998" step="1" />
+            <small class="muted">{{ 'invoicing.points.sequenceHint' | transloco }}</small>
+          </label>
+        </form>
+        <ng-container footer>
+          <button type="button" class="btn" (click)="sequenceEditor.set(null)">{{ 'common.cancel' | transloco }}</button>
+          <button type="submit" form="sequence-form" class="btn btn-primary" [disabled]="busy()">{{ 'common.save' | transloco }}</button>
+        </ng-container>
+      </fc-modal>
+    }
+
     @if (confirmRetire()) {
       <fc-confirm
         [title]="'invoicing.certificate.retire' | transloco"
@@ -279,6 +300,7 @@ export class InvoicingSettingsPage implements OnInit {
   protected readonly file = signal<File | null>(null);
   protected readonly pointEditor = signal<{ id: string | null } | null>(null);
   protected readonly confirmRetire = signal(false);
+  protected readonly sequenceEditor = signal<{ id: string; label: string; current: number } | null>(null);
   protected readonly canConfigure = computed(() => this.session.has(Perm.InvoicingConfigure));
 
   protected readonly issuerForm = this.fb.nonNullable.group({
@@ -301,6 +323,10 @@ export class InvoicingSettingsPage implements OnInit {
     pointCode: ['', [Validators.required, Validators.pattern(/^(?!000)\d{3}$/)]],
     establishmentAddress: ['', [Validators.required, Validators.maxLength(300)]],
     branchId: [''],
+  });
+
+  protected readonly sequenceForm = this.fb.nonNullable.group({
+    lastIssued: [0, [Validators.required, Validators.min(0), Validators.max(999_999_998)]],
   });
 
   protected readonly certForm = this.fb.nonNullable.group({ password: ['', [Validators.required]] });
@@ -375,6 +401,38 @@ export class InvoicingSettingsPage implements OnInit {
       next: (s) => {
         this.busy.set(false);
         this.pointEditor.set(null);
+        this.apply(s);
+        this.toast.success('invoicing.saved');
+      },
+      error: (err: unknown) => {
+        this.busy.set(false);
+        this.formError.set(this.errors.message(err));
+      },
+    });
+  }
+
+  protected openSequence(point: EmissionPoint): void {
+    this.formError.set(null);
+    this.sequenceForm.reset({ lastIssued: point.lastSequential });
+    this.sequenceEditor.set({ id: point.id, label: `${point.establishmentCode}-${point.pointCode}`, current: point.lastSequential });
+  }
+
+  protected saveSequence(): void {
+    const editor = this.sequenceEditor();
+    if (!editor) {
+      return;
+    }
+    if (this.sequenceForm.invalid) {
+      this.sequenceForm.markAllAsTouched();
+      this.formError.set(this.errors.text('invoicing.points.sequenceInvalid'));
+      return;
+    }
+    this.busy.set(true);
+    this.formError.set(null);
+    this.api.setEmissionPointSequence(editor.id, Math.trunc(this.sequenceForm.getRawValue().lastIssued)).subscribe({
+      next: (s) => {
+        this.busy.set(false);
+        this.sequenceEditor.set(null);
         this.apply(s);
         this.toast.success('invoicing.saved');
       },

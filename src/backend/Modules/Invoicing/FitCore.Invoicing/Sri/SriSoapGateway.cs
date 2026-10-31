@@ -73,7 +73,8 @@ public static class SriSoapParser
             DateTimeOffset? at = null;
             if (Text(element, "fechaAutorizacion") is { } dateText && DateTimeOffset.TryParse(dateText, CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
             {
-                at = parsed;
+                // El SRI envía la hora con su zona (-05:00); PostgreSQL solo acepta UTC en timestamptz. El instante es el mismo.
+                at = parsed.ToUniversalTime();
             }
 
             list.Add(new SriAuthorization(

@@ -546,4 +546,24 @@ public class InvoicingTransmissionTests(ApiFixture api)
         Assert.Equal("FC131", await SqlStateAsync("UPDATE invoicing.invoices SET status = 'SignedDocument' WHERE id = @i", ("i", id)));
         Assert.Null(await SqlStateAsync("UPDATE invoicing.invoices SET status = 'PendingSubmission', updated_at = now() WHERE id = @i", ("i", id)));
     }
+
+    [Fact]
+    public async Task An_authorization_dated_in_the_SRI_time_zone_is_stored_correctly()
+    {
+        // Las respuestas reales traen la hora con su zona (-05:00): el Worker real falló al guardarla hasta que se normalizó a UTC.
+        var (gym, id, key) = await QueuedInvoiceAsync();
+        var fake = new FakeSriGateway().ThenReceive(FakeSriGateway.Received());
+        using var host = Host(fake);
+        await RunAsync(host, gym);
+        var signed = await gym.Tenant.Owner.GetStringAsync($"/api/v1/invoicing/invoices/{id}/xml");
+        var local = new DateTimeOffset(2026, 10, 30, 18, 0, 5, TimeSpan.FromHours(-5));
+        fake.ThenAuthorize(FakeSriGateway.Authorized(key, signed, local));
+        await MakeDueAsync(id);
+
+        await RunAsync(host, gym);
+
+        Assert.Equal("Authorized", await StatusAsync(id));
+        var invoice = await GetAsync(gym.Tenant.Owner, id);
+        Assert.Equal(local.ToUniversalTime(), invoice.GetProperty("authorization").GetProperty("authorizedAt").GetDateTimeOffset().ToUniversalTime());
+    }
 }

@@ -249,7 +249,7 @@ public sealed class InvoiceSriAttempt
 /// Último secuencial asignado por gimnasio, punto de emisión, tipo de comprobante y ambiente. Se incrementa con una sola sentencia atómica dentro de la transacción del comprobante:
 /// quien llega segundo espera, y si la transacción se deshace el número no se consume.
 /// </summary>
-public sealed class EmissionSequence
+public sealed class EmissionSequence : IAuditable
 {
     public Guid TenantId { get; init; }
     public Guid EmissionPointId { get; init; }

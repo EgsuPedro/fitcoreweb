@@ -783,7 +783,8 @@
       "emission_point_taken": "Ya existe un punto de emisión con ese establecimiento y código.",
       "branch_not_found": "La sucursal indicada no existe.",
       "establishment_code_mismatch": "El código de establecimiento no coincide con el que tiene configurado la sucursal.",
-      "issuer_required": "Primero guarde los datos del emisor."
+      "issuer_required": "Primero guarde los datos del emisor.",
+      "sequence_cannot_decrease": "El secuencial solo puede subir: bajarlo repetiría números que ya se usaron."
     }
   },
   "enums": {
@@ -3706,7 +3707,14 @@
       "codeHint": "Tres dígitos, distintos de 000. No se pueden cambiar después de crearlo.",
       "empty": "Aún no hay puntos de emisión.",
       "activate": "Activar",
-      "deactivate": "Desactivar"
+      "deactivate": "Desactivar",
+      "lastSequential": "Último secuencial",
+      "sequence": "Secuencial",
+      "sequenceTitle": "Último secuencial usado",
+      "sequenceIntro": "Punto {{ point }}: el último número emitido en el ambiente actual es {{ current }}. El siguiente comprobante llevará el que sigue.",
+      "sequenceLabel": "Último secuencial que el SRI ya tiene registrado",
+      "sequenceHint": "Úselo si ese punto ya emitió comprobantes en otro sistema o en pruebas anteriores: si el SRI ya conoce un número, devuelve el comprobante con el error 45. Solo puede subir, nunca bajar.",
+      "sequenceInvalid": "Escriba un número entero entre 0 y 999999998."
     },
     "certificate": {
       "title": "Certificado de firma electrónica",

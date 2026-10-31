@@ -311,7 +311,7 @@ internal sealed class InvoiceTransmitter(
         await db.SaveChangesAsync(cancellationToken);
 
         invoice.AuthorizationNumber = number;
-        invoice.AuthorizedAt = authorization.AuthorizedAt ?? now;
+        invoice.AuthorizedAt = authorization.AuthorizedAt?.ToUniversalTime() ?? now;
         TransmissionQueue.Transition(db, invoice, InvoiceStatus.Authorized, "Authorized", $"Autorizado por el SRI. Ambiente: {authorization.EnvironmentName}", null, now);
         db.Transmissions.Remove(queued);
         await db.SaveChangesAsync(cancellationToken);

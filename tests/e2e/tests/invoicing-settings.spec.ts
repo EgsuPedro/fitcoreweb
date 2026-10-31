@@ -86,6 +86,18 @@ test.describe.serial('configuración de facturación electrónica', () => {
     await dialog.getByRole('button', { name: 'Guardar' }).click();
     await expect(page.getByRole('row', { name: /001\s+001/ })).toBeVisible();
 
+    // Si el SRI ya tiene números de ese punto (otro sistema, pruebas anteriores), se indica el último usado: solo sube.
+    await page.getByRole('row', { name: /001\s+001/ }).getByRole('button', { name: 'Secuencial' }).click();
+    const sequence = page.getByRole('dialog', { name: 'Último secuencial usado' });
+    await sequence.getByLabel(/^Último secuencial que el SRI/).fill('1000');
+    await sequence.getByRole('button', { name: 'Guardar' }).click();
+    await expect(page.getByRole('row', { name: /001\s+001.*1000/ })).toBeVisible();
+    await page.getByRole('row', { name: /001\s+001/ }).getByRole('button', { name: 'Secuencial' }).click();
+    await sequence.getByLabel(/^Último secuencial que el SRI/).fill('999');
+    await sequence.getByRole('button', { name: 'Guardar' }).click();
+    await expect(sequence.getByText('El secuencial solo puede subir')).toBeVisible();
+    await sequence.getByRole('button', { name: 'Cancelar' }).click();
+
     // Todavía falta el certificado: no está listo.
     await expect(page.getByText('Falta configuración')).toBeVisible();
 

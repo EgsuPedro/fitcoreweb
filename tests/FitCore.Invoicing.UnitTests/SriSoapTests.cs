@@ -64,6 +64,8 @@ public class SriSoapParserTests
         Assert.Equal("0503201201176001321000110010030009900641234567814", authorization.Number);
         Assert.Equal(new DateTimeOffset(2012, 3, 5, 16, 57, 34, 997, TimeSpan.FromHours(-5)), authorization.AuthorizedAt);
         Assert.Equal("PRUEBAS", authorization.EnvironmentName);
+        // PostgreSQL solo admite UTC en timestamptz: el analizador entrega siempre la hora en UTC, aunque el SRI la mande con -05:00.
+        Assert.Equal(TimeSpan.Zero, authorization.AuthorizedAt!.Value.Offset);
         Assert.StartsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?><autorizacion>", authorization.AuthorizationXml, StringComparison.Ordinal);
         Assert.Contains("<![CDATA[<?xml version=\"1.0\" encoding=\"UTF-8\"?><factura id=\"comprobante\"", authorization.AuthorizationXml, StringComparison.Ordinal);
         var warning = Assert.Single(authorization.Messages);

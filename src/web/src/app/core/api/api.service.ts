@@ -31,6 +31,12 @@ import type {
   PlatformRequest,
   SubscriptionNotice,
   InvoicingSettings,
+  SriBuyerIdType,
+  SriDocumentKind,
+  SriInvoice,
+  SriInvoiceListItem,
+  SriInvoicePreview,
+  SriInvoicingSummary,
   SaveIssuerRequest,
   SaveEmissionPointRequest,
   UpdateEmissionPointRequest,
@@ -514,6 +520,40 @@ export class ApiService {
   setEmissionPointSequence(id: string, lastIssued: number): Observable<InvoicingSettings> {
     return this.http.put<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}/sequence`, { lastIssued });
   }
+  // ---- Comprobantes electrónicos del SRI ----------------------------------------------------------------------------------------
+  sriInvoicingSummary(): Observable<SriInvoicingSummary> {
+    return this.get('/invoicing/invoices/summary');
+  }
+  sriInvoices(query: Query = {}): Observable<Paged<SriInvoiceListItem>> {
+    return this.get('/invoicing/invoices', query);
+  }
+  sriInvoice(id: string): Observable<SriInvoice> {
+    return this.get(`/invoicing/invoices/${id}`);
+  }
+  previewObligationInvoice(obligationId: string, buyerIdType?: SriBuyerIdType | null): Observable<SriInvoicePreview> {
+    return this.get(`/invoicing/sources/obligations/${obligationId}/preview`, { buyerIdType });
+  }
+  /** Idempotente por venta: facturar dos veces la misma venta devuelve el mismo comprobante. */
+  issueSriInvoice(obligationId: string, buyerIdType: SriBuyerIdType | null, submit: boolean): Observable<SriInvoice> {
+    return this.http.post<SriInvoice>(`${API_BASE}/invoicing/invoices`, { sourceType: 'obligation', sourceId: obligationId, buyerIdType, submit });
+  }
+  submitSriInvoice(id: string): Observable<SriInvoice> {
+    return this.http.post<SriInvoice>(`${API_BASE}/invoicing/invoices/${id}/submit`, {});
+  }
+  discardSriInvoice(id: string, reason: string): Observable<SriInvoice> {
+    return this.http.post<SriInvoice>(`${API_BASE}/invoicing/invoices/${id}/discard`, { reason });
+  }
+  resendSriInvoiceEmail(id: string, to: string | null): Observable<SriInvoice> {
+    return this.http.post<SriInvoice>(`${API_BASE}/invoicing/invoices/${id}/email`, { to });
+  }
+  /** El RIDE y el XML contienen datos personales: se bajan con la sesión del usuario, sin enlaces públicos. */
+  sriInvoiceRide(id: string): Observable<Blob> {
+    return this.http.get(`${API_BASE}/invoicing/invoices/${id}/ride`, { responseType: 'blob' });
+  }
+  sriInvoiceXml(id: string, kind: SriDocumentKind): Observable<Blob> {
+    return this.http.get(`${API_BASE}/invoicing/invoices/${id}/xml`, { params: { kind }, responseType: 'blob' });
+  }
+
   setEmissionPointStatus(id: string, isActive: boolean): Observable<InvoicingSettings> {
     return this.http.patch<InvoicingSettings>(`${API_BASE}/invoicing/emission-points/${id}/status`, { isActive });
   }

@@ -345,7 +345,8 @@ namespace FitCore.Invoicing.Persistence.Migrations
 
                     b.HasIndex("TenantId", "SourceType", "SourceId", "DocumentType")
                         .IsUnique()
-                        .HasDatabaseName("ix_invoices_tenant_id_source_type_source_id_document_type");
+                        .HasDatabaseName("ix_invoices_tenant_id_source_type_source_id_document_type")
+                        .HasFilter("status <> 'Discarded'");
 
                     b.HasIndex("TenantId", "EmissionPointId", "DocumentType", "Environment", "Sequential")
                         .IsUnique()

@@ -294,7 +294,7 @@ internal sealed class IssueInvoiceHandler(IAccessContext access, InvoicePlanner 
             // Otra solicitud facturó esta venta al mismo tiempo: su comprobante es el válido y el número que reservamos se deshizo con la transacción.
             db.ChangeTracker.Clear();
             var existing = await db.Invoices.AsNoTracking()
-                .Where(i => i.SourceType == r.SourceType && i.SourceId == r.SourceId && i.DocumentType == InvoiceDocumentType.Invoice)
+                .Where(i => i.SourceType == r.SourceType && i.SourceId == r.SourceId && i.DocumentType == InvoiceDocumentType.Invoice && i.Status != InvoiceStatus.Discarded)
                 .Select(i => (Guid?)i.Id)
                 .FirstOrDefaultAsync(cancellationToken);
             if (existing is null)

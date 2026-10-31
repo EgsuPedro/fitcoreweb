@@ -92,7 +92,7 @@ internal sealed class InvoicePlanner(IInvoiceSourceProvider provider, SettingsRe
         }
 
         var existing = await db.Invoices.AsNoTracking()
-            .Where(i => i.SourceType == sourceType && i.SourceId == sourceId && i.DocumentType == InvoiceDocumentType.Invoice)
+            .Where(i => i.SourceType == sourceType && i.SourceId == sourceId && i.DocumentType == InvoiceDocumentType.Invoice && i.Status != InvoiceStatus.Discarded)
             .Select(i => (Guid?)i.Id)
             .FirstOrDefaultAsync(cancellationToken);
         if (existing is not null)

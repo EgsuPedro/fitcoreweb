@@ -48,7 +48,7 @@ internal static class TransmissionQueue
     /// </summary>
     public static async Task<Result> EnqueueAsync(InvoicingDbContext db, Invoice invoice, Guid? actorId, DateTimeOffset now, CancellationToken cancellationToken)
     {
-        if (invoice.Status is InvoiceStatus.Authorized or InvoiceStatus.NotAuthorized or InvoiceStatus.Voided)
+        if (invoice.Status is InvoiceStatus.Authorized or InvoiceStatus.NotAuthorized or InvoiceStatus.Voided or InvoiceStatus.Discarded)
         {
             return TransmissionErrors.NotSubmittable;
         }
@@ -159,7 +159,7 @@ internal sealed class InvoiceTransmitter(
         var now = clock.UtcNow;
 
         // Lo que ya terminó, o espera a una persona, sale de la cola.
-        if (invoice.Status is InvoiceStatus.Authorized or InvoiceStatus.NotAuthorized or InvoiceStatus.Voided or InvoiceStatus.Rejected)
+        if (invoice.Status is InvoiceStatus.Authorized or InvoiceStatus.NotAuthorized or InvoiceStatus.Voided or InvoiceStatus.Rejected or InvoiceStatus.Discarded)
         {
             db.Transmissions.Remove(queued);
             await db.SaveChangesAsync(cancellationToken);

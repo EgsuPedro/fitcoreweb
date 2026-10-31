@@ -64,6 +64,20 @@ internal static class InvoicingSourcesEndpoints
             .Produces(StatusCodes.Status200OK, contentType: "application/xml")
             .WithName("DownloadInvoiceXml");
 
+        // Descarta un comprobante devuelto, no autorizado o sin enviar, con motivo, para poder volver a facturar la venta con un número nuevo. Es una decisión contable: permiso de anular.
+        invoices.MapPost("/{id:guid}/discard", async (Guid id, DiscardInvoiceRequest request, IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.SendAsync(new DiscardInvoiceCommand(id, request.Reason), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InvoicingVoid)
+            .WithValidation<DiscardInvoiceRequest>()
+            .Produces<InvoiceDto>()
+            .WithName("DiscardInvoice");
+
+        invoices.MapGet("/summary", async (IDispatcher dispatcher, CancellationToken ct) =>
+                (await dispatcher.QueryAsync(new GetInvoicingSummaryQuery(), ct)).ToHttp(r => Results.Ok(r)))
+            .RequirePermission(Permissions.InvoicingRead)
+            .Produces<InvoicingSummaryDto>()
+            .WithName("GetInvoicingSummary");
+
         // El RIDE (PDF) se genera al pedirlo, con la marca del gimnasio; contiene datos personales: mismo permiso y misma constancia que el XML.
         invoices.MapGet("/{id:guid}/ride", async (Guid id, IDispatcher dispatcher, CancellationToken ct) =>
                 (await dispatcher.SendAsync(new DownloadInvoiceRideCommand(id), ct)).ToHttp(f => Results.File(f.Content, "application/pdf", f.FileName)))

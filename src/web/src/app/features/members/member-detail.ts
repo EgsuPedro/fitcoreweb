@@ -214,6 +214,9 @@ import { MemberForm } from './member-form';
                     @if (can(perm.PaymentsCreate) && o.balance > 0 && o.status !== 'Voided') {
                       <button type="button" class="btn" (click)="openPayment(o.id)">{{ 'billing.payments.pay' | transloco }}</button>
                     }
+                    @if (can(perm.InvoicingIssue) && o.status === 'Paid') {
+                      <a class="btn" [routerLink]="['/invoicing/issue', o.id]">{{ 'invoicing.issue.action' | transloco }}</a>
+                    }
                   </td>
                 </tr>
               } @empty {

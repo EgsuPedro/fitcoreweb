@@ -22,7 +22,10 @@ public enum InvoiceStatus
     Authorized = 6,
     NotAuthorized = 7,
     Rejected = 8,
-    Voided = 9
+    Voided = 9,
+
+    /// <summary>Reemplazado por una persona antes de autorizarse (devuelto, no autorizado o sin enviar). Libera la venta para volver a facturarla con otro número.</summary>
+    Discarded = 10
 }
 
 /// <summary>

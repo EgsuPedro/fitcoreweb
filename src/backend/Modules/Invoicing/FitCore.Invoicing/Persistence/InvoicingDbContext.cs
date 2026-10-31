@@ -126,7 +126,7 @@ public sealed class InvoicingDbContext(DbContextOptions<InvoicingDbContext> opti
             b.HasMany<InvoiceDocument>().WithOne().HasForeignKey(d => d.InvoiceId);
             b.HasMany<InvoiceSriAttempt>().WithOne().HasForeignKey(a => a.InvoiceId);
             b.HasOne<InvoiceTransmission>().WithOne().HasForeignKey<InvoiceTransmission>(t => t.InvoiceId);
-            b.HasIndex(x => new { x.TenantId, x.SourceType, x.SourceId, x.DocumentType }).IsUnique();
+            b.HasIndex(x => new { x.TenantId, x.SourceType, x.SourceId, x.DocumentType }).HasFilter("status <> 'Discarded'").IsUnique();
             b.HasIndex(x => x.AccessKey).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.EmissionPointId, x.DocumentType, x.Environment, x.Sequential }).IsUnique();
             b.HasIndex(x => new { x.TenantId, x.IssueDate });

@@ -3892,6 +3892,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/invoicing/invoices/{id}/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["DiscardInvoice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/invoicing/invoices/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["GetInvoicingSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/invoicing/invoices/{id}/ride": {
         parameters: {
             query?: never;
@@ -5391,6 +5423,9 @@ export interface components {
         };
         /** @enum {unknown} */
         Difficulty: "Beginner" | "Intermediate" | "Advanced";
+        DiscardInvoiceRequest: {
+            reason: string;
+        };
         /** @enum {unknown} */
         DiscountType: "Percentage" | "FixedAmount";
         /** @enum {unknown} */
@@ -6168,6 +6203,23 @@ export interface components {
             checks: components["schemas"]["ReadinessCheckDto"][];
             canIssue: boolean;
             masterKeyConfigured: boolean;
+        };
+        InvoicingSummaryDto: {
+            countsByStatus: {
+                [key: string]: number;
+            };
+            /** Format: int32 */
+            inQueue: number;
+            /** Format: int32 */
+            parked: number;
+            /** Format: int32 */
+            needsAttention: number;
+            /** Format: int32 */
+            emailsFailed: number;
+            /** Format: int32 */
+            monthAuthorizedCount: number;
+            /** Format: double */
+            monthAuthorizedTotal: number;
         };
         IssueInvoiceRequest: {
             sourceType: string;
@@ -16763,7 +16815,7 @@ export interface operations {
             query?: {
                 page?: number;
                 pageSize?: number;
-                status?: "PendingSignature" | "SignedDocument" | "PendingSubmission" | "Received" | "Processing" | "Authorized" | "NotAuthorized" | "Rejected" | "Voided" | null;
+                status?: "PendingSignature" | "SignedDocument" | "PendingSubmission" | "Received" | "Processing" | "Authorized" | "NotAuthorized" | "Rejected" | "Voided" | "Discarded" | null;
                 q?: string;
             };
             header?: never;
@@ -16901,6 +16953,52 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    DiscardInvoice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DiscardInvoiceRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceDto2"];
+                };
+            };
+        };
+    };
+    GetInvoicingSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicingSummaryDto"];
+                };
             };
         };
     };

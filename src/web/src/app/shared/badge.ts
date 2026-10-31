@@ -22,3 +22,15 @@ export const paymentTone = (status: string): Tone => (status === 'Confirmed' ? '
 
 export const promotionTone = (status: string): Tone =>
   status === 'Active' ? 'ok' : status === 'Scheduled' ? 'info' : status === 'Exhausted' ? 'warn' : 'off';
+
+/** Estado de un comprobante electrónico del SRI. Lo que espera a una persona (devuelto, no autorizado) se ve en rojo; lo que está en trámite, en amarillo o azul. */
+export const invoiceTone = (status: string): Tone =>
+  status === 'Authorized'
+    ? 'ok'
+    : status === 'Rejected' || status === 'NotAuthorized'
+      ? 'danger'
+      : status === 'Received' || status === 'Processing'
+        ? 'info'
+        : status === 'PendingSignature' || status === 'SignedDocument' || status === 'PendingSubmission'
+          ? 'warn'
+          : 'off';

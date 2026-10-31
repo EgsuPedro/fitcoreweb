@@ -62,7 +62,7 @@ test.describe.serial('configuración de facturación electrónica', () => {
 
   test('sin configurar, la pantalla lista lo que falta; con emisor, punto de emisión y certificado queda lista para emitir', async () => {
     const page = ownerPage;
-    await nav(page).getByRole('link', { name: 'Facturación electrónica', exact: true }).click();
+    await nav(page).getByRole('link', { name: 'Configurar facturación', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Facturación electrónica', level: 1 })).toBeVisible();
     await expect(page.getByText('Falta configuración')).toBeVisible();
 

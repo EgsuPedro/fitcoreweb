@@ -234,3 +234,13 @@ export type EmissionPoint = Schemas['EmissionPointDto'];
 export type SaveIssuerRequest = Schemas['SaveIssuerRequest'];
 export type SaveEmissionPointRequest = Schemas['SaveEmissionPointRequest'];
 export type UpdateEmissionPointRequest = Schemas['UpdateEmissionPointRequest'];
+
+// Facturación electrónica del SRI. Los nombres «InvoiceDto» y afines también existen en la facturación de la plataforma: el generador del esquema añade «2» a los del SRI.
+export type SriInvoice = Schemas['InvoiceDto2'];
+export type SriInvoiceBuyer = Schemas['InvoiceBuyerDto2'];
+export type SriInvoiceListItem = Schemas['InvoiceListItemDto'];
+export type SriInvoicePreview = Schemas['InvoicePreviewDto'];
+export type SriInvoiceEmail = Schemas['InvoiceEmailDto'];
+export type SriInvoicingSummary = Schemas['InvoicingSummaryDto'];
+export type SriBuyerIdType = 'Ruc' | 'Cedula' | 'Passport' | 'FinalConsumer' | 'Foreign';
+export type SriDocumentKind = 'Xml' | 'SignedXml' | 'AuthorizedXml';

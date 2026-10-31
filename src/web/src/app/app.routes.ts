@@ -212,6 +212,25 @@ export const routes: Routes = [
         loadComponent: () => import('./features/branding/branding').then((m) => m.BrandingPage),
       },
       {
+        path: 'invoicing',
+        pathMatch: 'full',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.InvoicingRead },
+        loadComponent: () => import('./features/invoicing/invoices').then((m) => m.InvoicesPage),
+      },
+      {
+        path: 'invoicing/invoices/:id',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.InvoicingRead },
+        loadComponent: () => import('./features/invoicing/invoice-detail').then((m) => m.InvoiceDetailPage),
+      },
+      {
+        path: 'invoicing/issue/:obligationId',
+        canActivate: [permissionGuard],
+        data: { permission: Perm.InvoicingIssue },
+        loadComponent: () => import('./features/invoicing/invoice-issue').then((m) => m.InvoiceIssuePage),
+      },
+      {
         path: 'invoicing/settings',
         canActivate: [permissionGuard],
         data: { permission: Perm.InvoicingRead },
